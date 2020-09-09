@@ -1,4 +1,5 @@
-# 6 - DOF Rocket Simulator
+# MAPLEAF - Modular Aerospace Prediction Lab for Engines and Aero Forces
+Open-source 6-DOF Rocket Flight Simulation
 
 ![Unit Tests](https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg)
 ![Linting](https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg)
