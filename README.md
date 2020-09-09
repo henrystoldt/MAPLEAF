@@ -6,21 +6,23 @@
 ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
-## Installation:
-1. Ensure (the command line version of) git is installed on your computer: https://git-scm.com/downloads
-2. Clone this repository
-3. Install Python 3.6+
-  - (Linux only): Install corresponding Python3.X-dev package
-  - (Optional, recommended) - create virtual Python environment (Do the following, skip steps 4, 5):  
-    a. Install virtualenvwrapper: https://virtualenvwrapper.readthedocs.io/en/latest/install.html (other versions available for Windows/Powershell)
+## Install:
+`pip install MAPLEAF`
+
+## Install from source:
+1. Clone this repository
+2. Install Python 3.6+
+    - (Linux only): Install corresponding Python3.X-dev package
+    - (Optional, recommended) - create virtual Python environment (Skip step 3):  
+    a. Install virtualenvwrapper: https://virtualenvwrapper.readthedocs.io/en/latest/install.html (other versions available for Windows/Powershell)  
     b. Create environment: `$ mkvirtualenv -a ~/Documents/rocketSimulator -r ~/Documents/rocketSimulator/requirements_Dev.txt MAPLEAF`  
-    c. Environment will be automatically activated. To re-activate in the future: `$ workon MAPLEAF`
-    d. To deactivate: `$ deactivate`
-    e. To delete: `$ rmvirtualenv MAPLEAF`
-4. Install Python dependencies: `python3 -m pip install -r /path/to/rocketSimulator/requirements_Dev.txt`
+    c. Environment will be automatically activated. To re-activate in the future: `$ workon MAPLEAF`  
+    d. To deactivate: `$ deactivate`  
+    e. To delete: `$ rmvirtualenv MAPLEAF`  
+3. Install Python dependencies: `python3 -m pip install -r /path/to/rocketSimulator/requirements_Dev.txt`  
     a. If the mayavi installation fails, try running: `python3 -m pip install git+https://github.com/enthought/mayavi.git` instead
-5. Compile Cython code by running: `python3 ./setup.py build_ext --inplace`
-6. Run the test suite (see instructions below) to ensure everything is functioning properly
+4. Compile Cython code: `python3 ./setup.py build_ext --inplace`
+5. Run the test suite (see instructions below) to ensure everything is functioning properly
     
 ## Usage:
 ### Running a Simulation
