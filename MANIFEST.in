@@ -5,3 +5,8 @@ include requirements.txt
 include MAPLEAF/Motion/*.pxd*
 include MAPLEAF/Motion/*.pyx*
 include MAPLEAF/Rocket/*.pyx*
+include SimDefinitionTemplate.mapleaf
+exclude test/testUtilities.py
+exclude test/test_Interpolation.py
+exclude test/test_SimulationRunners.py
+include test/WindData/*

@@ -62,20 +62,16 @@ setup(
         "Natural Language :: English",
         "Topic :: Scientific/Engineering :: Physics",
     ],
+
     test_suite='nose.collector',
     tests_require=['nose'],
-    python_requires='>=3.6',
 
-    package_data = {
-        '': [ 'README.md', 'requirements*'],
-        'MAPLEAF.Motion': ['*.pxd'],
-        'MAPLEAF.Rocket': ['*.pxd'],
-    },
+    python_requires='>=3.6',
 
     ext_modules=cythonize( buildExtensionObjectsForCythonCode(CythonFiles), language_level="3" ),
     zip_safe=False,
     
     entry_points={
-        'console_scripts': ['mapleaf = Main:main']
+        'console_scripts': ['mapleaf = MAPLEAF.Main:main']
     }
 )
