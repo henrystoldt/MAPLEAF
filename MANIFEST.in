@@ -1,0 +1,7 @@
+recursive-exclude test
+include test/simDefinitions/*.mapleaf*
+include test/motorDefinitions/*
+include requirements.txt
+include MAPLEAF/Motion/*.pxd*
+include MAPLEAF/Motion/*.pyx*
+include MAPLEAF/Rocket/*.pyx*

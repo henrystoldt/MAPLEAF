@@ -14,7 +14,7 @@ with open("requirements.txt") as reqFile:
     lines = reqFile.readlines()
     install_reqs = list([ str(x) for x in parse_requirements(lines)])
 
-MAPLEAFVersion = "0.9.0"
+MAPLEAFVersion = "0.8.0"
 
 #### Create list of setuptools.Extension objects for Cython to compile ####
 # Add Cython files here, together with ".c" if it compiles to Cython-Generated C code, or ".cpp" if it compiles to Cython-Generated C++ code
@@ -29,11 +29,9 @@ def buildExtensionObjectsForCythonCode(CythonFilesList):
     extensions = []
     for cyModule in CythonFiles:
         pyxPath = cyModule[0]
-        cythonizedSourceExtensions = cyModule[1]
 
         pythonImportPath = pyxPath.replace("/", ".")
         pythonImportPath = pythonImportPath.replace(".pyx", "")
-        sourceFile = pyxPath.replace(".pyx", cythonizedSourceExtensions)
         extensions.append( Extension(name=pythonImportPath, sources=[pyxPath]) )
     
     return extensions
@@ -48,8 +46,8 @@ setup(
     license='MIT',
     long_description = long_description,
     long_description_content_type="text/markdown",
-    url="TODO",
-    packages=setuptools.find_packages(),
+    url="https://github.com/henrystoldt/MAPLEAF",
+    packages=setuptools.find_packages(exclude=[ "test", "test.*", ]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -69,6 +67,7 @@ setup(
     python_requires='>=3.6',
 
     package_data = {
+        '': [ 'README.md', 'requirements*'],
         'MAPLEAF.Motion': ['*.pxd'],
         'MAPLEAF.Rocket': ['*.pxd'],
     },
