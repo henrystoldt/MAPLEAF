@@ -1,8 +1,8 @@
 # 6 - DOF Rocket Simulator
 
-![Unit Tests](https://github.com/henrystoldt/rocketSimulator/workflows/Tests/badge.svg)
-![Linting](https://github.com/henrystoldt/rocketSimulator/workflows/Linting/badge.svg)
-[![codecov](https://codecov.io/gh/henrystoldt/rocketSimulator/branch/master/graph/badge.svg?token=6CALB25W21)](https://codecov.io/gh/henrystoldt/rocketSimulator)
+![Unit Tests](https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg)
+![Linting](https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg)
+[![codecov](https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg?token=6CALB25W21)](https://codecov.io/gh/henrystoldt/mapleaf)
 ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
