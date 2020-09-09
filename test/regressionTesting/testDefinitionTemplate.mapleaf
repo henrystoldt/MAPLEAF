@@ -1,0 +1,113 @@
+ExampleFullFlightCase{
+    simDefinitionFile                   ./test/simDefinitions/AdaptTimeStep.mapleaf
+
+    ParameterOverrides{ # (Optional)
+        SimControl.EndCondition         Time
+        SimControl.EndConditionValue    1
+
+        # SimControl.plot will always be set to None (unless overridden here)
+        # SimControl.loggingLevel will always be set to 2 (unless overridden here)
+        # SimControl.RocketPlot will always be set to 'Off' (unless overridden here)
+    }
+
+    ExpectedResultsAtEndOfSim{
+        # Full/partial log column names or regex. Must match only a single column
+        # Note that the program will first try to find these columns in the simulationLog, then in the forceEvaluation log. 
+            # Columns that exist in both logs (ex. PositionX(m), will be taken from the mainSimulationLog
+        PositionX                       -2.768
+        Time(s)                         0.9856
+
+        # If the value is "Record", no check will be performed, but the ending value of the specified parameter will be recorded.
+        # If no ExpectedResults are provided, final Position and Velocity X/Y/Z attributes will be auto-recorded
+        # Recorded data will be written to a new file: test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf
+        Mach                            Record
+    }
+    
+    PlotsToGenerate{ # (Optional - plots are not shown, only saved to file)
+        SamplePlot{
+            # Full/partial log column names and/or regex
+            columnsToPlot               PositionZ ^VelocityZ
+            # (Optional) specify which column will be plotted on the x-axis (default is Time(s))
+            xColumnName                 Time(s)
+            lineFormat					--b
+            xLabel						Time (s)
+            yLabel						Position, Velocity
+            # xLimits						0.2 1.6
+            # yLimits						-1.2 1.2
+            # to use the xLimits and yLimits, first run the sim with theses keys excluded, and then specify the limits based on output of the graph
+			# scalingFactor				-1
+            # scaling factor can be used to flip the data set, or scale by any amount
+            plotTitle					Example Full Flight
+            legendLabel					Total
+
+            # Each subdictionary is assumed to contain comparison data. Can be any number of these
+            openRocketComparisonData{
+                # Comparison data file should be a simple .csv table
+                    # First row should have headers, each subsequent row should have scalar numeric entries
+                file                    ./test/regressionTesting/sampleComparisonData.csv
+
+                # (Optional) - supply if the Time Column header is not 'Time(s)'
+                xColumnName             Time(s)
+
+                # Full/partial .csv column names and/or regex - column headers will be the line labels
+                columnsToPlot           posZ velZ
+            }
+
+            flightComparisonData{
+                file                    ./test/regressionTesting/sampleComparisonData.csv
+                xColumnName             Time(s)
+                columnsToPlot           posZ velZ
+            }
+
+            overwriteImages             True # (Optional), True is default
+            saveLocation                ./test/regressionTesting/SamplePlot.pdf # Will always save .pdf plot, even if a different format is given here
+        }
+    }
+}
+
+ExampleWindTunnelCase{
+    simDefinitionFile                   ./test/simDefinitions/AdaptTimeStep.mapleaf
+
+    # Each test case can only be a ParameterSweep (Wind Tunnel) case or an ExpectedResultsAtEndOfSim (Full Flight) case.
+        # If both subdictionaries are present, the ParameterSweep mode takes priority
+    ParameterSweep{
+
+        velocitySweep{ # SubDict name can be anything, as long as it does not contrain "Results"
+            sweptParameter                 Rocket.velocity # Can be any parameter in the simulation definition file
+            parameterValues                 (0 0 100), (0 0 200), (0 0 300) # Provide COMMA-separated list of values - can also just be a single value
+                # Can also specify a range of values to loop over firstValue:numSteps:finalValue
+                    # Scalar example: 0:50:1.75
+                    # Vector example: (0 0 100):50:(0 0 300)
+        }
+
+        MachResults{ # Results dictionaries must contain "Results" (same capitalization), or they will be treated as parameterSweepValues
+            column                      Mach # Any logged column of results
+            
+            # COMMA-separated list of scalar expected result values OR 'Record'
+                # Number of expectedValues must macth number (and order) of parameterValues
+			expectedValues	0.2955,0.5886,0.8822
+        }
+        DragResults{ # Can have an arbitrary number of these dictionaries
+            column                      AeroCFZ
+            expectedValues              Record
+        }
+    }
+    
+    PlotsToGenerate{
+        SamplePlot{
+            columnsToPlot               AeroCFZ
+            lineFormat					--b
+            xLabel						Mach
+            yLabel						Coefficient of Drag
+            # xLimits						0.2 1.6
+            # yLimits						-1.2 1.2
+            # it is best to exclude these initially, and then include them after viewing the produced graph, in order to have a better idea of the data range
+			# scalingFactor				-1
+            plotTitle					Example Wind Tunnel
+            legendLabel					Total
+            xColumnName                 Mach
+            overwriteImages             True
+            saveLocation                ./test/regressionTesting/SampleWindTunnelPlot.pdf
+        }
+    }
+}

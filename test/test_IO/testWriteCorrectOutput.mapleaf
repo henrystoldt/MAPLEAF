@@ -1,0 +1,15 @@
+# MAPLEAF
+# File: test/test_IO/testWrite.mapleaf
+# Autowritten on: 2019-01-14 18:56:40.748837
+
+Dictionary1{
+
+	SubDictionary1{
+		key3	value3
+		key4	value4
+		key5	value5
+	}
+
+	key1	value1
+	key2	value2
+}

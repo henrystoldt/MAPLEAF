@@ -1,0 +1,79 @@
+# Ignore the testWrite file, it will have a new date everytime the unit tests are run
+testWrite.mapleaf
+testSimConfigWrite.mapleaf
+TempFigureDir
+
+#Ignore Pycache
+__pycache__
+
+#Remove Python intermediate files
+*.pyc
+/dist/
+/*.egg-info
+build/
+
+#Remove .vscode files
+*.vscode
+
+#Notcom output files
+for00[123456789].dat
+for01*
+
+#Simulation Logs
+*simulationLog*
+*forceEvaluationLog*
+*monteCarloLog*
+
+# Ignore pypy environment
+my-pypy-env
+
+# Ignore profiling outputs
+*.prof
+~lock*
+
+# Ignore code coverage output
+.coverage
+
+# Ignore convergence result files
+convergenceResult.csv
+adaptiveConvergenceResult.csv
+adaptiveConvergenceResult.xlsx
+convergenceResult.xlsx
+~*
+
+# Exclude coverage info
+htmlcov
+coverage.xml
+
+# Exclude class/package diagrams
+packages*.png
+packages*.dot
+packages*.pdf
+classes*.png
+classes*.dot
+classes*.pdf
+
+# Exclude regression testing plots
+test/regressionTesting/*.pdf
+test/regressionTesting/*.png
+test/regressionTesting/*.eps
+test/regressionTesting/*/*.pdf
+test/regressionTesting/*/*.png
+test/regressionTesting/*/*.eps
+test/regressionTesting/*/*/*.pdf
+test/regressionTesting/*/*/*.png
+test/regressionTesting/*/*/*.eps
+
+# Exlude temporary files generated with regression testing results in them
+*_newExpectedResultsRecorded*
+
+# Ignore Cython intermediate .c files & compiled files
+*Cython*.c
+*Cython*.cpp
+*Cython*.pyd
+*Cython*.so
+
+clean.sh
+
+# Documentation
+doc

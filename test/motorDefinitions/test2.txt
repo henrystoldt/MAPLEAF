@@ -1,0 +1,22 @@
+# Motor Definition File: 2019_Definition_Draft
+
+# Amount of white space between each value is not important, there just needs to be some
+# Thrust curve will be linearly interpolated between the given values
+# Time(s) should be relative to motor ignition
+
+# Unburned fuel/oxidizer not currently accounted for, could be added in as a fixed mass?
+# Engine/Tank structure mass should be accounted for separately - the motor only accounts for propellant masses
+# MOI = Moment of Inertia
+    # It is assumed that oxidizer and fuel MOIs are always defined about the current CG of the oxidizer and fuel, respectively
+# To represent a solid rocket motor, simply put all of the MOI/CG/Flowrate info in either the fuel or oxidizer columns and set the other one to zero
+
+# Meters, all Z-coordinate, assumed centered
+BurnedOxidizerInitialCG 2
+BurnedOxidizerLastCG    2.5
+BurnedFuelInitialCG     3
+BurnedFuelLastCG        3
+
+#Time(s)   Thrust(N)   OxidizerFlowRate(kg/s) FuelBurnRate(kg/s) OxMOI(kg*m^2) FuelMOI(kg*m^2)  
+0          0           0                      0                  (1.0 1.0 0.1) (0.15 0.15 0.02)       
+0.01       8000        2                      0.3                (1.0 1.0 0.1) (0.15 0.15 0.02)
+2          6000        2                      0.3                (0.0 0.0 0.0) (0.0  0.0  0.0)
