@@ -120,8 +120,6 @@ class Transition(FixedMass, BodyComponent):
         Xvals.append(forePos)
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = 'k')
-        
-
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
@@ -173,7 +171,7 @@ class Transition(FixedMass, BodyComponent):
         return max(self.startDiameter, self.endDiameter)
 
     def getRadius(self, distanceFromTip):
-        return (distanceFromTip/length * (self.endDiameter - self.startDiameter) + self.startDiameter) / 2
+        return (distanceFromTip/self.length * (self.endDiameter - self.startDiameter) + self.startDiameter) / 2
 
 class BoatTail(Transition):
     '''        
@@ -181,7 +179,6 @@ class BoatTail(Transition):
         Always assumes it's at the bottom of a rocket.
         Modelled like a Transition object, but accounts for base drag.
     '''
-    
     canConnectToComponentBelow = False 
     ''' Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket '''
 
