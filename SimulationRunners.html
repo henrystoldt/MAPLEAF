@@ -1,0 +1,3097 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.SimulationRunners API documentation</title>
+<meta name="description" content="Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes that run several simulations in one go …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.SimulationRunners</code></h1>
+</header>
+<section id="section-intro">
+<p>Defines a basic single simulation runner <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code>, as well as more specialized child classes that run several simulations in one go.</p>
+<p><img alt="" src="https://storage.needpix.com/rsynced_images/important-1705212_1280.png"></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#! /usr/bin/python
+
+#Created by: Henry Stoldt
+#February 2019
+&#39;&#39;&#39;
+Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes that run several simulations in one go.
+
+.. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
+&#39;&#39;&#39;
+
+import os
+import sys
+from copy import deepcopy
+from distutils.util import strtobool
+from math import pi
+
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+import MAPLEAF.IO.Logging as Logging
+import MAPLEAF.IO.Plotting as Plotting
+from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.IO.RocketFlight import RocketFlight
+from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Rocket.Rocket import Rocket
+
+
+class SingleSimRunner():
+
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        &#39;&#39;&#39;
+            Inputs:
+                
+                * simDefinitionFilePath:  (string) path to simulation definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
+                * silent:                 (bool) toggles optional outputs to the console  
+        &#39;&#39;&#39;
+
+        self.simDefinition = None
+        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
+
+        # Load simulation definition file - have to do this before creating the environment from it
+        if simDefinition == None and simDefinitionFilePath != None:
+            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+        elif simDefinition != None:
+            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
+        else:
+            raise ValueError(&#34;&#34;&#34; Insufficient information to initialize a SingleSimRunner.
+                Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+                If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
+
+        self.environment = Environment(self.simDefinition, silent=silent)
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
+
+        self.stagingIndex = None # Set in self.prepRocketForSingleSimulation
+        &#39;&#39;&#39; (int) Set in `SingleSimRunner.prepRocketForSingleSimulation`. Tracks how many stages have been dropped &#39;&#39;&#39;
+
+        self.silent = silent
+        &#39;&#39;&#39; (bool) &#39;&#39;&#39;
+
+        self.computeStageDropPaths = strtobool(self.simDefinition.getValue(&#34;SimControl.StageDropPaths.compute&#34;))
+
+    def runSingleSimulation(self):
+        &#39;&#39;&#39; 
+            Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
+
+            Returns:
+                * stageFlightsPaths: (list[`MAPLEAF.IO.RocketFlight.RocketFlight`]) Each RocketFlight object represents the flight path of a single stage
+                * logFilePaths: (list[string]) list of paths to all log files created by this simulation
+        &#39;&#39;&#39;
+        simDefinition = self.simDefinition
+
+        # Initialize the rocket + environment models and simulation logging
+        rocket = self.prepRocketForSingleSimulation() # Initialize rocket on launch pad, with all stages attached
+        self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
+
+        # Create progress bar if appropriate
+        progressBar = None
+        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+            endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
+            progressBar = tqdm(total=endTime+0.01)
+            
+            try:
+                self.logger.continueWritingToTerminal = False
+            except AttributeError:
+                pass # Logging not set up for this sim
+
+        #### Main Loop Setup #### 
+        #TODO: Perhaps it would be nicer to move some of this info into the Rocket class instead of keeping it all here
+        self.dts = [ float(simDefinition.getValue(&#34;SimControl.timeStep&#34;)) ]    # (Initial) time step size
+        self.terminationConditionDetectorFunctions = [ self._getSimEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+        self.stageFlightPaths = [ self._setUpSimulationResultCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+
+        if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
+            print(&#34;Setting up hardware in the loop interface&#34;)
+            rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
+
+        #### Main Loop ####
+        i = 0
+        while i &lt; len(self.rocketStages):
+
+            if i &gt; 0:
+                print(&#34;Computing stage {} drop path&#34;.format(i))
+
+            endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+                
+            while not endSimulation:
+                # Take time step
+                try:
+                    if lastTimeStepDt != None:
+                        self.dts[i] = lastTimeStepDt
+
+                    timeStepAdjustmentFactor, self.dts[i] = self.rocketStages[i].timeStep(self.dts[i])
+
+                    if i == 0:
+                        try:
+                            progressBar.update(self.dts[i])
+                        except AttributeError:
+                            # No progress bar defined b/c &#39;Time&#39; is not the simulation end condition
+                            pass
+                except:
+                    # Simulation has crashed
+                    # Try to create log files and plot sim results even though we&#39;ve encountered an error
+                    print(&#34;ERROR: Simulation Crashed, Aborting&#34;)
+                    print(&#34;Attempting to save log files and show plots&#34;)
+                    self._postSingleSimCleanup(simDefinition)
+
+                    # Try to print out the stack trace
+                    print(&#34;Attempting to show stack trace&#34;)
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(tb)
+
+                    print(&#34;Exiting&#34;)
+                    sys.exit()
+
+                # Adjust time step: timeStepAdjustmentFactor == 1 for non-adaptive time stepping
+                self.dts[i] *= timeStepAdjustmentFactor
+
+                # HIL
+                if(self.rocketStages[i].hardwareInTheLoopControl == &#34;yes&#34;):
+                    rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
+
+                # Cache states for flight animation
+                time = self.rocketStages[i].rigidBody.time
+                self.stageFlightPaths[i].times.append(time)
+                self.stageFlightPaths[i].rigidBodyStates.append(self.rocketStages[i].rigidBody.state)
+                if self.rocketStages[i].controlSystem != None:
+                    try:
+                        for a in range(len(self.rocketStages[i].controlSystem.controlledSystem.actuatorList)):
+                            self.stageFlightPaths[i].actuatorDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                            self.stageFlightPaths[i].actuatorTargetDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                    except AttributeError:
+                        # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                        pass
+
+                # Check whether we should break out of loop    
+                endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+            
+            # Log last state (would be the starting state of the next time step)
+            self.rocketStages[i]._runControlSystemAndLogStartingState(0.0)
+
+            # Move on to next (dropped) stage
+            i += 1
+
+            try:
+                progressBar.close()
+                
+                if not self.silent:
+                    # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                    sys.stdout.continueWritingToTerminal = True
+            except AttributeError:
+                pass
+
+        print(&#34;Simulation Complete&#34;)
+
+        logFilePaths = self._postSingleSimCleanup(simDefinition)
+
+        return self.stageFlightPaths, logFilePaths
+
+    #### Pre-sim ####
+    def prepRocketForSingleSimulation(self, stage=None):
+        &#39;&#39;&#39; 
+            Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+            Returns an instance of Rocket with it&#39;s Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
+        &#39;&#39;&#39;
+        # Initialize Rocket
+        rocketDictReader = SubDictReader(&#34;Rocket&#34;, self.simDefinition)  
+        rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
+
+        if self.simDefinition.getValue(&#39;SimControl.RocketPlot&#39;) in [ &#39;On&#39;, &#39;on&#39; ]:
+            rocket.plotShape()  # Reference to this simRunner used to add to logs
+
+        if stage == None:
+            self._setUpSingleSimLogging()
+            self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+            
+            # Add data table headers to logs
+            self._createLogDataTableHeaders(rocket)
+
+        return rocket
+
+    def _setUpSingleSimLogging(self):
+        self.loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if  self.loggingLevel &gt; 0:
+            # Set up logging so that the output of any print calls after this point is captured in mainSimulationLog
+            self.mainSimulationLog = []
+            if self.silent:
+                self.logger = Logging.Logger(self.mainSimulationLog, continueWritingToTerminal=False)
+            else:
+                self.logger = Logging.Logger(self.mainSimulationLog)
+            sys.stdout = self.logger
+            
+            # Output system info to console and to log
+            Logging.getSystemInfo(printToConsole=True)
+            # Output sim definition file and default value dict to the log only
+            self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
+
+            # Start force evaluation log if required
+            if self.loggingLevel &gt;= 2:
+                self.forceEvaluationLog = []
+        elif self.silent:
+            # No intention of writing things to a log file, just prevent them from being printed to the terminal
+            _ = []
+            logger = Logging.Logger(_, continueWritingToTerminal=False)
+            sys.stdout = logger
+
+    def _createLogDataTableHeaders(self, rocket):
+        print(&#34;Starting Simulation:&#34;)
+
+        if self.loggingLevel &gt; 0 or not self.silent:
+            # Create main sim log header (written to once per time step)
+            mainSimLogHeader = &#34;Time(s) TimeStep(s)&#34; 
+            mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + &#34; EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)&#34;
+            if rocket.controlSystem != None:
+                mainSimLogHeader += rocket.controlSystem.getLogHeader()
+
+            # Actually print/log the main sim log header
+            print(mainSimLogHeader)
+
+            if self.loggingLevel &gt;= 2:
+                # Create force evaluation log header (written to once per force evaluation (several time per time step for higher-order time discretizations))
+                # Columns always included
+                header = &#34;Time(s)&#34; + rocket.rigidBody.state.getLogHeader() + \
+                &#34; WindX(m/s) WindY(m/s) WindZ(m/s) AirDensity(kg/m^3)&#34; + \
+                &#34; CGX(m), CGY(m), CGZ(m) Mass(kg) MOIx(kg*m^2) MOIy(kg*m^2) MOIz(kg*m^2)&#34; + \
+                &#34; Mach UnitRe AOA(deg) RollAngle(deg)&#34;
+
+                # Columns for each rocket component
+                for stage in rocket.stages:
+                    for component in stage.components:
+                        try:
+                            header += component.getLogHeader()
+                        except AttributeError:
+                            pass
+
+                # Total force columns
+                header += &#34; CPZ(m) AeroFX(N) AeroFY(N) AeroFZ(N) AeroMX(Nm)&#34; + \
+                &#34; AeroMY(Nm) AeroMZ(Nm) GravityFX(N) GravityFY(N) GravityFZ(N)&#34; + \
+                &#34; TotalFX(N) TotalFY(N) TotalFZ(N)&#34;
+                
+                self.forceEvaluationLog.append(header)
+
+    def _getSimEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
+        &#39;&#39;&#39; 
+            Returns a function, which returns a boolean value and Union[None, float], indicating whether the 
+                simulation endpoint has been reached. When close to the end of a sim, the second value returned is the recommended
+                time step to take to hit the end criteria.
+                Simulation end criteria defined in sim definition file. 
+            Rocket object must be passed in because the end condition functions require a reference to the rocket, 
+                so they can access its current altitude/velocity/time attributes
+        &#39;&#39;&#39;
+        # Read desired end criteria from simulation definition file
+        if not droppedStage:
+            # Get end condition for main stage
+            endCondition = simConfig.getValue(&#34;SimControl.EndCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.EndConditionValue&#34;))
+        else:
+            # Get end condition for dropped stages
+            endCondition = simConfig.getValue(&#34;SimControl.StageDropPaths.endCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.StageDropPaths.endConditionValue&#34;))
+
+        # Define all possible end-detector functions
+        def isAfterApogee(dt):
+            return rocket.rigidBody.state.velocity.Z &lt;= 0 and rocket.rigidBody.time &gt; 1.0, None
+        def isAboveAltitude(dt):
+            return rocket.rigidBody.state.position.Z &gt;= conditionValue, None
+        def isBelowAltitude(dt):
+            return rocket.environment.earthModel.getAltitude(*rocket.rigidBody.state.position) &lt;= conditionValue, None
+        def EndTimeReached(dt):
+            currTime = rocket.rigidBody.time
+            if currTime &lt; conditionValue and currTime + dt &gt;= conditionValue:
+                return False, conditionValue+1e-14-currTime
+            elif currTime &gt;= conditionValue:
+                return True, None
+            else:
+                return False, None
+
+        # Return the desired function
+        if endCondition == &#34;Apogee&#34;:
+            return isAfterApogee
+        elif endCondition == &#34;Altitude&#34; and rocket.rigidBody.state.position.Z &lt; conditionValue:
+            return isAboveAltitude
+        elif endCondition == &#34;Altitude&#34;:
+            return isBelowAltitude
+        else:
+            return EndTimeReached
+
+    def _setUpSimulationResultCachingForFlightAnimation(self, rocket):
+        flight = RocketFlight()
+        flight.times.append(rocket.rigidBody.time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:  
+            # If rocket has moving fins, record their angles for plotting
+            flight.actuatorDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
+            flight.actuatorTargetDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
+        else:
+            flight.actuatorDefls = None
+            flight.actuatorTargetDefls = None
+
+        return flight
+
+    #### During sim ####
+    def createNewDetachedStage(self):
+        &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
+        if self.computeStageDropPaths:
+            newDetachedStage = self.prepRocketForSingleSimulation(stage=self.stagingIndex)
+            # Set kinematic properties to match those of the current top-most stage
+            topStage = self.rocketStages[0]
+            newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
+            newDetachedStage.rigidBody.time = topStage.rigidBody.time
+            self.rocketStages.append(newDetachedStage)
+
+            # New sim termination condition function
+            self.terminationConditionDetectorFunctions.append(self._getSimEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+            self.dts.append(self.dts[0])
+            
+            # Duplicate existing flight object
+            newFlightObject = deepcopy(self.stageFlightPaths[0]) # Will have had the same flight path as the top stage until the moment of separation
+            newFlightObject.actuatorDefls = None # Dropped stage shouldn&#39;t have any canard deflections
+            self.stageFlightPaths.append(newFlightObject)
+
+            self.stagingIndex += 1
+
+    def newForcesLogLine(self, txt):
+        try:
+            if len(self.forceEvaluationLog) &gt; 0 and self.forceEvaluationLog[-1][-1:] != &#39;\n&#39;:
+                self.forceEvaluationLog[-1] += &#34;\n&#34;
+            self.forceEvaluationLog.append(txt)
+        except AttributeError:
+            pass # Force logging not desired/set up for this simulation
+
+    def discardForceLogsForLastTimeStep(self, integrator):
+        if self.loggingLevel &gt;= 2:
+            # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
+            if integrator.method == &#34;RK12Adaptive&#34;:
+                numDerivativeEvals = 2
+            else:
+                numDerivativeEvals = len(integrator.tableau)-1
+
+            # Remove that number of rows from the end of the force evaluation log
+            for i in range(numDerivativeEvals):
+                self.forceEvaluationLog.pop(-1)
+
+    #### Post-sim ####
+    def _postSingleSimCleanup(self, simDefinition):
+        simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
+
+        # Log results
+        logFilePaths = self._logSimulationResults(simDefinition)
+
+        # Transfer key time info to flight objects from rocket
+        for i in range(len(self.rocketStages)):
+            self.stageFlightPaths[i].engineOffTime = self.rocketStages[i].engineShutOffTime
+            self.stageFlightPaths[i].mainChuteDeployTime = self.rocketStages[i].mainChuteDeployTime
+            self.stageFlightPaths[i].targetLocation = self.rocketStages[i].targetLocation
+
+        # Plot results
+        self._plotSimulationResults(self.rocketStages, simDefinition, self.stageFlightPaths, logFilePaths)
+
+        # Print these out after logging to avoid including the log/plot keys in the unused keys
+        # #TODO: Add exceptions for these keys, move this line to before logging so that it&#39;s output is also included in the simulation log
+        simDefinition.printUnusedKeys()
+
+        return logFilePaths
+
+    def _logSimulationResults(self, simDefinition):
+        &#39;&#39;&#39; Logs simulation results to file (as/if specified in sim definition) &#39;&#39;&#39;
+        logFilePaths = None
+        if self.loggingLevel &gt; 0:
+            logFilePaths = []
+
+            # Find new file name without overwriting old logs
+            periodIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+            fileBaseName = simDefinition.fileName[:periodIndex] + &#34;_simulationLog_run&#34;
+            mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=&#34;.txt&#34;)
+                
+            logFilePaths.append(mainLogFilePath)
+            print(&#34;Writing main log to: {}&#34;.format(mainLogFilePath))
+
+            # Write main log to file
+            with open(mainLogFilePath, &#39;w+&#39;) as file:
+                file.writelines(self.mainSimulationLog)
+
+            # Write force evaluation log to file if desired
+            if self.loggingLevel &gt;= 2:
+                forceLogFilePath = mainLogFilePath.replace(&#34;simulationLog&#34;, &#34;forceEvaluationLog&#34;)
+                print(&#34;Writing force evaluation log to: {}&#34;.format(forceLogFilePath))
+                logFilePaths.append(forceLogFilePath)
+                with open(forceLogFilePath, &#39;w+&#39;) as file:
+                    file.writelines(self.forceEvaluationLog)
+
+                # Post process / calculate force/moment coefficients if desired
+                if self.loggingLevel &gt;= 3:
+                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
+                    crossSectionalArea = pi * bodyDiameter * bodyDiameter / 4
+                    expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
+                    logFilePaths.append(expandedLogPath)
+
+        return logFilePaths
+
+    def _plotSimulationResults(self, rocketStages, simDefinition, flights, logFilePaths):
+        &#39;&#39;&#39; Plot simulation results (as/if specified in sim definition) &#39;&#39;&#39;
+
+        plotsToMake = simDefinition.getValue(&#34;SimControl.plot&#34;).split()
+
+        if plotsToMake != [&#34;None&#34;]:
+
+            if &#34;FlightAnimation&#34; in plotsToMake:
+                print(&#34;Showing flight animation&#34;)
+
+                # Show animation
+                Plotting.flightAnimation(flights)
+
+                # Done, remove from plotsToMake
+                plotsToMake.remove(&#34;FlightAnimation&#34;)
+
+            if &#34;FlightPaths&#34; in plotsToMake:
+                earthModel = self.simDefinition.getValue(&#34;Environment.EarthModel&#34;)
+                if earthModel in [ &#34;None&#34;, &#34;Flat&#34; ]:
+                    Plotting.plotFlightPaths_NoEarth(flights)
+                else:
+                    Plotting.plotFlightPaths_FullEarth(flights)
+
+                plotsToMake.remove(&#34;FlightPaths&#34;)
+
+            # Plot all other columns from log files
+            for plotDefinitionString in plotsToMake:
+                Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
+
+class WindTunnelRunner(SingleSimRunner):
+    def __init__(self, parameterToSweepKey=&#34;Rocket.velocity&#34;, parameterValueList=[&#34;(0 0 100)&#34;, &#34;(0 0 200)&#34;, &#34;(0 0 300)&#34;], simDefinitionFilePath=None, fW=None, silent=False, smoothLine=&#39;False&#39;):
+        self.parameterToSweepKey = parameterToSweepKey
+        self.parameterValueList = parameterValueList
+        self.smoothLine = smoothLine
+
+        SingleSimRunner.__init__(self, simDefinitionFilePath, fW, silent)
+
+    def runSweep(self):
+        &#39;&#39;&#39;
+            Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList
+            Returns:
+                List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
+        &#39;&#39;&#39;
+        # Make sure we&#39;re logging forces (the only way to get data out of this sim runner)
+        self.simDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;) # Don&#39;t produce any plots
+        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;) # Don&#39;t produce any plots
+
+        # Run a single force evaluation for each parameter value
+        # Regenerate simulation environment each time to allow user to change anything about the sim definition
+
+        # parameterValueDicts = SubDictReader.getImmediateSubDicts(SubDictReader.simDefDictPathToReadFrom + &#34;.ParameterSweep&#34;)
+        if self.smoothLine == &#39;True&#39;: # interpolate between user set parameter values
+            for i in range(len(self.parameterValueList[0])-1): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+                # this loop will run for as many values are given PER parameter. i&#39;th value for each parameter
+                # Set sim def value
+                if not self.silent:
+                    pass
+                    # print(&#34;Setting value: {} to {}&#34;.format(self.parameterToSweepKey, self.paramValueList[j][i]))
+                
+                k = 0
+                while k &lt; 10:
+                    for j in range(len(self.parameterValueList)): # j&#39;th parameter (velocity, temperature)
+                        # this loop will set a value for each given parameter type that is specified
+                        try:
+                            first = Vector(self.parameterValueList[j][i])
+                            second = Vector(self.parameterValueList[j][i+1])
+                            bucket = second - first
+                            incrementalValue = str(k/10 * bucket + Vector(self.parameterValueList[j][i]))
+                        except ValueError:
+                            first = float(self.parameterValueList[j][i])
+                            second = float(self.parameterValueList[j][i+1])
+                            bucket = second - first
+                            incrementalValue = str(k/10 * bucket + float(self.parameterValueList[j][i]))
+                        self.simDefinition.setValue(self.parameterToSweepKey[j], incrementalValue)
+                    
+                    if not self.silent:
+                        print(&#34;Running Single Force Evaluation&#34;)
+                    rocket = self.prepRocketForSingleSimulation()
+                    self.rocketStages = [rocket]
+                    rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+                    if i == len(self.parameterValueList[0])-2 and k == 9:
+                        for j in range(len(self.parameterValueList)):
+                            incrementalValue = self.parameterValueList[j][i+1]
+                            self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i+1])
+                        if not self.silent:
+                            print(&#34;Running Single Force Evaluation&#34;)
+                        rocket = self.prepRocketForSingleSimulation()
+                        self.rocketStages = [rocket]
+                        rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+                    k +=1   
+
+        else:
+            for i in range(len(self.parameterValueList[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+                # this loop will run for as many values are given PER parameter
+                # Set sim def value
+                if not self.silent:
+                    pass
+                    # print(&#34;Setting value: {} to {}&#34;.format(self.parameterToSweepKey, self.paramValueList[j][i]))
+                
+                for j in range(len(self.parameterValueList)): # j&#39;th parameter (velocity, temperature)
+                    # this loop will set a value for each given parameter type that is specified
+                    self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i])
+            
+                # Run + log the force evaluation
+                if not self.silent:
+                    print(&#34;Running Single Force Evaluation&#34;)
+                rocket = self.prepRocketForSingleSimulation()
+                self.rocketStages = [rocket]
+                rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+        # Write Logs to file
+        logFilePaths = self._postSingleSimCleanup(self.simDefinition)
+
+        # Because no time steps were taken, the main simulation log will not contain any plottable, tabular data.
+            # Remove it from logFilePaths
+        for logPath in logFilePaths:
+            if &#34;simulationLog&#34; in logPath:
+                logFilePaths.remove(logPath)
+                break
+
+        return logFilePaths
+
+    def prepRocketForSingleSimulation(self):
+        &#39;&#39;&#39; 
+            Do all the same stuff as the parent object, but also re-initialize the environment, 
+                to make sure changes to environmental properties during the parameter sweep take effect 
+        &#39;&#39;&#39;
+        self.environment = Environment(self.simDefinition, silent=self.silent)
+        return super().prepRocketForSingleSimulation()
+
+    def _setUpSingleSimLogging(self):
+        # Override to ensure that logs aren&#39;t re-initialized for every simulation.
+            # mainSimulationLog will only be absent the first time this function is run
+            # Want to keep all the force data in a single log file
+        if not hasattr(self, &#39;mainSimulationLog&#39;):
+            return super()._setUpSingleSimLogging()
+
+    def _createLogDataTableHeaders(self, rocket):
+        # Prevent the log headers from being re-generated over and over
+        if self.forceEvaluationLog == []:
+            return super()._createLogDataTableHeaders(rocket)
+
+    def _postSingleSimCleanup(self, simDefinition):
+        # Create an empty flight path to prevent errors in the parent function)
+        self.stageFlightPaths = [ RocketFlight() ]
+        return super()._postSingleSimCleanup(simDefinition)
+
+def isMonteCarloSimulation(simDefinition):
+    &#39;&#39;&#39; Returns bool &#39;&#39;&#39;
+    try:
+        nRuns = float(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
+        if nRuns &gt; 1:
+            return True
+    except (KeyError, ValueError):
+        pass
+
+    return False
+
+class MonteCarloSimRunner(SingleSimRunner):
+    &#39;&#39;&#39;
+        Runs a simulation repeatedly, always resampling parameters that have a specfified normal distribution in the simulation definition
+    &#39;&#39;&#39;
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        SingleSimRunner.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+    
+    def _reInitializeEnvironment(self):
+        &#39;&#39;&#39;
+            Aside from normally-distributed parameters defined in the sim definition file, the environment can have their own probabilistic wind values.
+            Therefore, we need to re-initialize the environment (and thereby re-sample any probability distributions) before each individual simulation in a monte carlo run
+        &#39;&#39;&#39;
+        self.environment = Environment(self.simDefinition, silent=self.silent)
+
+    def runMonteCarloSimulation(self):
+        &#39;&#39;&#39; Pass in SimDefinition with simulation definition loaded &#39;&#39;&#39;
+        
+        simDefinition = self.simDefinition
+
+        # Make sure plots don&#39;t show after each sim
+        simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+        simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+        # Set up saving key results
+        resultsToOutput = simDefinition.getValue(&#34;MonteCarlo.output&#34;)
+        landingLocations = []
+        apogees = []
+        maxSpeeds = []
+        flightTimes = []
+        maxHorizontalVels = []
+        flights = []
+
+        #### Set up Logging ####
+        mCLogger = Logging.MonteCarloLogger()
+        simDefinition.monteCarloLogger = mCLogger # SimDefinition needs to have a reference to the monte carlo log to log whenever it samples a variable
+
+        nRuns = int(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
+
+        mCLogger.log(&#34;&#34;)
+        mCLogger.log(&#34;Running Monte Carlo Simulation: {} runs&#34;.format(nRuns))                
+        
+        ### Run simulations ###
+        for i in range(nRuns):
+            # Start monte carlo log entry for this sim
+            mCLogger.log(&#34;\nMonte Carlo Run #{}&#34;.format(i+1))
+            
+            # Run sim
+            self._reInitializeEnvironment()
+            stageFlightPaths, _ = self.runSingleSimulation()
+            flight = stageFlightPaths[0]
+            
+            # Save results
+            landingLocations.append(flight.getLandingLocation())
+            apogees.append(flight.getApogee())
+            maxSpeeds.append(flight.getMaxSpeed())
+            flightTimes.append(flight.getFlightTime())
+            maxHorizontalVels.append(flight.getMaxHorizontalVel())
+            
+            if &#34;flightPaths&#34; in resultsToOutput:
+                flight = Plotting._keepNTimeSteps(flight, 900) # Limit the number of time steps saved to avoid wasting memory
+                flights.append(flight)
+
+        ### Plot/Output results ###
+        mCLogger.log(&#34;&#34;)
+        mCLogger.log(&#34;Monte Carlo results:&#34;)
+
+        if &#34;landingLocations&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeVectorResult(landingLocations, name=&#34;Landing location&#34;, monteCarloLogger=mCLogger)
+        if &#34;apogees&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(apogees, name=&#34;Apogee&#34;, monteCarloLogger=mCLogger)
+        if &#34;maxSpeeds&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(maxSpeeds, name=&#34;Max speed&#34;, monteCarloLogger=mCLogger)
+        if &#34;flightTimes&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(flightTimes, name=&#34;Flight time&#34;, monteCarloLogger=mCLogger)
+        if &#34;maxHorizontalVels&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(maxHorizontalVels, name=&#34;Max horizontal speed&#34;, monteCarloLogger=mCLogger)
+        if &#34;flightPaths&#34; in resultsToOutput:
+            Plotting.plotFlightPaths_NoEarth(flights)
+
+        
+        if resultsToOutput != &#34;None&#34; and len(resultsToOutput) &gt; 0:
+            dotIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+            extensionFreeSimDefFileName = simDefinition.fileName[0:dotIndex]
+            logFilePath = extensionFreeSimDefFileName + &#34;_monteCarloLog_run&#34;
+
+            logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
+            print(&#34;Wrote Monte Carlo Log to: {}&#34;.format(logPath))
+
+def runParallelMonteCarloSim(simDefinition):
+    # TODO: Finish implementation, make parallelism optional
+    # No plotting for monte carlo sims
+    simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+    simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+    import ray
+    ray.init()
+
+    global SingleSimRunner
+
+    SingleSimRunner = ray.remote(SingleSimRunner)
+
+    runner1 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
+    runner2 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True)
+
+    f1 = runner1.runSingleSimulation.remote()
+    f2 = runner2.runSingleSimulation.remote()
+    
+    results = ray.get(f1)
+    results2 = ray.get(f2)
+
+    print(&#34;1: {}&#34;.format(results))
+    print(&#34;2: {}&#34;.format(results2))
+
+class ConvergenceSimRunner(SingleSimRunner):
+    &#39;&#39;&#39;
+        Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence
+    &#39;&#39;&#39;
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        SingleSimRunner.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+
+    def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel=&#34;Simulations&#34;, ax1=None, ax2=None):
+        &#39;&#39;&#39;
+            Takes simulation and runs it repeatedly, cutting the time step in half each time.
+            Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+            Should use with simulations that have an EndCondition of type &#34;Time&#34;
+                # Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+            This Fn called by compareIntegrationSchemes functions
+
+            Parameters:
+                simConfigFilePath       string, /path/to/simConfigFile
+                fW                      SimDefinition, overrides simConfigFilePath
+                refinementRatio         Number, Each time sim is run, time step or target error is divided by this number
+                simLimit                Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+                plot                    True/False, whether to plot the results
+                stopAtConvergence       True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+                showPlot                True/False, if True, calls plt.show()
+                plotLineLabel           string, Label of line on plot
+                ax1                     matplotlib Axes, Z-location (Y) axis
+                ax2                     matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)
+        &#39;&#39;&#39;
+        from MAPLEAF.IO.gridConvergenceFunctions import checkConvergence
+        from statistics import mean
+        import time
+
+        self._setUpConfigFileForConvergenceRun()
+        
+        timeStepMethod = self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;)
+        adaptiveTimeStepping = &#34;Adaptive&#34; in timeStepMethod
+
+        timeStepKey = &#34;SimControl.timeStep&#34;
+        targetErrorKey = &#34;SimControl.TimeStepAdaptation.targetError&#34;
+
+        #### Run Simulations ####
+        print(&#34;Starting convergence simulations&#34;)
+        if not adaptiveTimeStepping:
+            timeStep = float(self.simDefinition.getValue(timeStepKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+        else:
+            targetError = float(self.simDefinition.getValue(targetErrorKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+
+        simCount = 1
+        finalPositionHistory = []
+        convergenceHistory = []
+        timeStepHistory = []
+        simTimeHistory = []
+
+        def printConvergenceHistory(ax1=ax1, ax2=ax2):
+            print(&#34;&#34;)
+            print(&#34;Convergence History:&#34;)
+            print(&#34;Integration Method: {}&#34;.format(timeStepMethod))
+
+            xPos = []
+            yPos = []
+            zPos = []
+
+            for i in range(len(finalPositionHistory)):
+                finalPos = finalPositionHistory[i]
+                xPos.append(finalPos[0])
+                yPos.append(finalPos[1])
+                zPos.append(finalPos[2])
+                printString = &#34;FinalPosition(m): {:&gt;7.3f} WallTime(s): {:&gt;7.3f} &#34;.format(finalPos, simTimeHistory[i])
+
+                if i &gt; 1: # TODO: Get convergence results into the .csv file
+                    ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergenceHistory[i-2]
+                    printString += &#34; Avg Order: {:&gt;4.2f}, Avg Asymptotic Check: {:&gt;6.3f}&#34;.format(mean(ordersOfConvergence), mean(asymptoticChecks))
+
+                print(printString)
+
+            if plot:
+                if ax1 == None:
+                    ax1 = plt.gca()
+                if ax2 == None:
+                    ax2 = ax1.twinx()
+
+                ax1.plot(timeStepHistory, zPos, &#34;:D&#34;, label=plotLineLabel)
+                ax1.set_ylabel(&#34;Final Z Coordinate (m)&#34;)
+
+                ax2.plot(timeStepHistory, simTimeHistory, &#34;-*&#34;, label=plotLineLabel + &#34; Wall Time&#34;)
+                ax2.set_ylabel(&#34;Wall Time (s)&#34;)
+                
+                plt.xscale(&#34;log&#34;)
+                plt.xlabel(&#34;Time Step (s)&#34;)
+                plt.legend()
+                plt.tight_layout()
+
+                if showPlot:
+                    plt.show()
+
+        while simCount &lt;= simLimit:
+            if not adaptiveTimeStepping:
+                timeStep /= refinementRatio
+                self.simDefinition.setValue(timeStepKey, str(timeStep))
+                timeStepHistory.append(timeStep)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, timeStep))
+            else:
+                targetError /= refinementRatio
+                self.simDefinition.setValue(targetErrorKey, str(targetError))
+                timeStepHistory.append(targetError)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, targetError))
+
+            startTime = time.time()
+            flights, _ = self.runSingleSimulation()
+            flight = flights[0]
+            wallTime = time.time() - startTime
+            simTimeHistory.append(wallTime)
+
+            finalPositionHistory.append(flight.rigidBodyStates[-1].position)
+            print(&#34;Final Position: {:1.3f}&#34;.format(finalPositionHistory[-1]))
+
+            if len(finalPositionHistory) &gt;= 3:
+                # Check whether result is converging
+                cV, mV, fV = finalPositionHistory[-3:]
+                print(&#34;Checking convergence&#34;)
+                convergResult = checkConvergence(cV, mV, fV, refinementRatio)
+                ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergResult
+                convergenceHistory.append(convergResult)
+                directions = [&#34;X&#34;, &#34;Y&#34;, &#34;Z&#34;]
+                for d in range(len(directions)):
+                    print(&#34;{}-Direction: Order: {:&gt;4.3f}, Asymptotic Check: {:&gt;6.3f}, RichardsonExtrap: {:&gt;7.3f}, Estimated Uncertainty: {:&gt;6.3f}&#34;.format(directions[d], ordersOfConvergence[d], asymptoticChecks[d], richardsonExtrapVals[d], uncertainties[d]))
+                
+                if stopAtConvergence and abs(sum(asymptoticChecks) / len(asymptoticChecks) - 1) &lt; 0.1 and max(asymptoticChecks) - min(asymptoticChecks) &lt; 0.2:
+                    print(&#34;Simulation Converging Asymptotically&#34;)
+                    printConvergenceHistory()
+                    return timeStepHistory, finalPositionHistory, flight
+            
+            simCount += 1
+
+        # Output whether convergence was achieved
+        if simLimit &gt;= 3:
+            print(&#34;Asymptotic convergence not reached within {} simulations&#34;.format(simLimit))
+        else:
+            print(&#34;Asymptotic convergence impossible to reach with less than 3 iterations (performed {}). Adjust the parameter &#39;simLimit&#39; to perform more iterations&#34;.format(simLimit))
+
+        printConvergenceHistory(ax1, ax2)
+
+        return timeStepHistory, finalPositionHistory, simTimeHistory
+
+    def compareClassicalIntegrationSchemes(self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes = [ &#34;Euler&#34;, &#34;RK2Midpoint&#34;, &#34;RK2Heun&#34;, &#34;RK4&#34; ], convergenceResultFilePath=&#34;convergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initTimeStep = float(self.simDefinition.getValue(&#34;SimControl.timeStep&#34;))
+
+        # Lists to store results
+        timeStepHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run series of simulations for each integration scheme
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(initTimeStep))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, simLimit=simLimit, plotLineLabel=scheme, ax1=ax1, ax2=ax2)
+            
+            timeStepHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        print(&#34;Simulations complete&#34;)
+
+        if convergenceResultFilePath != None:
+            import csv
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TimeStep(s)&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(timeStepHistory)):
+                    row = [ timeStepHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        print(&#34;Showing plot&#34;)
+        if showPlot:
+            plt.show()
+
+    def compareAdaptiveIntegrationSchemes(self, saveFigure=False, showPlot=True, integrationSchemes=[&#34;RK12Adaptive&#34;, &#34;RK23Adaptive&#34;, &#34;RK45Adaptive&#34;], simLimit=10, convergenceResultFilePath=&#34;adaptiveConvergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initErrorTarget = float(self.simDefinition.getValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;))
+        
+        # Lists to store results
+        targetErrorHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run simulations
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;, str(initErrorTarget))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, plotLineLabel=scheme, refinementRatio=2, simLimit=simLimit, ax1=ax1, ax2=ax2)
+            
+            targetErrorHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        # Write results to .csv file
+        if convergenceResultFilePath != None:
+            import csv
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TargetError&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(targetErrorHistory)):
+                    row = [ targetErrorHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        # Save results figure
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        # Show Plot
+        plt.xlabel(&#34;Target Error&#34;)
+
+        if showPlot:
+            plt.show()
+
+    def _setUpConfigFileForConvergenceRun(self):
+        print(&#34;Will attempt to converge final rocket position of simulation: {}&#34;.format(self.simDefinition.fileName))
+        self.simDefinition.disableDistributionSampling = True # Don&#39;t sample from probability distributions while trying to converge a sim
+
+        # Make sure no plots are created every time the sim runs
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+
+        #### Make sure End Condition is a time ####
+        endCondition = self.simDefinition.getValue(&#34;SimControl.EndCondition&#34;)
+        if endCondition != &#34;Time&#34;:
+            print(&#34;Running simulation to determine end time&#34;)
+            # Otherwise run the sim, get the end time and 
+            flights, _ = self.runSingleSimulation()
+            endTime = flights[0].times[-1]
+            # set that to the end condition
+            print(&#34;Setting EndCondition = Time, EndConditionValue = {}&#34;.format(endTime))
+            self.simDefinition.setValue(&#34;SimControl.EndCondition&#34;, &#34;Time&#34;)
+            self.simDefinition.setValue(&#34;SimControl.EndConditionValue&#34;, str(endTime))
+
+if __name__ == &#34;__main__&#34;:
+    simDef = SimDefinition(&#34;test/simDefinitions/AdaptTimeStep.mapleaf&#34;)
+    runParallelMonteCarloSim(simDef)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.isMonteCarloSimulation"><code class="name flex">
+<span>def <span class="ident">isMonteCarloSimulation</span></span>(<span>simDefinition)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isMonteCarloSimulation(simDefinition):
+    &#39;&#39;&#39; Returns bool &#39;&#39;&#39;
+    try:
+        nRuns = float(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
+        if nRuns &gt; 1:
+            return True
+    except (KeyError, ValueError):
+        pass
+
+    return False</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.runParallelMonteCarloSim"><code class="name flex">
+<span>def <span class="ident">runParallelMonteCarloSim</span></span>(<span>simDefinition)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runParallelMonteCarloSim(simDefinition):
+    # TODO: Finish implementation, make parallelism optional
+    # No plotting for monte carlo sims
+    simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+    simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+    import ray
+    ray.init()
+
+    global SingleSimRunner
+
+    SingleSimRunner = ray.remote(SingleSimRunner)
+
+    runner1 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
+    runner2 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True)
+
+    f1 = runner1.runSingleSimulation.remote()
+    f2 = runner2.runSingleSimulation.remote()
+    
+    results = ray.get(f1)
+    results2 = ray.get(f2)
+
+    print(&#34;1: {}&#34;.format(results))
+    print(&#34;2: {}&#34;.format(results2))</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.ConvergenceSimRunner"><code class="flex name class">
+<span>class <span class="ident">ConvergenceSimRunner</span></span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence</p>
+<h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConvergenceSimRunner(SingleSimRunner):
+    &#39;&#39;&#39;
+        Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence
+    &#39;&#39;&#39;
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        SingleSimRunner.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+
+    def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel=&#34;Simulations&#34;, ax1=None, ax2=None):
+        &#39;&#39;&#39;
+            Takes simulation and runs it repeatedly, cutting the time step in half each time.
+            Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+            Should use with simulations that have an EndCondition of type &#34;Time&#34;
+                # Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+            This Fn called by compareIntegrationSchemes functions
+
+            Parameters:
+                simConfigFilePath       string, /path/to/simConfigFile
+                fW                      SimDefinition, overrides simConfigFilePath
+                refinementRatio         Number, Each time sim is run, time step or target error is divided by this number
+                simLimit                Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+                plot                    True/False, whether to plot the results
+                stopAtConvergence       True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+                showPlot                True/False, if True, calls plt.show()
+                plotLineLabel           string, Label of line on plot
+                ax1                     matplotlib Axes, Z-location (Y) axis
+                ax2                     matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)
+        &#39;&#39;&#39;
+        from MAPLEAF.IO.gridConvergenceFunctions import checkConvergence
+        from statistics import mean
+        import time
+
+        self._setUpConfigFileForConvergenceRun()
+        
+        timeStepMethod = self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;)
+        adaptiveTimeStepping = &#34;Adaptive&#34; in timeStepMethod
+
+        timeStepKey = &#34;SimControl.timeStep&#34;
+        targetErrorKey = &#34;SimControl.TimeStepAdaptation.targetError&#34;
+
+        #### Run Simulations ####
+        print(&#34;Starting convergence simulations&#34;)
+        if not adaptiveTimeStepping:
+            timeStep = float(self.simDefinition.getValue(timeStepKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+        else:
+            targetError = float(self.simDefinition.getValue(targetErrorKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+
+        simCount = 1
+        finalPositionHistory = []
+        convergenceHistory = []
+        timeStepHistory = []
+        simTimeHistory = []
+
+        def printConvergenceHistory(ax1=ax1, ax2=ax2):
+            print(&#34;&#34;)
+            print(&#34;Convergence History:&#34;)
+            print(&#34;Integration Method: {}&#34;.format(timeStepMethod))
+
+            xPos = []
+            yPos = []
+            zPos = []
+
+            for i in range(len(finalPositionHistory)):
+                finalPos = finalPositionHistory[i]
+                xPos.append(finalPos[0])
+                yPos.append(finalPos[1])
+                zPos.append(finalPos[2])
+                printString = &#34;FinalPosition(m): {:&gt;7.3f} WallTime(s): {:&gt;7.3f} &#34;.format(finalPos, simTimeHistory[i])
+
+                if i &gt; 1: # TODO: Get convergence results into the .csv file
+                    ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergenceHistory[i-2]
+                    printString += &#34; Avg Order: {:&gt;4.2f}, Avg Asymptotic Check: {:&gt;6.3f}&#34;.format(mean(ordersOfConvergence), mean(asymptoticChecks))
+
+                print(printString)
+
+            if plot:
+                if ax1 == None:
+                    ax1 = plt.gca()
+                if ax2 == None:
+                    ax2 = ax1.twinx()
+
+                ax1.plot(timeStepHistory, zPos, &#34;:D&#34;, label=plotLineLabel)
+                ax1.set_ylabel(&#34;Final Z Coordinate (m)&#34;)
+
+                ax2.plot(timeStepHistory, simTimeHistory, &#34;-*&#34;, label=plotLineLabel + &#34; Wall Time&#34;)
+                ax2.set_ylabel(&#34;Wall Time (s)&#34;)
+                
+                plt.xscale(&#34;log&#34;)
+                plt.xlabel(&#34;Time Step (s)&#34;)
+                plt.legend()
+                plt.tight_layout()
+
+                if showPlot:
+                    plt.show()
+
+        while simCount &lt;= simLimit:
+            if not adaptiveTimeStepping:
+                timeStep /= refinementRatio
+                self.simDefinition.setValue(timeStepKey, str(timeStep))
+                timeStepHistory.append(timeStep)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, timeStep))
+            else:
+                targetError /= refinementRatio
+                self.simDefinition.setValue(targetErrorKey, str(targetError))
+                timeStepHistory.append(targetError)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, targetError))
+
+            startTime = time.time()
+            flights, _ = self.runSingleSimulation()
+            flight = flights[0]
+            wallTime = time.time() - startTime
+            simTimeHistory.append(wallTime)
+
+            finalPositionHistory.append(flight.rigidBodyStates[-1].position)
+            print(&#34;Final Position: {:1.3f}&#34;.format(finalPositionHistory[-1]))
+
+            if len(finalPositionHistory) &gt;= 3:
+                # Check whether result is converging
+                cV, mV, fV = finalPositionHistory[-3:]
+                print(&#34;Checking convergence&#34;)
+                convergResult = checkConvergence(cV, mV, fV, refinementRatio)
+                ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergResult
+                convergenceHistory.append(convergResult)
+                directions = [&#34;X&#34;, &#34;Y&#34;, &#34;Z&#34;]
+                for d in range(len(directions)):
+                    print(&#34;{}-Direction: Order: {:&gt;4.3f}, Asymptotic Check: {:&gt;6.3f}, RichardsonExtrap: {:&gt;7.3f}, Estimated Uncertainty: {:&gt;6.3f}&#34;.format(directions[d], ordersOfConvergence[d], asymptoticChecks[d], richardsonExtrapVals[d], uncertainties[d]))
+                
+                if stopAtConvergence and abs(sum(asymptoticChecks) / len(asymptoticChecks) - 1) &lt; 0.1 and max(asymptoticChecks) - min(asymptoticChecks) &lt; 0.2:
+                    print(&#34;Simulation Converging Asymptotically&#34;)
+                    printConvergenceHistory()
+                    return timeStepHistory, finalPositionHistory, flight
+            
+            simCount += 1
+
+        # Output whether convergence was achieved
+        if simLimit &gt;= 3:
+            print(&#34;Asymptotic convergence not reached within {} simulations&#34;.format(simLimit))
+        else:
+            print(&#34;Asymptotic convergence impossible to reach with less than 3 iterations (performed {}). Adjust the parameter &#39;simLimit&#39; to perform more iterations&#34;.format(simLimit))
+
+        printConvergenceHistory(ax1, ax2)
+
+        return timeStepHistory, finalPositionHistory, simTimeHistory
+
+    def compareClassicalIntegrationSchemes(self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes = [ &#34;Euler&#34;, &#34;RK2Midpoint&#34;, &#34;RK2Heun&#34;, &#34;RK4&#34; ], convergenceResultFilePath=&#34;convergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initTimeStep = float(self.simDefinition.getValue(&#34;SimControl.timeStep&#34;))
+
+        # Lists to store results
+        timeStepHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run series of simulations for each integration scheme
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(initTimeStep))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, simLimit=simLimit, plotLineLabel=scheme, ax1=ax1, ax2=ax2)
+            
+            timeStepHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        print(&#34;Simulations complete&#34;)
+
+        if convergenceResultFilePath != None:
+            import csv
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TimeStep(s)&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(timeStepHistory)):
+                    row = [ timeStepHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        print(&#34;Showing plot&#34;)
+        if showPlot:
+            plt.show()
+
+    def compareAdaptiveIntegrationSchemes(self, saveFigure=False, showPlot=True, integrationSchemes=[&#34;RK12Adaptive&#34;, &#34;RK23Adaptive&#34;, &#34;RK45Adaptive&#34;], simLimit=10, convergenceResultFilePath=&#34;adaptiveConvergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initErrorTarget = float(self.simDefinition.getValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;))
+        
+        # Lists to store results
+        targetErrorHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run simulations
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;, str(initErrorTarget))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, plotLineLabel=scheme, refinementRatio=2, simLimit=simLimit, ax1=ax1, ax2=ax2)
+            
+            targetErrorHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        # Write results to .csv file
+        if convergenceResultFilePath != None:
+            import csv
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TargetError&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(targetErrorHistory)):
+                    row = [ targetErrorHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        # Save results figure
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        # Show Plot
+        plt.xlabel(&#34;Target Error&#34;)
+
+        if showPlot:
+            plt.show()
+
+    def _setUpConfigFileForConvergenceRun(self):
+        print(&#34;Will attempt to converge final rocket position of simulation: {}&#34;.format(self.simDefinition.fileName))
+        self.simDefinition.disableDistributionSampling = True # Don&#39;t sample from probability distributions while trying to converge a sim
+
+        # Make sure no plots are created every time the sim runs
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+
+        #### Make sure End Condition is a time ####
+        endCondition = self.simDefinition.getValue(&#34;SimControl.EndCondition&#34;)
+        if endCondition != &#34;Time&#34;:
+            print(&#34;Running simulation to determine end time&#34;)
+            # Otherwise run the sim, get the end time and 
+            flights, _ = self.runSingleSimulation()
+            endTime = flights[0].times[-1]
+            # set that to the end condition
+            print(&#34;Setting EndCondition = Time, EndConditionValue = {}&#34;.format(endTime))
+            self.simDefinition.setValue(&#34;SimControl.EndCondition&#34;, &#34;Time&#34;)
+            self.simDefinition.setValue(&#34;SimControl.EndConditionValue&#34;, str(endTime))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.ConvergenceSimRunner.compareAdaptiveIntegrationSchemes"><code class="name flex">
+<span>def <span class="ident">compareAdaptiveIntegrationSchemes</span></span>(<span>self, saveFigure=False, showPlot=True, integrationSchemes=['RK12Adaptive', 'RK23Adaptive', 'RK45Adaptive'], simLimit=10, convergenceResultFilePath='adaptiveConvergenceResult.csv')</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="arguments">Arguments</h2>
+<p>simConfigFilePath (string)
+saveFigure (Bool)
+convergenceFilePath (string or None) - will overwrite old files</p>
+<h2 id="outputs">Outputs</h2>
+<p>Plot
+.csv file (Optional)</p>
+<h2 id="returns">Returns</h2>
+<p>Nothing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compareAdaptiveIntegrationSchemes(self, saveFigure=False, showPlot=True, integrationSchemes=[&#34;RK12Adaptive&#34;, &#34;RK23Adaptive&#34;, &#34;RK45Adaptive&#34;], simLimit=10, convergenceResultFilePath=&#34;adaptiveConvergenceResult.csv&#34;):
+    &#39;&#39;&#39; Arguments:
+            simConfigFilePath (string)
+            saveFigure (Bool)
+            convergenceFilePath (string or None) - will overwrite old files
+
+        Outputs:
+            Plot
+            .csv file (Optional)
+
+        Returns:
+            Nothing
+    &#39;&#39;&#39;
+
+    plt.figure(figsize=(3.5,3))
+    ax1 = plt.gca()
+    ax2 = plt.twinx()
+    
+    initErrorTarget = float(self.simDefinition.getValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;))
+    
+    # Lists to store results
+    targetErrorHistory = []
+    finalPositionHistories = []
+    wallTimeHistory = []
+
+    # Run simulations
+    for scheme in integrationSchemes:
+        self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+        self.simDefinition.setValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;, str(initErrorTarget))
+        timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, plotLineLabel=scheme, refinementRatio=2, simLimit=simLimit, ax1=ax1, ax2=ax2)
+        
+        targetErrorHistory = timeSteps
+        finalPositionHistories.append(finalPositions)
+        wallTimeHistory.append(wallTimes)
+
+    # Write results to .csv file
+    if convergenceResultFilePath != None:
+        import csv
+        print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+        with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+            writer = csv.writer(file)
+            
+            # Write Column Headers
+            headerRow = [ &#34;TargetError&#34; ]
+            for timeStep in range(len(integrationSchemes)):
+                intScheme = integrationSchemes[timeStep]
+                headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+            
+            writer.writerow(headerRow)
+            
+            # Write convergence results, time step by time step
+            for timeStep in range(len(targetErrorHistory)):
+                row = [ targetErrorHistory[timeStep] ]
+
+                for integrationScheme in range(len(integrationSchemes)):
+                    row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                    row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                writer.writerow(row)
+
+    # Save results figure
+    if saveFigure:
+        try:
+            plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+        except:
+            plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+    # Show Plot
+    plt.xlabel(&#34;Target Error&#34;)
+
+    if showPlot:
+        plt.show()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.ConvergenceSimRunner.compareClassicalIntegrationSchemes"><code class="name flex">
+<span>def <span class="ident">compareClassicalIntegrationSchemes</span></span>(<span>self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes=['Euler', 'RK2Midpoint', 'RK2Heun', 'RK4'], convergenceResultFilePath='convergenceResult.csv')</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="arguments">Arguments</h2>
+<p>simConfigFilePath (string)
+saveFigure (Bool)
+convergenceFilePath (string or None) - will overwrite old files</p>
+<h2 id="outputs">Outputs</h2>
+<p>Plot
+.csv file (Optional)</p>
+<h2 id="returns">Returns</h2>
+<p>Nothing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compareClassicalIntegrationSchemes(self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes = [ &#34;Euler&#34;, &#34;RK2Midpoint&#34;, &#34;RK2Heun&#34;, &#34;RK4&#34; ], convergenceResultFilePath=&#34;convergenceResult.csv&#34;):
+    &#39;&#39;&#39; Arguments:
+            simConfigFilePath (string)
+            saveFigure (Bool)
+            convergenceFilePath (string or None) - will overwrite old files
+
+        Outputs:
+            Plot
+            .csv file (Optional)
+
+        Returns:
+            Nothing
+    &#39;&#39;&#39;
+
+    plt.figure(figsize=(3.5,3))
+    ax1 = plt.gca()
+    ax2 = plt.twinx()
+    
+    initTimeStep = float(self.simDefinition.getValue(&#34;SimControl.timeStep&#34;))
+
+    # Lists to store results
+    timeStepHistory = []
+    finalPositionHistories = []
+    wallTimeHistory = []
+
+    # Run series of simulations for each integration scheme
+    for scheme in integrationSchemes:
+        self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+        self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(initTimeStep))
+        timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, simLimit=simLimit, plotLineLabel=scheme, ax1=ax1, ax2=ax2)
+        
+        timeStepHistory = timeSteps
+        finalPositionHistories.append(finalPositions)
+        wallTimeHistory.append(wallTimes)
+
+    print(&#34;Simulations complete&#34;)
+
+    if convergenceResultFilePath != None:
+        import csv
+        print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+        with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+            writer = csv.writer(file)
+            
+            # Write Column Headers
+            headerRow = [ &#34;TimeStep(s)&#34; ]
+            for timeStep in range(len(integrationSchemes)):
+                intScheme = integrationSchemes[timeStep]
+                headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+            
+            writer.writerow(headerRow)
+            
+            # Write convergence results, time step by time step
+            for timeStep in range(len(timeStepHistory)):
+                row = [ timeStepHistory[timeStep] ]
+
+                for integrationScheme in range(len(integrationSchemes)):
+                    row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                    row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                writer.writerow(row)
+
+    if saveFigure:
+        try:
+            plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+        except:
+            plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+    print(&#34;Showing plot&#34;)
+    if showPlot:
+        plt.show()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.ConvergenceSimRunner.convergeSimEndPosition"><code class="name flex">
+<span>def <span class="ident">convergeSimEndPosition</span></span>(<span>self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel='Simulations', ax1=None, ax2=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Takes simulation and runs it repeatedly, cutting the time step in half each time.
+Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+Should use with simulations that have an EndCondition of type "Time"
+# Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+This Fn called by compareIntegrationSchemes functions</p>
+<h2 id="parameters">Parameters</h2>
+<p>simConfigFilePath
+string, /path/to/simConfigFile
+fW
+SimDefinition, overrides simConfigFilePath
+refinementRatio
+Number, Each time sim is run, time step or target error is divided by this number
+simLimit
+Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+plot
+True/False, whether to plot the results
+stopAtConvergence
+True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+showPlot
+True/False, if True, calls plt.show()
+plotLineLabel
+string, Label of line on plot
+ax1
+matplotlib Axes, Z-location (Y) axis
+ax2
+matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel=&#34;Simulations&#34;, ax1=None, ax2=None):
+    &#39;&#39;&#39;
+        Takes simulation and runs it repeatedly, cutting the time step in half each time.
+        Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+        Should use with simulations that have an EndCondition of type &#34;Time&#34;
+            # Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+        This Fn called by compareIntegrationSchemes functions
+
+        Parameters:
+            simConfigFilePath       string, /path/to/simConfigFile
+            fW                      SimDefinition, overrides simConfigFilePath
+            refinementRatio         Number, Each time sim is run, time step or target error is divided by this number
+            simLimit                Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+            plot                    True/False, whether to plot the results
+            stopAtConvergence       True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+            showPlot                True/False, if True, calls plt.show()
+            plotLineLabel           string, Label of line on plot
+            ax1                     matplotlib Axes, Z-location (Y) axis
+            ax2                     matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)
+    &#39;&#39;&#39;
+    from MAPLEAF.IO.gridConvergenceFunctions import checkConvergence
+    from statistics import mean
+    import time
+
+    self._setUpConfigFileForConvergenceRun()
+    
+    timeStepMethod = self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;)
+    adaptiveTimeStepping = &#34;Adaptive&#34; in timeStepMethod
+
+    timeStepKey = &#34;SimControl.timeStep&#34;
+    targetErrorKey = &#34;SimControl.TimeStepAdaptation.targetError&#34;
+
+    #### Run Simulations ####
+    print(&#34;Starting convergence simulations&#34;)
+    if not adaptiveTimeStepping:
+        timeStep = float(self.simDefinition.getValue(timeStepKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+    else:
+        targetError = float(self.simDefinition.getValue(targetErrorKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+
+    simCount = 1
+    finalPositionHistory = []
+    convergenceHistory = []
+    timeStepHistory = []
+    simTimeHistory = []
+
+    def printConvergenceHistory(ax1=ax1, ax2=ax2):
+        print(&#34;&#34;)
+        print(&#34;Convergence History:&#34;)
+        print(&#34;Integration Method: {}&#34;.format(timeStepMethod))
+
+        xPos = []
+        yPos = []
+        zPos = []
+
+        for i in range(len(finalPositionHistory)):
+            finalPos = finalPositionHistory[i]
+            xPos.append(finalPos[0])
+            yPos.append(finalPos[1])
+            zPos.append(finalPos[2])
+            printString = &#34;FinalPosition(m): {:&gt;7.3f} WallTime(s): {:&gt;7.3f} &#34;.format(finalPos, simTimeHistory[i])
+
+            if i &gt; 1: # TODO: Get convergence results into the .csv file
+                ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergenceHistory[i-2]
+                printString += &#34; Avg Order: {:&gt;4.2f}, Avg Asymptotic Check: {:&gt;6.3f}&#34;.format(mean(ordersOfConvergence), mean(asymptoticChecks))
+
+            print(printString)
+
+        if plot:
+            if ax1 == None:
+                ax1 = plt.gca()
+            if ax2 == None:
+                ax2 = ax1.twinx()
+
+            ax1.plot(timeStepHistory, zPos, &#34;:D&#34;, label=plotLineLabel)
+            ax1.set_ylabel(&#34;Final Z Coordinate (m)&#34;)
+
+            ax2.plot(timeStepHistory, simTimeHistory, &#34;-*&#34;, label=plotLineLabel + &#34; Wall Time&#34;)
+            ax2.set_ylabel(&#34;Wall Time (s)&#34;)
+            
+            plt.xscale(&#34;log&#34;)
+            plt.xlabel(&#34;Time Step (s)&#34;)
+            plt.legend()
+            plt.tight_layout()
+
+            if showPlot:
+                plt.show()
+
+    while simCount &lt;= simLimit:
+        if not adaptiveTimeStepping:
+            timeStep /= refinementRatio
+            self.simDefinition.setValue(timeStepKey, str(timeStep))
+            timeStepHistory.append(timeStep)
+            print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, timeStep))
+        else:
+            targetError /= refinementRatio
+            self.simDefinition.setValue(targetErrorKey, str(targetError))
+            timeStepHistory.append(targetError)
+            print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, targetError))
+
+        startTime = time.time()
+        flights, _ = self.runSingleSimulation()
+        flight = flights[0]
+        wallTime = time.time() - startTime
+        simTimeHistory.append(wallTime)
+
+        finalPositionHistory.append(flight.rigidBodyStates[-1].position)
+        print(&#34;Final Position: {:1.3f}&#34;.format(finalPositionHistory[-1]))
+
+        if len(finalPositionHistory) &gt;= 3:
+            # Check whether result is converging
+            cV, mV, fV = finalPositionHistory[-3:]
+            print(&#34;Checking convergence&#34;)
+            convergResult = checkConvergence(cV, mV, fV, refinementRatio)
+            ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergResult
+            convergenceHistory.append(convergResult)
+            directions = [&#34;X&#34;, &#34;Y&#34;, &#34;Z&#34;]
+            for d in range(len(directions)):
+                print(&#34;{}-Direction: Order: {:&gt;4.3f}, Asymptotic Check: {:&gt;6.3f}, RichardsonExtrap: {:&gt;7.3f}, Estimated Uncertainty: {:&gt;6.3f}&#34;.format(directions[d], ordersOfConvergence[d], asymptoticChecks[d], richardsonExtrapVals[d], uncertainties[d]))
+            
+            if stopAtConvergence and abs(sum(asymptoticChecks) / len(asymptoticChecks) - 1) &lt; 0.1 and max(asymptoticChecks) - min(asymptoticChecks) &lt; 0.2:
+                print(&#34;Simulation Converging Asymptotically&#34;)
+                printConvergenceHistory()
+                return timeStepHistory, finalPositionHistory, flight
+        
+        simCount += 1
+
+    # Output whether convergence was achieved
+    if simLimit &gt;= 3:
+        print(&#34;Asymptotic convergence not reached within {} simulations&#34;.format(simLimit))
+    else:
+        print(&#34;Asymptotic convergence impossible to reach with less than 3 iterations (performed {}). Adjust the parameter &#39;simLimit&#39; to perform more iterations&#34;.format(simLimit))
+
+    printConvergenceHistory(ax1, ax2)
+
+    return timeStepHistory, finalPositionHistory, simTimeHistory</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage" href="#MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.environment" href="#MAPLEAF.SimulationRunners.SingleSimRunner.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation">prepRocketForSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation">runSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.silent" href="#MAPLEAF.SimulationRunners.SingleSimRunner.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition" href="#MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex" href="#MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.MonteCarloSimRunner"><code class="flex name class">
+<span>class <span class="ident">MonteCarloSimRunner</span></span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs a simulation repeatedly, always resampling parameters that have a specfified normal distribution in the simulation definition</p>
+<h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MonteCarloSimRunner(SingleSimRunner):
+    &#39;&#39;&#39;
+        Runs a simulation repeatedly, always resampling parameters that have a specfified normal distribution in the simulation definition
+    &#39;&#39;&#39;
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        SingleSimRunner.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+    
+    def _reInitializeEnvironment(self):
+        &#39;&#39;&#39;
+            Aside from normally-distributed parameters defined in the sim definition file, the environment can have their own probabilistic wind values.
+            Therefore, we need to re-initialize the environment (and thereby re-sample any probability distributions) before each individual simulation in a monte carlo run
+        &#39;&#39;&#39;
+        self.environment = Environment(self.simDefinition, silent=self.silent)
+
+    def runMonteCarloSimulation(self):
+        &#39;&#39;&#39; Pass in SimDefinition with simulation definition loaded &#39;&#39;&#39;
+        
+        simDefinition = self.simDefinition
+
+        # Make sure plots don&#39;t show after each sim
+        simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+        simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+        # Set up saving key results
+        resultsToOutput = simDefinition.getValue(&#34;MonteCarlo.output&#34;)
+        landingLocations = []
+        apogees = []
+        maxSpeeds = []
+        flightTimes = []
+        maxHorizontalVels = []
+        flights = []
+
+        #### Set up Logging ####
+        mCLogger = Logging.MonteCarloLogger()
+        simDefinition.monteCarloLogger = mCLogger # SimDefinition needs to have a reference to the monte carlo log to log whenever it samples a variable
+
+        nRuns = int(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
+
+        mCLogger.log(&#34;&#34;)
+        mCLogger.log(&#34;Running Monte Carlo Simulation: {} runs&#34;.format(nRuns))                
+        
+        ### Run simulations ###
+        for i in range(nRuns):
+            # Start monte carlo log entry for this sim
+            mCLogger.log(&#34;\nMonte Carlo Run #{}&#34;.format(i+1))
+            
+            # Run sim
+            self._reInitializeEnvironment()
+            stageFlightPaths, _ = self.runSingleSimulation()
+            flight = stageFlightPaths[0]
+            
+            # Save results
+            landingLocations.append(flight.getLandingLocation())
+            apogees.append(flight.getApogee())
+            maxSpeeds.append(flight.getMaxSpeed())
+            flightTimes.append(flight.getFlightTime())
+            maxHorizontalVels.append(flight.getMaxHorizontalVel())
+            
+            if &#34;flightPaths&#34; in resultsToOutput:
+                flight = Plotting._keepNTimeSteps(flight, 900) # Limit the number of time steps saved to avoid wasting memory
+                flights.append(flight)
+
+        ### Plot/Output results ###
+        mCLogger.log(&#34;&#34;)
+        mCLogger.log(&#34;Monte Carlo results:&#34;)
+
+        if &#34;landingLocations&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeVectorResult(landingLocations, name=&#34;Landing location&#34;, monteCarloLogger=mCLogger)
+        if &#34;apogees&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(apogees, name=&#34;Apogee&#34;, monteCarloLogger=mCLogger)
+        if &#34;maxSpeeds&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(maxSpeeds, name=&#34;Max speed&#34;, monteCarloLogger=mCLogger)
+        if &#34;flightTimes&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(flightTimes, name=&#34;Flight time&#34;, monteCarloLogger=mCLogger)
+        if &#34;maxHorizontalVels&#34; in resultsToOutput:
+            Plotting.plotAndSummarizeScalarResult(maxHorizontalVels, name=&#34;Max horizontal speed&#34;, monteCarloLogger=mCLogger)
+        if &#34;flightPaths&#34; in resultsToOutput:
+            Plotting.plotFlightPaths_NoEarth(flights)
+
+        
+        if resultsToOutput != &#34;None&#34; and len(resultsToOutput) &gt; 0:
+            dotIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+            extensionFreeSimDefFileName = simDefinition.fileName[0:dotIndex]
+            logFilePath = extensionFreeSimDefFileName + &#34;_monteCarloLog_run&#34;
+
+            logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
+            print(&#34;Wrote Monte Carlo Log to: {}&#34;.format(logPath))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.MonteCarloSimRunner.runMonteCarloSimulation"><code class="name flex">
+<span>def <span class="ident">runMonteCarloSimulation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pass in SimDefinition with simulation definition loaded</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runMonteCarloSimulation(self):
+    &#39;&#39;&#39; Pass in SimDefinition with simulation definition loaded &#39;&#39;&#39;
+    
+    simDefinition = self.simDefinition
+
+    # Make sure plots don&#39;t show after each sim
+    simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+    simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+    # Set up saving key results
+    resultsToOutput = simDefinition.getValue(&#34;MonteCarlo.output&#34;)
+    landingLocations = []
+    apogees = []
+    maxSpeeds = []
+    flightTimes = []
+    maxHorizontalVels = []
+    flights = []
+
+    #### Set up Logging ####
+    mCLogger = Logging.MonteCarloLogger()
+    simDefinition.monteCarloLogger = mCLogger # SimDefinition needs to have a reference to the monte carlo log to log whenever it samples a variable
+
+    nRuns = int(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
+
+    mCLogger.log(&#34;&#34;)
+    mCLogger.log(&#34;Running Monte Carlo Simulation: {} runs&#34;.format(nRuns))                
+    
+    ### Run simulations ###
+    for i in range(nRuns):
+        # Start monte carlo log entry for this sim
+        mCLogger.log(&#34;\nMonte Carlo Run #{}&#34;.format(i+1))
+        
+        # Run sim
+        self._reInitializeEnvironment()
+        stageFlightPaths, _ = self.runSingleSimulation()
+        flight = stageFlightPaths[0]
+        
+        # Save results
+        landingLocations.append(flight.getLandingLocation())
+        apogees.append(flight.getApogee())
+        maxSpeeds.append(flight.getMaxSpeed())
+        flightTimes.append(flight.getFlightTime())
+        maxHorizontalVels.append(flight.getMaxHorizontalVel())
+        
+        if &#34;flightPaths&#34; in resultsToOutput:
+            flight = Plotting._keepNTimeSteps(flight, 900) # Limit the number of time steps saved to avoid wasting memory
+            flights.append(flight)
+
+    ### Plot/Output results ###
+    mCLogger.log(&#34;&#34;)
+    mCLogger.log(&#34;Monte Carlo results:&#34;)
+
+    if &#34;landingLocations&#34; in resultsToOutput:
+        Plotting.plotAndSummarizeVectorResult(landingLocations, name=&#34;Landing location&#34;, monteCarloLogger=mCLogger)
+    if &#34;apogees&#34; in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(apogees, name=&#34;Apogee&#34;, monteCarloLogger=mCLogger)
+    if &#34;maxSpeeds&#34; in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(maxSpeeds, name=&#34;Max speed&#34;, monteCarloLogger=mCLogger)
+    if &#34;flightTimes&#34; in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(flightTimes, name=&#34;Flight time&#34;, monteCarloLogger=mCLogger)
+    if &#34;maxHorizontalVels&#34; in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(maxHorizontalVels, name=&#34;Max horizontal speed&#34;, monteCarloLogger=mCLogger)
+    if &#34;flightPaths&#34; in resultsToOutput:
+        Plotting.plotFlightPaths_NoEarth(flights)
+
+    
+    if resultsToOutput != &#34;None&#34; and len(resultsToOutput) &gt; 0:
+        dotIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+        extensionFreeSimDefFileName = simDefinition.fileName[0:dotIndex]
+        logFilePath = extensionFreeSimDefFileName + &#34;_monteCarloLog_run&#34;
+
+        logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
+        print(&#34;Wrote Monte Carlo Log to: {}&#34;.format(logPath))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage" href="#MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.environment" href="#MAPLEAF.SimulationRunners.SingleSimRunner.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation">prepRocketForSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation">runSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.silent" href="#MAPLEAF.SimulationRunners.SingleSimRunner.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition" href="#MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex" href="#MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner"><code class="flex name class">
+<span>class <span class="ident">SingleSimRunner</span></span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SingleSimRunner():
+
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        &#39;&#39;&#39;
+            Inputs:
+                
+                * simDefinitionFilePath:  (string) path to simulation definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
+                * silent:                 (bool) toggles optional outputs to the console  
+        &#39;&#39;&#39;
+
+        self.simDefinition = None
+        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
+
+        # Load simulation definition file - have to do this before creating the environment from it
+        if simDefinition == None and simDefinitionFilePath != None:
+            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+        elif simDefinition != None:
+            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
+        else:
+            raise ValueError(&#34;&#34;&#34; Insufficient information to initialize a SingleSimRunner.
+                Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+                If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
+
+        self.environment = Environment(self.simDefinition, silent=silent)
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
+
+        self.stagingIndex = None # Set in self.prepRocketForSingleSimulation
+        &#39;&#39;&#39; (int) Set in `SingleSimRunner.prepRocketForSingleSimulation`. Tracks how many stages have been dropped &#39;&#39;&#39;
+
+        self.silent = silent
+        &#39;&#39;&#39; (bool) &#39;&#39;&#39;
+
+        self.computeStageDropPaths = strtobool(self.simDefinition.getValue(&#34;SimControl.StageDropPaths.compute&#34;))
+
+    def runSingleSimulation(self):
+        &#39;&#39;&#39; 
+            Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
+
+            Returns:
+                * stageFlightsPaths: (list[`MAPLEAF.IO.RocketFlight.RocketFlight`]) Each RocketFlight object represents the flight path of a single stage
+                * logFilePaths: (list[string]) list of paths to all log files created by this simulation
+        &#39;&#39;&#39;
+        simDefinition = self.simDefinition
+
+        # Initialize the rocket + environment models and simulation logging
+        rocket = self.prepRocketForSingleSimulation() # Initialize rocket on launch pad, with all stages attached
+        self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
+
+        # Create progress bar if appropriate
+        progressBar = None
+        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+            endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
+            progressBar = tqdm(total=endTime+0.01)
+            
+            try:
+                self.logger.continueWritingToTerminal = False
+            except AttributeError:
+                pass # Logging not set up for this sim
+
+        #### Main Loop Setup #### 
+        #TODO: Perhaps it would be nicer to move some of this info into the Rocket class instead of keeping it all here
+        self.dts = [ float(simDefinition.getValue(&#34;SimControl.timeStep&#34;)) ]    # (Initial) time step size
+        self.terminationConditionDetectorFunctions = [ self._getSimEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+        self.stageFlightPaths = [ self._setUpSimulationResultCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+
+        if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
+            print(&#34;Setting up hardware in the loop interface&#34;)
+            rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
+
+        #### Main Loop ####
+        i = 0
+        while i &lt; len(self.rocketStages):
+
+            if i &gt; 0:
+                print(&#34;Computing stage {} drop path&#34;.format(i))
+
+            endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+                
+            while not endSimulation:
+                # Take time step
+                try:
+                    if lastTimeStepDt != None:
+                        self.dts[i] = lastTimeStepDt
+
+                    timeStepAdjustmentFactor, self.dts[i] = self.rocketStages[i].timeStep(self.dts[i])
+
+                    if i == 0:
+                        try:
+                            progressBar.update(self.dts[i])
+                        except AttributeError:
+                            # No progress bar defined b/c &#39;Time&#39; is not the simulation end condition
+                            pass
+                except:
+                    # Simulation has crashed
+                    # Try to create log files and plot sim results even though we&#39;ve encountered an error
+                    print(&#34;ERROR: Simulation Crashed, Aborting&#34;)
+                    print(&#34;Attempting to save log files and show plots&#34;)
+                    self._postSingleSimCleanup(simDefinition)
+
+                    # Try to print out the stack trace
+                    print(&#34;Attempting to show stack trace&#34;)
+                    import traceback
+                    tb = traceback.format_exc()
+                    print(tb)
+
+                    print(&#34;Exiting&#34;)
+                    sys.exit()
+
+                # Adjust time step: timeStepAdjustmentFactor == 1 for non-adaptive time stepping
+                self.dts[i] *= timeStepAdjustmentFactor
+
+                # HIL
+                if(self.rocketStages[i].hardwareInTheLoopControl == &#34;yes&#34;):
+                    rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
+
+                # Cache states for flight animation
+                time = self.rocketStages[i].rigidBody.time
+                self.stageFlightPaths[i].times.append(time)
+                self.stageFlightPaths[i].rigidBodyStates.append(self.rocketStages[i].rigidBody.state)
+                if self.rocketStages[i].controlSystem != None:
+                    try:
+                        for a in range(len(self.rocketStages[i].controlSystem.controlledSystem.actuatorList)):
+                            self.stageFlightPaths[i].actuatorDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                            self.stageFlightPaths[i].actuatorTargetDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                    except AttributeError:
+                        # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                        pass
+
+                # Check whether we should break out of loop    
+                endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+            
+            # Log last state (would be the starting state of the next time step)
+            self.rocketStages[i]._runControlSystemAndLogStartingState(0.0)
+
+            # Move on to next (dropped) stage
+            i += 1
+
+            try:
+                progressBar.close()
+                
+                if not self.silent:
+                    # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                    sys.stdout.continueWritingToTerminal = True
+            except AttributeError:
+                pass
+
+        print(&#34;Simulation Complete&#34;)
+
+        logFilePaths = self._postSingleSimCleanup(simDefinition)
+
+        return self.stageFlightPaths, logFilePaths
+
+    #### Pre-sim ####
+    def prepRocketForSingleSimulation(self, stage=None):
+        &#39;&#39;&#39; 
+            Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+            Returns an instance of Rocket with it&#39;s Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
+        &#39;&#39;&#39;
+        # Initialize Rocket
+        rocketDictReader = SubDictReader(&#34;Rocket&#34;, self.simDefinition)  
+        rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
+
+        if self.simDefinition.getValue(&#39;SimControl.RocketPlot&#39;) in [ &#39;On&#39;, &#39;on&#39; ]:
+            rocket.plotShape()  # Reference to this simRunner used to add to logs
+
+        if stage == None:
+            self._setUpSingleSimLogging()
+            self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+            
+            # Add data table headers to logs
+            self._createLogDataTableHeaders(rocket)
+
+        return rocket
+
+    def _setUpSingleSimLogging(self):
+        self.loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if  self.loggingLevel &gt; 0:
+            # Set up logging so that the output of any print calls after this point is captured in mainSimulationLog
+            self.mainSimulationLog = []
+            if self.silent:
+                self.logger = Logging.Logger(self.mainSimulationLog, continueWritingToTerminal=False)
+            else:
+                self.logger = Logging.Logger(self.mainSimulationLog)
+            sys.stdout = self.logger
+            
+            # Output system info to console and to log
+            Logging.getSystemInfo(printToConsole=True)
+            # Output sim definition file and default value dict to the log only
+            self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
+
+            # Start force evaluation log if required
+            if self.loggingLevel &gt;= 2:
+                self.forceEvaluationLog = []
+        elif self.silent:
+            # No intention of writing things to a log file, just prevent them from being printed to the terminal
+            _ = []
+            logger = Logging.Logger(_, continueWritingToTerminal=False)
+            sys.stdout = logger
+
+    def _createLogDataTableHeaders(self, rocket):
+        print(&#34;Starting Simulation:&#34;)
+
+        if self.loggingLevel &gt; 0 or not self.silent:
+            # Create main sim log header (written to once per time step)
+            mainSimLogHeader = &#34;Time(s) TimeStep(s)&#34; 
+            mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + &#34; EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)&#34;
+            if rocket.controlSystem != None:
+                mainSimLogHeader += rocket.controlSystem.getLogHeader()
+
+            # Actually print/log the main sim log header
+            print(mainSimLogHeader)
+
+            if self.loggingLevel &gt;= 2:
+                # Create force evaluation log header (written to once per force evaluation (several time per time step for higher-order time discretizations))
+                # Columns always included
+                header = &#34;Time(s)&#34; + rocket.rigidBody.state.getLogHeader() + \
+                &#34; WindX(m/s) WindY(m/s) WindZ(m/s) AirDensity(kg/m^3)&#34; + \
+                &#34; CGX(m), CGY(m), CGZ(m) Mass(kg) MOIx(kg*m^2) MOIy(kg*m^2) MOIz(kg*m^2)&#34; + \
+                &#34; Mach UnitRe AOA(deg) RollAngle(deg)&#34;
+
+                # Columns for each rocket component
+                for stage in rocket.stages:
+                    for component in stage.components:
+                        try:
+                            header += component.getLogHeader()
+                        except AttributeError:
+                            pass
+
+                # Total force columns
+                header += &#34; CPZ(m) AeroFX(N) AeroFY(N) AeroFZ(N) AeroMX(Nm)&#34; + \
+                &#34; AeroMY(Nm) AeroMZ(Nm) GravityFX(N) GravityFY(N) GravityFZ(N)&#34; + \
+                &#34; TotalFX(N) TotalFY(N) TotalFZ(N)&#34;
+                
+                self.forceEvaluationLog.append(header)
+
+    def _getSimEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
+        &#39;&#39;&#39; 
+            Returns a function, which returns a boolean value and Union[None, float], indicating whether the 
+                simulation endpoint has been reached. When close to the end of a sim, the second value returned is the recommended
+                time step to take to hit the end criteria.
+                Simulation end criteria defined in sim definition file. 
+            Rocket object must be passed in because the end condition functions require a reference to the rocket, 
+                so they can access its current altitude/velocity/time attributes
+        &#39;&#39;&#39;
+        # Read desired end criteria from simulation definition file
+        if not droppedStage:
+            # Get end condition for main stage
+            endCondition = simConfig.getValue(&#34;SimControl.EndCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.EndConditionValue&#34;))
+        else:
+            # Get end condition for dropped stages
+            endCondition = simConfig.getValue(&#34;SimControl.StageDropPaths.endCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.StageDropPaths.endConditionValue&#34;))
+
+        # Define all possible end-detector functions
+        def isAfterApogee(dt):
+            return rocket.rigidBody.state.velocity.Z &lt;= 0 and rocket.rigidBody.time &gt; 1.0, None
+        def isAboveAltitude(dt):
+            return rocket.rigidBody.state.position.Z &gt;= conditionValue, None
+        def isBelowAltitude(dt):
+            return rocket.environment.earthModel.getAltitude(*rocket.rigidBody.state.position) &lt;= conditionValue, None
+        def EndTimeReached(dt):
+            currTime = rocket.rigidBody.time
+            if currTime &lt; conditionValue and currTime + dt &gt;= conditionValue:
+                return False, conditionValue+1e-14-currTime
+            elif currTime &gt;= conditionValue:
+                return True, None
+            else:
+                return False, None
+
+        # Return the desired function
+        if endCondition == &#34;Apogee&#34;:
+            return isAfterApogee
+        elif endCondition == &#34;Altitude&#34; and rocket.rigidBody.state.position.Z &lt; conditionValue:
+            return isAboveAltitude
+        elif endCondition == &#34;Altitude&#34;:
+            return isBelowAltitude
+        else:
+            return EndTimeReached
+
+    def _setUpSimulationResultCachingForFlightAnimation(self, rocket):
+        flight = RocketFlight()
+        flight.times.append(rocket.rigidBody.time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:  
+            # If rocket has moving fins, record their angles for plotting
+            flight.actuatorDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
+            flight.actuatorTargetDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
+        else:
+            flight.actuatorDefls = None
+            flight.actuatorTargetDefls = None
+
+        return flight
+
+    #### During sim ####
+    def createNewDetachedStage(self):
+        &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
+        if self.computeStageDropPaths:
+            newDetachedStage = self.prepRocketForSingleSimulation(stage=self.stagingIndex)
+            # Set kinematic properties to match those of the current top-most stage
+            topStage = self.rocketStages[0]
+            newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
+            newDetachedStage.rigidBody.time = topStage.rigidBody.time
+            self.rocketStages.append(newDetachedStage)
+
+            # New sim termination condition function
+            self.terminationConditionDetectorFunctions.append(self._getSimEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+            self.dts.append(self.dts[0])
+            
+            # Duplicate existing flight object
+            newFlightObject = deepcopy(self.stageFlightPaths[0]) # Will have had the same flight path as the top stage until the moment of separation
+            newFlightObject.actuatorDefls = None # Dropped stage shouldn&#39;t have any canard deflections
+            self.stageFlightPaths.append(newFlightObject)
+
+            self.stagingIndex += 1
+
+    def newForcesLogLine(self, txt):
+        try:
+            if len(self.forceEvaluationLog) &gt; 0 and self.forceEvaluationLog[-1][-1:] != &#39;\n&#39;:
+                self.forceEvaluationLog[-1] += &#34;\n&#34;
+            self.forceEvaluationLog.append(txt)
+        except AttributeError:
+            pass # Force logging not desired/set up for this simulation
+
+    def discardForceLogsForLastTimeStep(self, integrator):
+        if self.loggingLevel &gt;= 2:
+            # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
+            if integrator.method == &#34;RK12Adaptive&#34;:
+                numDerivativeEvals = 2
+            else:
+                numDerivativeEvals = len(integrator.tableau)-1
+
+            # Remove that number of rows from the end of the force evaluation log
+            for i in range(numDerivativeEvals):
+                self.forceEvaluationLog.pop(-1)
+
+    #### Post-sim ####
+    def _postSingleSimCleanup(self, simDefinition):
+        simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
+
+        # Log results
+        logFilePaths = self._logSimulationResults(simDefinition)
+
+        # Transfer key time info to flight objects from rocket
+        for i in range(len(self.rocketStages)):
+            self.stageFlightPaths[i].engineOffTime = self.rocketStages[i].engineShutOffTime
+            self.stageFlightPaths[i].mainChuteDeployTime = self.rocketStages[i].mainChuteDeployTime
+            self.stageFlightPaths[i].targetLocation = self.rocketStages[i].targetLocation
+
+        # Plot results
+        self._plotSimulationResults(self.rocketStages, simDefinition, self.stageFlightPaths, logFilePaths)
+
+        # Print these out after logging to avoid including the log/plot keys in the unused keys
+        # #TODO: Add exceptions for these keys, move this line to before logging so that it&#39;s output is also included in the simulation log
+        simDefinition.printUnusedKeys()
+
+        return logFilePaths
+
+    def _logSimulationResults(self, simDefinition):
+        &#39;&#39;&#39; Logs simulation results to file (as/if specified in sim definition) &#39;&#39;&#39;
+        logFilePaths = None
+        if self.loggingLevel &gt; 0:
+            logFilePaths = []
+
+            # Find new file name without overwriting old logs
+            periodIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+            fileBaseName = simDefinition.fileName[:periodIndex] + &#34;_simulationLog_run&#34;
+            mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=&#34;.txt&#34;)
+                
+            logFilePaths.append(mainLogFilePath)
+            print(&#34;Writing main log to: {}&#34;.format(mainLogFilePath))
+
+            # Write main log to file
+            with open(mainLogFilePath, &#39;w+&#39;) as file:
+                file.writelines(self.mainSimulationLog)
+
+            # Write force evaluation log to file if desired
+            if self.loggingLevel &gt;= 2:
+                forceLogFilePath = mainLogFilePath.replace(&#34;simulationLog&#34;, &#34;forceEvaluationLog&#34;)
+                print(&#34;Writing force evaluation log to: {}&#34;.format(forceLogFilePath))
+                logFilePaths.append(forceLogFilePath)
+                with open(forceLogFilePath, &#39;w+&#39;) as file:
+                    file.writelines(self.forceEvaluationLog)
+
+                # Post process / calculate force/moment coefficients if desired
+                if self.loggingLevel &gt;= 3:
+                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
+                    crossSectionalArea = pi * bodyDiameter * bodyDiameter / 4
+                    expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
+                    logFilePaths.append(expandedLogPath)
+
+        return logFilePaths
+
+    def _plotSimulationResults(self, rocketStages, simDefinition, flights, logFilePaths):
+        &#39;&#39;&#39; Plot simulation results (as/if specified in sim definition) &#39;&#39;&#39;
+
+        plotsToMake = simDefinition.getValue(&#34;SimControl.plot&#34;).split()
+
+        if plotsToMake != [&#34;None&#34;]:
+
+            if &#34;FlightAnimation&#34; in plotsToMake:
+                print(&#34;Showing flight animation&#34;)
+
+                # Show animation
+                Plotting.flightAnimation(flights)
+
+                # Done, remove from plotsToMake
+                plotsToMake.remove(&#34;FlightAnimation&#34;)
+
+            if &#34;FlightPaths&#34; in plotsToMake:
+                earthModel = self.simDefinition.getValue(&#34;Environment.EarthModel&#34;)
+                if earthModel in [ &#34;None&#34;, &#34;Flat&#34; ]:
+                    Plotting.plotFlightPaths_NoEarth(flights)
+                else:
+                    Plotting.plotFlightPaths_FullEarth(flights)
+
+                plotsToMake.remove(&#34;FlightPaths&#34;)
+
+            # Plot all other columns from log files
+            for plotDefinitionString in plotsToMake:
+                Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.ConvergenceSimRunner" href="#MAPLEAF.SimulationRunners.ConvergenceSimRunner">ConvergenceSimRunner</a></li>
+<li><a title="MAPLEAF.SimulationRunners.MonteCarloSimRunner" href="#MAPLEAF.SimulationRunners.MonteCarloSimRunner">MonteCarloSimRunner</a></li>
+<li><a title="MAPLEAF.SimulationRunners.WindTunnelRunner" href="#MAPLEAF.SimulationRunners.WindTunnelRunner">WindTunnelRunner</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.environment"><code class="name">var <span class="ident">environment</span></code></dt>
+<dd>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment.Environment" href="ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>. Will be shared by all Rockets created by this sim runner</p></div>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.silent"><code class="name">var <span class="ident">silent</span></code></dt>
+<dd>
+<div class="desc"><p>(bool)</p></div>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition"><code class="name">var <span class="ident">simDefinition</span></code></dt>
+<dd>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>. Defines the current simulation</p></div>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex"><code class="name">var <span class="ident">stagingIndex</span></code></dt>
+<dd>
+<div class="desc"><p>(int) Set in <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation">SingleSimRunner.prepRocketForSingleSimulation()</a></code>. Tracks how many stages have been dropped</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage"><code class="name flex">
+<span>def <span class="ident">createNewDetachedStage</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Called by Rocket._stageSeparation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def createNewDetachedStage(self):
+    &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
+    if self.computeStageDropPaths:
+        newDetachedStage = self.prepRocketForSingleSimulation(stage=self.stagingIndex)
+        # Set kinematic properties to match those of the current top-most stage
+        topStage = self.rocketStages[0]
+        newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
+        newDetachedStage.rigidBody.time = topStage.rigidBody.time
+        self.rocketStages.append(newDetachedStage)
+
+        # New sim termination condition function
+        self.terminationConditionDetectorFunctions.append(self._getSimEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+        self.dts.append(self.dts[0])
+        
+        # Duplicate existing flight object
+        newFlightObject = deepcopy(self.stageFlightPaths[0]) # Will have had the same flight path as the top stage until the moment of separation
+        newFlightObject.actuatorDefls = None # Dropped stage shouldn&#39;t have any canard deflections
+        self.stageFlightPaths.append(newFlightObject)
+
+        self.stagingIndex += 1</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.discardForceLogsForLastTimeStep"><code class="name flex">
+<span>def <span class="ident">discardForceLogsForLastTimeStep</span></span>(<span>self, integrator)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def discardForceLogsForLastTimeStep(self, integrator):
+    if self.loggingLevel &gt;= 2:
+        # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
+        if integrator.method == &#34;RK12Adaptive&#34;:
+            numDerivativeEvals = 2
+        else:
+            numDerivativeEvals = len(integrator.tableau)-1
+
+        # Remove that number of rows from the end of the force evaluation log
+        for i in range(numDerivativeEvals):
+            self.forceEvaluationLog.pop(-1)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.newForcesLogLine"><code class="name flex">
+<span>def <span class="ident">newForcesLogLine</span></span>(<span>self, txt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def newForcesLogLine(self, txt):
+    try:
+        if len(self.forceEvaluationLog) &gt; 0 and self.forceEvaluationLog[-1][-1:] != &#39;\n&#39;:
+            self.forceEvaluationLog[-1] += &#34;\n&#34;
+        self.forceEvaluationLog.append(txt)
+    except AttributeError:
+        pass # Force logging not desired/set up for this simulation</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation"><code class="name flex">
+<span>def <span class="ident">prepRocketForSingleSimulation</span></span>(<span>self, stage=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+Returns an instance of Rocket with it's Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prepRocketForSingleSimulation(self, stage=None):
+    &#39;&#39;&#39; 
+        Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+        Returns an instance of Rocket with it&#39;s Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
+    &#39;&#39;&#39;
+    # Initialize Rocket
+    rocketDictReader = SubDictReader(&#34;Rocket&#34;, self.simDefinition)  
+    rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
+
+    if self.simDefinition.getValue(&#39;SimControl.RocketPlot&#39;) in [ &#39;On&#39;, &#39;on&#39; ]:
+        rocket.plotShape()  # Reference to this simRunner used to add to logs
+
+    if stage == None:
+        self._setUpSingleSimLogging()
+        self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+        
+        # Add data table headers to logs
+        self._createLogDataTableHeaders(rocket)
+
+    return rocket</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation"><code class="name flex">
+<span>def <span class="ident">runSingleSimulation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)</p>
+<h2 id="returns">Returns</h2>
+<ul>
+<li>stageFlightsPaths: (list[<code>MAPLEAF.IO.RocketFlight.RocketFlight</code>]) Each RocketFlight object represents the flight path of a single stage</li>
+<li>logFilePaths: (list[string]) list of paths to all log files created by this simulation</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runSingleSimulation(self):
+    &#39;&#39;&#39; 
+        Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
+
+        Returns:
+            * stageFlightsPaths: (list[`MAPLEAF.IO.RocketFlight.RocketFlight`]) Each RocketFlight object represents the flight path of a single stage
+            * logFilePaths: (list[string]) list of paths to all log files created by this simulation
+    &#39;&#39;&#39;
+    simDefinition = self.simDefinition
+
+    # Initialize the rocket + environment models and simulation logging
+    rocket = self.prepRocketForSingleSimulation() # Initialize rocket on launch pad, with all stages attached
+    self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
+
+    # Create progress bar if appropriate
+    progressBar = None
+    if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+        endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
+        progressBar = tqdm(total=endTime+0.01)
+        
+        try:
+            self.logger.continueWritingToTerminal = False
+        except AttributeError:
+            pass # Logging not set up for this sim
+
+    #### Main Loop Setup #### 
+    #TODO: Perhaps it would be nicer to move some of this info into the Rocket class instead of keeping it all here
+    self.dts = [ float(simDefinition.getValue(&#34;SimControl.timeStep&#34;)) ]    # (Initial) time step size
+    self.terminationConditionDetectorFunctions = [ self._getSimEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+    self.stageFlightPaths = [ self._setUpSimulationResultCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+
+    if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
+        print(&#34;Setting up hardware in the loop interface&#34;)
+        rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
+
+    #### Main Loop ####
+    i = 0
+    while i &lt; len(self.rocketStages):
+
+        if i &gt; 0:
+            print(&#34;Computing stage {} drop path&#34;.format(i))
+
+        endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+            
+        while not endSimulation:
+            # Take time step
+            try:
+                if lastTimeStepDt != None:
+                    self.dts[i] = lastTimeStepDt
+
+                timeStepAdjustmentFactor, self.dts[i] = self.rocketStages[i].timeStep(self.dts[i])
+
+                if i == 0:
+                    try:
+                        progressBar.update(self.dts[i])
+                    except AttributeError:
+                        # No progress bar defined b/c &#39;Time&#39; is not the simulation end condition
+                        pass
+            except:
+                # Simulation has crashed
+                # Try to create log files and plot sim results even though we&#39;ve encountered an error
+                print(&#34;ERROR: Simulation Crashed, Aborting&#34;)
+                print(&#34;Attempting to save log files and show plots&#34;)
+                self._postSingleSimCleanup(simDefinition)
+
+                # Try to print out the stack trace
+                print(&#34;Attempting to show stack trace&#34;)
+                import traceback
+                tb = traceback.format_exc()
+                print(tb)
+
+                print(&#34;Exiting&#34;)
+                sys.exit()
+
+            # Adjust time step: timeStepAdjustmentFactor == 1 for non-adaptive time stepping
+            self.dts[i] *= timeStepAdjustmentFactor
+
+            # HIL
+            if(self.rocketStages[i].hardwareInTheLoopControl == &#34;yes&#34;):
+                rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
+
+            # Cache states for flight animation
+            time = self.rocketStages[i].rigidBody.time
+            self.stageFlightPaths[i].times.append(time)
+            self.stageFlightPaths[i].rigidBodyStates.append(self.rocketStages[i].rigidBody.state)
+            if self.rocketStages[i].controlSystem != None:
+                try:
+                    for a in range(len(self.rocketStages[i].controlSystem.controlledSystem.actuatorList)):
+                        self.stageFlightPaths[i].actuatorDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                        self.stageFlightPaths[i].actuatorTargetDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                except AttributeError:
+                    # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                    pass
+
+            # Check whether we should break out of loop    
+            endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+        
+        # Log last state (would be the starting state of the next time step)
+        self.rocketStages[i]._runControlSystemAndLogStartingState(0.0)
+
+        # Move on to next (dropped) stage
+        i += 1
+
+        try:
+            progressBar.close()
+            
+            if not self.silent:
+                # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                sys.stdout.continueWritingToTerminal = True
+        except AttributeError:
+            pass
+
+    print(&#34;Simulation Complete&#34;)
+
+    logFilePaths = self._postSingleSimCleanup(simDefinition)
+
+    return self.stageFlightPaths, logFilePaths</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.WindTunnelRunner"><code class="flex name class">
+<span>class <span class="ident">WindTunnelRunner</span></span>
+<span>(</span><span>parameterToSweepKey='Rocket.velocity', parameterValueList=['(0 0 100)', '(0 0 200)', '(0 0 300)'], simDefinitionFilePath=None, fW=None, silent=False, smoothLine='False')</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WindTunnelRunner(SingleSimRunner):
+    def __init__(self, parameterToSweepKey=&#34;Rocket.velocity&#34;, parameterValueList=[&#34;(0 0 100)&#34;, &#34;(0 0 200)&#34;, &#34;(0 0 300)&#34;], simDefinitionFilePath=None, fW=None, silent=False, smoothLine=&#39;False&#39;):
+        self.parameterToSweepKey = parameterToSweepKey
+        self.parameterValueList = parameterValueList
+        self.smoothLine = smoothLine
+
+        SingleSimRunner.__init__(self, simDefinitionFilePath, fW, silent)
+
+    def runSweep(self):
+        &#39;&#39;&#39;
+            Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList
+            Returns:
+                List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
+        &#39;&#39;&#39;
+        # Make sure we&#39;re logging forces (the only way to get data out of this sim runner)
+        self.simDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;) # Don&#39;t produce any plots
+        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;) # Don&#39;t produce any plots
+
+        # Run a single force evaluation for each parameter value
+        # Regenerate simulation environment each time to allow user to change anything about the sim definition
+
+        # parameterValueDicts = SubDictReader.getImmediateSubDicts(SubDictReader.simDefDictPathToReadFrom + &#34;.ParameterSweep&#34;)
+        if self.smoothLine == &#39;True&#39;: # interpolate between user set parameter values
+            for i in range(len(self.parameterValueList[0])-1): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+                # this loop will run for as many values are given PER parameter. i&#39;th value for each parameter
+                # Set sim def value
+                if not self.silent:
+                    pass
+                    # print(&#34;Setting value: {} to {}&#34;.format(self.parameterToSweepKey, self.paramValueList[j][i]))
+                
+                k = 0
+                while k &lt; 10:
+                    for j in range(len(self.parameterValueList)): # j&#39;th parameter (velocity, temperature)
+                        # this loop will set a value for each given parameter type that is specified
+                        try:
+                            first = Vector(self.parameterValueList[j][i])
+                            second = Vector(self.parameterValueList[j][i+1])
+                            bucket = second - first
+                            incrementalValue = str(k/10 * bucket + Vector(self.parameterValueList[j][i]))
+                        except ValueError:
+                            first = float(self.parameterValueList[j][i])
+                            second = float(self.parameterValueList[j][i+1])
+                            bucket = second - first
+                            incrementalValue = str(k/10 * bucket + float(self.parameterValueList[j][i]))
+                        self.simDefinition.setValue(self.parameterToSweepKey[j], incrementalValue)
+                    
+                    if not self.silent:
+                        print(&#34;Running Single Force Evaluation&#34;)
+                    rocket = self.prepRocketForSingleSimulation()
+                    self.rocketStages = [rocket]
+                    rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+                    if i == len(self.parameterValueList[0])-2 and k == 9:
+                        for j in range(len(self.parameterValueList)):
+                            incrementalValue = self.parameterValueList[j][i+1]
+                            self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i+1])
+                        if not self.silent:
+                            print(&#34;Running Single Force Evaluation&#34;)
+                        rocket = self.prepRocketForSingleSimulation()
+                        self.rocketStages = [rocket]
+                        rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+                    k +=1   
+
+        else:
+            for i in range(len(self.parameterValueList[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+                # this loop will run for as many values are given PER parameter
+                # Set sim def value
+                if not self.silent:
+                    pass
+                    # print(&#34;Setting value: {} to {}&#34;.format(self.parameterToSweepKey, self.paramValueList[j][i]))
+                
+                for j in range(len(self.parameterValueList)): # j&#39;th parameter (velocity, temperature)
+                    # this loop will set a value for each given parameter type that is specified
+                    self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i])
+            
+                # Run + log the force evaluation
+                if not self.silent:
+                    print(&#34;Running Single Force Evaluation&#34;)
+                rocket = self.prepRocketForSingleSimulation()
+                self.rocketStages = [rocket]
+                rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+        # Write Logs to file
+        logFilePaths = self._postSingleSimCleanup(self.simDefinition)
+
+        # Because no time steps were taken, the main simulation log will not contain any plottable, tabular data.
+            # Remove it from logFilePaths
+        for logPath in logFilePaths:
+            if &#34;simulationLog&#34; in logPath:
+                logFilePaths.remove(logPath)
+                break
+
+        return logFilePaths
+
+    def prepRocketForSingleSimulation(self):
+        &#39;&#39;&#39; 
+            Do all the same stuff as the parent object, but also re-initialize the environment, 
+                to make sure changes to environmental properties during the parameter sweep take effect 
+        &#39;&#39;&#39;
+        self.environment = Environment(self.simDefinition, silent=self.silent)
+        return super().prepRocketForSingleSimulation()
+
+    def _setUpSingleSimLogging(self):
+        # Override to ensure that logs aren&#39;t re-initialized for every simulation.
+            # mainSimulationLog will only be absent the first time this function is run
+            # Want to keep all the force data in a single log file
+        if not hasattr(self, &#39;mainSimulationLog&#39;):
+            return super()._setUpSingleSimLogging()
+
+    def _createLogDataTableHeaders(self, rocket):
+        # Prevent the log headers from being re-generated over and over
+        if self.forceEvaluationLog == []:
+            return super()._createLogDataTableHeaders(rocket)
+
+    def _postSingleSimCleanup(self, simDefinition):
+        # Create an empty flight path to prevent errors in the parent function)
+        self.stageFlightPaths = [ RocketFlight() ]
+        return super()._postSingleSimCleanup(simDefinition)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.WindTunnelRunner.prepRocketForSingleSimulation"><code class="name flex">
+<span>def <span class="ident">prepRocketForSingleSimulation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Do all the same stuff as the parent object, but also re-initialize the environment,
+to make sure changes to environmental properties during the parameter sweep take effect</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prepRocketForSingleSimulation(self):
+    &#39;&#39;&#39; 
+        Do all the same stuff as the parent object, but also re-initialize the environment, 
+            to make sure changes to environmental properties during the parameter sweep take effect 
+    &#39;&#39;&#39;
+    self.environment = Environment(self.simDefinition, silent=self.silent)
+    return super().prepRocketForSingleSimulation()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.WindTunnelRunner.runSweep"><code class="name flex">
+<span>def <span class="ident">runSweep</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList</p>
+<h2 id="returns">Returns</h2>
+<p>List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runSweep(self):
+    &#39;&#39;&#39;
+        Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList
+        Returns:
+            List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
+    &#39;&#39;&#39;
+    # Make sure we&#39;re logging forces (the only way to get data out of this sim runner)
+    self.simDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+    self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;) # Don&#39;t produce any plots
+    self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;) # Don&#39;t produce any plots
+
+    # Run a single force evaluation for each parameter value
+    # Regenerate simulation environment each time to allow user to change anything about the sim definition
+
+    # parameterValueDicts = SubDictReader.getImmediateSubDicts(SubDictReader.simDefDictPathToReadFrom + &#34;.ParameterSweep&#34;)
+    if self.smoothLine == &#39;True&#39;: # interpolate between user set parameter values
+        for i in range(len(self.parameterValueList[0])-1): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+            # this loop will run for as many values are given PER parameter. i&#39;th value for each parameter
+            # Set sim def value
+            if not self.silent:
+                pass
+                # print(&#34;Setting value: {} to {}&#34;.format(self.parameterToSweepKey, self.paramValueList[j][i]))
+            
+            k = 0
+            while k &lt; 10:
+                for j in range(len(self.parameterValueList)): # j&#39;th parameter (velocity, temperature)
+                    # this loop will set a value for each given parameter type that is specified
+                    try:
+                        first = Vector(self.parameterValueList[j][i])
+                        second = Vector(self.parameterValueList[j][i+1])
+                        bucket = second - first
+                        incrementalValue = str(k/10 * bucket + Vector(self.parameterValueList[j][i]))
+                    except ValueError:
+                        first = float(self.parameterValueList[j][i])
+                        second = float(self.parameterValueList[j][i+1])
+                        bucket = second - first
+                        incrementalValue = str(k/10 * bucket + float(self.parameterValueList[j][i]))
+                    self.simDefinition.setValue(self.parameterToSweepKey[j], incrementalValue)
+                
+                if not self.silent:
+                    print(&#34;Running Single Force Evaluation&#34;)
+                rocket = self.prepRocketForSingleSimulation()
+                self.rocketStages = [rocket]
+                rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+                if i == len(self.parameterValueList[0])-2 and k == 9:
+                    for j in range(len(self.parameterValueList)):
+                        incrementalValue = self.parameterValueList[j][i+1]
+                        self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i+1])
+                    if not self.silent:
+                        print(&#34;Running Single Force Evaluation&#34;)
+                    rocket = self.prepRocketForSingleSimulation()
+                    self.rocketStages = [rocket]
+                    rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+                k +=1   
+
+    else:
+        for i in range(len(self.parameterValueList[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+            # this loop will run for as many values are given PER parameter
+            # Set sim def value
+            if not self.silent:
+                pass
+                # print(&#34;Setting value: {} to {}&#34;.format(self.parameterToSweepKey, self.paramValueList[j][i]))
+            
+            for j in range(len(self.parameterValueList)): # j&#39;th parameter (velocity, temperature)
+                # this loop will set a value for each given parameter type that is specified
+                self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i])
+        
+            # Run + log the force evaluation
+            if not self.silent:
+                print(&#34;Running Single Force Evaluation&#34;)
+            rocket = self.prepRocketForSingleSimulation()
+            self.rocketStages = [rocket]
+            rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+    # Write Logs to file
+    logFilePaths = self._postSingleSimCleanup(self.simDefinition)
+
+    # Because no time steps were taken, the main simulation log will not contain any plottable, tabular data.
+        # Remove it from logFilePaths
+    for logPath in logFilePaths:
+        if &#34;simulationLog&#34; in logPath:
+            logFilePaths.remove(logPath)
+            break
+
+    return logFilePaths</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage" href="#MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.environment" href="#MAPLEAF.SimulationRunners.SingleSimRunner.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation">runSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.silent" href="#MAPLEAF.SimulationRunners.SingleSimRunner.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition" href="#MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex" href="#MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF" href="index.html">MAPLEAF</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.isMonteCarloSimulation" href="#MAPLEAF.SimulationRunners.isMonteCarloSimulation">isMonteCarloSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.runParallelMonteCarloSim" href="#MAPLEAF.SimulationRunners.runParallelMonteCarloSim">runParallelMonteCarloSim</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.ConvergenceSimRunner" href="#MAPLEAF.SimulationRunners.ConvergenceSimRunner">ConvergenceSimRunner</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.ConvergenceSimRunner.compareAdaptiveIntegrationSchemes" href="#MAPLEAF.SimulationRunners.ConvergenceSimRunner.compareAdaptiveIntegrationSchemes">compareAdaptiveIntegrationSchemes</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.ConvergenceSimRunner.compareClassicalIntegrationSchemes" href="#MAPLEAF.SimulationRunners.ConvergenceSimRunner.compareClassicalIntegrationSchemes">compareClassicalIntegrationSchemes</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.ConvergenceSimRunner.convergeSimEndPosition" href="#MAPLEAF.SimulationRunners.ConvergenceSimRunner.convergeSimEndPosition">convergeSimEndPosition</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.MonteCarloSimRunner" href="#MAPLEAF.SimulationRunners.MonteCarloSimRunner">MonteCarloSimRunner</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.MonteCarloSimRunner.runMonteCarloSimulation" href="#MAPLEAF.SimulationRunners.MonteCarloSimRunner.runMonteCarloSimulation">runMonteCarloSimulation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage" href="#MAPLEAF.SimulationRunners.SingleSimRunner.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.discardForceLogsForLastTimeStep" href="#MAPLEAF.SimulationRunners.SingleSimRunner.discardForceLogsForLastTimeStep">discardForceLogsForLastTimeStep</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.environment" href="#MAPLEAF.SimulationRunners.SingleSimRunner.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.newForcesLogLine" href="#MAPLEAF.SimulationRunners.SingleSimRunner.newForcesLogLine">newForcesLogLine</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation">prepRocketForSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation" href="#MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation">runSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.silent" href="#MAPLEAF.SimulationRunners.SingleSimRunner.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition" href="#MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex" href="#MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.WindTunnelRunner" href="#MAPLEAF.SimulationRunners.WindTunnelRunner">WindTunnelRunner</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.WindTunnelRunner.prepRocketForSingleSimulation" href="#MAPLEAF.SimulationRunners.WindTunnelRunner.prepRocketForSingleSimulation">prepRocketForSingleSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.WindTunnelRunner.runSweep" href="#MAPLEAF.SimulationRunners.WindTunnelRunner.runSweep">runSweep</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

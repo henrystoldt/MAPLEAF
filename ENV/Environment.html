@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.ENV.Environment API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.ENV.Environment</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import math
+from collections import namedtuple
+from typing import Union
+
+import numpy as np
+
+from MAPLEAF.ENV.AtmosphereModelling import atmosphericModelFactory
+from MAPLEAF.ENV.EarthModelling import earthModelFactory
+from MAPLEAF.ENV.LaunchRail import LaunchRail
+from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
+from MAPLEAF.ENV.TurbulenceModelling import turbulenceModelFactory
+from MAPLEAF.IO.SimDefinition import defaultConfigValues
+from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion.CythonQuaternion import Quaternion
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+
+# This named tuple is the object used to return information from the Environmental models to the rocket
+    # It is subsequently passed to all rocket objects, who use it in their calculations if they have
+    # relevant calculations to do (aerodynamics, air-breathing propulsion)
+EnvironmentalConditions = namedtuple(
+    &#34;EnvironmentalConditions&#34;,
+    [
+        &#34;ASLAltitude&#34;,
+        &#34;Temp&#34;,
+        &#34;Pressure&#34;,
+        &#34;Density&#34;,
+        &#34;DynamicViscosity&#34;,
+        &#34;Wind&#34;,
+        &#34;MeanWind&#34;,
+        &#34;TurbWind&#34;,
+    ],
+)
+
+class Environment():
+    &#39;&#39;&#39;
+        Class wraps Wind Models, Atmospheric properties models, and earth/gravity models, presenting a 
+        single interface for communication with flight vehicles
+    &#39;&#39;&#39;
+    
+    def __init__(self, simDefinition=None, silent=False):
+        &#39;&#39;&#39; Sets up the Wind, Atmospheric, and Earth models requested in the Sim Definition file &#39;&#39;&#39;
+        self.launchRail = None
+
+        if simDefinition != None:
+            # Whenever we&#39;re running a real simulation, should always end up here
+            envDictReader = SubDictReader(&#34;Environment&#34;, simDefinition)
+
+            self.meanWindModel = meanWindModelFactory(simDefinition, silent=silent)
+            self.turbulenceModel = turbulenceModelFactory(simDefinition, silent=silent)
+            self.atmosphericModel = atmosphericModelFactory(envDictReader=envDictReader)
+            self.earthModel = earthModelFactory(envDictReader)
+
+            self.launchSiteElevation = envDictReader.tryGetFloat(&#34;LaunchSite.elevation&#34;)
+            self.launchSiteLatitude = envDictReader.tryGetFloat(&#34;LaunchSite.latitude&#34;)
+            self.launchSiteLongitude = envDictReader.tryGetFloat(&#34;LaunchSite.longitude&#34;)
+
+            # Check if being launched from a launch rail
+            launchRailLength = envDictReader.getFloat(&#34;LaunchSite.railLength&#34;)
+            
+            if launchRailLength &gt; 0:
+                # Initialize a launch rail, aligned with the rocket&#39;s initial direction
+                initialRocketPosition_towerFrame = envDictReader.getVector(&#34;Rocket.position&#34;)
+
+                # Check whether precise initial orientation has been specified
+                rotationAxis = envDictReader.tryGetVector(&#34;Rocket.rotationAxis&#34;, defaultValue=None)
+                if rotationAxis != None:
+                    rotationAngle = math.radians(envDictReader.getFloat(&#34;Rocket.rotationAngle&#34;))
+                    initOrientation = Quaternion(rotationAxis, rotationAngle)
+                else:
+                    # Calculate initial orientation quaternion in launch tower frame
+                    initialDirection = self.rocketDictReader.getVector(&#34;initialDirection&#34;).normalize()
+                    angleFromVertical = Vector(0,0,1).angle(initialDirection)
+                    rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+                    initOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+                launchTowerState_local = RigidBodyState(position=initialRocketPosition_towerFrame, orientation=initOrientation)
+                launchTowerState_global = self.earthModel.convertIntoGlobalFrame(launchTowerState_local, self.launchSiteLatitude, self.launchSiteLongitude)
+                towerDirection_global = launchTowerState_global.orientation.rotate(Vector(0, 0, 1))                
+                self.launchRail = LaunchRail(launchTowerState_global.position, towerDirection_global, launchRailLength, earthRotationRate=self.earthModel.rotationRate)
+                
+        else:
+            # Construct default environment from default parameters when no sim definition is passed in
+            # Need additional default value here in case a SimDefinition is not passed in (otherwise SimDefinition takes care of default values)
+            self.meanWindModel = meanWindModelFactory()
+            self.turbulenceModel = None
+            self.atmosphericModel = atmosphericModelFactory(defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;])
+            self.earthModel = earthModelFactory()
+
+            self.launchSiteElevation = float(defaultConfigValues[&#34;Environment.LaunchSite.elevation&#34;])
+            self.launchSiteLatitude = float(defaultConfigValues[&#34;Environment.LaunchSite.latitude&#34;])
+            self.launchSiteLongitude = float(defaultConfigValues[&#34;Environment.LaunchSite.longitude&#34;])
+
+    def convertInitialStateToGlobalFrame(self, initialStateInLaunchTowerFrame):
+        &#39;&#39;&#39; 
+            Used to convert the rocket&#39;s initial kinematic state from the launch tower frame (in which it is defined) and 
+                into the global inertia frame
+
+            Takes a rigid body state defined in the launch tower frame and converts it to the global frame 
+            For a flat earth model, this just adjusts for the altitude of the launch site,
+            but for a rotating earth model, this modifies every part of the rigid body state:
+                1. Position is redefined relative to the center of the earth (Acoording to lat/lon)  
+                2. The velocity of earth&#39;s rotation is added to the velocity  
+                3. The orientation is redefined relative to the global frame  
+                4. The angular velocity of the earth is added to the rocket&#39;s initial state  
+
+            .. note:: If a launch rail is being used, set the launch-tower-frame angular velocity to zero before doing the conversion
+        &#39;&#39;&#39;
+        # In all cases, first redefine the present state relative to sea level
+        initialStateInLaunchTowerFrame.position += Vector(0,0,self.launchSiteElevation)
+
+        # Set launch-tower-frame angular velocity to zero if using a launch rail
+        if self.launchRail != None:
+            initialStateInLaunchTowerFrame.angularVelocity = AngularVelocity(0,0,0)
+
+        # Call the current earth model&#39;s conversion function
+        return self.earthModel.convertIntoGlobalFrame(initialStateInLaunchTowerFrame, self.launchSiteLatitude, self.launchSiteLongitude)
+
+    def convertStateToENUFrame(self, globalFrameState: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Union[RigidBodyState, RigidBodyState_3DoF]:
+        altitude = self.earthModel.getAltitude(*globalFrameState.position)
+        position = Vector(0, 0, altitude) # Frame moves with the aircraft so x/y are always zero
+        
+        inertialToENURotation = self.earthModel.getInertialToENUFrameRotation(*globalFrameState.position)
+        ENUToGlobalRotation = inertialToENURotation.conjugate()
+        velocity = ENUToGlobalRotation.rotate(globalFrameState.velocity)
+
+        try:
+            orientation = ENUToGlobalRotation * globalFrameState.orientation
+            angVel = ENUToGlobalRotation.rotate(globalFrameState.angularVelocity)
+            return RigidBodyState(position, velocity, orientation, angVel)
+        except:
+            return RigidBodyState_3DoF(position, velocity)
+
+    #### Get all air/atmospheric properties ####
+    def getAirProperties(self, position: Vector, time=None) -&gt; EnvironmentalConditions:
+        &#39;&#39;&#39; Pass in a vector representing the aircraft&#39;s position in the global inertial frame of reference &#39;&#39;&#39;
+        # ASL Altitude is calculated differently depending on whether the earth is modelled as flat, round, or ellipsoidal
+        ASLAltitude = self.earthModel.getAltitude(*position) 
+        # Ground level is remain constant as that of the launch site
+        AGLAltitude = ASLAltitude - self.launchSiteElevation
+
+        # Get wind based on AGL, in North-East-Up frame
+            # TODO: This is only desirable for low-altitude flights, should switch to ASL altitude once out of the atmospheric boundary layer
+        meanWind, turbWind = self.getWind(AGLAltitude, time)
+        
+        # Add earth&#39;s rotation speed to the mean wind
+        # For No/Flat Earth models, the rotationRate will be zero and this will have no effect
+        distanceFromRotationAxis = math.sqrt(position.X**2 + position.Y**2)
+        earthRotationSpeed = self.earthModel.rotationRate * distanceFromRotationAxis
+        # Earth&#39;s surface rotates towards the east, so add the rotation velocity to the East component (X) of the local ENU frame
+        meanWind = meanWind + Vector(earthRotationSpeed,0,0)
+
+        # Wind is calculated in the North-East-Up frame, and needs to be rotated into the global inertial frame
+        # For No/Flat Earth models, the rotation will return a zero-rotation Quaternion, so this has no effect
+        orientationOfENUFrameInGlobalFrame = self.earthModel.getInertialToENUFrameRotation(*position)
+        meanWind = orientationOfENUFrameInGlobalFrame.rotate(meanWind)
+        turbWind = orientationOfENUFrameInGlobalFrame.rotate(turbWind)
+
+        # Now calculate total wind in global frame
+        totalWind = meanWind + turbWind
+
+        # Add air properties based on ASL, return the result
+        return EnvironmentalConditions(
+            ASLAltitude,
+            *self.atmosphericModel.getAirProperties(ASLAltitude, time), # Asterisk unpacks the returned values
+            totalWind, 
+            meanWind, 
+            turbWind
+        )
+
+    #### Wind properties ####
+    def getWind(self, AGLElevation, time=None):
+        &#39;&#39;&#39; Returns wind in the North-East-Up (Y-X-Z) frame &#39;&#39;&#39;
+        meanWindVel = self.meanWindModel.getMeanWind(AGLElevation)
+        
+        if self.turbulenceModel != None:
+            turbWindVel = self.turbulenceModel.getTurbVelocity(AGLElevation, meanWindVel, time)
+        else:
+            turbWindVel = Vector(0,0,0)
+
+        return meanWindVel, turbWindVel
+
+    #### Wrappers for launch rail functions ####    
+    def applyLaunchRailMotionConstraints(self, state, time):
+        if self.launchRail == None:
+            # Majority of the time we&#39;ll be off the rail and this will run
+            return state
+
+        onLaunchRail, adjustedState = self.launchRail.applyLaunchTowerMotionConstraint(state, time)
+        
+        # Delete rail if we&#39;ve left it
+        if not onLaunchRail:
+            print(&#34;Launch rail cleared&#34;)
+            self.launchRail = None
+
+        return adjustedState
+
+    def applyLaunchTowerForce(self, state, time, unadjustedForce):
+        if self.launchRail == None:
+            # Majority of the time we&#39;ll be off the rail and this will run
+            return unadjustedForce
+        
+        return self.launchRail.applyLaunchTowerForce(state, time, unadjustedForce)
+
+    #### Gravity ####
+    def getGravityForce(self, inertia, state) -&gt; ForceMomentSystem:
+        &#39;&#39;&#39;
+            Inputs:
+                inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
+                state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+
+            Returns:
+                gravityForce: (ForceMomentSystem) defined in the rocket&#39;s local frame
+        &#39;&#39;&#39;
+        # Get gravity force in the global frame
+        gravityForce = self.earthModel.getGravityForce(inertia, state)
+        
+        try:
+            # Convert to local frame if in 6DoF simulation
+            gravityForce = state.orientation.conjugate().rotate(gravityForce) # rotate into local frame when in 6DoF mode
+        except AttributeError:
+            pass # Don&#39;t do anything in 3DoF mode (No local frame exists)
+
+        return ForceMomentSystem(gravityForce, inertia.CG)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.ENV.Environment.Environment"><code class="flex name class">
+<span>class <span class="ident">Environment</span></span>
+<span>(</span><span>simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class wraps Wind Models, Atmospheric properties models, and earth/gravity models, presenting a
+single interface for communication with flight vehicles</p>
+<p>Sets up the Wind, Atmospheric, and Earth models requested in the Sim Definition file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Environment():
+    &#39;&#39;&#39;
+        Class wraps Wind Models, Atmospheric properties models, and earth/gravity models, presenting a 
+        single interface for communication with flight vehicles
+    &#39;&#39;&#39;
+    
+    def __init__(self, simDefinition=None, silent=False):
+        &#39;&#39;&#39; Sets up the Wind, Atmospheric, and Earth models requested in the Sim Definition file &#39;&#39;&#39;
+        self.launchRail = None
+
+        if simDefinition != None:
+            # Whenever we&#39;re running a real simulation, should always end up here
+            envDictReader = SubDictReader(&#34;Environment&#34;, simDefinition)
+
+            self.meanWindModel = meanWindModelFactory(simDefinition, silent=silent)
+            self.turbulenceModel = turbulenceModelFactory(simDefinition, silent=silent)
+            self.atmosphericModel = atmosphericModelFactory(envDictReader=envDictReader)
+            self.earthModel = earthModelFactory(envDictReader)
+
+            self.launchSiteElevation = envDictReader.tryGetFloat(&#34;LaunchSite.elevation&#34;)
+            self.launchSiteLatitude = envDictReader.tryGetFloat(&#34;LaunchSite.latitude&#34;)
+            self.launchSiteLongitude = envDictReader.tryGetFloat(&#34;LaunchSite.longitude&#34;)
+
+            # Check if being launched from a launch rail
+            launchRailLength = envDictReader.getFloat(&#34;LaunchSite.railLength&#34;)
+            
+            if launchRailLength &gt; 0:
+                # Initialize a launch rail, aligned with the rocket&#39;s initial direction
+                initialRocketPosition_towerFrame = envDictReader.getVector(&#34;Rocket.position&#34;)
+
+                # Check whether precise initial orientation has been specified
+                rotationAxis = envDictReader.tryGetVector(&#34;Rocket.rotationAxis&#34;, defaultValue=None)
+                if rotationAxis != None:
+                    rotationAngle = math.radians(envDictReader.getFloat(&#34;Rocket.rotationAngle&#34;))
+                    initOrientation = Quaternion(rotationAxis, rotationAngle)
+                else:
+                    # Calculate initial orientation quaternion in launch tower frame
+                    initialDirection = self.rocketDictReader.getVector(&#34;initialDirection&#34;).normalize()
+                    angleFromVertical = Vector(0,0,1).angle(initialDirection)
+                    rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+                    initOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+                launchTowerState_local = RigidBodyState(position=initialRocketPosition_towerFrame, orientation=initOrientation)
+                launchTowerState_global = self.earthModel.convertIntoGlobalFrame(launchTowerState_local, self.launchSiteLatitude, self.launchSiteLongitude)
+                towerDirection_global = launchTowerState_global.orientation.rotate(Vector(0, 0, 1))                
+                self.launchRail = LaunchRail(launchTowerState_global.position, towerDirection_global, launchRailLength, earthRotationRate=self.earthModel.rotationRate)
+                
+        else:
+            # Construct default environment from default parameters when no sim definition is passed in
+            # Need additional default value here in case a SimDefinition is not passed in (otherwise SimDefinition takes care of default values)
+            self.meanWindModel = meanWindModelFactory()
+            self.turbulenceModel = None
+            self.atmosphericModel = atmosphericModelFactory(defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;])
+            self.earthModel = earthModelFactory()
+
+            self.launchSiteElevation = float(defaultConfigValues[&#34;Environment.LaunchSite.elevation&#34;])
+            self.launchSiteLatitude = float(defaultConfigValues[&#34;Environment.LaunchSite.latitude&#34;])
+            self.launchSiteLongitude = float(defaultConfigValues[&#34;Environment.LaunchSite.longitude&#34;])
+
+    def convertInitialStateToGlobalFrame(self, initialStateInLaunchTowerFrame):
+        &#39;&#39;&#39; 
+            Used to convert the rocket&#39;s initial kinematic state from the launch tower frame (in which it is defined) and 
+                into the global inertia frame
+
+            Takes a rigid body state defined in the launch tower frame and converts it to the global frame 
+            For a flat earth model, this just adjusts for the altitude of the launch site,
+            but for a rotating earth model, this modifies every part of the rigid body state:
+                1. Position is redefined relative to the center of the earth (Acoording to lat/lon)  
+                2. The velocity of earth&#39;s rotation is added to the velocity  
+                3. The orientation is redefined relative to the global frame  
+                4. The angular velocity of the earth is added to the rocket&#39;s initial state  
+
+            .. note:: If a launch rail is being used, set the launch-tower-frame angular velocity to zero before doing the conversion
+        &#39;&#39;&#39;
+        # In all cases, first redefine the present state relative to sea level
+        initialStateInLaunchTowerFrame.position += Vector(0,0,self.launchSiteElevation)
+
+        # Set launch-tower-frame angular velocity to zero if using a launch rail
+        if self.launchRail != None:
+            initialStateInLaunchTowerFrame.angularVelocity = AngularVelocity(0,0,0)
+
+        # Call the current earth model&#39;s conversion function
+        return self.earthModel.convertIntoGlobalFrame(initialStateInLaunchTowerFrame, self.launchSiteLatitude, self.launchSiteLongitude)
+
+    def convertStateToENUFrame(self, globalFrameState: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Union[RigidBodyState, RigidBodyState_3DoF]:
+        altitude = self.earthModel.getAltitude(*globalFrameState.position)
+        position = Vector(0, 0, altitude) # Frame moves with the aircraft so x/y are always zero
+        
+        inertialToENURotation = self.earthModel.getInertialToENUFrameRotation(*globalFrameState.position)
+        ENUToGlobalRotation = inertialToENURotation.conjugate()
+        velocity = ENUToGlobalRotation.rotate(globalFrameState.velocity)
+
+        try:
+            orientation = ENUToGlobalRotation * globalFrameState.orientation
+            angVel = ENUToGlobalRotation.rotate(globalFrameState.angularVelocity)
+            return RigidBodyState(position, velocity, orientation, angVel)
+        except:
+            return RigidBodyState_3DoF(position, velocity)
+
+    #### Get all air/atmospheric properties ####
+    def getAirProperties(self, position: Vector, time=None) -&gt; EnvironmentalConditions:
+        &#39;&#39;&#39; Pass in a vector representing the aircraft&#39;s position in the global inertial frame of reference &#39;&#39;&#39;
+        # ASL Altitude is calculated differently depending on whether the earth is modelled as flat, round, or ellipsoidal
+        ASLAltitude = self.earthModel.getAltitude(*position) 
+        # Ground level is remain constant as that of the launch site
+        AGLAltitude = ASLAltitude - self.launchSiteElevation
+
+        # Get wind based on AGL, in North-East-Up frame
+            # TODO: This is only desirable for low-altitude flights, should switch to ASL altitude once out of the atmospheric boundary layer
+        meanWind, turbWind = self.getWind(AGLAltitude, time)
+        
+        # Add earth&#39;s rotation speed to the mean wind
+        # For No/Flat Earth models, the rotationRate will be zero and this will have no effect
+        distanceFromRotationAxis = math.sqrt(position.X**2 + position.Y**2)
+        earthRotationSpeed = self.earthModel.rotationRate * distanceFromRotationAxis
+        # Earth&#39;s surface rotates towards the east, so add the rotation velocity to the East component (X) of the local ENU frame
+        meanWind = meanWind + Vector(earthRotationSpeed,0,0)
+
+        # Wind is calculated in the North-East-Up frame, and needs to be rotated into the global inertial frame
+        # For No/Flat Earth models, the rotation will return a zero-rotation Quaternion, so this has no effect
+        orientationOfENUFrameInGlobalFrame = self.earthModel.getInertialToENUFrameRotation(*position)
+        meanWind = orientationOfENUFrameInGlobalFrame.rotate(meanWind)
+        turbWind = orientationOfENUFrameInGlobalFrame.rotate(turbWind)
+
+        # Now calculate total wind in global frame
+        totalWind = meanWind + turbWind
+
+        # Add air properties based on ASL, return the result
+        return EnvironmentalConditions(
+            ASLAltitude,
+            *self.atmosphericModel.getAirProperties(ASLAltitude, time), # Asterisk unpacks the returned values
+            totalWind, 
+            meanWind, 
+            turbWind
+        )
+
+    #### Wind properties ####
+    def getWind(self, AGLElevation, time=None):
+        &#39;&#39;&#39; Returns wind in the North-East-Up (Y-X-Z) frame &#39;&#39;&#39;
+        meanWindVel = self.meanWindModel.getMeanWind(AGLElevation)
+        
+        if self.turbulenceModel != None:
+            turbWindVel = self.turbulenceModel.getTurbVelocity(AGLElevation, meanWindVel, time)
+        else:
+            turbWindVel = Vector(0,0,0)
+
+        return meanWindVel, turbWindVel
+
+    #### Wrappers for launch rail functions ####    
+    def applyLaunchRailMotionConstraints(self, state, time):
+        if self.launchRail == None:
+            # Majority of the time we&#39;ll be off the rail and this will run
+            return state
+
+        onLaunchRail, adjustedState = self.launchRail.applyLaunchTowerMotionConstraint(state, time)
+        
+        # Delete rail if we&#39;ve left it
+        if not onLaunchRail:
+            print(&#34;Launch rail cleared&#34;)
+            self.launchRail = None
+
+        return adjustedState
+
+    def applyLaunchTowerForce(self, state, time, unadjustedForce):
+        if self.launchRail == None:
+            # Majority of the time we&#39;ll be off the rail and this will run
+            return unadjustedForce
+        
+        return self.launchRail.applyLaunchTowerForce(state, time, unadjustedForce)
+
+    #### Gravity ####
+    def getGravityForce(self, inertia, state) -&gt; ForceMomentSystem:
+        &#39;&#39;&#39;
+            Inputs:
+                inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
+                state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+
+            Returns:
+                gravityForce: (ForceMomentSystem) defined in the rocket&#39;s local frame
+        &#39;&#39;&#39;
+        # Get gravity force in the global frame
+        gravityForce = self.earthModel.getGravityForce(inertia, state)
+        
+        try:
+            # Convert to local frame if in 6DoF simulation
+            gravityForce = state.orientation.conjugate().rotate(gravityForce) # rotate into local frame when in 6DoF mode
+        except AttributeError:
+            pass # Don&#39;t do anything in 3DoF mode (No local frame exists)
+
+        return ForceMomentSystem(gravityForce, inertia.CG)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.Environment.Environment.applyLaunchRailMotionConstraints"><code class="name flex">
+<span>def <span class="ident">applyLaunchRailMotionConstraints</span></span>(<span>self, state, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applyLaunchRailMotionConstraints(self, state, time):
+    if self.launchRail == None:
+        # Majority of the time we&#39;ll be off the rail and this will run
+        return state
+
+    onLaunchRail, adjustedState = self.launchRail.applyLaunchTowerMotionConstraint(state, time)
+    
+    # Delete rail if we&#39;ve left it
+    if not onLaunchRail:
+        print(&#34;Launch rail cleared&#34;)
+        self.launchRail = None
+
+    return adjustedState</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.Environment.applyLaunchTowerForce"><code class="name flex">
+<span>def <span class="ident">applyLaunchTowerForce</span></span>(<span>self, state, time, unadjustedForce)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def applyLaunchTowerForce(self, state, time, unadjustedForce):
+    if self.launchRail == None:
+        # Majority of the time we&#39;ll be off the rail and this will run
+        return unadjustedForce
+    
+    return self.launchRail.applyLaunchTowerForce(state, time, unadjustedForce)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.Environment.convertInitialStateToGlobalFrame"><code class="name flex">
+<span>def <span class="ident">convertInitialStateToGlobalFrame</span></span>(<span>self, initialStateInLaunchTowerFrame)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Used to convert the rocket's initial kinematic state from the launch tower frame (in which it is defined) and
+into the global inertia frame</p>
+<p>Takes a rigid body state defined in the launch tower frame and converts it to the global frame
+For a flat earth model, this just adjusts for the altitude of the launch site,
+but for a rotating earth model, this modifies every part of the rigid body state:
+1. Position is redefined relative to the center of the earth (Acoording to lat/lon)<br>
+2. The velocity of earth's rotation is added to the velocity<br>
+3. The orientation is redefined relative to the global frame<br>
+4. The angular velocity of the earth is added to the rocket's initial state
+</p>
+<div class="admonition note">
+<p class="admonition-title">Note:&ensp;If a launch rail is being used, set the launch-tower-frame angular velocity to zero before doing the conversion</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convertInitialStateToGlobalFrame(self, initialStateInLaunchTowerFrame):
+    &#39;&#39;&#39; 
+        Used to convert the rocket&#39;s initial kinematic state from the launch tower frame (in which it is defined) and 
+            into the global inertia frame
+
+        Takes a rigid body state defined in the launch tower frame and converts it to the global frame 
+        For a flat earth model, this just adjusts for the altitude of the launch site,
+        but for a rotating earth model, this modifies every part of the rigid body state:
+            1. Position is redefined relative to the center of the earth (Acoording to lat/lon)  
+            2. The velocity of earth&#39;s rotation is added to the velocity  
+            3. The orientation is redefined relative to the global frame  
+            4. The angular velocity of the earth is added to the rocket&#39;s initial state  
+
+        .. note:: If a launch rail is being used, set the launch-tower-frame angular velocity to zero before doing the conversion
+    &#39;&#39;&#39;
+    # In all cases, first redefine the present state relative to sea level
+    initialStateInLaunchTowerFrame.position += Vector(0,0,self.launchSiteElevation)
+
+    # Set launch-tower-frame angular velocity to zero if using a launch rail
+    if self.launchRail != None:
+        initialStateInLaunchTowerFrame.angularVelocity = AngularVelocity(0,0,0)
+
+    # Call the current earth model&#39;s conversion function
+    return self.earthModel.convertIntoGlobalFrame(initialStateInLaunchTowerFrame, self.launchSiteLatitude, self.launchSiteLongitude)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.Environment.convertStateToENUFrame"><code class="name flex">
+<span>def <span class="ident">convertStateToENUFrame</span></span>(<span>self, globalFrameState: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]) ‑> Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convertStateToENUFrame(self, globalFrameState: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Union[RigidBodyState, RigidBodyState_3DoF]:
+    altitude = self.earthModel.getAltitude(*globalFrameState.position)
+    position = Vector(0, 0, altitude) # Frame moves with the aircraft so x/y are always zero
+    
+    inertialToENURotation = self.earthModel.getInertialToENUFrameRotation(*globalFrameState.position)
+    ENUToGlobalRotation = inertialToENURotation.conjugate()
+    velocity = ENUToGlobalRotation.rotate(globalFrameState.velocity)
+
+    try:
+        orientation = ENUToGlobalRotation * globalFrameState.orientation
+        angVel = ENUToGlobalRotation.rotate(globalFrameState.angularVelocity)
+        return RigidBodyState(position, velocity, orientation, angVel)
+    except:
+        return RigidBodyState_3DoF(position, velocity)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.Environment.getAirProperties"><code class="name flex">
+<span>def <span class="ident">getAirProperties</span></span>(<span>self, position: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>, time=None) ‑> <a title="MAPLEAF.ENV.Environment.EnvironmentalConditions" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions">EnvironmentalConditions</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pass in a vector representing the aircraft's position in the global inertial frame of reference</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAirProperties(self, position: Vector, time=None) -&gt; EnvironmentalConditions:
+    &#39;&#39;&#39; Pass in a vector representing the aircraft&#39;s position in the global inertial frame of reference &#39;&#39;&#39;
+    # ASL Altitude is calculated differently depending on whether the earth is modelled as flat, round, or ellipsoidal
+    ASLAltitude = self.earthModel.getAltitude(*position) 
+    # Ground level is remain constant as that of the launch site
+    AGLAltitude = ASLAltitude - self.launchSiteElevation
+
+    # Get wind based on AGL, in North-East-Up frame
+        # TODO: This is only desirable for low-altitude flights, should switch to ASL altitude once out of the atmospheric boundary layer
+    meanWind, turbWind = self.getWind(AGLAltitude, time)
+    
+    # Add earth&#39;s rotation speed to the mean wind
+    # For No/Flat Earth models, the rotationRate will be zero and this will have no effect
+    distanceFromRotationAxis = math.sqrt(position.X**2 + position.Y**2)
+    earthRotationSpeed = self.earthModel.rotationRate * distanceFromRotationAxis
+    # Earth&#39;s surface rotates towards the east, so add the rotation velocity to the East component (X) of the local ENU frame
+    meanWind = meanWind + Vector(earthRotationSpeed,0,0)
+
+    # Wind is calculated in the North-East-Up frame, and needs to be rotated into the global inertial frame
+    # For No/Flat Earth models, the rotation will return a zero-rotation Quaternion, so this has no effect
+    orientationOfENUFrameInGlobalFrame = self.earthModel.getInertialToENUFrameRotation(*position)
+    meanWind = orientationOfENUFrameInGlobalFrame.rotate(meanWind)
+    turbWind = orientationOfENUFrameInGlobalFrame.rotate(turbWind)
+
+    # Now calculate total wind in global frame
+    totalWind = meanWind + turbWind
+
+    # Add air properties based on ASL, return the result
+    return EnvironmentalConditions(
+        ASLAltitude,
+        *self.atmosphericModel.getAirProperties(ASLAltitude, time), # Asterisk unpacks the returned values
+        totalWind, 
+        meanWind, 
+        turbWind
+    )</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.Environment.getGravityForce"><code class="name flex">
+<span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia, state) ‑> <a title="MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem" href="../Motion/ForceMomentSystem.html#MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>inertia: (<code><a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code>)
+state:
+(<code><a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a></code>/<code><a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a></code>)</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>gravityForce</code></dt>
+<dd>(ForceMomentSystem) defined in the rocket's local frame</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getGravityForce(self, inertia, state) -&gt; ForceMomentSystem:
+    &#39;&#39;&#39;
+        Inputs:
+            inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
+            state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+
+        Returns:
+            gravityForce: (ForceMomentSystem) defined in the rocket&#39;s local frame
+    &#39;&#39;&#39;
+    # Get gravity force in the global frame
+    gravityForce = self.earthModel.getGravityForce(inertia, state)
+    
+    try:
+        # Convert to local frame if in 6DoF simulation
+        gravityForce = state.orientation.conjugate().rotate(gravityForce) # rotate into local frame when in 6DoF mode
+    except AttributeError:
+        pass # Don&#39;t do anything in 3DoF mode (No local frame exists)
+
+    return ForceMomentSystem(gravityForce, inertia.CG)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.Environment.getWind"><code class="name flex">
+<span>def <span class="ident">getWind</span></span>(<span>self, AGLElevation, time=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns wind in the North-East-Up (Y-X-Z) frame</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getWind(self, AGLElevation, time=None):
+    &#39;&#39;&#39; Returns wind in the North-East-Up (Y-X-Z) frame &#39;&#39;&#39;
+    meanWindVel = self.meanWindModel.getMeanWind(AGLElevation)
+    
+    if self.turbulenceModel != None:
+        turbWindVel = self.turbulenceModel.getTurbVelocity(AGLElevation, meanWindVel, time)
+    else:
+        turbWindVel = Vector(0,0,0)
+
+    return meanWindVel, turbWindVel</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions"><code class="flex name class">
+<span>class <span class="ident">EnvironmentalConditions</span></span>
+<span>(</span><span>ASLAltitude, Temp, Pressure, Density, DynamicViscosity, Wind, MeanWind, TurbWind)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>EnvironmentalConditions(ASLAltitude, Temp, Pressure, Density, DynamicViscosity, Wind, MeanWind, TurbWind)</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.ASLAltitude"><code class="name">var <span class="ident">ASLAltitude</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Density"><code class="name">var <span class="ident">Density</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 3</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.DynamicViscosity"><code class="name">var <span class="ident">DynamicViscosity</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 4</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.MeanWind"><code class="name">var <span class="ident">MeanWind</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 6</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Pressure"><code class="name">var <span class="ident">Pressure</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Temp"><code class="name">var <span class="ident">Temp</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.TurbWind"><code class="name">var <span class="ident">TurbWind</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 7</p></div>
+</dd>
+<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Wind"><code class="name">var <span class="ident">Wind</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 5</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.ENV" href="index.html">MAPLEAF.ENV</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.ENV.Environment.Environment" href="#MAPLEAF.ENV.Environment.Environment">Environment</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.applyLaunchRailMotionConstraints" href="#MAPLEAF.ENV.Environment.Environment.applyLaunchRailMotionConstraints">applyLaunchRailMotionConstraints</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.applyLaunchTowerForce" href="#MAPLEAF.ENV.Environment.Environment.applyLaunchTowerForce">applyLaunchTowerForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.convertInitialStateToGlobalFrame" href="#MAPLEAF.ENV.Environment.Environment.convertInitialStateToGlobalFrame">convertInitialStateToGlobalFrame</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.convertStateToENUFrame" href="#MAPLEAF.ENV.Environment.Environment.convertStateToENUFrame">convertStateToENUFrame</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.getAirProperties" href="#MAPLEAF.ENV.Environment.Environment.getAirProperties">getAirProperties</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.getGravityForce" href="#MAPLEAF.ENV.Environment.Environment.getGravityForce">getGravityForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.Environment.getWind" href="#MAPLEAF.ENV.Environment.Environment.getWind">getWind</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions">EnvironmentalConditions</a></code></h4>
+<ul class="two-column">
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.ASLAltitude" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.ASLAltitude">ASLAltitude</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Density" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Density">Density</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.DynamicViscosity" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.DynamicViscosity">DynamicViscosity</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.MeanWind" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.MeanWind">MeanWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Pressure" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Pressure">Pressure</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Temp" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Temp">Temp</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.TurbWind" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.TurbWind">TurbWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Wind" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Wind">Wind</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

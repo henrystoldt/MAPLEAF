@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.ENV.TurbulenceModelling API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.ENV.TurbulenceModelling</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import abc
+import random
+from math import cos, pi
+
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.IO.SubDictReader import SubDictReader
+
+#TODO: Implement vonKarman or Dryden model with std deviation / length scale that varies with altitude as per NASA HDBK-1001
+
+class _TurbulenceModel(abc.ABC):
+    @abc.abstractmethod
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        pass
+
+def turbulenceModelFactory(simDefinition, silent=False):
+    &#39;&#39;&#39; Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel &#39;&#39;&#39;
+
+    envReader = SubDictReader(&#34;Environment&#34;, simDefinition)
+    turbModelType = envReader.getString(&#34;Environment.TurbulenceModel&#34;)
+    
+    if not silent:
+        print(&#34;Turbulence/Gust Model: {}&#34;.format(turbModelType))
+
+    if turbModelType== &#34;None&#34;:
+        turbulenceModel = _turbModel_None()
+        
+    elif &#34;PinkNoise&#34; in turbModelType:
+        def tryGetValue(key):
+            try:
+                return int(simDefinition.getValue(key))
+            except KeyError:
+                return None
+
+        measuredPinkNoiseStdDev = 2.26 # For a 2-pole PinkNoiseGenerator - re-measure if the number of poles is changed
+
+        turbulenceIntensity = envReader.tryGetInt(&#34;PinkNoiseModel.turbulenceIntensity&#34;)
+        if turbulenceIntensity != None:
+            turbulenceIntensity /= (measuredPinkNoiseStdDev * 100)
+
+        velocityStDev = envReader.tryGetInt(&#34;PinkNoiseModel.velocityStdDeviation&#34;)
+        if velocityStDev != None:
+            velocityStDev /= measuredPinkNoiseStdDev
+
+        pinkNoiseRandomSeed1 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed1&#34;)
+        pinkNoiseRandomSeed2 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed2&#34;)
+        pinkNoiseRandomSeed3 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed3&#34;)
+            
+        if turbModelType == &#34;PinkNoise1D&#34;:
+            turbulenceModel = _turbModel_PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
+            if not silent:
+                print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
+
+        elif turbModelType == &#34;PinkNoise2D&#34;:
+            turbulenceModel = _turbModel_PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
+            if not silent:
+                print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
+                print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
+
+        elif turbModelType == &#34;PinkNoise3D&#34;:
+            turbulenceModel = _turbModel_PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
+            if not silent:
+                print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
+                print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
+                print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png3.seed))
+            
+    elif turbModelType == &#34;customSineGust&#34;:
+        GustStartAltitude = envReader.getFloat(&#34;CustomSineGust.startAltitude&#34;)
+        GustMagnitude = envReader.getFloat(&#34;CustomSineGust.magnitude&#34;)
+        GustSineBlendDistance = envReader.getFloat(&#34;CustomSineGust.sineBlendDistance&#34;)
+        GustLayerThickness = envReader.getFloat(&#34;CustomSineGust.thickness&#34;)
+        GustDirection = envReader.getVector(&#34;CustomSineGust.direction&#34;).normalize()
+
+        turbulenceModel = _turbModel_customSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
+
+        if not silent:
+            print(&#34;Gust Altitude: {}&#34;.format(GustStartAltitude))
+            print(&#34;Gust Vector: {}&#34;.format(GustMagnitude * GustDirection))
+
+    else:
+        raise ValueError(&#34;Turbulence Model {} not found. Please choose from: None, PinkNoise1/2/3D or customSineGust&#34;)
+
+    return turbulenceModel
+
+class _turbModel_None(_TurbulenceModel):
+    def getTurbVelocity(self, _, __, ___):
+        return Vector(0,0,0)
+
+class _PinkNoiseModel(_TurbulenceModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
+        self.velStdDev = velocityStdDev
+        self.turbulenceIntensity = turbulenceIntensity
+        self.png1 = PinkNoiseGenerator(seed=randomSeed)
+
+    # Dummy function, will be replaced by subclasses
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        return Vector(0,0,0)
+
+    def _getDesiredTurbulenceStdDev(self, altitude, meanWindVelocity):
+        if self.turbulenceIntensity != None:
+            return meanWindVelocity.length() * self.turbulenceIntensity
+        else:
+            return self.velStdDev
+
+class _turbModel_PinkNoise1D(_PinkNoiseModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
+        super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        self.velStdDev = super()._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)
+        newTurbMagnitude = self.png1.getValue(time) * self.velStdDev
+        return meanWindVelocity.normalize() * newTurbMagnitude
+
+class _turbModel_PinkNoise2D(_PinkNoiseModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2):
+        super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
+        self.png2 = PinkNoiseGenerator(seed=randomSeed2)
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        velStdDev = self._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)
+        xTurbVel = self.png1.getValue(time) * velStdDev
+        yTurbVel = self.png2.getValue(time) * velStdDev
+        return Vector(xTurbVel, yTurbVel, 0)
+
+class _turbModel_PinkNoise3D(_TurbulenceModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3):
+        super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
+        self.png2 = PinkNoiseGenerator(seed=randomSeed2)
+        self.png3 = PinkNoiseGenerator(seed=randomSeed3)
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        velStdDev = self._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)      
+        newXTurbVel = self.png1.getValue(time) * velStdDev
+        newYTurbVel = self.png2.getValue(time) * velStdDev
+        newZTurbVel = self.png2.getValue(time) * velStdDev
+        return Vector(newXTurbVel, newYTurbVel, newZTurbVel)
+
+class _turbModel_customSineGust(_TurbulenceModel):
+    def __init__(self, GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection):
+        self.GustStartAltitude = GustStartAltitude
+        self.GustSineBlendDistance = GustSineBlendDistance
+        self.GustMagnitude = GustMagnitude
+        self.GustDirection = GustDirection
+        
+        self.GustZoneBoundaries = [
+            GustStartAltitude,
+            GustStartAltitude + GustSineBlendDistance, # End of lower blend zone
+            GustStartAltitude + GustSineBlendDistance + GustLayerThickness, # Start of upper blending zone
+            GustStartAltitude + GustSineBlendDistance + GustLayerThickness + GustSineBlendDistance # End of upper blending zone
+        ]
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        &#39;&#39;&#39; # From NASA HDBK-1001, pg. 2-84, equation 2.69 &#39;&#39;&#39;
+        # Determine whether the current altitude is in the blending region or plateau region
+        if altitude &gt; self.GustStartAltitude:
+            if altitude &lt; self.GustZoneBoundaries[1]:
+                # In the lower blending region
+                gustVel = self.GustMagnitude/2 * ( 1 - cos(pi*(altitude - self.GustStartAltitude)/self.GustSineBlendDistance))
+            elif altitude &lt; self.GustZoneBoundaries[2]:
+                # In the plateau (gust) region
+                gustVel = self.GustMagnitude
+            elif altitude &lt; self.GustZoneBoundaries[3]:
+                # In the upper blending region
+                gustThickness = self.GustZoneBoundaries[-1] - self.GustZoneBoundaries[0]
+                gustVel = self.GustMagnitude/2 * ( 1 - cos(pi*(altitude - self.GustStartAltitude - gustThickness)/self.GustSineBlendDistance))
+            else:
+                return Vector(0,0,0)
+
+            return self.GustDirection * gustVel
+        else:
+            return Vector(0,0,0)
+        
+class PinkNoiseGenerator():
+    &#39;&#39;&#39;
+        Inputs:
+            alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
+                default value of 5/3 matches power spectrum slope of turbulent integral scales
+            seed - pink noise generated based on applying a filter to gaussian white noise specifying
+                the seed for the input random noise allows for repeatable sequences of values
+            nPoles - more poles include more low frequency content in the spectrum
+                parameter could be interpreted as similar to the turbulence length scale
+                can be varied in more sophisticated models
+            simulatedSamplingFreqHz - controls &#34;sampling frequency&#34; that the pink noise is interpreted as
+                also modulated the effective length scale of turbulence, together with nPoles
+        Methods:
+            .getValue(time)
+                If the value is requested at time values that fall between sampling intervals, linearly
+                interpolated values (from adjacent samples) are returned
+                If no time is provided, the sampling frequency is ignored and a new value is computed
+    &#39;&#39;&#39;
+
+    def __init__(self, alpha=5/3, seed=None, nPoles=2, simulatedSamplingFreqHz=20):
+        self.alpha = alpha
+        if seed != None:
+            self.seed = seed
+        else:
+            self.seed = random.randrange(1000000)
+        self.rng = random.Random(self.seed)
+        # self.rng.seed(self.seed)
+        self.nPoles = nPoles
+
+        # Calculate coefficient values - openrocket documentation pg. 59/60 (Section 4.1.2 Wind Modeling)
+        # Based on method from Kasdin (1995) &#34;Discrete Simulation of Colored Noise and Stochastic Processes and 1/f^{alpha} Power Law Noise Generation&#34;
+        self.coeffs = [ 1, ]
+        for i in range(nPoles):
+            self.coeffs.append((i - alpha/2) * self.coeffs[i]/(i+1))
+        self.coeffs.pop(0)
+
+        # Overwriting will wrap around the array to avoid constantly shifting values
+        self.nextIndexToOverwrite = 0
+
+        # Fixed sampling frequency allows for achieving &#34;mesh convergence&#34; as the timestep is decreased
+        self.lastValTime = 0
+        self.timeStep = 1 / simulatedSamplingFreqHz # seconds
+
+        # Fill lastValues
+        self.lastValues = [ self.rng.gauss(0, 1) for i in range(nPoles) ]
+        for i in range(10*nPoles):
+            self.getValue()
+
+    def getValue(self, time=None):
+        &#39;&#39;&#39;
+            Calculate coefficient values - openrocket documentation pg. 59/60 (Section 4.1.2 Wind Modeling)
+            Based on method from Kasdin (1995) &#34;Discrete Simulation of Colored Noise and Stochastic Processes and 1/f^{alpha} Power Law Noise Generation&#34;
+        &#39;&#39;&#39;
+        # Compute any required new values
+        while time == None or time &gt; self.lastValTime:
+            whiteNoise = self.rng.gauss(0, 1)
+
+            for i in range(self.nPoles):
+                whiteNoise -= self.coeffs[i]*self.lastValues[(self.nextIndexToOverwrite - i - 1) % self.nPoles]
+            pinkNoiseSample = whiteNoise
+
+            self.lastValues[self.nextIndexToOverwrite] = pinkNoiseSample
+            self.nextIndexToOverwrite = (self.nextIndexToOverwrite + 1) % self.nPoles
+
+            if time == None:
+                return pinkNoiseSample
+
+            self.lastValTime += self.timeStep
+            if self.lastValTime == time:
+                return pinkNoiseSample
+
+        # Linearly interpolate value at desired time
+        lastVal = self.lastValues[self.nextIndexToOverwrite - 1]
+        secondLastVal = self.lastValues[self.nextIndexToOverwrite - 2]
+        secondLastValTime = self.lastValTime - self.timeStep
+        
+        dValdt = (lastVal - secondLastVal) / self.timeStep
+        return dValdt*(time-secondLastValTime) + secondLastVal</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.turbulenceModelFactory"><code class="name flex">
+<span>def <span class="ident">turbulenceModelFactory</span></span>(<span>simDefinition, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def turbulenceModelFactory(simDefinition, silent=False):
+    &#39;&#39;&#39; Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel &#39;&#39;&#39;
+
+    envReader = SubDictReader(&#34;Environment&#34;, simDefinition)
+    turbModelType = envReader.getString(&#34;Environment.TurbulenceModel&#34;)
+    
+    if not silent:
+        print(&#34;Turbulence/Gust Model: {}&#34;.format(turbModelType))
+
+    if turbModelType== &#34;None&#34;:
+        turbulenceModel = _turbModel_None()
+        
+    elif &#34;PinkNoise&#34; in turbModelType:
+        def tryGetValue(key):
+            try:
+                return int(simDefinition.getValue(key))
+            except KeyError:
+                return None
+
+        measuredPinkNoiseStdDev = 2.26 # For a 2-pole PinkNoiseGenerator - re-measure if the number of poles is changed
+
+        turbulenceIntensity = envReader.tryGetInt(&#34;PinkNoiseModel.turbulenceIntensity&#34;)
+        if turbulenceIntensity != None:
+            turbulenceIntensity /= (measuredPinkNoiseStdDev * 100)
+
+        velocityStDev = envReader.tryGetInt(&#34;PinkNoiseModel.velocityStdDeviation&#34;)
+        if velocityStDev != None:
+            velocityStDev /= measuredPinkNoiseStdDev
+
+        pinkNoiseRandomSeed1 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed1&#34;)
+        pinkNoiseRandomSeed2 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed2&#34;)
+        pinkNoiseRandomSeed3 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed3&#34;)
+            
+        if turbModelType == &#34;PinkNoise1D&#34;:
+            turbulenceModel = _turbModel_PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
+            if not silent:
+                print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
+
+        elif turbModelType == &#34;PinkNoise2D&#34;:
+            turbulenceModel = _turbModel_PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
+            if not silent:
+                print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
+                print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
+
+        elif turbModelType == &#34;PinkNoise3D&#34;:
+            turbulenceModel = _turbModel_PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
+            if not silent:
+                print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
+                print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
+                print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png3.seed))
+            
+    elif turbModelType == &#34;customSineGust&#34;:
+        GustStartAltitude = envReader.getFloat(&#34;CustomSineGust.startAltitude&#34;)
+        GustMagnitude = envReader.getFloat(&#34;CustomSineGust.magnitude&#34;)
+        GustSineBlendDistance = envReader.getFloat(&#34;CustomSineGust.sineBlendDistance&#34;)
+        GustLayerThickness = envReader.getFloat(&#34;CustomSineGust.thickness&#34;)
+        GustDirection = envReader.getVector(&#34;CustomSineGust.direction&#34;).normalize()
+
+        turbulenceModel = _turbModel_customSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
+
+        if not silent:
+            print(&#34;Gust Altitude: {}&#34;.format(GustStartAltitude))
+            print(&#34;Gust Vector: {}&#34;.format(GustMagnitude * GustDirection))
+
+    else:
+        raise ValueError(&#34;Turbulence Model {} not found. Please choose from: None, PinkNoise1/2/3D or customSineGust&#34;)
+
+    return turbulenceModel</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator"><code class="flex name class">
+<span>class <span class="ident">PinkNoiseGenerator</span></span>
+<span>(</span><span>alpha=1.6666666666666667, seed=None, nPoles=2, simulatedSamplingFreqHz=20)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
+default value of 5/3 matches power spectrum slope of turbulent integral scales
+seed - pink noise generated based on applying a filter to gaussian white noise specifying
+the seed for the input random noise allows for repeatable sequences of values
+nPoles - more poles include more low frequency content in the spectrum
+parameter could be interpreted as similar to the turbulence length scale
+can be varied in more sophisticated models
+simulatedSamplingFreqHz - controls "sampling frequency" that the pink noise is interpreted as
+also modulated the effective length scale of turbulence, together with nPoles</p>
+<h2 id="methods">Methods</h2>
+<p>.getValue(time)
+If the value is requested at time values that fall between sampling intervals, linearly
+interpolated values (from adjacent samples) are returned
+If no time is provided, the sampling frequency is ignored and a new value is computed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PinkNoiseGenerator():
+    &#39;&#39;&#39;
+        Inputs:
+            alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
+                default value of 5/3 matches power spectrum slope of turbulent integral scales
+            seed - pink noise generated based on applying a filter to gaussian white noise specifying
+                the seed for the input random noise allows for repeatable sequences of values
+            nPoles - more poles include more low frequency content in the spectrum
+                parameter could be interpreted as similar to the turbulence length scale
+                can be varied in more sophisticated models
+            simulatedSamplingFreqHz - controls &#34;sampling frequency&#34; that the pink noise is interpreted as
+                also modulated the effective length scale of turbulence, together with nPoles
+        Methods:
+            .getValue(time)
+                If the value is requested at time values that fall between sampling intervals, linearly
+                interpolated values (from adjacent samples) are returned
+                If no time is provided, the sampling frequency is ignored and a new value is computed
+    &#39;&#39;&#39;
+
+    def __init__(self, alpha=5/3, seed=None, nPoles=2, simulatedSamplingFreqHz=20):
+        self.alpha = alpha
+        if seed != None:
+            self.seed = seed
+        else:
+            self.seed = random.randrange(1000000)
+        self.rng = random.Random(self.seed)
+        # self.rng.seed(self.seed)
+        self.nPoles = nPoles
+
+        # Calculate coefficient values - openrocket documentation pg. 59/60 (Section 4.1.2 Wind Modeling)
+        # Based on method from Kasdin (1995) &#34;Discrete Simulation of Colored Noise and Stochastic Processes and 1/f^{alpha} Power Law Noise Generation&#34;
+        self.coeffs = [ 1, ]
+        for i in range(nPoles):
+            self.coeffs.append((i - alpha/2) * self.coeffs[i]/(i+1))
+        self.coeffs.pop(0)
+
+        # Overwriting will wrap around the array to avoid constantly shifting values
+        self.nextIndexToOverwrite = 0
+
+        # Fixed sampling frequency allows for achieving &#34;mesh convergence&#34; as the timestep is decreased
+        self.lastValTime = 0
+        self.timeStep = 1 / simulatedSamplingFreqHz # seconds
+
+        # Fill lastValues
+        self.lastValues = [ self.rng.gauss(0, 1) for i in range(nPoles) ]
+        for i in range(10*nPoles):
+            self.getValue()
+
+    def getValue(self, time=None):
+        &#39;&#39;&#39;
+            Calculate coefficient values - openrocket documentation pg. 59/60 (Section 4.1.2 Wind Modeling)
+            Based on method from Kasdin (1995) &#34;Discrete Simulation of Colored Noise and Stochastic Processes and 1/f^{alpha} Power Law Noise Generation&#34;
+        &#39;&#39;&#39;
+        # Compute any required new values
+        while time == None or time &gt; self.lastValTime:
+            whiteNoise = self.rng.gauss(0, 1)
+
+            for i in range(self.nPoles):
+                whiteNoise -= self.coeffs[i]*self.lastValues[(self.nextIndexToOverwrite - i - 1) % self.nPoles]
+            pinkNoiseSample = whiteNoise
+
+            self.lastValues[self.nextIndexToOverwrite] = pinkNoiseSample
+            self.nextIndexToOverwrite = (self.nextIndexToOverwrite + 1) % self.nPoles
+
+            if time == None:
+                return pinkNoiseSample
+
+            self.lastValTime += self.timeStep
+            if self.lastValTime == time:
+                return pinkNoiseSample
+
+        # Linearly interpolate value at desired time
+        lastVal = self.lastValues[self.nextIndexToOverwrite - 1]
+        secondLastVal = self.lastValues[self.nextIndexToOverwrite - 2]
+        secondLastValTime = self.lastValTime - self.timeStep
+        
+        dValdt = (lastVal - secondLastVal) / self.timeStep
+        return dValdt*(time-secondLastValTime) + secondLastVal</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator.getValue"><code class="name flex">
+<span>def <span class="ident">getValue</span></span>(<span>self, time=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate coefficient values - openrocket documentation pg. 59/60 (Section 4.1.2 Wind Modeling)
+Based on method from Kasdin (1995) "Discrete Simulation of Colored Noise and Stochastic Processes and 1/f^{alpha} Power Law Noise Generation"</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getValue(self, time=None):
+    &#39;&#39;&#39;
+        Calculate coefficient values - openrocket documentation pg. 59/60 (Section 4.1.2 Wind Modeling)
+        Based on method from Kasdin (1995) &#34;Discrete Simulation of Colored Noise and Stochastic Processes and 1/f^{alpha} Power Law Noise Generation&#34;
+    &#39;&#39;&#39;
+    # Compute any required new values
+    while time == None or time &gt; self.lastValTime:
+        whiteNoise = self.rng.gauss(0, 1)
+
+        for i in range(self.nPoles):
+            whiteNoise -= self.coeffs[i]*self.lastValues[(self.nextIndexToOverwrite - i - 1) % self.nPoles]
+        pinkNoiseSample = whiteNoise
+
+        self.lastValues[self.nextIndexToOverwrite] = pinkNoiseSample
+        self.nextIndexToOverwrite = (self.nextIndexToOverwrite + 1) % self.nPoles
+
+        if time == None:
+            return pinkNoiseSample
+
+        self.lastValTime += self.timeStep
+        if self.lastValTime == time:
+            return pinkNoiseSample
+
+    # Linearly interpolate value at desired time
+    lastVal = self.lastValues[self.nextIndexToOverwrite - 1]
+    secondLastVal = self.lastValues[self.nextIndexToOverwrite - 2]
+    secondLastValTime = self.lastValTime - self.timeStep
+    
+    dValdt = (lastVal - secondLastVal) / self.timeStep
+    return dValdt*(time-secondLastValTime) + secondLastVal</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.ENV" href="index.html">MAPLEAF.ENV</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.turbulenceModelFactory" href="#MAPLEAF.ENV.TurbulenceModelling.turbulenceModelFactory">turbulenceModelFactory</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator">PinkNoiseGenerator</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator.getValue" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator.getValue">getValue</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

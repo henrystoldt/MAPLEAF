@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.Rocket.BoatTail API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Rocket.BoatTail</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import math
+from typing import List
+
+import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Rocket.AeroFunctions import logForceResult
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
+from MAPLEAF.Rocket.Nosecone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
+
+class Transition(FixedMass, BodyComponent):
+    &#39;&#39;&#39; Models a conical diameter transition (growing or shrinking) &#39;&#39;&#39;
+
+    def __init__(self, *args):
+        &#39;&#39;&#39;
+            Two possible sets of inputs:  
+            1. Initialization as a regular, dictionary-defined rocket component:  
+                * args = (componentDictReader, rocket, stage)  
+                * Expected classes: (`MAPLEAF.IO.SubDictReader.SubDictReader`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`)  
+            2. Manual initialization:  
+                * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)  
+                * Expected classes: (float, float, float, `MAPLEAF.Motion.CythonVector.Vector`, `MAPLEAF.Motion.Inertia.Inertia`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`, str, float)  
+        &#39;&#39;&#39;
+        if len(args) == 3:
+            # Classic initialization from componentDictReader
+            componentDictReader, rocket, stage = args
+            FixedMass.__init__(self, componentDictReader, rocket, stage)
+
+            self.length = componentDictReader.getFloat(&#34;length&#34;)
+            self.startDiameter = componentDictReader.getFloat(&#34;startDiameter&#34;)
+            self.endDiameter = componentDictReader.getFloat(&#34;endDiameter&#34;)
+            self.surfaceRoughness = componentDictReader.tryGetFloat(&#34;surfaceRoughness&#34;, defaultValue=self.rocket.surfaceRoughness)
+        else:
+            # Initialization from parameters passed in
+            self.startDiameter, self.endDiameter, self.length, self.position, self.inertia, self.rocket, self.stage, self.name, self.surfaceRoughness = args
+
+        self._precomputeGeometry()
+
+    def _precomputeGeometry(self):
+        # Calculate basic areas
+        self.topArea = self.startDiameter**2 * math.pi/4
+        self.bottomArea = self.endDiameter**2 * math.pi/4
+        self.frontalArea = self.topArea - self.bottomArea
+
+        # Calculate surface area, volume, CP
+        if self.length == 0:
+            self.wettedArea = 0.0
+            self.volume = 0.0
+            self.CPLocation = self.position
+        else:
+            maxDiameter = max(self.startDiameter, self.endDiameter)
+            minDiameter = min(self.startDiameter, self.endDiameter)
+
+            hypotenuseSlope = ((maxDiameter - minDiameter) / self.length)
+            # Boat tail is a truncated cone
+            # Compute surface area of non-truncated cone starting at top of boattail
+            baseConeHeight = maxDiameter / hypotenuseSlope
+            baseHypotenuse = math.sqrt((maxDiameter/2)**2 + baseConeHeight**2)
+            fullConeSurfaceArea = math.pi * (maxDiameter/2) * baseHypotenuse
+            # Compute surface area of non-truncated cone starting at bottom of boattail
+            tipConeHeight = minDiameter / hypotenuseSlope
+            tipHypotenuse = math.sqrt((minDiameter/2)**2 + tipConeHeight**2)
+            tipConeSurfaceArea = math.pi * (minDiameter/2) * tipHypotenuse
+            # Surface area is the difference b/w the two
+            self.wettedArea = fullConeSurfaceArea - tipConeSurfaceArea
+
+            # Volume calculation uses same method as surface area calculation above
+            fullConeVolume = self.topArea * baseConeHeight / 3
+            tipConeVolume = self.bottomArea * tipConeHeight / 3
+            self.volume = fullConeVolume - tipConeVolume
+
+            # Calculate CP
+            self.CPLocation = AeroFunctions.Barrowman_GetCPLocation(self.length, self.topArea, self.bottomArea, self.volume, self.position)
+
+        # Calc aspect ratio
+        if self.startDiameter == self.endDiameter:
+            aspectRatio = 100 # Avoid division by zero
+        else:
+            aspectRatio = self.length / abs(self.startDiameter - self.endDiameter)
+
+        # Precompute drag properties
+        if self.endDiameter &lt;= self.startDiameter:
+            # Calculate Cd multiplier based on aspect ratio - Niskanen Eqn 3.88
+            if aspectRatio &lt; 1:
+                self.CdAdjustmentFactor = 1
+            elif aspectRatio &lt; 3:
+                self.CdAdjustmentFactor = (3 - aspectRatio) / 2
+            else:
+                self.CdAdjustmentFactor = 0
+        else:
+            if self.length == 0:
+                coneHalfAngle = math.pi/2
+            else:
+                coneHalfAngle = math.atan(abs(self.startDiameter - self.endDiameter)/2 / self.length)
+            self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(coneHalfAngle)
+            self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(coneHalfAngle)
+
+    def plotShape(self):
+        import matplotlib.pyplot as plt
+        Xvals = []
+        Yvals = []
+
+        forePos = self.position.Z
+        aftPos = forePos - self.length
+        foreRadius = self.startDiameter/2
+        aftRadius = self.endDiameter/2
+
+        Xvals.append(forePos)
+        Yvals.append(foreRadius) # top right
+
+        Xvals.append(aftPos)
+        Yvals.append(aftRadius) # top left
+
+        Xvals.append(aftPos)
+        Yvals.append(-aftRadius) # bottom left
+
+        Xvals.append(forePos)
+        Yvals.append(-foreRadius) # bottom right
+
+        Xvals.append(forePos)
+        Yvals.append(foreRadius) # close in the shape
+        plt.plot(Xvals, Yvals, color = &#39;k&#39;)
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Aref = self.rocket.Aref
+        
+        #### Normal Force ####
+        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+        #### Pressure Drag ####
+        if self.startDiameter &gt; self.endDiameter:
+            # Pressure base drag
+            Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+            Cd_pressure = Cd_base * self.CdAdjustmentFactor
+
+        else:
+            # Pressure drag calculated like a nose cone
+            if Mach &lt; 1:
+                # Niskanen pg. 48 eq. 3.87 - Power law interpolation
+                Cd_pressure = self.SubsonicCdPolyCoeffs[0] * Mach**self.SubsonicCdPolyCoeffs[1]
+
+            elif Mach &gt; 1 and Mach &lt; 1.3:
+                # Interpolate in transonic region - derived from Niskanen Appendix B, Eqns B.3 - B.6
+                Cd_pressure = self.TransonicCdPolyCoeffs[0] + self.TransonicCdPolyCoeffs[1]*Mach +  \
+                    self.TransonicCdPolyCoeffs[2]*Mach**2 + self.TransonicCdPolyCoeffs[3]*Mach**3
+                
+            else:
+                Cd_pressure = getSupersonicPressureDragCoeff_Hoerner(self.coneHalfAngle, Mach)
+        
+        # Make reference are the rocket&#39;s, not this objects
+        Cd_pressure *= self.frontalArea / Aref 
+
+        #### Skin Friction Drag ####
+        if self.wettedArea == 0:
+            skinFrictionDragCoefficient = 0
+            rollDampingMoment = Vector(0,0,0)
+        else:
+            skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+                 self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+        #### Total Drag ####
+        Cd = Cd_pressure + skinFrictionDragCoefficient
+
+        #### Assemble &amp; return final force object ####
+        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
+
+    def getMaxDiameter(self):
+        return max(self.startDiameter, self.endDiameter)
+
+    def getRadius(self, distanceFromTip):
+        return (distanceFromTip/self.length * (self.endDiameter - self.startDiameter) + self.startDiameter) / 2
+
+class BoatTail(Transition):
+    &#39;&#39;&#39;        
+        Defines a conical boattail (aerodynamic properties quite similar to curved boattails, especially in supersonic flight)
+        Always assumes it&#39;s at the bottom of a rocket.
+        Modelled like a Transition object, but accounts for base drag.
+    &#39;&#39;&#39;
+    canConnectToComponentBelow = False 
+    &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Aref = self.rocket.Aref
+        
+        #### Normal Force ####
+        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+        #### Pressure Drag ####
+        Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+        Cd_pressure = Cd_base * self.CdAdjustmentFactor
+        Cd_pressure *= self.frontalArea / self.rocket.Aref
+
+        noEngine = (self.stage.engineShutOffTime == None)
+        if noEngine or time &gt; self.stage.engineShutOffTime:
+            # Add base drag if engine is off
+            Cd_pressure += Cd_base * self.bottomArea / Aref
+
+        #### Skin Friction Drag ####
+        if self.wettedArea == 0:
+            skinFrictionDragCoefficient = 0
+            rollDampingMoment = Vector(0,0,0)
+        else:
+            skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+                 self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+        #### Total Drag ####
+        Cd = Cd_pressure + skinFrictionDragCoefficient
+
+        #### Assemble &amp; return final force object ####
+        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Rocket.BoatTail.BoatTail"><code class="flex name class">
+<span>class <span class="ident">BoatTail</span></span>
+<span>(</span><span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines a conical boattail (aerodynamic properties quite similar to curved boattails, especially in supersonic flight)
+Always assumes it's at the bottom of a rocket.
+Modelled like a Transition object, but accounts for base drag.</p>
+<p>Two possible sets of inputs:<br>
+1. Initialization as a regular, dictionary-defined rocket component:<br>
+* args = (componentDictReader, rocket, stage)<br>
+* Expected classes: (<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>)<br>
+2. Manual initialization:<br>
+* args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)<br>
+* Expected classes: (float, float, float, <code><a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></code>, <code><a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>, str, float)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BoatTail(Transition):
+    &#39;&#39;&#39;        
+        Defines a conical boattail (aerodynamic properties quite similar to curved boattails, especially in supersonic flight)
+        Always assumes it&#39;s at the bottom of a rocket.
+        Modelled like a Transition object, but accounts for base drag.
+    &#39;&#39;&#39;
+    canConnectToComponentBelow = False 
+    &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Aref = self.rocket.Aref
+        
+        #### Normal Force ####
+        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+        #### Pressure Drag ####
+        Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+        Cd_pressure = Cd_base * self.CdAdjustmentFactor
+        Cd_pressure *= self.frontalArea / self.rocket.Aref
+
+        noEngine = (self.stage.engineShutOffTime == None)
+        if noEngine or time &gt; self.stage.engineShutOffTime:
+            # Add base drag if engine is off
+            Cd_pressure += Cd_base * self.bottomArea / Aref
+
+        #### Skin Friction Drag ####
+        if self.wettedArea == 0:
+            skinFrictionDragCoefficient = 0
+            rollDampingMoment = Vector(0,0,0)
+        else:
+            skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+                 self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+        #### Total Drag ####
+        Cd = Cd_pressure + skinFrictionDragCoefficient
+
+        #### Assemble &amp; return final force object ####
+        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.BoatTail.Transition" href="#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.BoatTail.BoatTail.canConnectToComponentBelow"><code class="name">var <span class="ident">canConnectToComponentBelow</span></code></dt>
+<dd>
+<div class="desc"><p>Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.BoatTail.BoatTail.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.Rocket.BoatTail.Transition" href="#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getBottomInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getMaxDiameter" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getRadius" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius">getRadius</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getTopInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.Rocket.BoatTail.Transition"><code class="flex name class">
+<span>class <span class="ident">Transition</span></span>
+<span>(</span><span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Models a conical diameter transition (growing or shrinking) </p>
+<p>Two possible sets of inputs:<br>
+1. Initialization as a regular, dictionary-defined rocket component:<br>
+* args = (componentDictReader, rocket, stage)<br>
+* Expected classes: (<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>)<br>
+2. Manual initialization:<br>
+* args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)<br>
+* Expected classes: (float, float, float, <code><a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></code>, <code><a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>, str, float)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Transition(FixedMass, BodyComponent):
+    &#39;&#39;&#39; Models a conical diameter transition (growing or shrinking) &#39;&#39;&#39;
+
+    def __init__(self, *args):
+        &#39;&#39;&#39;
+            Two possible sets of inputs:  
+            1. Initialization as a regular, dictionary-defined rocket component:  
+                * args = (componentDictReader, rocket, stage)  
+                * Expected classes: (`MAPLEAF.IO.SubDictReader.SubDictReader`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`)  
+            2. Manual initialization:  
+                * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)  
+                * Expected classes: (float, float, float, `MAPLEAF.Motion.CythonVector.Vector`, `MAPLEAF.Motion.Inertia.Inertia`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`, str, float)  
+        &#39;&#39;&#39;
+        if len(args) == 3:
+            # Classic initialization from componentDictReader
+            componentDictReader, rocket, stage = args
+            FixedMass.__init__(self, componentDictReader, rocket, stage)
+
+            self.length = componentDictReader.getFloat(&#34;length&#34;)
+            self.startDiameter = componentDictReader.getFloat(&#34;startDiameter&#34;)
+            self.endDiameter = componentDictReader.getFloat(&#34;endDiameter&#34;)
+            self.surfaceRoughness = componentDictReader.tryGetFloat(&#34;surfaceRoughness&#34;, defaultValue=self.rocket.surfaceRoughness)
+        else:
+            # Initialization from parameters passed in
+            self.startDiameter, self.endDiameter, self.length, self.position, self.inertia, self.rocket, self.stage, self.name, self.surfaceRoughness = args
+
+        self._precomputeGeometry()
+
+    def _precomputeGeometry(self):
+        # Calculate basic areas
+        self.topArea = self.startDiameter**2 * math.pi/4
+        self.bottomArea = self.endDiameter**2 * math.pi/4
+        self.frontalArea = self.topArea - self.bottomArea
+
+        # Calculate surface area, volume, CP
+        if self.length == 0:
+            self.wettedArea = 0.0
+            self.volume = 0.0
+            self.CPLocation = self.position
+        else:
+            maxDiameter = max(self.startDiameter, self.endDiameter)
+            minDiameter = min(self.startDiameter, self.endDiameter)
+
+            hypotenuseSlope = ((maxDiameter - minDiameter) / self.length)
+            # Boat tail is a truncated cone
+            # Compute surface area of non-truncated cone starting at top of boattail
+            baseConeHeight = maxDiameter / hypotenuseSlope
+            baseHypotenuse = math.sqrt((maxDiameter/2)**2 + baseConeHeight**2)
+            fullConeSurfaceArea = math.pi * (maxDiameter/2) * baseHypotenuse
+            # Compute surface area of non-truncated cone starting at bottom of boattail
+            tipConeHeight = minDiameter / hypotenuseSlope
+            tipHypotenuse = math.sqrt((minDiameter/2)**2 + tipConeHeight**2)
+            tipConeSurfaceArea = math.pi * (minDiameter/2) * tipHypotenuse
+            # Surface area is the difference b/w the two
+            self.wettedArea = fullConeSurfaceArea - tipConeSurfaceArea
+
+            # Volume calculation uses same method as surface area calculation above
+            fullConeVolume = self.topArea * baseConeHeight / 3
+            tipConeVolume = self.bottomArea * tipConeHeight / 3
+            self.volume = fullConeVolume - tipConeVolume
+
+            # Calculate CP
+            self.CPLocation = AeroFunctions.Barrowman_GetCPLocation(self.length, self.topArea, self.bottomArea, self.volume, self.position)
+
+        # Calc aspect ratio
+        if self.startDiameter == self.endDiameter:
+            aspectRatio = 100 # Avoid division by zero
+        else:
+            aspectRatio = self.length / abs(self.startDiameter - self.endDiameter)
+
+        # Precompute drag properties
+        if self.endDiameter &lt;= self.startDiameter:
+            # Calculate Cd multiplier based on aspect ratio - Niskanen Eqn 3.88
+            if aspectRatio &lt; 1:
+                self.CdAdjustmentFactor = 1
+            elif aspectRatio &lt; 3:
+                self.CdAdjustmentFactor = (3 - aspectRatio) / 2
+            else:
+                self.CdAdjustmentFactor = 0
+        else:
+            if self.length == 0:
+                coneHalfAngle = math.pi/2
+            else:
+                coneHalfAngle = math.atan(abs(self.startDiameter - self.endDiameter)/2 / self.length)
+            self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(coneHalfAngle)
+            self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(coneHalfAngle)
+
+    def plotShape(self):
+        import matplotlib.pyplot as plt
+        Xvals = []
+        Yvals = []
+
+        forePos = self.position.Z
+        aftPos = forePos - self.length
+        foreRadius = self.startDiameter/2
+        aftRadius = self.endDiameter/2
+
+        Xvals.append(forePos)
+        Yvals.append(foreRadius) # top right
+
+        Xvals.append(aftPos)
+        Yvals.append(aftRadius) # top left
+
+        Xvals.append(aftPos)
+        Yvals.append(-aftRadius) # bottom left
+
+        Xvals.append(forePos)
+        Yvals.append(-foreRadius) # bottom right
+
+        Xvals.append(forePos)
+        Yvals.append(foreRadius) # close in the shape
+        plt.plot(Xvals, Yvals, color = &#39;k&#39;)
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Aref = self.rocket.Aref
+        
+        #### Normal Force ####
+        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+        #### Pressure Drag ####
+        if self.startDiameter &gt; self.endDiameter:
+            # Pressure base drag
+            Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+            Cd_pressure = Cd_base * self.CdAdjustmentFactor
+
+        else:
+            # Pressure drag calculated like a nose cone
+            if Mach &lt; 1:
+                # Niskanen pg. 48 eq. 3.87 - Power law interpolation
+                Cd_pressure = self.SubsonicCdPolyCoeffs[0] * Mach**self.SubsonicCdPolyCoeffs[1]
+
+            elif Mach &gt; 1 and Mach &lt; 1.3:
+                # Interpolate in transonic region - derived from Niskanen Appendix B, Eqns B.3 - B.6
+                Cd_pressure = self.TransonicCdPolyCoeffs[0] + self.TransonicCdPolyCoeffs[1]*Mach +  \
+                    self.TransonicCdPolyCoeffs[2]*Mach**2 + self.TransonicCdPolyCoeffs[3]*Mach**3
+                
+            else:
+                Cd_pressure = getSupersonicPressureDragCoeff_Hoerner(self.coneHalfAngle, Mach)
+        
+        # Make reference are the rocket&#39;s, not this objects
+        Cd_pressure *= self.frontalArea / Aref 
+
+        #### Skin Friction Drag ####
+        if self.wettedArea == 0:
+            skinFrictionDragCoefficient = 0
+            rollDampingMoment = Vector(0,0,0)
+        else:
+            skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+                 self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+        #### Total Drag ####
+        Cd = Cd_pressure + skinFrictionDragCoefficient
+
+        #### Assemble &amp; return final force object ####
+        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
+
+    def getMaxDiameter(self):
+        return max(self.startDiameter, self.endDiameter)
+
+    def getRadius(self, distanceFromTip):
+        return (distanceFromTip/self.length * (self.endDiameter - self.startDiameter) + self.startDiameter) / 2</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.BoatTail.BoatTail" href="#MAPLEAF.Rocket.BoatTail.BoatTail">BoatTail</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.BoatTail.Transition.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.BoatTail.Transition.plotShape"><code class="name flex">
+<span>def <span class="ident">plotShape</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plotShape(self):
+    import matplotlib.pyplot as plt
+    Xvals = []
+    Yvals = []
+
+    forePos = self.position.Z
+    aftPos = forePos - self.length
+    foreRadius = self.startDiameter/2
+    aftRadius = self.endDiameter/2
+
+    Xvals.append(forePos)
+    Yvals.append(foreRadius) # top right
+
+    Xvals.append(aftPos)
+    Yvals.append(aftRadius) # top left
+
+    Xvals.append(aftPos)
+    Yvals.append(-aftRadius) # bottom left
+
+    Xvals.append(forePos)
+    Yvals.append(-foreRadius) # bottom right
+
+    Xvals.append(forePos)
+    Yvals.append(foreRadius) # close in the shape
+    plt.plot(Xvals, Yvals, color = &#39;k&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius">getRadius</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.BoatTail.BoatTail" href="#MAPLEAF.Rocket.BoatTail.BoatTail">BoatTail</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.BoatTail.BoatTail.canConnectToComponentBelow" href="#MAPLEAF.Rocket.BoatTail.BoatTail.canConnectToComponentBelow">canConnectToComponentBelow</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.BoatTail.BoatTail.getAeroForce" href="#MAPLEAF.Rocket.BoatTail.BoatTail.getAeroForce">getAeroForce</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.BoatTail.Transition" href="#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getAeroForce" href="#MAPLEAF.Rocket.BoatTail.Transition.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.plotShape" href="#MAPLEAF.Rocket.BoatTail.Transition.plotShape">plotShape</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

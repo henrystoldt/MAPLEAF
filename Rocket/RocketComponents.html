@@ -1,0 +1,1663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.Rocket.RocketComponents API documentation</title>
+<meta name="description" content="Created on Thu Jan
+3 13:09:32 2019 …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Rocket.RocketComponents</code></h1>
+</header>
+<section id="section-intro">
+<p>Created on Thu Jan
+3 13:09:32 2019</p>
+<p>@author: Declan Quinn, Henry Stoldt</p>
+<p>Contains interface definitions (RocketComponent/BodyComponent) and Base classes for all RocketComponents (FixedMass),<br>
+as well as some simple rocket component classes (FixedForce/AeroForce/AeroDamping)</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">    # -*- coding: utf-8 -*-
+&#34;&#34;&#34;
+Created on Thu Jan  3 13:09:32 2019
+
+@author: Declan Quinn, Henry Stoldt
+
+Contains interface definitions (RocketComponent/BodyComponent) and Base classes for all RocketComponents (FixedMass),  
+as well as some simple rocket component classes (FixedForce/AeroForce/AeroDamping)
+
+&#34;&#34;&#34;
+
+from abc import ABC, abstractmethod
+from typing import List, Union
+
+import numpy as np
+from scipy.interpolate import LinearNDInterpolator
+
+import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.ENV.Environment import EnvironmentalConditions
+from MAPLEAF.Interpolation import linInterp
+from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion.Inertia import Inertia
+from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+from MAPLEAF.Rocket.AeroFunctions import logForceResult
+
+
+class RocketComponent(ABC):
+    &#39;&#39;&#39; Abstract Base Class to define interface required for rocket components &#39;&#39;&#39;
+    @abstractmethod
+    def __init__(self, componentDictReader: SubDictReader, rocket, stage):
+        return
+
+    @abstractmethod
+    def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Inertia:
+        return
+
+    @abstractmethod
+    def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -&gt; ForceMomentSystem:
+        return
+
+class BodyComponent(ABC):
+    &#39;&#39;&#39; 
+        Class that defines functionality for detecting adjacent body components &amp; defining interfaces with them 
+        Meant for axisymmetric body components.
+        Examples: Nosecone, Bodytube, Boattail, Stage
+    &#39;&#39;&#39;
+    # Override these attributes in child classes to change whether they can connect to components above/below them
+    canConnectToComponentAbove = True
+    canConnectToComponentBelow = True
+
+    def getTopInterfaceLocation(self) -&gt; Union[None, Vector]:
+        &#39;&#39;&#39; For planar cylindrical interfaces, returns the location of the center of the cylindrical interface &#39;&#39;&#39;
+        if self.canConnectToComponentAbove:
+            return self.position
+        else:
+            return None
+
+    def getBottomInterfaceLocation(self) -&gt; Union[None, Vector]:
+        &#39;&#39;&#39; For planar cylindrical interfaces, returns the location of the center of the cylindrical interface &#39;&#39;&#39;
+        if self.canConnectToComponentBelow:
+            baseZCoord = self.position.Z-self.length
+            return Vector(self.position.X, self.position.Y, baseZCoord)
+        else:
+            return None
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+
+    def _getCenterOfPressure(self, *args) -&gt; Vector:
+        return self.CPLocation
+
+    @abstractmethod
+    def getMaxDiameter(self):
+        &#39;&#39;&#39; These functions used for determining rocket&#39;s current max diameter &#39;&#39;&#39;
+        return
+
+    @abstractmethod
+    def getRadius(self, distanceFromTop: float) -&gt; float:
+        &#39;&#39;&#39; Should return body component radius as a function of distance from the top of the component &#39;&#39;&#39;
+        return
+
+class PlanarInterface():
+    def __init__(self, location: Vector, component1: RocketComponent, component2: RocketComponent, planeNormal=Vector(0,0,-1)):
+        &#39;&#39;&#39; 
+            Defines a planar interface between two components 
+            In the local frame, the normalVector is expected to point across the interface from component1 to component2  
+            In a rocket, this means that (with the default normalVector pointing in the -&#39;ve Z direction (towards the tail)), component1 is should be above component2  
+        &#39;&#39;&#39;
+        self.location = location
+        self.component1 = component1
+        self.component2 = component2
+        self.normalVector = planeNormal
+
+    @classmethod
+    def createPlanarComponentInterfaces(cls, components):
+        &#39;&#39;&#39;
+            Expects components in the list to be sorted by z location (top to bottom)
+            Tries to construct PlanarInterface objects connecting all of the BodyComponent object from top to bottom
+            Returns a list of PlanarInterface objects, ordered from top to bottom
+        &#39;&#39;&#39;
+        return None
+        # Ignore components that aren&#39;t of type &#39;BodyComponent&#39;
+        bodyComponents = []
+        for comp in components:
+            if isinstance(comp, BodyComponent):
+                bodyComponents.append(comp)
+        
+        # Construct interfaces between components
+        componentInterfaces = []
+        interfaceLocationTolerance = 0.001 # m
+        
+        for i in range(len(bodyComponents)-1):
+            topComponent = bodyComponents[i]
+            bottomComponent = bodyComponents[i+1]
+            topInterfaceLoc = topComponent.getBottomInterfaceLocation()
+            bottomInterfaceLoc = bottomComponent.getTopInterfaceLocation()
+
+            if (topInterfaceLoc - bottomInterfaceLoc).length() &lt; interfaceLocationTolerance:
+                interfaceLocation = (topInterfaceLoc + bottomInterfaceLoc) / 2 # Average location is where the interface will be
+                componentInterfaces.append(PlanarInterface(interfaceLocation, topComponent, bottomComponent))
+            else:
+                raise ValueError(&#34;Body Component Location mismatch {} ({}) bottom interface at {} vs {} ({}) top interface at {}. Current interface tolerance = 0.001m&#34;.format(\
+                    topComponent.name, type(topComponent), topInterfaceLoc, bottomComponent.name, type(bottomComponent), bottomInterfaceLoc))
+
+        return componentInterfaces
+
+    @classmethod
+    def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
+        &#39;&#39;&#39; 
+            Sort the components in order from top to bottom, component.position.Z
+            This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
+        &#39;&#39;&#39;
+        def getZPosition(component):
+            try:
+                return component.position.Z
+            except AttributeError:
+                zeroState = RigidBodyState()
+                return component.getInertia(0, zeroState).CG.Z
+
+        components.sort(key=getZPosition, reverse=True)
+        return components
+
+class FixedMass(RocketComponent):
+    &#39;&#39;&#39;
+        Base class for all fixed-mass rocket components
+        Implements functionality to read inertia and position info from sim definition file
+    &#39;&#39;&#39;
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.componentDictReader = componentDictReader
+        self.name = componentDictReader.getDictName()
+            
+        mass = componentDictReader.getFloat(&#34;mass&#34;)
+
+        # Position in simulation definition is relative to stage position
+        self.position = componentDictReader.getVector(&#34;position&#34;) + stage.position # Store position relative to nosecone here
+        # CG in simulation definition is relative to component position
+        cg = componentDictReader.getVector(&#34;cg&#34;) + self.position  # Store cg location relative to nosecone here
+
+        try:
+            MOI = componentDictReader.getVector(&#34;MOI&#34;)
+        except:
+            MOI = Vector(mass*0.01, mass*0.01, mass*0.01) # Avoid having zero moments of inertia
+
+        self.inertia = Inertia(MOI, cg, mass)
+        self.zeroForce = ForceMomentSystem(Vector(0,0,0))
+
+    def getInertia(self, time, state):
+        return self.inertia
+
+    def getMass(self, time):
+        return self.inertia.mass
+
+    def getCG(self, time):
+        return self.inertia.CG
+
+    def getAeroForce(self, rocketState, time, environment, CG):
+        return self.zeroForce
+
+class FixedForce(RocketComponent):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        # Object is just a force, inertia is zero
+        self.inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+
+        force = componentDictReader.getVector(&#34;force&#34;)
+        forceLocation = componentDictReader.getVector(&#34;position&#34;)
+        moment = componentDictReader.getVector(&#34;moment&#34;)
+
+        self.force = ForceMomentSystem(force, forceLocation, moment)
+        
+    def getInertia(self, time, state):
+        return self.inertia
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, rocketCG):
+        return self.force
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+
+class AeroForce(RocketComponent):
+    # Object is just a force, inertia is zero
+    inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        self.position = componentDictReader.getVector(&#34;position&#34;)
+        self.Aref = componentDictReader.getFloat(&#34;Aref&#34;)
+        self.Lref = componentDictReader.getFloat(&#34;Lref&#34;)
+
+        Cd = componentDictReader.getFloat(&#34;Cd&#34;)
+        Cl = componentDictReader.getFloat(&#34;Cl&#34;)
+        momentCoeffs = componentDictReader.getVector(&#34;momentCoeffs&#34;)
+
+        self.aeroCoeffs = [ Cd, Cl, *momentCoeffs ]
+
+    def getInertia(self, time, state):
+        return self.inertia
+
+    @logForceResult
+    def getAeroForce(self, state, time, environment, rocketCG):
+        return ForceMomentSystem.fromAllCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+
+class AeroDamping(AeroForce):
+    position = Vector(0,0,0)
+
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        self.Aref = componentDictReader.getFloat(&#34;Aref&#34;)
+        self.Lref = componentDictReader.getFloat(&#34;Lref&#34;)
+
+        self.zDampingCoeffs = componentDictReader.getVector(&#34;zDampingCoeffs&#34;)
+        self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
+        self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
+    
+    @logForceResult
+    def getAeroForce(self, state, time, environment, rocketCG):
+        airspeed = max(AeroFunctions.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+        redimConst = self.Lref / (2*airspeed)
+        # Calculate moment coefficients from damping coefficients
+        localFrameAngularVelocity = Vector(*state.angularVelocity)
+        zMomentCoeff = self.zDampingCoeffs * localFrameAngularVelocity * redimConst
+        yMomentCoeff = self.yDampingCoeffs * localFrameAngularVelocity * redimConst
+        xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
+        momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
+
+        return ForceMomentSystem.fromAllCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)
+
+class TabulatedAeroForce(AeroForce):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        self.position = componentDictReader.getVector(&#34;position&#34;)
+        self.Aref = componentDictReader.getFloat(&#34;Aref&#34;)
+        self.Lref = componentDictReader.getFloat(&#34;Lref&#34;)
+
+        coefficientTableFilePath = componentDictReader.getString(&#34;filePath&#34;)
+        self._loadCoefficients(coefficientTableFilePath)
+
+    def _loadCoefficients(self, filePath):
+        # Load first row to figure out what the columns mean
+        with open(filePath) as f:
+            columnNames = f.readline().strip().split(&#39;,&#39;)
+
+        # Get functions that calculate the parameters used for interpolation
+        # All these &#39;key&#39;/parameter columns are expected to come before &#39;value&#39; columns to be interpolated over
+        self.parameterFunctions = []
+        i = 0
+        while i &lt; len(columnNames):
+            col = columnNames[i]
+            if col in AeroFunctions.stringToAeroFunctionMap:
+                self.parameterFunctions.append(AeroFunctions.stringToAeroFunctionMap[col])
+            else:
+                break
+            i += 1
+
+        # Continue parsing column names - aero coefficient names now            
+        # This is the ordering expected by ForceMomentSystem.fromAllCoefficients
+        aeroCoeffStrings = [ &#34;CD&#34;, &#34;CL&#34;, &#34;CMx&#34;, &#34;CMy&#34;, &#34;CMz&#34; ]
+        self.aeroCoeffIndices = [] # Provides mapping between value column position in interpolation table &amp; position in output aero coefficient list (ordered like aeroCoeffStrings above)
+        while i &lt; len(columnNames):
+            coeff = columnNames[i]
+
+            if coeff in aeroCoeffStrings:
+                self.aeroCoeffIndices.append(aeroCoeffStrings.index(coeff))
+                
+            else:
+                raise ValueError(&#34;ERROR: One of the following columns: {} did not match any of the expected columns names: Keys: {}, values: {}. \
+                    Or was in the wrong order. All key columns must come BEFORE value columns.&#34;.format(columnNames, AeroFunctions.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
+            i += 1
+
+        # Load the data table to be interpolated
+        dataTable = np.loadtxt(filePath, delimiter=&#39;,&#39;, skiprows=1)
+
+        nKeyCols = len(self.parameterFunctions)
+        keys = dataTable[:, 0:nKeyCols]
+        aeroCoefficients = dataTable[:, nKeyCols:]
+
+        if nKeyCols &gt; 1:
+            # Create n-dimensional interpolation function for aero coefficients
+            self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
+        else:
+            # Save to use with MAPLEAF.Interpolation.linInterp
+            self.keys = [ key[0] for key in keys ]
+            self.values = aeroCoefficients
+
+    def _getAeroCoefficients(self, state, environment):
+        keys = AeroFunctions.getAeroPropertiesList(self.parameterFunctions, state, environment)
+
+        if len(keys) &gt; 1:
+            # Multi-dimensional linear interpolation
+            interpolatedCoefficients = self._interpAeroCoefficients(keys)[0]
+        else:
+            # 1D linear interpolation
+            interpolatedCoefficients = linInterp(self.keys, self.values, keys[0])
+
+        aeroCoefficients = [0.0] * 5
+        for i in range(len(interpolatedCoefficients)):
+            indexInCoeffArray = self.aeroCoeffIndices[i]
+            aeroCoefficients[indexInCoeffArray] = interpolatedCoefficients[i]
+
+        return aeroCoefficients
+
+    @logForceResult
+    def getAeroForce(self, state, time, environment, rocketCG):
+        aeroCoefficients = self._getAeroCoefficients(state, environment)
+        return ForceMomentSystem.fromAllCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+
+class TabulatedInertia(RocketComponent):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.componentDictReader = componentDictReader
+        self.name = componentDictReader.getDictName()
+
+        self.zeroForce = ForceMomentSystem(Vector(0,0,0))
+
+        inertiaTableFilePath = componentDictReader.getString(&#34;filePath&#34;)
+        self._parseInertiaTable(inertiaTableFilePath)
+
+    def _parseInertiaTable(self, filePath):
+        data = np.loadtxt(filePath, skiprows=1, delimiter=&#39;,&#39;)
+        self.times = data[:, 0]
+        self.inertiaData = data[:, 1:]
+
+        # Check that the right number of columns is present
+        if data.shape[1] != 8:
+            raise ValueError(&#34;Wrong number of columns in inertia table: {}. Expecting 8 columns: \
+                Time, Mass, CGx, CGy, CGz, MOIx, MOIy, MOIz&#34;)
+
+    def getInertia(self, time, state):
+        inertiaData = linInterp(self.times, self.inertiaData, time)
+        # MOI is last three columns, CG is the three before that, and mass is column 0
+        return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])
+    
+    def getAeroForce(self, rocketState, time, environment, CG):
+        return self.zeroForce
+
+class FractionalJetDamping(RocketComponent):
+    # Object is just a force, inertia is zero
+    inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.componentDictReader = componentDictReader
+        self.name = componentDictReader.getDictName()
+        
+        self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+        # Only apply damping force if current stage&#39;s engine is firing
+            # (Other stage&#39;s motors will have different exit planes)
+        if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
+            currentRocketInertia = self.rocket.getInertia(time, rocketState)
+            
+            # Differentiate rate of MOI change
+            dt = 0.001
+            nextRocketInertia = self.rocket.getInertia(time+dt, rocketState)            
+            MOIChangeRate = (currentRocketInertia.MOI.X - nextRocketInertia.MOI.X) / dt
+
+            dampingFactor = MOIChangeRate * self.dampingFraction
+            
+            angVel = rocketState.angularVelocity
+            dampingMoment = Vector(-angVel.X*dampingFactor, -angVel.Y*dampingFactor, 0)
+
+            return ForceMomentSystem(Vector(0,0,0), moment=dampingMoment)
+        else:
+            return ForceMomentSystem(Vector(0,0,0))
+
+    def getInertia(self, time, state):
+        return self.inertia
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroDamping"><code class="flex name class">
+<span>class <span class="ident">AeroDamping</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AeroDamping(AeroForce):
+    position = Vector(0,0,0)
+
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        self.Aref = componentDictReader.getFloat(&#34;Aref&#34;)
+        self.Lref = componentDictReader.getFloat(&#34;Lref&#34;)
+
+        self.zDampingCoeffs = componentDictReader.getVector(&#34;zDampingCoeffs&#34;)
+        self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
+        self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
+    
+    @logForceResult
+    def getAeroForce(self, state, time, environment, rocketCG):
+        airspeed = max(AeroFunctions.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+        redimConst = self.Lref / (2*airspeed)
+        # Calculate moment coefficients from damping coefficients
+        localFrameAngularVelocity = Vector(*state.angularVelocity)
+        zMomentCoeff = self.zDampingCoeffs * localFrameAngularVelocity * redimConst
+        yMomentCoeff = self.yDampingCoeffs * localFrameAngularVelocity * redimConst
+        xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
+        momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
+
+        return ForceMomentSystem.fromAllCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroDamping.position"><code class="name">var <span class="ident">position</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce"><code class="flex name class">
+<span>class <span class="ident">AeroForce</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AeroForce(RocketComponent):
+    # Object is just a force, inertia is zero
+    inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        self.position = componentDictReader.getVector(&#34;position&#34;)
+        self.Aref = componentDictReader.getFloat(&#34;Aref&#34;)
+        self.Lref = componentDictReader.getFloat(&#34;Lref&#34;)
+
+        Cd = componentDictReader.getFloat(&#34;Cd&#34;)
+        Cl = componentDictReader.getFloat(&#34;Cl&#34;)
+        momentCoeffs = componentDictReader.getVector(&#34;momentCoeffs&#34;)
+
+        self.aeroCoeffs = [ Cd, Cl, *momentCoeffs ]
+
+    def getInertia(self, time, state):
+        return self.inertia
+
+    @logForceResult
+    def getAeroForce(self, state, time, environment, rocketCG):
+        return ForceMomentSystem.fromAllCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping">AeroDamping</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce">TabulatedAeroForce</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.inertia"><code class="name">var <span class="ident">inertia</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getInertia"><code class="name flex">
+<span>def <span class="ident">getInertia</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInertia(self, time, state):
+    return self.inertia</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent"><code class="flex name class">
+<span>class <span class="ident">BodyComponent</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class that defines functionality for detecting adjacent body components &amp; defining interfaces with them
+Meant for axisymmetric body components.
+Examples: Nosecone, Bodytube, Boattail, Stage</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BodyComponent(ABC):
+    &#39;&#39;&#39; 
+        Class that defines functionality for detecting adjacent body components &amp; defining interfaces with them 
+        Meant for axisymmetric body components.
+        Examples: Nosecone, Bodytube, Boattail, Stage
+    &#39;&#39;&#39;
+    # Override these attributes in child classes to change whether they can connect to components above/below them
+    canConnectToComponentAbove = True
+    canConnectToComponentBelow = True
+
+    def getTopInterfaceLocation(self) -&gt; Union[None, Vector]:
+        &#39;&#39;&#39; For planar cylindrical interfaces, returns the location of the center of the cylindrical interface &#39;&#39;&#39;
+        if self.canConnectToComponentAbove:
+            return self.position
+        else:
+            return None
+
+    def getBottomInterfaceLocation(self) -&gt; Union[None, Vector]:
+        &#39;&#39;&#39; For planar cylindrical interfaces, returns the location of the center of the cylindrical interface &#39;&#39;&#39;
+        if self.canConnectToComponentBelow:
+            baseZCoord = self.position.Z-self.length
+            return Vector(self.position.X, self.position.Y, baseZCoord)
+        else:
+            return None
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+
+    def _getCenterOfPressure(self, *args) -&gt; Vector:
+        return self.CPLocation
+
+    @abstractmethod
+    def getMaxDiameter(self):
+        &#39;&#39;&#39; These functions used for determining rocket&#39;s current max diameter &#39;&#39;&#39;
+        return
+
+    @abstractmethod
+    def getRadius(self, distanceFromTop: float) -&gt; float:
+        &#39;&#39;&#39; Should return body component radius as a function of distance from the top of the component &#39;&#39;&#39;
+        return</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.BoatTail.Transition" href="BoatTail.html#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></li>
+<li><a title="MAPLEAF.Rocket.Bodytube.Bodytube" href="Bodytube.html#MAPLEAF.Rocket.Bodytube.Bodytube">Bodytube</a></li>
+<li><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></li>
+<li><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.canConnectToComponentAbove"><code class="name">var <span class="ident">canConnectToComponentAbove</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.canConnectToComponentBelow"><code class="name">var <span class="ident">canConnectToComponentBelow</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation"><code class="name flex">
+<span>def <span class="ident">getBottomInterfaceLocation</span></span>(<span>self) ‑> Union[NoneType, <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For planar cylindrical interfaces, returns the location of the center of the cylindrical interface</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getBottomInterfaceLocation(self) -&gt; Union[None, Vector]:
+    &#39;&#39;&#39; For planar cylindrical interfaces, returns the location of the center of the cylindrical interface &#39;&#39;&#39;
+    if self.canConnectToComponentBelow:
+        baseZCoord = self.position.Z-self.length
+        return Vector(self.position.X, self.position.Y, baseZCoord)
+    else:
+        return None</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter"><code class="name flex">
+<span>def <span class="ident">getMaxDiameter</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>These functions used for determining rocket's current max diameter</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def getMaxDiameter(self):
+    &#39;&#39;&#39; These functions used for determining rocket&#39;s current max diameter &#39;&#39;&#39;
+    return</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius"><code class="name flex">
+<span>def <span class="ident">getRadius</span></span>(<span>self, distanceFromTop: float) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return body component radius as a function of distance from the top of the component</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def getRadius(self, distanceFromTop: float) -&gt; float:
+    &#39;&#39;&#39; Should return body component radius as a function of distance from the top of the component &#39;&#39;&#39;
+    return</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation"><code class="name flex">
+<span>def <span class="ident">getTopInterfaceLocation</span></span>(<span>self) ‑> Union[NoneType, <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>For planar cylindrical interfaces, returns the location of the center of the cylindrical interface</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTopInterfaceLocation(self) -&gt; Union[None, Vector]:
+    &#39;&#39;&#39; For planar cylindrical interfaces, returns the location of the center of the cylindrical interface &#39;&#39;&#39;
+    if self.canConnectToComponentAbove:
+        return self.position
+    else:
+        return None</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedForce"><code class="flex name class">
+<span>class <span class="ident">FixedForce</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FixedForce(RocketComponent):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        # Object is just a force, inertia is zero
+        self.inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+
+        force = componentDictReader.getVector(&#34;force&#34;)
+        forceLocation = componentDictReader.getVector(&#34;position&#34;)
+        moment = componentDictReader.getVector(&#34;moment&#34;)
+
+        self.force = ForceMomentSystem(force, forceLocation, moment)
+        
+    def getInertia(self, time, state):
+        return self.inertia
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, rocketCG):
+        return self.force
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getInertia"><code class="name flex">
+<span>def <span class="ident">getInertia</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInertia(self, time, state):
+    return self.inertia</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass"><code class="flex name class">
+<span>class <span class="ident">FixedMass</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all fixed-mass rocket components
+Implements functionality to read inertia and position info from sim definition file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FixedMass(RocketComponent):
+    &#39;&#39;&#39;
+        Base class for all fixed-mass rocket components
+        Implements functionality to read inertia and position info from sim definition file
+    &#39;&#39;&#39;
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.componentDictReader = componentDictReader
+        self.name = componentDictReader.getDictName()
+            
+        mass = componentDictReader.getFloat(&#34;mass&#34;)
+
+        # Position in simulation definition is relative to stage position
+        self.position = componentDictReader.getVector(&#34;position&#34;) + stage.position # Store position relative to nosecone here
+        # CG in simulation definition is relative to component position
+        cg = componentDictReader.getVector(&#34;cg&#34;) + self.position  # Store cg location relative to nosecone here
+
+        try:
+            MOI = componentDictReader.getVector(&#34;MOI&#34;)
+        except:
+            MOI = Vector(mass*0.01, mass*0.01, mass*0.01) # Avoid having zero moments of inertia
+
+        self.inertia = Inertia(MOI, cg, mass)
+        self.zeroForce = ForceMomentSystem(Vector(0,0,0))
+
+    def getInertia(self, time, state):
+        return self.inertia
+
+    def getMass(self, time):
+        return self.inertia.mass
+
+    def getCG(self, time):
+        return self.inertia.CG
+
+    def getAeroForce(self, rocketState, time, environment, CG):
+        return self.zeroForce</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.BoatTail.Transition" href="BoatTail.html#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></li>
+<li><a title="MAPLEAF.Rocket.Bodytube.Bodytube" href="Bodytube.html#MAPLEAF.Rocket.Bodytube.Bodytube">Bodytube</a></li>
+<li><a title="MAPLEAF.Rocket.Fins.Fin" href="Fins.html#MAPLEAF.Rocket.Fins.Fin">Fin</a></li>
+<li><a title="MAPLEAF.Rocket.Fins.FinSet" href="Fins.html#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></li>
+<li><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></li>
+<li><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem">RecoverySystem</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    return self.zeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getCG"><code class="name flex">
+<span>def <span class="ident">getCG</span></span>(<span>self, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getCG(self, time):
+    return self.inertia.CG</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia"><code class="name flex">
+<span>def <span class="ident">getInertia</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInertia(self, time, state):
+    return self.inertia</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getMass"><code class="name flex">
+<span>def <span class="ident">getMass</span></span>(<span>self, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getMass(self, time):
+    return self.inertia.mass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping"><code class="flex name class">
+<span>class <span class="ident">FractionalJetDamping</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FractionalJetDamping(RocketComponent):
+    # Object is just a force, inertia is zero
+    inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.componentDictReader = componentDictReader
+        self.name = componentDictReader.getDictName()
+        
+        self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
+
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+        # Only apply damping force if current stage&#39;s engine is firing
+            # (Other stage&#39;s motors will have different exit planes)
+        if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
+            currentRocketInertia = self.rocket.getInertia(time, rocketState)
+            
+            # Differentiate rate of MOI change
+            dt = 0.001
+            nextRocketInertia = self.rocket.getInertia(time+dt, rocketState)            
+            MOIChangeRate = (currentRocketInertia.MOI.X - nextRocketInertia.MOI.X) / dt
+
+            dampingFactor = MOIChangeRate * self.dampingFraction
+            
+            angVel = rocketState.angularVelocity
+            dampingMoment = Vector(-angVel.X*dampingFactor, -angVel.Y*dampingFactor, 0)
+
+            return ForceMomentSystem(Vector(0,0,0), moment=dampingMoment)
+        else:
+            return ForceMomentSystem(Vector(0,0,0))
+
+    def getInertia(self, time, state):
+        return self.inertia
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.inertia"><code class="name">var <span class="ident">inertia</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getInertia"><code class="name flex">
+<span>def <span class="ident">getInertia</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInertia(self, time, state):
+    return self.inertia</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.PlanarInterface"><code class="flex name class">
+<span>class <span class="ident">PlanarInterface</span></span>
+<span>(</span><span>location: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>, component1: <a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>, component2: <a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>, planeNormal=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines a planar interface between two components
+In the local frame, the normalVector is expected to point across the interface from component1 to component2<br>
+In a rocket, this means that (with the default normalVector pointing in the -'ve Z direction (towards the tail)), component1 is should be above component2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PlanarInterface():
+    def __init__(self, location: Vector, component1: RocketComponent, component2: RocketComponent, planeNormal=Vector(0,0,-1)):
+        &#39;&#39;&#39; 
+            Defines a planar interface between two components 
+            In the local frame, the normalVector is expected to point across the interface from component1 to component2  
+            In a rocket, this means that (with the default normalVector pointing in the -&#39;ve Z direction (towards the tail)), component1 is should be above component2  
+        &#39;&#39;&#39;
+        self.location = location
+        self.component1 = component1
+        self.component2 = component2
+        self.normalVector = planeNormal
+
+    @classmethod
+    def createPlanarComponentInterfaces(cls, components):
+        &#39;&#39;&#39;
+            Expects components in the list to be sorted by z location (top to bottom)
+            Tries to construct PlanarInterface objects connecting all of the BodyComponent object from top to bottom
+            Returns a list of PlanarInterface objects, ordered from top to bottom
+        &#39;&#39;&#39;
+        return None
+        # Ignore components that aren&#39;t of type &#39;BodyComponent&#39;
+        bodyComponents = []
+        for comp in components:
+            if isinstance(comp, BodyComponent):
+                bodyComponents.append(comp)
+        
+        # Construct interfaces between components
+        componentInterfaces = []
+        interfaceLocationTolerance = 0.001 # m
+        
+        for i in range(len(bodyComponents)-1):
+            topComponent = bodyComponents[i]
+            bottomComponent = bodyComponents[i+1]
+            topInterfaceLoc = topComponent.getBottomInterfaceLocation()
+            bottomInterfaceLoc = bottomComponent.getTopInterfaceLocation()
+
+            if (topInterfaceLoc - bottomInterfaceLoc).length() &lt; interfaceLocationTolerance:
+                interfaceLocation = (topInterfaceLoc + bottomInterfaceLoc) / 2 # Average location is where the interface will be
+                componentInterfaces.append(PlanarInterface(interfaceLocation, topComponent, bottomComponent))
+            else:
+                raise ValueError(&#34;Body Component Location mismatch {} ({}) bottom interface at {} vs {} ({}) top interface at {}. Current interface tolerance = 0.001m&#34;.format(\
+                    topComponent.name, type(topComponent), topInterfaceLoc, bottomComponent.name, type(bottomComponent), bottomInterfaceLoc))
+
+        return componentInterfaces
+
+    @classmethod
+    def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
+        &#39;&#39;&#39; 
+            Sort the components in order from top to bottom, component.position.Z
+            This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
+        &#39;&#39;&#39;
+        def getZPosition(component):
+            try:
+                return component.position.Z
+            except AttributeError:
+                zeroState = RigidBodyState()
+                return component.getInertia(0, zeroState).CG.Z
+
+        components.sort(key=getZPosition, reverse=True)
+        return components</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.PlanarInterface.createPlanarComponentInterfaces"><code class="name flex">
+<span>def <span class="ident">createPlanarComponentInterfaces</span></span>(<span>components)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Expects components in the list to be sorted by z location (top to bottom)
+Tries to construct PlanarInterface objects connecting all of the BodyComponent object from top to bottom
+Returns a list of PlanarInterface objects, ordered from top to bottom</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def createPlanarComponentInterfaces(cls, components):
+    &#39;&#39;&#39;
+        Expects components in the list to be sorted by z location (top to bottom)
+        Tries to construct PlanarInterface objects connecting all of the BodyComponent object from top to bottom
+        Returns a list of PlanarInterface objects, ordered from top to bottom
+    &#39;&#39;&#39;
+    return None
+    # Ignore components that aren&#39;t of type &#39;BodyComponent&#39;
+    bodyComponents = []
+    for comp in components:
+        if isinstance(comp, BodyComponent):
+            bodyComponents.append(comp)
+    
+    # Construct interfaces between components
+    componentInterfaces = []
+    interfaceLocationTolerance = 0.001 # m
+    
+    for i in range(len(bodyComponents)-1):
+        topComponent = bodyComponents[i]
+        bottomComponent = bodyComponents[i+1]
+        topInterfaceLoc = topComponent.getBottomInterfaceLocation()
+        bottomInterfaceLoc = bottomComponent.getTopInterfaceLocation()
+
+        if (topInterfaceLoc - bottomInterfaceLoc).length() &lt; interfaceLocationTolerance:
+            interfaceLocation = (topInterfaceLoc + bottomInterfaceLoc) / 2 # Average location is where the interface will be
+            componentInterfaces.append(PlanarInterface(interfaceLocation, topComponent, bottomComponent))
+        else:
+            raise ValueError(&#34;Body Component Location mismatch {} ({}) bottom interface at {} vs {} ({}) top interface at {}. Current interface tolerance = 0.001m&#34;.format(\
+                topComponent.name, type(topComponent), topInterfaceLoc, bottomComponent.name, type(bottomComponent), bottomInterfaceLoc))
+
+    return componentInterfaces</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.PlanarInterface.sortByZLocation"><code class="name flex">
+<span>def <span class="ident">sortByZLocation</span></span>(<span>components) ‑> List[<a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sort the components in order from top to bottom, component.position.Z
+This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
+    &#39;&#39;&#39; 
+        Sort the components in order from top to bottom, component.position.Z
+        This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
+    &#39;&#39;&#39;
+    def getZPosition(component):
+        try:
+            return component.position.Z
+        except AttributeError:
+            zeroState = RigidBodyState()
+            return component.getInertia(0, zeroState).CG.Z
+
+    components.sort(key=getZPosition, reverse=True)
+    return components</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent"><code class="flex name class">
+<span>class <span class="ident">RocketComponent</span></span>
+<span>(</span><span>componentDictReader: <a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a>, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RocketComponent(ABC):
+    &#39;&#39;&#39; Abstract Base Class to define interface required for rocket components &#39;&#39;&#39;
+    @abstractmethod
+    def __init__(self, componentDictReader: SubDictReader, rocket, stage):
+        return
+
+    @abstractmethod
+    def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Inertia:
+        return
+
+    @abstractmethod
+    def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -&gt; ForceMomentSystem:
+        return</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.Motor.Motor" href="Motor.html#MAPLEAF.Rocket.Motor.Motor">Motor</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce">FixedForce</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping">FractionalJetDamping</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia">TabulatedInertia</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>], time: float, environmentalConditions: <a title="MAPLEAF.ENV.Environment.EnvironmentalConditions" href="../ENV/Environment.html#MAPLEAF.ENV.Environment.EnvironmentalConditions">EnvironmentalConditions</a>, rocketCG: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>) ‑> <a title="MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem" href="../Motion/ForceMomentSystem.html#MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -&gt; ForceMomentSystem:
+    return</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent.getInertia"><code class="name flex">
+<span>def <span class="ident">getInertia</span></span>(<span>self, time: float, state: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]) ‑> <a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Inertia:
+    return</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce"><code class="flex name class">
+<span>class <span class="ident">TabulatedAeroForce</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TabulatedAeroForce(AeroForce):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.componentDictReader = componentDictReader
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+        self.position = componentDictReader.getVector(&#34;position&#34;)
+        self.Aref = componentDictReader.getFloat(&#34;Aref&#34;)
+        self.Lref = componentDictReader.getFloat(&#34;Lref&#34;)
+
+        coefficientTableFilePath = componentDictReader.getString(&#34;filePath&#34;)
+        self._loadCoefficients(coefficientTableFilePath)
+
+    def _loadCoefficients(self, filePath):
+        # Load first row to figure out what the columns mean
+        with open(filePath) as f:
+            columnNames = f.readline().strip().split(&#39;,&#39;)
+
+        # Get functions that calculate the parameters used for interpolation
+        # All these &#39;key&#39;/parameter columns are expected to come before &#39;value&#39; columns to be interpolated over
+        self.parameterFunctions = []
+        i = 0
+        while i &lt; len(columnNames):
+            col = columnNames[i]
+            if col in AeroFunctions.stringToAeroFunctionMap:
+                self.parameterFunctions.append(AeroFunctions.stringToAeroFunctionMap[col])
+            else:
+                break
+            i += 1
+
+        # Continue parsing column names - aero coefficient names now            
+        # This is the ordering expected by ForceMomentSystem.fromAllCoefficients
+        aeroCoeffStrings = [ &#34;CD&#34;, &#34;CL&#34;, &#34;CMx&#34;, &#34;CMy&#34;, &#34;CMz&#34; ]
+        self.aeroCoeffIndices = [] # Provides mapping between value column position in interpolation table &amp; position in output aero coefficient list (ordered like aeroCoeffStrings above)
+        while i &lt; len(columnNames):
+            coeff = columnNames[i]
+
+            if coeff in aeroCoeffStrings:
+                self.aeroCoeffIndices.append(aeroCoeffStrings.index(coeff))
+                
+            else:
+                raise ValueError(&#34;ERROR: One of the following columns: {} did not match any of the expected columns names: Keys: {}, values: {}. \
+                    Or was in the wrong order. All key columns must come BEFORE value columns.&#34;.format(columnNames, AeroFunctions.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
+            i += 1
+
+        # Load the data table to be interpolated
+        dataTable = np.loadtxt(filePath, delimiter=&#39;,&#39;, skiprows=1)
+
+        nKeyCols = len(self.parameterFunctions)
+        keys = dataTable[:, 0:nKeyCols]
+        aeroCoefficients = dataTable[:, nKeyCols:]
+
+        if nKeyCols &gt; 1:
+            # Create n-dimensional interpolation function for aero coefficients
+            self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
+        else:
+            # Save to use with MAPLEAF.Interpolation.linInterp
+            self.keys = [ key[0] for key in keys ]
+            self.values = aeroCoefficients
+
+    def _getAeroCoefficients(self, state, environment):
+        keys = AeroFunctions.getAeroPropertiesList(self.parameterFunctions, state, environment)
+
+        if len(keys) &gt; 1:
+            # Multi-dimensional linear interpolation
+            interpolatedCoefficients = self._interpAeroCoefficients(keys)[0]
+        else:
+            # 1D linear interpolation
+            interpolatedCoefficients = linInterp(self.keys, self.values, keys[0])
+
+        aeroCoefficients = [0.0] * 5
+        for i in range(len(interpolatedCoefficients)):
+            indexInCoeffArray = self.aeroCoeffIndices[i]
+            aeroCoefficients[indexInCoeffArray] = interpolatedCoefficients[i]
+
+        return aeroCoefficients
+
+    @logForceResult
+    def getAeroForce(self, state, time, environment, rocketCG):
+        aeroCoefficients = self._getAeroCoefficients(state, environment)
+        return ForceMomentSystem.fromAllCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
+
+    def getLogHeader(self):
+        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedInertia"><code class="flex name class">
+<span>class <span class="ident">TabulatedInertia</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TabulatedInertia(RocketComponent):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.componentDictReader = componentDictReader
+        self.name = componentDictReader.getDictName()
+
+        self.zeroForce = ForceMomentSystem(Vector(0,0,0))
+
+        inertiaTableFilePath = componentDictReader.getString(&#34;filePath&#34;)
+        self._parseInertiaTable(inertiaTableFilePath)
+
+    def _parseInertiaTable(self, filePath):
+        data = np.loadtxt(filePath, skiprows=1, delimiter=&#39;,&#39;)
+        self.times = data[:, 0]
+        self.inertiaData = data[:, 1:]
+
+        # Check that the right number of columns is present
+        if data.shape[1] != 8:
+            raise ValueError(&#34;Wrong number of columns in inertia table: {}. Expecting 8 columns: \
+                Time, Mass, CGx, CGy, CGz, MOIx, MOIy, MOIz&#34;)
+
+    def getInertia(self, time, state):
+        inertiaData = linInterp(self.times, self.inertiaData, time)
+        # MOI is last three columns, CG is the three before that, and mass is column 0
+        return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])
+    
+    def getAeroForce(self, rocketState, time, environment, CG):
+        return self.zeroForce</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    return self.zeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getInertia"><code class="name flex">
+<span>def <span class="ident">getInertia</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInertia(self, time, state):
+    inertiaData = linInterp(self.times, self.inertiaData, time)
+    # MOI is last three columns, CG is the three before that, and mass is column 0
+    return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping">AeroDamping</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping.position" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping.position">position</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getInertia" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getInertia">getInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getLogHeader">getLogHeader</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.inertia" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.inertia">inertia</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.canConnectToComponentAbove" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.canConnectToComponentAbove">canConnectToComponentAbove</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.canConnectToComponentBelow" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.canConnectToComponentBelow">canConnectToComponentBelow</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.getLogHeader">getLogHeader</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius">getRadius</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce">FixedForce</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getInertia">getInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getLogHeader">getLogHeader</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getCG" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getCG">getCG</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia">getInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getMass">getMass</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping">FractionalJetDamping</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getInertia">getInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getLogHeader">getLogHeader</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.inertia" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.inertia">inertia</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.PlanarInterface" href="#MAPLEAF.Rocket.RocketComponents.PlanarInterface">PlanarInterface</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.PlanarInterface.createPlanarComponentInterfaces" href="#MAPLEAF.Rocket.RocketComponents.PlanarInterface.createPlanarComponentInterfaces">createPlanarComponentInterfaces</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.PlanarInterface.sortByZLocation" href="#MAPLEAF.Rocket.RocketComponents.PlanarInterface.sortByZLocation">sortByZLocation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent.getInertia" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent.getInertia">getInertia</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce">TabulatedAeroForce</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getLogHeader">getLogHeader</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia">TabulatedInertia</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getInertia" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getInertia">getInertia</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>
