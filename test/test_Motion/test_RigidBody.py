@@ -30,7 +30,7 @@ class TestRigidBody(unittest.TestCase):
         self.zeroAngVel = AngularVelocity(axisOfRotation=Vector(1,0,0), angularVel=0)
         self.zeroForce = ForceMomentSystem(self.zeroVec)
         self.oneVec = Vector(1,1,1)
-        self.simDefinition = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
+        self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
         self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", "1")
         #TODO: Get some tests for the higher order adaptive methods in here
         self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive" ]

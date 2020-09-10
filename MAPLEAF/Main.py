@@ -19,7 +19,7 @@ def buildParser() -> argparse.ArgumentParser:
     ''' Builds the command-line argument parser using argparse '''
     parser = argparse.ArgumentParser(description="""
     Command line interface for the rocket simulator 
-    Runs simulations defined by simulation definition files like those in ./test/simDefinitions/ 
+    Runs simulations defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations/ 
     All possible options for sim definition files defined in ./SimDefinitionTemplate.txt
     """)
 

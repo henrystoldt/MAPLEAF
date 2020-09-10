@@ -87,7 +87,7 @@ class TestEarthModels(unittest.TestCase):
         self.assertEqual(Vector(0,0,0), self.noEarth.getGravityForce("asdf", "adf"))
 
     def test_Initialization_NASASphere(self):
-        simRunner = SingleSimRunner("./test/simDefinitions/NASASphere.mapleaf")
+        simRunner = SingleSimRunner("./MAPLEAF/Examples/Simulations/NASASphere.mapleaf")
         sphere = simRunner.prepRocketForSingleSimulation()
 
         # Should be at an altitude of 9144 m above earth's surface
@@ -106,7 +106,7 @@ class TestEarthModels(unittest.TestCase):
 
     def test_Initialization_Velocity(self):
         # Zero velocity in launch tower frame
-        simDef = SimDefinition("test/simDefinitions/NASATwoStageOrbitalRocket.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf", silent=True)
         simDef.setValue("Rocket.velocity", "(0 0 0)")
         simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
         rocket = simRunner.prepRocketForSingleSimulation()

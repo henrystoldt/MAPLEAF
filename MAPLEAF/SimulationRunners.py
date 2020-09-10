@@ -1009,5 +1009,5 @@ class ConvergenceSimRunner(SingleSimRunner):
             self.simDefinition.setValue("SimControl.EndConditionValue", str(endTime))
 
 if __name__ == "__main__":
-    simDef = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf")
+    simDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
     runParallelMonteCarloSim(simDef)

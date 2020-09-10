@@ -271,10 +271,10 @@ class _windRoseDataSampler():
         return windRose
 
     def _getAveragedWindRose(self, Months=["May"], MonthWeights=[1.0], locations=["MedecineHat"], locationWeights=[1.0]):
-        windRose = self._readWindRose("test/WindData/WindroseAprMedecineHat.txt")*0.0 # Initialize as zero
+        windRose = self._readWindRose("MAPLEAF/Examples/Wind/WindroseAprMedecineHat.txt")*0.0 # Initialize as zero
         for i in range(len(Months)):
             for a in range(len(locations)):
-                windRoseFilePath = "test/WindData/Windrose{}{}.txt".format(Months[i], locations[a])
+                windRoseFilePath = "MAPLEAF/Examples/Wind/Windrose{}{}.txt".format(Months[i], locations[a])
                 windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
 
         return windRose.copy()
@@ -340,7 +340,7 @@ class _windRoseDataSampler():
 
 class _radioSondeDataSampler():
     ''' 
-        Parses data from radio sonde data files from IGRA-2 after they've been post-processed by test/WindData/filterRadioSondeData.py
+        Parses data from radio sonde data files from IGRA-2 after they've been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
         IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
     '''
 
@@ -369,7 +369,7 @@ class _radioSondeDataSampler():
 
         locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
         # Load radiosonde data for that location
-        radioSondeFilePath = "test/WindData/RadioSonde{}_filtered.txt".format(selectedLocation)
+        radioSondeFilePath = "MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt".format(selectedLocation)
         
         # Read datasets from fille
         if launchMonth != "Yearly":
@@ -470,7 +470,7 @@ class _radioSondeDataSampler():
             Both returned lists are sorted from lowest to highest altitude
 
             Further info about radio sonde input data at: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
-            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using test/WindData/filterRadioSondeData.py
+            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using MAPLEAF/Examples/Wind/filterRadioSondeData.py
         '''
         result = []
         for line in data:
@@ -509,7 +509,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 #If this file is run by itself
 # if __name__ == '__main__':
     # from SimDefinition import SimDefinition
-    # fW = SimDefinition("test/simDefinitions/Wind.txt")
+    # fW = SimDefinition("MAPLEAF/Examples/Simulations/Wind.txt")
     # fW.setValue("Environment.MeanWindModel", "SampledGroundWindData")
 
     # a = meanWindModelFactory(fW)

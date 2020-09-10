@@ -1,5 +1,5 @@
 ExampleFullFlightCase{
-    simDefinitionFile                   ./test/simDefinitions/AdaptTimeStep.mapleaf
+    simDefinitionFile                   ./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
     ParameterOverrides{ # (Optional)
         SimControl.EndCondition         Time
@@ -66,7 +66,7 @@ ExampleFullFlightCase{
 }
 
 ExampleWindTunnelCase{
-    simDefinitionFile                   ./test/simDefinitions/AdaptTimeStep.mapleaf
+    simDefinitionFile                   ./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
     # Each test case can only be a ParameterSweep (Wind Tunnel) case or an ExpectedResultsAtEndOfSim (Full Flight) case.
         # If both subdictionaries are present, the ParameterSweep mode takes priority

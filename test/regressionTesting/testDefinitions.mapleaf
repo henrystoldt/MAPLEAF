@@ -1,5 +1,5 @@
 ExampleWindTunnelCase{
-	simDefinitionFile                   ./test/simDefinitions/AdaptTimeStep.mapleaf
+	simDefinitionFile                   ./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
 	ParameterOverrides{
 		Environment.MeanWindModel			Constant
@@ -46,7 +46,7 @@ ExampleWindTunnelCase{
 }
 
 OpenRocketWindTunnelCase{
-	simDefinitionFile			./test/simDefinitions/WindTunnel.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
 
 	ParameterSweep{
 
@@ -104,7 +104,7 @@ OpenRocketWindTunnelCase{
 }
  
 ExampleCase1{
-	simDefinitionFile	./test/simDefinitions/AdaptTimeStep.mapleaf
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
 	ExpectedResultsAtEndOfSim{
 		Mach	    0.287
@@ -144,11 +144,11 @@ ExampleCase1{
 }
 
 B4-4SimpleRocketCase{
-	simDefinitionFile	./test/simDefinitions/Jake1.mapleaf
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Jake1.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.GeneralMass.mass		0.0129
-		Rocket.Sustainer.Motor.path			test/motorDefinitions/B4-4.txt
+		Rocket.Sustainer.Motor.path			MAPLEAF/Examples/Motors/B4-4.txt
 		Rocket.Sustainer.Motor.cg			(5.53E-06 5.53E-06 5.22E-07)
 		Rocket.Sustainer.TailFins.finCantAngle		0
 		SimControl.EndCondition		Apogee
@@ -211,11 +211,11 @@ B4-4SimpleRocketCase{
 }
 
 C6-3SimpleRocketCase{
-	simDefinitionFile	./test/simDefinitions/Jake1.mapleaf
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Jake1.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.GeneralMass.mass		0.00952
-		Rocket.Sustainer.Motor.path			test/motorDefinitions/C6-3.txt
+		Rocket.Sustainer.Motor.path			MAPLEAF/Examples/Motors/C6-3.txt
 		Rocket.Sustainer.Motor.cg			(4.08e-06 4.08e-06 3.86e-07)
 		Rocket.Sustainer.Motor.burnTimeAdjustFactor 1.16
 		Rocket.Sustainer.TailFins.finCantAngle		0
@@ -279,7 +279,7 @@ C6-3SimpleRocketCase{
 }
 
 HaisunaataCase{
-	simDefinitionFile	./test/simDefinitions/Haisunaata.mapleaf
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Haisunaata.mapleaf
 
 	ExpectedResultsAtEndOfSim{
 		PositionX(m)		  -398.556
@@ -339,11 +339,11 @@ HaisunaataCase{
 }
 
 RollingRocketCase{
-	simDefinitionFile	./test/simDefinitions/Jake1.mapleaf
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Jake1.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.GeneralMass.mass			0.00952
-		Rocket.Sustainer.Motor.path					test/motorDefinitions/C6-3.txt
+		Rocket.Sustainer.Motor.path					MAPLEAF/Examples/Motors/C6-3.txt
 		Rocket.Sustainer.Motor.cg					(4.08e-06 4.08e-06 3.86e-07)
 		Rocket.Sustainer.Motor.burnTimeAdjustFactor 1.15
 		Rocket.Sustainer.TailFins.finCantAngle		5
@@ -405,7 +405,7 @@ RollingRocketCase{
 }
 
 SparrowWindTunnelCase{
-	simDefinitionFile			./test/simDefinitions/Sparrow.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
 
 	ParameterSweep{
 
@@ -440,7 +440,7 @@ SparrowWindTunnelCase{
 }
 
 SparrowWindTunnelCase2{
-	simDefinitionFile			./test/simDefinitions/Sparrow.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
 
 	ParameterSweep{
 
@@ -496,7 +496,7 @@ SparrowWindTunnelCase2{
 }
 
 Sparrow287{
-	simDefinitionFile			./test/simDefinitions/Sparrow.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
 
 	ParameterSweep{
 
@@ -610,7 +610,7 @@ Sparrow287{
 }
 
 Sparrow46{
-	simDefinitionFile			./test/simDefinitions/Sparrow.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
 
 	ParameterSweep{
 
@@ -724,7 +724,7 @@ Sparrow46{
 }
 
 ConventionalRocketCase{
-	simDefinitionFile				./test/simDefinitions/Conventional.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/Conventional.mapleaf
 
 	ParameterSweep{
 		smoothLine		True
@@ -823,7 +823,7 @@ ConventionalRocketCase{
 }
 
 ParametricFinCase5{
-	simDefinitionFile				./test/simDefinitions/ParametricFinBody.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.64008)
@@ -944,7 +944,7 @@ ParametricFinCase5{
 }
 
 ParametricFinCase10{
-	simDefinitionFile				./test/simDefinitions/ParametricFinBody.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -1062,7 +1062,7 @@ ParametricFinCase10{
 }
 
 ParametricFinCase12{
-	simDefinitionFile				./test/simDefinitions/ParametricFinBody.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -1178,7 +1178,7 @@ ParametricFinCase12{
 }
 
 ParametricFinCase5_0AOA{
-	simDefinitionFile				./test/simDefinitions/ParametricFinBody.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.64008)
@@ -1296,7 +1296,7 @@ ParametricFinCase5_0AOA{
 }
 
 ParametricFinCase10_0AOA{
-	simDefinitionFile				./test/simDefinitions/ParametricFinBody.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -1414,7 +1414,7 @@ ParametricFinCase10_0AOA{
 }
 
 ParametricFinCase12_0AOA{
-	simDefinitionFile				./test/simDefinitions/ParametricFinBody.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -1530,7 +1530,7 @@ ParametricFinCase12_0AOA{
 }
 
 NASADraglessSphere{
-	simDefinitionFile				./test/simDefinitions/NASASphere.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
 
 	ParameterOverrides{
 		Rocket.Stage.AeroForce.Cd 	0.0 # Sphere is dragless
@@ -1620,7 +1620,7 @@ NASADraglessSphere{
 }
 
 NASACdSphere_RoundEarth{
-	simDefinitionFile				./test/simDefinitions/NASASphere.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
 
 	ParameterOverrides{
 		Environment.EarthModel		Round
@@ -1643,7 +1643,7 @@ NASACdSphere_RoundEarth{
 }
 
 NASACdSphere_WGS84{
-	simDefinitionFile				./test/simDefinitions/NASASphere.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
 
 	# Expected values from NASA Sim 4
 	ExpectedResultsAtEndOfSim{
@@ -1662,7 +1662,7 @@ NASACdSphere_WGS84{
 }
 
 NASACdSphere_WGS84Wind{
-	simDefinitionFile				./test/simDefinitions/NASASphere.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
 
 	ParameterOverrides{
 		Environment.MeanWindModel				Constant
@@ -1686,7 +1686,7 @@ NASACdSphere_WGS84Wind{
 }
 
 NASADampedBrick{
-	simDefinitionFile				./test/simDefinitions/NASABrick.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASABrick.mapleaf
 
 	# Expected values from NASA Sim 4
 	ExpectedResultsAtEndOfSim{
@@ -1785,7 +1785,7 @@ NASADampedBrick{
 }
 
 NASATwoStageOrbitalRocket{
-	simDefinitionFile				./test/simDefinitions/NASATwoStageOrbitalRocket.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf
 
 	!create PlotsToGenerate from NASADampedBrick.PlotsToGenerate{
 		!replace 'regressionTesting/NASADampedBrick/' with 'regressionTesting/NASAOrbitalRocket/'
@@ -1890,7 +1890,7 @@ NASATwoStageOrbitalRocket{
 
 StaticStabilityLongFinsOn{
 
-	simDefinitionFile			./test/simDefinitions/WindTunnel.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.UpperBodyTube.length			1.042972
@@ -1999,7 +1999,7 @@ StaticStabilityLongFinsOn{
 
 StaticStabilityLongFinsOff{
 
-	simDefinitionFile			./test/simDefinitions/WindTunnelFinsOff.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnelFinsOff.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.UpperBodyTube.length			1.042972
@@ -2107,7 +2107,7 @@ StaticStabilityLongFinsOff{
 
 StaticStabilityLongFinsCant{
 
-	simDefinitionFile			./test/simDefinitions/WindTunnel.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.UpperBodyTube.length			1.042972
@@ -2239,7 +2239,7 @@ StaticStabilityLongFinsCant{
 
 StaticStabilityShortFinsOn{
 
-	simDefinitionFile			./test/simDefinitions/WindTunnel.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.UpperBodyTube.length			0.7242
@@ -2349,7 +2349,7 @@ StaticStabilityShortFinsOn{
 
 StaticStabilityShortFinsOff{
 
-	simDefinitionFile			./test/simDefinitions/WindTunnelFinsOff.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnelFinsOff.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.UpperBodyTube.length			0.7242
@@ -2457,7 +2457,7 @@ StaticStabilityShortFinsOff{
 
 StaticStabilityShortFinsCant{
 
-	simDefinitionFile			./test/simDefinitions/WindTunnel.mapleaf
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
 
 	ParameterOverrides{
 		Rocket.Sustainer.UpperBodyTube.length			0.7242

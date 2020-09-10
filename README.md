@@ -30,7 +30,7 @@ Open-source 6-DOF Rocket Flight Simulation
 ### Running a Simulation
 `python3 Main.py /path/to/SimDefinitionFile.mapleaf`  
 All possible options in the SimConfigFile are defined in SimDefinitionTemplate.mapleaf  
-Example config files are in the ./test/simDefinitions folder  
+Example config files are in the ./MAPLEAF/Examples/Simulations folder  
 
 ### Running Unit Tests
 Unit Testing Framework Info:
@@ -64,16 +64,16 @@ Example:
 |            | ./MAPLEAF/Rocket:            | Rocket Modelling Code - Rocket, Stage, Rocket Components                                     |
 |            |                          |                                                                                              |
 | ./test:    |                          | Unit testing code and cases for the rocket simulator                                         |
-|            | ./test/motorDefinitions: | Motor definition files                                                                       |
+|            | ./MAPLEAF/Examples/Motors: | Motor definition files                                                                       |
 |            | ./test/regressionTesting | All regression testing / validation code, test cases, comparison data, etc...                |
-|            | ./test/simDefinitions:   | Simulation definition files                                                                  |
+|            | ./MAPLEAF/Examples/Simulations:   | Simulation definition files                                                                  |
 |            | ./test/speedTests:       | Python scripts comparing the speeds of different methods/classes\                            |
 |            | ./test/test_ENV:         | Each test_XXX folder tests the code in ./MAPLEAF/XXX                                             |
 |            | ./test/test_GNC:         | ''                                                                                           |
 |            | ./test/test_IO:          | ''                                                                                           |
 |            | ./test/test_Motion:      | ''                                                                                           |
 |            | ./test/test_Rocket:      | ''                                                                                           |
-|            | ./test/WindData:         | Radio sonde and wind rose data. Currently contains data relevant to Suffield\                |
+|            | ./MAPLEAF/Examples/Wind:         | Radio sonde and wind rose data. Currently contains data relevant to Suffield\                |
 
 ## To run linting (static error checking)
 1. `$ python3 -m flake8 --max-complexity 12`

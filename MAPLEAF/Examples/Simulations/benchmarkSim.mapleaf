@@ -5,19 +5,11 @@
 SimControl{
     # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization Euler
-    timeStep 0.01 #sec
+    timeStep 0.002 #sec
 
     # Position, Velocity, AngularVelocity, FlightAnimation, None, CanardDeflections
-    plot Position Velocity AngularVelocity FlightAnimation CanardDeflections
+    plot None
     loggingLevel 0
-
-    EndCondition Apogee
-    EndConditionValue 2900
-}
-
-Environment{
-    initAltitude 0 #m, ASL
-    windSpeed ( 0 0 0 ) #m/s
 }
 
 Rocket{
@@ -25,20 +17,18 @@ Rocket{
     
     # Initial state
     position            (0 0 10) # m
-    initialDirection    (0 0 1)
-    velocity            (0 0 40) #m/s
+    initialDirection    (0 0.4 1)
+    velocity            (0 0 0) #m/s
     angularVelocity     (0 0 1) #rad/s
 
-    # HIL{
-    #   quatUpdateRate  100
-    #   posUpdateRate   20
-    #   velUpdateRate   20
-    #   teensyComPort   COM20
-    #   imuComPort      COM15
-    #   teensyBaudrate  9600
-    #   imuBaudrate     57600
-    # }
+    # Constant mass properties - remove to use component-buildup mass/cg/MOI
+    constCG             (0 0 -2.05) #m
+    constMass           50 # kg
+    constMOI            (85 85 0.5) # kg*m^2
 
+    Aero{
+        surfaceRoughness    0.000050
+    }
 
     Sustainer{
         class           Stage
@@ -52,8 +42,6 @@ Rocket{
             baseDiameter    0.1524
             aspectRatio     5
             shape           tangentOgive
-
-            surfaceRoughness    0.000050
         }
 
         UpperBodyTube{
@@ -62,24 +50,21 @@ Rocket{
             position        (0 0 -0.762)
             cg              (0 0 -1)
             outerDiameter   0.1524
-            length          3.81
-
-            surfaceRoughness    0.000050
+            length          2
         }
 
         Canards{
             class           FinSet 
             mass            2 # kg
-            position        (0 0 -0.8636)
-            cg              (0 0 -0.8636)
+            position        (0 0 -0.762)
+            cg              (0 0 -0.762)
+            
             numFins         4
             sweepAngle      30 # deg
-            rootChord       0.1524 # m
-            tipChord        0.0762 # m
-            span            0.0635 # m
- 
+            rootChord       0.1 # m
+            tipChord        0.05 # m
+            span            0.075 # m
             thickness       0.0047625 # m
-            surfaceRoughness    0.000050
         }
 
         GeneralMass{
@@ -91,23 +76,21 @@ Rocket{
 
         Motor{
             class           Motor
-            path            test/motorDefinitions/test2.txt
+            path            MAPLEAF/Examples/Motors/test2.txt
         }
 
         TailFins{
             class           FinSet 
             mass            2 # kg
-            position        (0 0 -4.2672)
-            cg              (0 0 -4.2762)
+            position        (0 0 -2.762)
+            cg              (0 0 -2.762)
             
-            numFins         4
-            firstFinAngle   0 # deg (defines the angle from the x-axis of the first fin in the set)
+            numFins         3
             sweepAngle      28.61 # deg
             rootChord       0.3048 # m
             tipChord        0.1524 # m
             span            0.1397 # m
-            thickness       0.0047625 # m
-            surfaceRoughness    0.000050
+            thickness       0.0047625 # m       
         }
     }
 }

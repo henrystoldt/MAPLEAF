@@ -22,7 +22,7 @@ from MAPLEAF.Motion.CythonVector import Vector
 
 class TestTurbulenceModels(unittest.TestCase):
     def setUp(self):
-        configFilePath = "test/simDefinitions/Wind.mapleaf"
+        configFilePath = "MAPLEAF/Examples/Simulations/Wind.mapleaf"
         self.simDef = SimDefinition(configFilePath, silent=True)
         self.simDef.setValue("Environment.MeanWindModel", "Constant")
         self.simDef.setValue("SimControl.loggingLevel", "0")
@@ -45,7 +45,7 @@ class TestTurbulenceModels(unittest.TestCase):
         self.assertAlmostEqual(png.getValue(0.1), 0.5874110050866364)
 
     def test_pinkNoiseStdDev(self):
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simDef.setValue("Environment.TurbulenceModel", "PinkNoise1D")
         simDef.setValue("Environment.PinkNoiseModel.velocityStdDeviation", "1") 
         simDef.setValue("Environment.PinkNoiseModel.randomSeed1", "63583")       
@@ -61,7 +61,7 @@ class TestTurbulenceModels(unittest.TestCase):
         self.assertAlmostEqual(v2[0], 0.5874110050866364/2.26)
 
     def test_pinkNoiseTurbIntensity(self):
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simDef.setValue("Environment.TurbulenceModel", "PinkNoise1D")
         simDef.setValue("Environment.PinkNoiseModel.turbulenceIntensity", "100") 
         simDef.setValue("Environment.PinkNoiseModel.randomSeed1", "63583")      
@@ -77,7 +77,7 @@ class TestTurbulenceModels(unittest.TestCase):
         self.assertAlmostEqual(v2[0], 0.5874110050866364/2.26)
 
     def test_customGust(self):
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simDef.setValue("Environment.TurbulenceModel", "customSineGust")
         simDef.setValue("Environment.CustomSineGust.startAltitude", "0")
         simDef.setValue("Environment.CustomSineGust.magnitude", "9")

@@ -22,7 +22,7 @@ from MAPLEAF.Rocket.Rocket import Rocket
 
 class TestMotor(unittest.TestCase):
     def setUp(self):
-        simDef = SimDefinition("test/simDefinitions/test2.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test2.mapleaf")
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.motorRocket = Rocket(rocketDictReader)
     
@@ -137,7 +137,7 @@ class TestMotor(unittest.TestCase):
         expectedFuelMOI = Vector(0, 0, 0)
         assertIterablesAlmostEqual(self, ActualFuelMOI, expectedFuelMOI)
 
-        simDef = SimDefinition("test/simDefinitions/Jake1.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Jake1.mapleaf")
         rocketDictReader = SubDictReader("Rocket", simDef)
         jakeRocket = Rocket(rocketDictReader)
 
@@ -153,7 +153,7 @@ class TestMotor(unittest.TestCase):
         self.assertAlmostEqual(expectedImpulse, impulse)
 
     def test_impulseAdjustFactor(self):
-        simDef = SimDefinition("test/simDefinitions/test2.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test2.mapleaf")
         
         # Create normal motor
         rocketDictReader1 = SubDictReader("Rocket", simDef)
@@ -179,7 +179,7 @@ class TestMotor(unittest.TestCase):
         self.assertAlmostEqual(burnTime1, burnTime2)
         
     def test_burnTimeAdjustFactor(self):
-        simDef = SimDefinition("test/simDefinitions/test2.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test2.mapleaf")
         
         # Create normal motor
         rocketDictReader1 = SubDictReader("Rocket", simDef)
@@ -205,7 +205,7 @@ class TestMotor(unittest.TestCase):
         self.assertAlmostEqual(burnTime2/burnTime1, float(burnTimeAdjustFactor))
 
     def test_SolidMotor(self):
-        simDef = SimDefinition("test/simDefinitions/Jake1.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Jake1.mapleaf")
         rocketDictReader = SubDictReader("Rocket", simDef)
         motorRocket = Rocket(rocketDictReader)
 

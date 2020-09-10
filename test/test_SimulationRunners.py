@@ -20,13 +20,13 @@ class TestSimRunners(unittest.TestCase):
         with self.assertRaises(ValueError):
             shouldCrash = SingleSimRunner() # Needs a sim definition file
 
-        shouldntCrash = SingleSimRunner("test/simDefinitions/AdaptTimeStep.mapleaf")
+        shouldntCrash = SingleSimRunner("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
         
-        simDefinition = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
-        shouldntCrash2 = SingleSimRunner(simDefinitionFilePath="test/simDefinitions/AdaptTimeStep.mapleaf", simDefinition=simDefinition, silent=True)
+        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+        shouldntCrash2 = SingleSimRunner(simDefinitionFilePath="MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", simDefinition=simDefinition, silent=True)
 
         #### Set up sim definition ####
-        simDefinition = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
+        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
 
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDefinition)
 
@@ -35,7 +35,7 @@ class TestSimRunners(unittest.TestCase):
 
     def test_simLoggingColumnsMatchHeaders(self):
         # Load sim definition file
-        simDefinition = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
+        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
         simDefinition.setValue("SimControl.EndConditionValue", "0.02")
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDefinition)
 
@@ -57,15 +57,15 @@ class TestSimRunners(unittest.TestCase):
         self.assertEqual(forcesLogHeaderItemCount, forcesLogFirstLineItemCount)
 
     def test_isMonteCarloSim(self):
-        monteCarloSimDef = SimDefinition("test/simDefinitions/MonteCarlo.mapleaf", silent=True)
+        monteCarloSimDef = SimDefinition("MAPLEAF/Examples/Simulations/MonteCarlo.mapleaf", silent=True)
         self.assertTrue(isMonteCarloSimulation(monteCarloSimDef))
 
-        nonMonteCarloSimDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        nonMonteCarloSimDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         self.assertFalse(isMonteCarloSimulation(nonMonteCarloSimDef))
 
     def test_MonteCarlo(self):
         #### Set up sim definition ####
-        mCSimDef = SimDefinition("test/simDefinitions/MonteCarlo.mapleaf", silent=True)
+        mCSimDef = SimDefinition("MAPLEAF/Examples/Simulations/MonteCarlo.mapleaf", silent=True)
 
         test.testUtilities.setUpSimDefForMinimalRunCheck_MonteCarlo(mCSimDef)
 
@@ -75,7 +75,7 @@ class TestSimRunners(unittest.TestCase):
 
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
-        convSimDef = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
+        convSimDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
 
         test.testUtilities.setUpSimDefForMinimalRunCheck(convSimDef)
 
@@ -95,7 +95,7 @@ class TestSimRunners(unittest.TestCase):
 
     def test_RK45AdaptSim(self):
         # Smoke test
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simDef.setValue("SimControl.timeDiscretization", "RK45Adaptive")
         simDef.setValue("SimControl.TimeStepAdaptation.controller", "PID")
         simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
@@ -111,7 +111,7 @@ class TestSimRunners(unittest.TestCase):
 
     def test_RK4Sim(self):
         # Smoke test
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
         rocket = simRunner.prepRocketForSingleSimulation()
 

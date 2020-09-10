@@ -8,7 +8,7 @@
 
 import unittest
 
-from Main import SingleSimRunner
+from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
@@ -20,7 +20,7 @@ from MAPLEAF.Motion.CythonVector import Vector
 class TestRecoverySystem(unittest.TestCase):
     def setUp(self):
         # Init rocket + environment
-        simRunner = SingleSimRunner(simDefinitionFilePath="test/simDefinitions/Recovery.mapleaf", silent=True)
+        simRunner = SingleSimRunner(simDefinitionFilePath="MAPLEAF/Examples/Simulations/Recovery.mapleaf", silent=True)
         self.recoveryRocket = simRunner.prepRocketForSingleSimulation()
 
         self.rSys = self.recoveryRocket.recoverySystem

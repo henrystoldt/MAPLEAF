@@ -10,13 +10,13 @@ from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBody import RigidBodyState
 from MAPLEAF.Rocket.Rocket import Rocket
-from Main import SingleSimRunner
+from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonVector import Vector
 
 
 class TestRocketControlSystem(unittest.TestCase):
     def setUp(self):
-        simDef = SimDefinition("test/simDefinitions/Canards.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
 
         simDef.setValue("SimControl.loggingLevel", "0")
         simDef.setValue("Rocket.ControlSystem.MomentController.gainTableFilePath", "test/test_GNC/testPIDControlLaw.txt")
@@ -76,7 +76,7 @@ class TestRocketControlSystem(unittest.TestCase):
             self.assertAlmostEqual(ExpectedFinDefl[i], calculatedFinDefl[i])
 
     def test_AddAndRemoveTimeSteppingConstraint(self):
-        simDefinition = SimDefinition("test/simDefinitions/Canards.mapleaf", silent=True)
+        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
 
         simDefinition.setValue("SimControl.loggingLevel", "0")
         # Set time step incompatible with a fixed control system update rate, and a larger initial time step

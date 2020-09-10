@@ -72,7 +72,7 @@ Rocket{
 
         Motor{            
             class           Motor
-            path            test/motorDefinitions/Empty.txt
+            path            MAPLEAF/Examples/Motors/Empty.txt
         }
         
         BoatTail{

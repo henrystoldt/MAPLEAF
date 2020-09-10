@@ -29,7 +29,7 @@ from MAPLEAF.SimulationRunners import SingleSimRunner
 
 class TestBodyTube(unittest.TestCase):
     def setUp(self):
-        simDef = SimDefinition("test/simDefinitions/test3.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test3.mapleaf")
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.rocket = Rocket(rocketDictReader)
 
@@ -91,7 +91,7 @@ class TestBodyTube(unittest.TestCase):
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 5)
 
     def test_bodyTubeDampingMoment(self):
-        simRunner = SingleSimRunner("test/simDefinitions/test3.mapleaf", silent=True)
+        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocket = simRunner.prepRocketForSingleSimulation()
 
         bodyTube = rocket.stages[0].getComponentsOfType(Bodytube)[0]

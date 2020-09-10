@@ -22,7 +22,7 @@ Rocket{
 
         Motor{
             class           Motor
-            path            test/motorDefinitions/test.txt
+            path            MAPLEAF/Examples/Motors/test.txt
         }
     }
 }

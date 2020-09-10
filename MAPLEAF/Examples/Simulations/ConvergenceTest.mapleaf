@@ -3,29 +3,31 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
-    timeDiscretization Euler
-    timeStep 0.05 #sec
+    timeDiscretization RK4
+    timeStep 0.5 #sec
 
-    EndCondition Altitude
-    EndConditionValue 0
+    EndCondition Time
+    EndConditionValue 5
 
-    plot FlightAnimation Position Velocity NoseconeF
-    loggingLevel 0
+    plot None
+    loggingLevel 1
+
+    TimeStepAdaptation{
+        controller          PID 
+        targetError         1.39406981820795E-6 # Controls adaptive time step methods - Combined metric of position, velocity, orientation, angular velocity error
+        minFactor           0.3 # Min time step adaptation factor
+        maxFactor           1.5 # Max time step adaptation factor
+        Elementary.safetyFactor        0.9 # Safety factor applied to time step adaptation factor - used by elementary controller
+        minTimeStep         0.0001
+        maxTimeStep         5
+        PID.coefficients    -0.002 0 -0.02 # P I D
+    }
+
+    RocketPlot On
 }
 
 Environment{
     launchSiteElevation 755 #m, ASL
-
-    AtmosphericPropertiesModel          USStandardAtmosphere
-
-    MeanWindModel                       Constant
-
-    ConstantMeanWind{
-        velocity                    ( -10 0 0 ) #m/s
-    }
-
-    TurbulenceModel None
 }
 
 Rocket{
@@ -56,8 +58,29 @@ Rocket{
             surfaceRoughness    0.000050
         }
 
-        UpperBodyTube{            
-            
+        # Rocket can only have a single recovery system
+        RecoverySystem{
+            class           RecoverySystem
+            mass            5
+            position        (0 0 -1)
+            cg              (0 0 -1)
+            numStages       2
+
+            # Apogee, Time, Altitude
+            stage1Trigger       Apogee
+            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+
+        UpperBodyTube{
             class           Bodytube
             mass            1 
             position        (0 0 -0.762)
@@ -75,10 +98,10 @@ Rocket{
             cg              (0 0 0)
             MOI     (66.6 66.6 0.21)
         }
-        
+
         Motor{
             class           Motor
-            path            test/motorDefinitions/test.txt
+            path            MAPLEAF/Examples/Motors/test.txt
         }
 
         TailFins{

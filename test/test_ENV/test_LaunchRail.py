@@ -57,7 +57,7 @@ class TestLaunchRail(unittest.TestCase):
         
     def test_init(self):
         # Modify file to include a launch rail
-        simDef = SimDefinition("test/simDefinitions/NASATwoStageOrbitalRocket.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf")
         simDef.setValue("Environment.LaunchSite.railLength", "15")
 
         # Initialize environment with launch rail

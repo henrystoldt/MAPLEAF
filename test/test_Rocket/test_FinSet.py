@@ -26,11 +26,11 @@ from MAPLEAF.Rocket.Rocket import Rocket
 
 class TestFinSet(unittest.TestCase):
     def setUp(self):
-        simDef = SimDefinition("test/simDefinitions/test3.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.rocket = Rocket(rocketDictReader, silent=True)
 
-        simDef = SimDefinition("test/simDefinitions/test6.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test6.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.rocket2 = Rocket(rocketDictReader, silent=True)
         self.finSet1 = self.rocket2.stages[0].getComponentsOfType(FinSet)[0]

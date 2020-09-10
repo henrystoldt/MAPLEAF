@@ -13,7 +13,7 @@ import unittest
 import matplotlib.pyplot as plt
 
 import MAPLEAF.IO.Plotting as Plotting
-import Main
+import MAPLEAF.Main as Main
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState_3DoF, RigidBodyState
@@ -50,7 +50,7 @@ class TestPlotting(unittest.TestCase):
 
     def test_plotColumn(self):
         # Load sim definition file
-        simDef = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDef)
         simDef.setValue("SimControl.EndConditionValue", "0.03")
 
@@ -88,7 +88,7 @@ class TestPlotting(unittest.TestCase):
 
     def test_plotFromLog(self):
         # Load sim definition file
-        simDef = SimDefinition("test/simDefinitions/AdaptTimeStep.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDef)
         simDef.setValue("SimControl.EndConditionValue", "0.03")
 

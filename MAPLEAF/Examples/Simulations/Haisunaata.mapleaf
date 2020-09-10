@@ -75,7 +75,7 @@ Rocket{
 
         Motor{
             class           Motor
-            path            test/motorDefinitions/J115.txt
+            path            MAPLEAF/Examples/Motors/J115.txt
         }
 
         TailFins{

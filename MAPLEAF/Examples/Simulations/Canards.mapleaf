@@ -139,7 +139,7 @@ Rocket{
 
         Motor{
             class           Motor
-            path            test/motorDefinitions/test2.txt
+            path            MAPLEAF/Examples/Motors/test2.txt
         }
 
         TailFins{

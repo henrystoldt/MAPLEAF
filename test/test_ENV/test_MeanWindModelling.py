@@ -23,7 +23,7 @@ from MAPLEAF.Motion.CythonVector import Vector
 class TestMeanWindModels(unittest.TestCase):
     def setUp(self):
         self.rocket = "fakeNewsRocket" # May have to convert this into a real Rocket at some point, but it's faster this way
-        self.simDefinition = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
 
     def test_convertWindHeadingToXYPlaneWindDirection(self):
         assertVectorsAlmostEqual(self, _convertWindHeadingToXYPlaneWindDirection(0), Vector(0,-1,0))
@@ -33,7 +33,7 @@ class TestMeanWindModels(unittest.TestCase):
         assertVectorsAlmostEqual(self, _convertWindHeadingToXYPlaneWindDirection(360), Vector(0,-1,0))
 
     def test_readCustomWindProfile(self):
-        windModel = _meanWindModel_InterpolatedProfile(windFilePath="test/WindData/testWindProfile.txt")
+        windModel = _meanWindModel_InterpolatedProfile(windFilePath="MAPLEAF/Examples/Wind/testWindProfile.txt")
         
         self.assertTrue(np.allclose(windModel.windAltitudes, np.array([ 2000, 6000, 7000 ])))
         self.assertTrue(np.allclose(windModel.winds, np.array([ [ 10, 0, 0 ],
@@ -43,7 +43,7 @@ class TestMeanWindModels(unittest.TestCase):
     def test_getMeanWind_CustomProfile(self):
         # Make sure custom profile model is used
         self.simDefinition.setValue("Environment.MeanWindModel", "CustomWindProfile")
-        self.simDefinition.setValue("Environment.CustomWindProfile.filePath", "test/WindData/testWindProfile.txt")
+        self.simDefinition.setValue("Environment.CustomWindProfile.filePath", "MAPLEAF/Examples/Wind/testWindProfile.txt")
         # Re-initialize mWM
         mWM = meanWindModelFactory(self.simDefinition, self.rocket)
 
@@ -86,13 +86,13 @@ class TestMeanWindModels(unittest.TestCase):
 class TestRadioSondeDataReader(unittest.TestCase):
     def setUp(self):
         self.rocket = "fakeNewsRocket" # May have to convert this into a real Rocket at some point, but it's faster this way
-        self.simDefinition = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         self.simDefinition.setValue("Environment.MeanWindModel", "Constant")
         self.mWM = meanWindModelFactory(self.simDefinition, self.rocket)
 
     def test_readRadioSondeDataFile(self):
         reader = _radioSondeDataSampler()
-        datasetStartLines, data = reader._readRadioSondeDataFile("test/WindData/RadioSondetestLocation_filtered.txt")
+        datasetStartLines, data = reader._readRadioSondeDataFile("MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt")
         self.assertEqual(datasetStartLines, [0])
         self.assertEqual(len(datasetStartLines), 1)
         self.assertEqual(data[1], " 1361   235    82\n")
@@ -100,7 +100,7 @@ class TestRadioSondeDataReader(unittest.TestCase):
         self.assertEqual(len(data), 16)
 
     def test_radioSondeMonthFiltering(self):
-        filePath = "test/WindData/RadioSondetestLocation_filtered.txt"
+        filePath = "MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt"
         reader = _radioSondeDataSampler()
         datasetStartLines, data = reader._readRadioSondeDataFile(filePath, filterByMonth="Jan")
         self.assertEqual(len(datasetStartLines), 1)
@@ -109,7 +109,7 @@ class TestRadioSondeDataReader(unittest.TestCase):
 
     def test_extractRadioSondeData(self):
         reader = _radioSondeDataSampler()
-        datasetStartLines, data = reader._readRadioSondeDataFile("test/WindData/RadioSondetestLocation_filtered.txt")
+        datasetStartLines, data = reader._readRadioSondeDataFile("MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt")
         header, data2 = reader._extractRadioSondeDataSet(datasetStartLines, data, 0)
 
         self.assertEqual(header, "#CAM00071119 2000 01 01 00 2315   83 ncdc-gts ncdc-gts  535475 -1141083\n")
@@ -129,7 +129,7 @@ class TestRadioSondeDataReader(unittest.TestCase):
     def test_parseRadioSondeData(self):
         reader = _radioSondeDataSampler()
 
-        datasetStartLines, data = reader._readRadioSondeDataFile("test/WindData/RadioSondetestLocation_filtered.txt")
+        datasetStartLines, data = reader._readRadioSondeDataFile("MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt")
         header, data2 = reader._extractRadioSondeDataSet(datasetStartLines, data, 0)
         altitudes, windVectors = reader._parseRadioSondeData(data2, 0)
 

@@ -11,7 +11,7 @@ import math
 import unittest
 from test.testUtilities import assertForceMomentSystemsAlmostEqual, assertIterablesAlmostEqual
 
-from Main import SingleSimRunner
+from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
@@ -28,7 +28,7 @@ from MAPLEAF.Rocket.RocketComponents import FixedMass, FixedForce, TabulatedAero
 
 class TestRocketComponents(unittest.TestCase):
     def setUp(self):
-        simDef = SimDefinition("test/simDefinitions/test3.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.rocket = Rocket(rocketDictReader, silent=True)
 
@@ -71,7 +71,7 @@ class TestRocketComponents(unittest.TestCase):
     
     ### FixedForce ###
     def test_fixedForceInit(self):
-        simDef = SimDefinition("test/simDefinitions/FixedForce.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/FixedForce.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         rocket = Rocket(rocketDictReader, silent=True)
 
@@ -81,7 +81,7 @@ class TestRocketComponents(unittest.TestCase):
         assertForceMomentSystemsAlmostEqual(self, fixedForce.force, expectedFMS)
 
     def test_getFixedForceInertia(self):
-        simDef = SimDefinition("test/simDefinitions/FixedForce.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/FixedForce.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         rocket = Rocket(rocketDictReader, silent=True)
         
@@ -92,7 +92,7 @@ class TestRocketComponents(unittest.TestCase):
         self.assertEqual(inertia, expectedInertia)
 
     def test_getFixedForce(self):
-        simDef = SimDefinition("test/simDefinitions/FixedForce.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/FixedForce.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         rocket = Rocket(rocketDictReader, silent=True)
 
@@ -106,7 +106,7 @@ class TestRocketComponents(unittest.TestCase):
     ### TabulatedAeroForce ###
     def test_TabulatedAeroForce(self):
         # Init rocket that uses tabulated aero data
-        simDef = SimDefinition("test/simDefinitions/NASATwoStageOrbitalRocket.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf", silent=True)
         rocketDictReader = SubDictReader("Rocket", simDef)
         rocket = Rocket(rocketDictReader, silent=True)
 
@@ -132,7 +132,7 @@ class TestRocketComponents(unittest.TestCase):
 
     #### Test Number of headers match number of entries for Force Logging ####
     def test_Logging(self):
-        simRunner = SingleSimRunner("test/simDefinitions/test9.mapleaf", silent=True)
+        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test9.mapleaf", silent=True)
         rocket = simRunner.prepRocketForSingleSimulation()
 
         state = rocket.rigidBody.state

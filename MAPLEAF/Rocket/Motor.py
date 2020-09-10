@@ -55,7 +55,7 @@ class Motor(RocketComponent, SubDictReader):
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
 
     def _parseMotorDefinitionFile(self, motorFilePath):
-        ''' Parses a motor definition text file. See test/motorDefinitions for examples '''
+        ''' Parses a motor definition text file. See MAPLEAF/Examples/Motors for examples '''
       
         # Get motor definition text
         try:
@@ -83,7 +83,7 @@ class Motor(RocketComponent, SubDictReader):
         self.finalFuelCG_Z = float(motorFileText[3].split()[1]) + self.stage.position.Z
         motorFileText = motorFileText[4:]
 
-        # Parse data; Columns defined in test/motorDefinitions/test.txt
+        # Parse data; Columns defined in MAPLEAF/Examples/Motors/test.txt
         # Gets defined values for: Time, thrust, oxFlowRate, fuelFlowRate, oxMOI, fuelMOI
         self.times = []
         self.thrustLevels = []

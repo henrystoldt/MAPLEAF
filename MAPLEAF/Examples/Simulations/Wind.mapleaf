@@ -41,13 +41,13 @@ Environment{
 
     SampledGroundWindData{
         launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
-        # Place1 name, weighting coefficient1, Place2 name, weighting coefficient2, ... - Corresponding wind rose data files must be in test/WindData
+        # Place1 name, weighting coefficient1, Place2 name, weighting coefficient2, ... - Corresponding wind rose data files must be in MAPLEAF/Examples/Wind
         locationsToSample               Suffield 0.52 MedecineHat 0.30 Schuler 0.18
     }
 
     SampledRadioSondeData{
         launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
-        # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in test/WindData
+        # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in MAPLEAF/Examples/Wind
         locationsToSample               Edmonton 0.48 Glasgow 0.52 
         locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
         randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
@@ -62,7 +62,7 @@ Environment{
     }
 
     CustomWindProfile{
-        filePath                        test/WindData/testWindProfile.txt # Example file here
+        filePath                        MAPLEAF/Examples/Wind/testWindProfile.txt # Example file here
     }
 
 
@@ -164,7 +164,7 @@ Rocket{
 
         Motor{
             class           Motor
-            path            test/motorDefinitions/test.txt
+            path            MAPLEAF/Examples/Motors/test.txt
         }
 
         TailFins{

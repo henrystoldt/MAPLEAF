@@ -82,7 +82,7 @@ Rocket{
         
         SecondStageMotor{
             class   Motor
-            path    test/motorDefinitions/NASAStage2Motor.txt
+            path    MAPLEAF/Examples/Motors/NASAStage2Motor.txt
         }
     }
 
@@ -107,7 +107,7 @@ Rocket{
 
         FirstStageMotor{
             class       Motor
-            path        test/motorDefinitions/NASAStage1Motor.txt
+            path        MAPLEAF/Examples/Motors/NASAStage1Motor.txt
         }
     }
 }

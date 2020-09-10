@@ -4,7 +4,7 @@
 '''
 
 # Adjust input file here
-filePath = "test/WindData/RadioSondeEdmonton.txt"
+filePath = "MAPLEAF/Examples/Wind/RadioSondeEdmonton.txt"
 
 with open(filePath, 'r') as file:
     lines = file.readlines()

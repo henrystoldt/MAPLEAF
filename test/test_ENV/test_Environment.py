@@ -12,7 +12,7 @@ from MAPLEAF.Motion.CythonVector import Vector
 class TestEnvironment(unittest.TestCase):
     def setUp(self):
         self.rocket = "fakeNewsRocket" # May have to convert this into a real Rocket at some point, but it's faster this way
-        self.simDefinition = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         self.simDefinition.setValue("Environment.MeanWindModel", "Constant")
         self.simDefinition.setValue("Environment.ConstantMeanWind.velocity", "(0 0 0)")
 

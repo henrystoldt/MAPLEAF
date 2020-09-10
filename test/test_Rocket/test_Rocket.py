@@ -12,7 +12,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 import numpy as np
 
-from Main import SingleSimRunner
+from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.IO.SimDefinition import SimDefinition
@@ -33,10 +33,10 @@ class TestRocket(unittest.TestCase):
         
         self.correctNestedList = []
 
-        simRunner1 = SingleSimRunner("test/simDefinitions/test2.mapleaf", silent=True)
+        simRunner1 = SingleSimRunner("MAPLEAF/Examples/Simulations/test2.mapleaf", silent=True)
         self.rocket = simRunner1.prepRocketForSingleSimulation()
 
-        simRunner2 = SingleSimRunner("test/simDefinitions/test6.mapleaf", silent=True)
+        simRunner2 = SingleSimRunner("MAPLEAF/Examples/Simulations/test6.mapleaf", silent=True)
         self.rocket2 = simRunner2.prepRocketForSingleSimulation()
 
         self.dummyVelocity1 = Vector(0, 0, 50)
@@ -65,7 +65,7 @@ class TestRocket(unittest.TestCase):
         self.rocket2.timeStep(0.001)
 
     def test_finControlIndependentOfForceEvaluations(self):
-        simRunner = SingleSimRunner("test/simDefinitions/Canards.mapleaf", silent=True)
+        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
         controlledCanardRocket = simRunner.prepRocketForSingleSimulation()
         env = controlledCanardRocket._getEnvironmentalConditions(0, controlledCanardRocket.rigidBody.state)
         controlledCanardRocket.controlSystem.runControlLoopIfRequired(0, controlledCanardRocket.rigidBody.state, env)
@@ -78,7 +78,7 @@ class TestRocket(unittest.TestCase):
         self.almostEqualVectors(firstFinTargets, newFinTargets)
 
     def test_finControlIndependentOfTimeStep(self):        
-        simRunner = SingleSimRunner("test/simDefinitions/Canards.mapleaf", silent=True)
+        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
         controlledCanardRocket = simRunner.prepRocketForSingleSimulation()
         
         # Check that fin targets are unaffected by performing rocket time steps smaller than the control loop time step
@@ -93,7 +93,7 @@ class TestRocket(unittest.TestCase):
         self.assertFalse(np.allclose(firstFinTargets, newFinTargets2, 1e-13))
 
     def test_controlTimeStepChecking(self):
-        simDef = SimDefinition("test/simDefinitions/Canards.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
         simDef.setValue("SimControl.timeDiscretization", "Euler")
         simDef.setValue("SimControl.loggingLevel", "0")
         
@@ -127,7 +127,7 @@ class TestRocket(unittest.TestCase):
         self.assertEqual(controlledCanardRocket.controlSystem.controlTimeStep, 1/100)
 
     def test_forcesSymmetricForSymmetricRocket(self):
-        simRunner = SingleSimRunner("test/simDefinitions/Canards.mapleaf", silent=True)
+        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
         controlledCanardRocket = simRunner.prepRocketForSingleSimulation()
 
         controlledCanardRocket.rigidBody.state.velocity = Vector(0, 10, 100) #5.7 degree angle of attack
@@ -150,7 +150,7 @@ class TestRocket(unittest.TestCase):
         self.assertAlmostEqual(appliedForce.moment.Z, 0)
 
     def test_stagedInitialization(self):
-        stagingSimRunner = SingleSimRunner("test/simDefinitions/Staging.mapleaf", silent=True)
+        stagingSimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Staging.mapleaf", silent=True)
         twoStageRocket = stagingSimRunner.prepRocketForSingleSimulation()
 
         # Check that positions of objects in first and second stages are different. The stages are otherwise identical, except the first stage doesn't have a nosecone
@@ -161,13 +161,13 @@ class TestRocket(unittest.TestCase):
         secondStageRecoveryPosition = bodyTube2.position.Z
         self.assertEqual(firstStageRecoveryPosition-4.011, secondStageRecoveryPosition)
 
-        orbitalSimRunner = SingleSimRunner("test/simDefinitions/NASATwoStageOrbitalRocket.mapleaf", silent=True)
+        orbitalSimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf", silent=True)
         rocket = orbitalSimRunner.prepRocketForSingleSimulation()
         initInertia = rocket.getInertia(0, rocket.rigidBody.state)
         self.assertAlmostEqual(initInertia.mass, 314000.001, 2)
 
     def test_staging(self):
-        stagingSimRunner = SingleSimRunner("test/simDefinitions/Staging.mapleaf", silent=True)
+        stagingSimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Staging.mapleaf", silent=True)
         twoStageRocket = stagingSimRunner.prepRocketForSingleSimulation()
 
         #### Combined (two-stage) rocket checks ####
@@ -220,7 +220,7 @@ class TestRocket(unittest.TestCase):
 
     def test_delayedStaging(self):
         # Create simRunner & Rocket
-        simDef = SimDefinition("test/simDefinitions/Staging.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Staging.mapleaf", silent=True)
         simDef.setValue("SimControl.timeDiscretization", "RK4")
         simDef.setValue("Rocket.FirstStage.separationDelay", "0.01")
         stagingSimRunner = SingleSimRunner(simDefinition=simDef, silent=True)
@@ -251,7 +251,7 @@ class TestRocket(unittest.TestCase):
 
     def test_rocketInertiaOverrides(self):
         # Check CG Override
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf")
         rocketDictReader = SubDictReader("Rocket", simDef)
         rocket = Rocket(rocketDictReader, silent=True)
         cgLoc = rocket.getCG(0, rocket.rigidBody.state)
@@ -286,7 +286,7 @@ class TestRocket(unittest.TestCase):
         expectedCG = Vector(0,0,-1.731185736)
 
         # Remove overrides from rocket definition file
-        simDef = SimDefinition("test/simDefinitions/Wind.mapleaf", silent=True)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simDef.removeKey("Rocket.Sustainer.constCG")
         simDef.removeKey("Rocket.Sustainer.constMass")
         simDef.removeKey("Rocket.Sustainer.constMOI")

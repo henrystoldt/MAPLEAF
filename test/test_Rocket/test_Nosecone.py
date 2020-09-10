@@ -27,7 +27,7 @@ from MAPLEAF.Rocket.Rocket import Rocket
 
 class TestNosecone(unittest.TestCase):
     def setUp(self):
-        simDef = SimDefinition("test/simDefinitions/test3.mapleaf")
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/test3.mapleaf")
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.rocket = Rocket(rocketDictReader)
 
