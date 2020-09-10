@@ -1,7 +1,7 @@
-#! /usr/bin/python
-
-#Created by: Henry Stoldt
-#April 2020
+'''
+Class to temporarily hold simulation results.
+Used for creating flight animation.
+'''
 
 from math import sqrt
 

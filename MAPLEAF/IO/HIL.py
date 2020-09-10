@@ -1,6 +1,8 @@
 '''
 Hardware in the loop simulation functionality.
 Orientation/Position/Velocity info is passed to a hardware control system, which passes control inputs back to the simulator.
+
+Specific implementation - can serve as inspiration, but would have to be modified to work with other avionics systems
 '''
 
 import struct

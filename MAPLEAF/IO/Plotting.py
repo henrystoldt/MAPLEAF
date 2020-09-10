@@ -1,8 +1,9 @@
 # Created by: Henry Stoldt
 # April 2020
 
-# File contains plotting functions
-# Used by the function "runSimulation" in  Main.py
+'''
+Functions to create plots and animations of simulations results.
+'''
 
 import re
 from bisect import bisect_right

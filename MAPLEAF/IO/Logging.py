@@ -1,3 +1,7 @@
+'''
+Classes and functions for creating simulation logs for regular simulations (Logger) and Monte Carlo simulations (MonteCarloLogger)
+'''
+
 import os
 import sys
 

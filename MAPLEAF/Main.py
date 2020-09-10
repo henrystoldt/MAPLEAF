@@ -1,6 +1,8 @@
-#!/usr/bin/python3
+''' 
+Script to run flight simulations from the command line 
+If MAPLEAF has been installed with pip, this script is accessible through the 'mapleaf' command
+'''
 
-''' Use this script to run flight simulations from the command line '''
 import argparse
 import os
 import sys
@@ -13,7 +15,8 @@ from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
                                    SingleSimRunner, isMonteCarloSimulation)
 
-def buildParser():
+def buildParser() -> argparse.ArgumentParser:
+    ''' Builds the command-line argument parser using argparse '''
     parser = argparse.ArgumentParser(description="""
     Command line interface for the rocket simulator 
     Runs simulations defined by simulation definition files like those in ./test/simDefinitions/ 
@@ -56,7 +59,7 @@ def buildParser():
     return parser
 
 def checkForMutuallyExclusiveArgs(args):
-    # Check  that we don't have multiple mutually exclusive arguments
+    ''' Check that we haven't passed in mutually exclusive command-line arguments (ex. --converge and --plotFromLog) '''
     mutuallyExclusiveArgs = [ args.converge, args.compareIntegrationSchemes, args.compareAdaptiveIntegrationSchemes, args.plotFromLog ]
     mutExCount = 0
     for item in mutuallyExclusiveArgs:
@@ -69,7 +72,7 @@ def checkForMutuallyExclusiveArgs(args):
 def main(argv: List[str]=None) -> int:
     ''' 
         Main function to run a MAPLEAF simulation. 
-        Expects to be called from the command line, using the argparse setup below.
+        Expects to be called from the command line, using the argparse parser
         
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     '''

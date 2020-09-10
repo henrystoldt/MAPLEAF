@@ -1,7 +1,10 @@
 # Created by Henry Stoldt
 # January 2019
 
-# Class meant to read, write and modify AeroCORE rocket simulator simulation definition files
+''' 
+Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
+default values for simulation definitions, and a few utility functions for working with string dictionary keys
+'''
 
 import random
 import re

@@ -3,8 +3,7 @@
 #Created by: Henry Stoldt
 #February 2019
 '''
-MAIN. Run this file from the command line to run flight simulation(s).
-Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes.
+Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes that run several simulations in one go.
 
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 '''

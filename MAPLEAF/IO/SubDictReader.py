@@ -1,5 +1,6 @@
-# Created by: Henry Stoldt
-# June 2020
+'''
+    Wrapper class to read from a specific sub-dictionary in a SimDefinition.
+'''
 
 from distutils.util import strtobool
 from typing import List, Any, Union
@@ -7,11 +8,8 @@ from typing import List, Any, Union
 from MAPLEAF.Motion.CythonVector import Vector
 
 
-
 class SubDictReader():
-    '''
-        Wrapper class to read from a specific sub-dictionary in a SimDefinition.
-    '''
+
     def __init__(self, stringPathToThisItemsSubDictionary, simDefinition):
         '''
             Example stringPathToThisItemsSubDictionary = 'Rocket.Stage1.Nosecone' if we're initializing a nosecone object
