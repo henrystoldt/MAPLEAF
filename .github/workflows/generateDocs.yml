@@ -1,9 +1,9 @@
-name: github pages
+name: Generate documentation
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
