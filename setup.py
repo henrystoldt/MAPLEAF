@@ -62,7 +62,7 @@ setup(
         "Natural Language :: English",
         "Topic :: Scientific/Engineering :: Physics",
     ],
-
+    include_package_data=True,
     test_suite='nose.collector',
     tests_require=['nose'],
 

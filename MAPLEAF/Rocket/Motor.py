@@ -1,14 +1,14 @@
 import re
+from pathlib import Path
 
 from scipy.interpolate import interp1d
 
-
+from MAPLEAF.Interpolation import linInterp
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Rocket.RocketComponents import RocketComponent
-from MAPLEAF.Interpolation import linInterp
 
 
 class Motor(RocketComponent, SubDictReader):
@@ -55,9 +55,18 @@ class Motor(RocketComponent, SubDictReader):
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
 
     def _parseMotorDefinitionFile(self, motorFilePath):
+        ''' Parses a motor definition text file. See test/motorDefinitions for examples '''
+      
         # Get motor definition text
-        with open(motorFilePath, "r") as motorFile:
-            motorFileText = motorFile.read()
+        try:
+            with open(motorFilePath, "r") as motorFile:
+                motorFileText = motorFile.read()
+        except:
+            # Check if the file path is relative to the MAPLEAF install location
+            mainDir = Path(__file__).parent.parent
+            motorPath = mainDir / motorFilePath
+            with motorPath.open('r') as motorFile:
+                motorFileText = motorFile.read()
 
         # Remove all comment rows
         comment = re.compile("#.*") 
