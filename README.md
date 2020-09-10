@@ -3,7 +3,7 @@ Open-source 6-DOF Rocket Flight Simulation
 
 ![Unit Tests](https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg)
 ![Linting](https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg)
-[![Documentation](https://github.com/henrystoldt/mapleaf/workflows/Generate%20documentation/badge.svg)](https://henrystoldt.github.io/MAPLEAF/)
+[![Documentation](https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg)](https://henrystoldt.github.io/MAPLEAF/)
 [![codecov](https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg)](https://codecov.io/gh/henrystoldt/mapleaf)
 ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
