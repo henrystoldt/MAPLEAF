@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>MAPLEAF.Rocket.Nosecone API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Rocket.Nosecone</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import math
+from typing import List
+
+import numpy as np
+
+import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+import MAPLEAF.Interpolation as Interpolation
+from MAPLEAF.Rocket.AeroFunctions import logForceResult
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
+
+#TODO: Implement Barrowman&#39;s second-order shock expansion method for pressure drag at high mach numbers
+
+def calcSonicPressureDragCoeff_Cone(AR: float) -&gt; float:
+    &#39;&#39;&#39; AR: Apect/fineness ratio of the nosecone: Barrowman Eqn 4-42 &#39;&#39;&#39;
+    return 0.88 / ((AR + 0.7)**1.29)
+
+def calcSonicPressureDragCoeff_Ogive(AR:float) -&gt; float:
+    &#39;&#39;&#39; AR: Apect/fineness ratio of the nosecone:  Barrowman Eqn 4-43 &#39;&#39;&#39;
+    return 0.88 / ((AR + 1)**2.22)
+
+def calculatePrandtlFactorCorrection(wettedArea, sonicSkinFrictionCoeff, rocketFinenessRatio, Aref, sonicPressureDragCoeff):
+    &#39;&#39;&#39; Calculate the correction constant K: Barrowman Eqn 4-44 &#39;&#39;&#39;
+    return 1 + (6 * wettedArea * sonicSkinFrictionCoeff / (rocketFinenessRatio**3 * Aref * sonicPressureDragCoeff))**(5/3)
+
+def getSubsonicPressureDragCoeff_Barrowman(wettedArea, skinFrictionCoeff, rocketFinenessRatio, Aref, K, Mach):
+    &#39;&#39;&#39; Barrowman Eqn 4-41 &#39;&#39;&#39;
+    return 6 * wettedArea * skinFrictionCoeff / (rocketFinenessRatio**3 * Aref * (K - Mach**2)**0.6)
+
+def getSupersonicPressureDragCoeff_Hoerner(coneHalfAngle, Mach):
+    &#39;&#39;&#39; Niskanen Eqn B.4, Hoerner pg. 16-18 to 16-20 &#39;&#39;&#39;
+    return 2.1 * (math.sin(coneHalfAngle))**2 + 0.5 * math.sin(coneHalfAngle) / math.sqrt(Mach**2 - 1)
+
+def computeSubsonicPolyCoeffs(coneHalfAngle):
+    &#39;&#39;&#39; 
+        Computes coefficients for a power law drag relationship up to Mach 1 (Niskanen Appendix B eq. B.5)
+        Pass in half angle in radians
+    &#39;&#39;&#39;
+    gamma = AeroFunctions.getGamma()
+    dCd_dMa_M1 = 4 / (gamma + 1) * (1 - 0.5 * math.sin(coneHalfAngle))
+    Cd_M1 = math.sin(coneHalfAngle)
+
+    return [ Cd_M1, (dCd_dMa_M1/Cd_M1) ]
+
+def computeTransonicPolyCoeffs(coneHalfAngle):
+    &#39;&#39;&#39; 
+        Computes coefficients for a cubic drag interpolation based on Mach Number b/w Mach 1 and 1.3 (Niskanen Appendix B eq. B.5)
+        Pass in half angle in radians
+    &#39;&#39;&#39;
+    gamma = AeroFunctions.getGamma()
+    dCd_dMa_M1 = 4 / (gamma + 1) * (1 - 0.5 * math.sin(coneHalfAngle))
+    Cd_M1 = math.sin(coneHalfAngle)
+    
+    Cd_M13 = getSupersonicPressureDragCoeff_Hoerner(coneHalfAngle, 1.3)
+    Cd_M1301 = getSupersonicPressureDragCoeff_Hoerner(coneHalfAngle, 1.301)
+    dCd_dMa_M13 = (Cd_M1301 - Cd_M13) / 0.001
+
+    return Interpolation.calculateCubicInterpCoefficients(1.0, 1.3, Cd_M1, Cd_M13, dCd_dMa_M1, dCd_dMa_M13)
+
+class Nosecone(FixedMass, BodyComponent):
+    canConnectToComponentAbove = False # Overrides attribute from BodyComponent -&gt; Nosecone must be at top of rocket
+
+    #### Initialization Functions ####
+    def __init__(self, componentDictReader, rocket, stage):
+        FixedMass.__init__(self, componentDictReader, rocket, stage)
+        
+        self.aspectRatio = componentDictReader.getFloat(&#34;aspectRatio&#34;)
+        &#39;&#39;&#39; Length over diameter - aka fineness ratio (of exposed surface area) &#39;&#39;&#39;
+
+        self.baseDiameter = componentDictReader.getFloat(&#34;baseDiameter&#34;)
+        &#39;&#39;&#39; Diameter at base of nosecone (m) &#39;&#39;&#39;
+
+        self.length = self.aspectRatio * self.baseDiameter
+        &#39;&#39;&#39; Length from tip to tail, of external surface (m) &#39;&#39;&#39;
+
+        self.shape = componentDictReader.getString(&#34;shape&#34;)
+        &#39;&#39;&#39; Description of nosecone shape - something like &#39;Ogive&#39; or &#39;Cone&#39; &#39;&#39;&#39;
+        
+        self.surfaceRoughness = componentDictReader.tryGetFloat(&#34;surfaceRoughness&#34;, defaultValue=self.rocket.surfaceRoughness)
+        &#39;&#39;&#39; (m) &#39;&#39;&#39;
+
+        self._precomputeGeometry()
+
+    def _precomputeGeometry(self):
+        self.length = self.baseDiameter * self.aspectRatio
+        self.volume = self._getVolume()
+        self.planformArea = self._getPlanformArea()
+        self.wettedArea = self._getWettedArea()
+
+        # Using Barrowman&#39;s method, the CP Location is a constant
+        self.baseArea = self.baseDiameter**2 * math.pi / 4
+        self.CPLocation = AeroFunctions.Barrowman_GetCPLocation(self.length, 0, self.baseArea, self.volume)
+
+        # Precompute coefficients for pressure drag interpolation-------------------------------------------        
+        #  Niskanen 3.4 and Appendix B
+        self.coneHalfAngle = abs(math.atan((self.baseDiameter/2) / self.length))
+
+        self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(self.coneHalfAngle)
+        self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(self.coneHalfAngle)
+
+    def _getVolume(self):
+
+        if self.shape == &#34;tangentOgive&#34;:
+            #https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            noseconeRadiusOfCurvature = (baseRadius**2 + length**2) / (2*baseRadius)
+        
+            return math.pi * ( length * noseconeRadiusOfCurvature**2 - length**3 / 3 - (noseconeRadiusOfCurvature - baseRadius) * 
+                noseconeRadiusOfCurvature**2 * (math.asin(length / noseconeRadiusOfCurvature)))
+        
+        elif self.shape == &#34;cone&#34;:
+            return math.pi * (self.baseDiameter)**2 * self.length / 3
+
+        elif self.shape == &#34;halfSeries&#34;:
+            #https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            return math.pi * baseRadius**2 * length / 2
+
+        else:
+            raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
+
+    def _getPlanformArea(self):
+
+        if self.shape == &#34;tangentOgive&#34;:
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            noseconeRadiusOfCurvature = (baseRadius**2 + length**2) / (2*baseRadius)
+
+            arcSectorAngle = math.asin(length / noseconeRadiusOfCurvature)
+          
+            arcSectorArea = arcSectorAngle * noseconeRadiusOfCurvature**2 / 2
+
+            return 2 * (arcSectorArea - (length * (noseconeRadiusOfCurvature - baseRadius) / 2))
+
+        elif self.shape == &#34;cone&#34;:
+            return self.baseDiameter * self.length / 2
+
+        else:
+            raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
+
+    def _getWettedArea(self):
+
+        if self.shape == &#34;tangentOgive&#34;:
+            #TODO Find an analytical solution if it exists - implement the one below
+                # Analytical solution in here: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            noseconeRadiusOfCurvature = (baseRadius**2 + length**2) / (2*baseRadius)
+            a = noseconeRadiusOfCurvature
+
+            numSteps = 2000
+            stepSize = length / numSteps
+            wettedArea = 0
+
+            for x in range(numSteps + 1):
+                wettedArea += 2 * math.pi * ((math.sqrt(a**2 - (length - x*stepSize)**2)) + baseRadius - a) * stepSize
+
+            return wettedArea
+
+        elif self.shape == &#34;cone&#34;:
+            baseRad = self.baseDiameter/2
+            return math.pi * baseRad * math.sqrt(baseRad**2 + self.length**2)
+
+        else:
+            raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
+
+    #### Operation Functions ####
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, CG):
+        Aref = self.rocket.Aref
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+
+        # Normal Force --------------------------------------------------------------------------------
+        # TODO: Account for rate of pitch/yaw rotation in AOA calculation? Or do separate Pitch/Yaw damping moments?
+        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        normalForceCoefficient = AeroFunctions.Barrowman_GetCN(AOA, Aref, 0, self.baseArea)
+
+        # Drag Force ---------------------------------------------------------------------------------------------
+        #### Skin Friction ####
+        skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach,  \
+            self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+        
+        #### Pressure ####
+        pressureDragCoefficient = self._getCd_Pressure(Mach)
+
+        totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
+
+        # Damping moments --------------------------------------------------------------------------------------
+        # Roll damping due to skin friction
+        dampingMoments = rollDampingMoment
+
+        # Combine forces and return total -------------------------------------------------------------------------------------
+        return ForceMomentSystem.fromCoefficients(rocketState, environment, totalDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
+
+    def _getCd_Pressure(self, Mach):
+        if Mach &lt; 1:
+            # Niskanen pg. 48 eq. 3.87 - Power law interpolation
+            pressureDragCoefficient = self.SubsonicCdPolyCoeffs[0] * Mach**self.SubsonicCdPolyCoeffs[1]
+
+        elif Mach &gt; 1 and Mach &lt; 1.3:
+            # Interpolate in transonic region - derived from Niskanen Appendix B, Eqns B.3 - B.6
+            pressureDragCoefficient = self.TransonicCdPolyCoeffs[0] + self.TransonicCdPolyCoeffs[1]*Mach +  \
+                self.TransonicCdPolyCoeffs[2]*Mach**2 + self.TransonicCdPolyCoeffs[3]*Mach**3
+            
+        else:
+            pressureDragCoefficient = getSupersonicPressureDragCoeff_Hoerner(self.coneHalfAngle, Mach)
+
+        return pressureDragCoefficient * self.baseArea/self.rocket.Aref
+
+    def getMaxDiameter(self):
+        return self.baseDiameter
+
+    def getRadius(self, distanceFromTip: float) -&gt; float:
+        if self.shape == &#34;cone&#34;:
+            return (self.baseDiameter/2) * (distanceFromTip/self.length)
+
+        elif self.shape == &#34;tangentOgive&#34;:
+            curveRadius = ((self.baseDiameter/2)**2 + self.length**2) / (self.baseDiameter)
+            yComponent = math.sqrt(curveRadius**2 - (self.length - distanceFromTip)**2)
+            return yComponent - (curveRadius - (self.baseDiameter/2))
+
+    def plotShape(self) -&gt; None:
+        import matplotlib.pyplot as plt
+        
+        SubComponentPos = self.position.Z
+        length = self.baseDiameter * self.aspectRatio
+        ConeRad = self.baseDiameter/2
+        Rho = (ConeRad**2 + length**2)/(2*ConeRad) # values for tangent ogive equation
+        Xvals = list(np.linspace(0,length, num=100)) # create 50 element tuple from 0 to length
+
+        Yvals = [] # create y list
+
+        for x in Xvals:
+            # populate y list
+            Yvals.append(self.getRadius(x))
+        
+        Xvals = [-1*i + SubComponentPos for i in Xvals] # these were positive. Need them to be negative to point correct way
+
+        # top line, body tube to tip
+        XvalsTop = list(Xvals) 
+        YvalsTop = list(Yvals)
+        XvalsTop.reverse()
+        YvalsTop.reverse()
+
+        # bottom line, tip to body tube
+        XvalsBot = list(Xvals)
+        YvalsBot = list(Yvals)
+        YvalsBot = [-1*i for i in YvalsBot] # so the yvals are negative
+
+        # put it all together now
+        Xvals = XvalsTop + XvalsBot
+        Yvals = YvalsTop + YvalsBot
+        plt.plot(Xvals,Yvals, color = &#39;k&#39;)                 </code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.Rocket.Nosecone.calcSonicPressureDragCoeff_Cone"><code class="name flex">
+<span>def <span class="ident">calcSonicPressureDragCoeff_Cone</span></span>(<span>AR: float) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>AR: Apect/fineness ratio of the nosecone: Barrowman Eqn 4-42</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calcSonicPressureDragCoeff_Cone(AR: float) -&gt; float:
+    &#39;&#39;&#39; AR: Apect/fineness ratio of the nosecone: Barrowman Eqn 4-42 &#39;&#39;&#39;
+    return 0.88 / ((AR + 0.7)**1.29)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.calcSonicPressureDragCoeff_Ogive"><code class="name flex">
+<span>def <span class="ident">calcSonicPressureDragCoeff_Ogive</span></span>(<span>AR: float) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>AR: Apect/fineness ratio of the nosecone:
+Barrowman Eqn 4-43</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calcSonicPressureDragCoeff_Ogive(AR:float) -&gt; float:
+    &#39;&#39;&#39; AR: Apect/fineness ratio of the nosecone:  Barrowman Eqn 4-43 &#39;&#39;&#39;
+    return 0.88 / ((AR + 1)**2.22)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.calculatePrandtlFactorCorrection"><code class="name flex">
+<span>def <span class="ident">calculatePrandtlFactorCorrection</span></span>(<span>wettedArea, sonicSkinFrictionCoeff, rocketFinenessRatio, Aref, sonicPressureDragCoeff)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the correction constant K: Barrowman Eqn 4-44</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculatePrandtlFactorCorrection(wettedArea, sonicSkinFrictionCoeff, rocketFinenessRatio, Aref, sonicPressureDragCoeff):
+    &#39;&#39;&#39; Calculate the correction constant K: Barrowman Eqn 4-44 &#39;&#39;&#39;
+    return 1 + (6 * wettedArea * sonicSkinFrictionCoeff / (rocketFinenessRatio**3 * Aref * sonicPressureDragCoeff))**(5/3)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.computeSubsonicPolyCoeffs"><code class="name flex">
+<span>def <span class="ident">computeSubsonicPolyCoeffs</span></span>(<span>coneHalfAngle)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes coefficients for a power law drag relationship up to Mach 1 (Niskanen Appendix B eq. B.5)
+Pass in half angle in radians</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def computeSubsonicPolyCoeffs(coneHalfAngle):
+    &#39;&#39;&#39; 
+        Computes coefficients for a power law drag relationship up to Mach 1 (Niskanen Appendix B eq. B.5)
+        Pass in half angle in radians
+    &#39;&#39;&#39;
+    gamma = AeroFunctions.getGamma()
+    dCd_dMa_M1 = 4 / (gamma + 1) * (1 - 0.5 * math.sin(coneHalfAngle))
+    Cd_M1 = math.sin(coneHalfAngle)
+
+    return [ Cd_M1, (dCd_dMa_M1/Cd_M1) ]</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.computeTransonicPolyCoeffs"><code class="name flex">
+<span>def <span class="ident">computeTransonicPolyCoeffs</span></span>(<span>coneHalfAngle)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes coefficients for a cubic drag interpolation based on Mach Number b/w Mach 1 and 1.3 (Niskanen Appendix B eq. B.5)
+Pass in half angle in radians</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def computeTransonicPolyCoeffs(coneHalfAngle):
+    &#39;&#39;&#39; 
+        Computes coefficients for a cubic drag interpolation based on Mach Number b/w Mach 1 and 1.3 (Niskanen Appendix B eq. B.5)
+        Pass in half angle in radians
+    &#39;&#39;&#39;
+    gamma = AeroFunctions.getGamma()
+    dCd_dMa_M1 = 4 / (gamma + 1) * (1 - 0.5 * math.sin(coneHalfAngle))
+    Cd_M1 = math.sin(coneHalfAngle)
+    
+    Cd_M13 = getSupersonicPressureDragCoeff_Hoerner(coneHalfAngle, 1.3)
+    Cd_M1301 = getSupersonicPressureDragCoeff_Hoerner(coneHalfAngle, 1.301)
+    dCd_dMa_M13 = (Cd_M1301 - Cd_M13) / 0.001
+
+    return Interpolation.calculateCubicInterpCoefficients(1.0, 1.3, Cd_M1, Cd_M13, dCd_dMa_M1, dCd_dMa_M13)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.getSubsonicPressureDragCoeff_Barrowman"><code class="name flex">
+<span>def <span class="ident">getSubsonicPressureDragCoeff_Barrowman</span></span>(<span>wettedArea, skinFrictionCoeff, rocketFinenessRatio, Aref, K, Mach)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Barrowman Eqn 4-41</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getSubsonicPressureDragCoeff_Barrowman(wettedArea, skinFrictionCoeff, rocketFinenessRatio, Aref, K, Mach):
+    &#39;&#39;&#39; Barrowman Eqn 4-41 &#39;&#39;&#39;
+    return 6 * wettedArea * skinFrictionCoeff / (rocketFinenessRatio**3 * Aref * (K - Mach**2)**0.6)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.getSupersonicPressureDragCoeff_Hoerner"><code class="name flex">
+<span>def <span class="ident">getSupersonicPressureDragCoeff_Hoerner</span></span>(<span>coneHalfAngle, Mach)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Niskanen Eqn B.4, Hoerner pg. 16-18 to 16-20</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getSupersonicPressureDragCoeff_Hoerner(coneHalfAngle, Mach):
+    &#39;&#39;&#39; Niskanen Eqn B.4, Hoerner pg. 16-18 to 16-20 &#39;&#39;&#39;
+    return 2.1 * (math.sin(coneHalfAngle))**2 + 0.5 * math.sin(coneHalfAngle) / math.sqrt(Mach**2 - 1)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone"><code class="flex name class">
+<span>class <span class="ident">Nosecone</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all fixed-mass rocket components
+Implements functionality to read inertia and position info from sim definition file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Nosecone(FixedMass, BodyComponent):
+    canConnectToComponentAbove = False # Overrides attribute from BodyComponent -&gt; Nosecone must be at top of rocket
+
+    #### Initialization Functions ####
+    def __init__(self, componentDictReader, rocket, stage):
+        FixedMass.__init__(self, componentDictReader, rocket, stage)
+        
+        self.aspectRatio = componentDictReader.getFloat(&#34;aspectRatio&#34;)
+        &#39;&#39;&#39; Length over diameter - aka fineness ratio (of exposed surface area) &#39;&#39;&#39;
+
+        self.baseDiameter = componentDictReader.getFloat(&#34;baseDiameter&#34;)
+        &#39;&#39;&#39; Diameter at base of nosecone (m) &#39;&#39;&#39;
+
+        self.length = self.aspectRatio * self.baseDiameter
+        &#39;&#39;&#39; Length from tip to tail, of external surface (m) &#39;&#39;&#39;
+
+        self.shape = componentDictReader.getString(&#34;shape&#34;)
+        &#39;&#39;&#39; Description of nosecone shape - something like &#39;Ogive&#39; or &#39;Cone&#39; &#39;&#39;&#39;
+        
+        self.surfaceRoughness = componentDictReader.tryGetFloat(&#34;surfaceRoughness&#34;, defaultValue=self.rocket.surfaceRoughness)
+        &#39;&#39;&#39; (m) &#39;&#39;&#39;
+
+        self._precomputeGeometry()
+
+    def _precomputeGeometry(self):
+        self.length = self.baseDiameter * self.aspectRatio
+        self.volume = self._getVolume()
+        self.planformArea = self._getPlanformArea()
+        self.wettedArea = self._getWettedArea()
+
+        # Using Barrowman&#39;s method, the CP Location is a constant
+        self.baseArea = self.baseDiameter**2 * math.pi / 4
+        self.CPLocation = AeroFunctions.Barrowman_GetCPLocation(self.length, 0, self.baseArea, self.volume)
+
+        # Precompute coefficients for pressure drag interpolation-------------------------------------------        
+        #  Niskanen 3.4 and Appendix B
+        self.coneHalfAngle = abs(math.atan((self.baseDiameter/2) / self.length))
+
+        self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(self.coneHalfAngle)
+        self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(self.coneHalfAngle)
+
+    def _getVolume(self):
+
+        if self.shape == &#34;tangentOgive&#34;:
+            #https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            noseconeRadiusOfCurvature = (baseRadius**2 + length**2) / (2*baseRadius)
+        
+            return math.pi * ( length * noseconeRadiusOfCurvature**2 - length**3 / 3 - (noseconeRadiusOfCurvature - baseRadius) * 
+                noseconeRadiusOfCurvature**2 * (math.asin(length / noseconeRadiusOfCurvature)))
+        
+        elif self.shape == &#34;cone&#34;:
+            return math.pi * (self.baseDiameter)**2 * self.length / 3
+
+        elif self.shape == &#34;halfSeries&#34;:
+            #https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            return math.pi * baseRadius**2 * length / 2
+
+        else:
+            raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
+
+    def _getPlanformArea(self):
+
+        if self.shape == &#34;tangentOgive&#34;:
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            noseconeRadiusOfCurvature = (baseRadius**2 + length**2) / (2*baseRadius)
+
+            arcSectorAngle = math.asin(length / noseconeRadiusOfCurvature)
+          
+            arcSectorArea = arcSectorAngle * noseconeRadiusOfCurvature**2 / 2
+
+            return 2 * (arcSectorArea - (length * (noseconeRadiusOfCurvature - baseRadius) / 2))
+
+        elif self.shape == &#34;cone&#34;:
+            return self.baseDiameter * self.length / 2
+
+        else:
+            raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
+
+    def _getWettedArea(self):
+
+        if self.shape == &#34;tangentOgive&#34;:
+            #TODO Find an analytical solution if it exists - implement the one below
+                # Analytical solution in here: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            baseRadius = self.baseDiameter / 2
+            length = self.baseDiameter * self.aspectRatio
+
+            noseconeRadiusOfCurvature = (baseRadius**2 + length**2) / (2*baseRadius)
+            a = noseconeRadiusOfCurvature
+
+            numSteps = 2000
+            stepSize = length / numSteps
+            wettedArea = 0
+
+            for x in range(numSteps + 1):
+                wettedArea += 2 * math.pi * ((math.sqrt(a**2 - (length - x*stepSize)**2)) + baseRadius - a) * stepSize
+
+            return wettedArea
+
+        elif self.shape == &#34;cone&#34;:
+            baseRad = self.baseDiameter/2
+            return math.pi * baseRad * math.sqrt(baseRad**2 + self.length**2)
+
+        else:
+            raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
+
+    #### Operation Functions ####
+    @logForceResult
+    def getAeroForce(self, rocketState, time, environment, CG):
+        Aref = self.rocket.Aref
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+
+        # Normal Force --------------------------------------------------------------------------------
+        # TODO: Account for rate of pitch/yaw rotation in AOA calculation? Or do separate Pitch/Yaw damping moments?
+        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        normalForceCoefficient = AeroFunctions.Barrowman_GetCN(AOA, Aref, 0, self.baseArea)
+
+        # Drag Force ---------------------------------------------------------------------------------------------
+        #### Skin Friction ####
+        skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach,  \
+            self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+        
+        #### Pressure ####
+        pressureDragCoefficient = self._getCd_Pressure(Mach)
+
+        totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
+
+        # Damping moments --------------------------------------------------------------------------------------
+        # Roll damping due to skin friction
+        dampingMoments = rollDampingMoment
+
+        # Combine forces and return total -------------------------------------------------------------------------------------
+        return ForceMomentSystem.fromCoefficients(rocketState, environment, totalDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
+
+    def _getCd_Pressure(self, Mach):
+        if Mach &lt; 1:
+            # Niskanen pg. 48 eq. 3.87 - Power law interpolation
+            pressureDragCoefficient = self.SubsonicCdPolyCoeffs[0] * Mach**self.SubsonicCdPolyCoeffs[1]
+
+        elif Mach &gt; 1 and Mach &lt; 1.3:
+            # Interpolate in transonic region - derived from Niskanen Appendix B, Eqns B.3 - B.6
+            pressureDragCoefficient = self.TransonicCdPolyCoeffs[0] + self.TransonicCdPolyCoeffs[1]*Mach +  \
+                self.TransonicCdPolyCoeffs[2]*Mach**2 + self.TransonicCdPolyCoeffs[3]*Mach**3
+            
+        else:
+            pressureDragCoefficient = getSupersonicPressureDragCoeff_Hoerner(self.coneHalfAngle, Mach)
+
+        return pressureDragCoefficient * self.baseArea/self.rocket.Aref
+
+    def getMaxDiameter(self):
+        return self.baseDiameter
+
+    def getRadius(self, distanceFromTip: float) -&gt; float:
+        if self.shape == &#34;cone&#34;:
+            return (self.baseDiameter/2) * (distanceFromTip/self.length)
+
+        elif self.shape == &#34;tangentOgive&#34;:
+            curveRadius = ((self.baseDiameter/2)**2 + self.length**2) / (self.baseDiameter)
+            yComponent = math.sqrt(curveRadius**2 - (self.length - distanceFromTip)**2)
+            return yComponent - (curveRadius - (self.baseDiameter/2))
+
+    def plotShape(self) -&gt; None:
+        import matplotlib.pyplot as plt
+        
+        SubComponentPos = self.position.Z
+        length = self.baseDiameter * self.aspectRatio
+        ConeRad = self.baseDiameter/2
+        Rho = (ConeRad**2 + length**2)/(2*ConeRad) # values for tangent ogive equation
+        Xvals = list(np.linspace(0,length, num=100)) # create 50 element tuple from 0 to length
+
+        Yvals = [] # create y list
+
+        for x in Xvals:
+            # populate y list
+            Yvals.append(self.getRadius(x))
+        
+        Xvals = [-1*i + SubComponentPos for i in Xvals] # these were positive. Need them to be negative to point correct way
+
+        # top line, body tube to tip
+        XvalsTop = list(Xvals) 
+        YvalsTop = list(Yvals)
+        XvalsTop.reverse()
+        YvalsTop.reverse()
+
+        # bottom line, tip to body tube
+        XvalsBot = list(Xvals)
+        YvalsBot = list(Yvals)
+        YvalsBot = [-1*i for i in YvalsBot] # so the yvals are negative
+
+        # put it all together now
+        Xvals = XvalsTop + XvalsBot
+        Yvals = YvalsTop + YvalsBot
+        plt.plot(Xvals,Yvals, color = &#39;k&#39;)                 </code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.canConnectToComponentAbove"><code class="name">var <span class="ident">canConnectToComponentAbove</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.aspectRatio"><code class="name">var <span class="ident">aspectRatio</span></code></dt>
+<dd>
+<div class="desc"><p>Length over diameter - aka fineness ratio (of exposed surface area)</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.baseDiameter"><code class="name">var <span class="ident">baseDiameter</span></code></dt>
+<dd>
+<div class="desc"><p>Diameter at base of nosecone (m)</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.length"><code class="name">var <span class="ident">length</span></code></dt>
+<dd>
+<div class="desc"><p>Length from tip to tail, of external surface (m)</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.shape"><code class="name">var <span class="ident">shape</span></code></dt>
+<dd>
+<div class="desc"><p>Description of nosecone shape - something like 'Ogive' or 'Cone'</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.surfaceRoughness"><code class="name">var <span class="ident">surfaceRoughness</span></code></dt>
+<dd>
+<div class="desc"><p>(m)</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loggedAeroFunction(*args):
+    aeroForce = func(*args)
+    
+    # Log to force evaluation log
+    rocketComponent = args[0]
+    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Nosecone.Nosecone.plotShape"><code class="name flex">
+<span>def <span class="ident">plotShape</span></span>(<span>self) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plotShape(self) -&gt; None:
+    import matplotlib.pyplot as plt
+    
+    SubComponentPos = self.position.Z
+    length = self.baseDiameter * self.aspectRatio
+    ConeRad = self.baseDiameter/2
+    Rho = (ConeRad**2 + length**2)/(2*ConeRad) # values for tangent ogive equation
+    Xvals = list(np.linspace(0,length, num=100)) # create 50 element tuple from 0 to length
+
+    Yvals = [] # create y list
+
+    for x in Xvals:
+        # populate y list
+        Yvals.append(self.getRadius(x))
+    
+    Xvals = [-1*i + SubComponentPos for i in Xvals] # these were positive. Need them to be negative to point correct way
+
+    # top line, body tube to tip
+    XvalsTop = list(Xvals) 
+    YvalsTop = list(Yvals)
+    XvalsTop.reverse()
+    YvalsTop.reverse()
+
+    # bottom line, tip to body tube
+    XvalsBot = list(Xvals)
+    YvalsBot = list(Yvals)
+    YvalsBot = [-1*i for i in YvalsBot] # so the yvals are negative
+
+    # put it all together now
+    Xvals = XvalsTop + XvalsBot
+    Yvals = YvalsTop + YvalsBot
+    plt.plot(Xvals,Yvals, color = &#39;k&#39;)                 </code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius">getRadius</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.Nosecone.calcSonicPressureDragCoeff_Cone" href="#MAPLEAF.Rocket.Nosecone.calcSonicPressureDragCoeff_Cone">calcSonicPressureDragCoeff_Cone</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.calcSonicPressureDragCoeff_Ogive" href="#MAPLEAF.Rocket.Nosecone.calcSonicPressureDragCoeff_Ogive">calcSonicPressureDragCoeff_Ogive</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.calculatePrandtlFactorCorrection" href="#MAPLEAF.Rocket.Nosecone.calculatePrandtlFactorCorrection">calculatePrandtlFactorCorrection</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.computeSubsonicPolyCoeffs" href="#MAPLEAF.Rocket.Nosecone.computeSubsonicPolyCoeffs">computeSubsonicPolyCoeffs</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.computeTransonicPolyCoeffs" href="#MAPLEAF.Rocket.Nosecone.computeTransonicPolyCoeffs">computeTransonicPolyCoeffs</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.getSubsonicPressureDragCoeff_Barrowman" href="#MAPLEAF.Rocket.Nosecone.getSubsonicPressureDragCoeff_Barrowman">getSubsonicPressureDragCoeff_Barrowman</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.getSupersonicPressureDragCoeff_Hoerner" href="#MAPLEAF.Rocket.Nosecone.getSupersonicPressureDragCoeff_Hoerner">getSupersonicPressureDragCoeff_Hoerner</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.aspectRatio" href="#MAPLEAF.Rocket.Nosecone.Nosecone.aspectRatio">aspectRatio</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.baseDiameter" href="#MAPLEAF.Rocket.Nosecone.Nosecone.baseDiameter">baseDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.canConnectToComponentAbove" href="#MAPLEAF.Rocket.Nosecone.Nosecone.canConnectToComponentAbove">canConnectToComponentAbove</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.getAeroForce" href="#MAPLEAF.Rocket.Nosecone.Nosecone.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.length" href="#MAPLEAF.Rocket.Nosecone.Nosecone.length">length</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.plotShape" href="#MAPLEAF.Rocket.Nosecone.Nosecone.plotShape">plotShape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.shape" href="#MAPLEAF.Rocket.Nosecone.Nosecone.shape">shape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Nosecone.Nosecone.surfaceRoughness" href="#MAPLEAF.Rocket.Nosecone.Nosecone.surfaceRoughness">surfaceRoughness</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

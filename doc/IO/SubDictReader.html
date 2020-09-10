@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>MAPLEAF.IO.SubDictReader API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.IO.SubDictReader</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># Created by: Henry Stoldt
+# June 2020
+
+from distutils.util import strtobool
+from typing import List, Any, Union
+
+from MAPLEAF.Motion.CythonVector import Vector
+
+
+
+class SubDictReader():
+    &#39;&#39;&#39;
+        Wrapper class to read from a specific sub-dictionary in a SimDefinition.
+    &#39;&#39;&#39;
+    def __init__(self, stringPathToThisItemsSubDictionary, simDefinition):
+        &#39;&#39;&#39;
+            Example stringPathToThisItemsSubDictionary = &#39;Rocket.Stage1.Nosecone&#39; if we&#39;re initializing a nosecone object
+        &#39;&#39;&#39;
+        self.simDefDictPathToReadFrom = stringPathToThisItemsSubDictionary
+        self.simDefinition = simDefinition
+
+    def getString(self, key):
+        &#39;&#39;&#39; 
+            Pass in either relative key or absolute key:
+                Ex 1 (Relative): If object subdictionary (self.simDefDictPathToReadFrom) is &#39;Rocket.Stage1.Nosecone&#39;, relative keys could be &#39;position&#39; or &#39;aspectRatio&#39;
+                    These would retrieve Rocket.Stage1.Nosecone.position or Rocket.Stage1.Nosecone.aspectRatio from the sim definition
+                Ex 2 (Absolute): Can also pass in full absolute key, like &#39;Rocket.Stage1.Nosecone.position&#39;, and it will retrieve that value, as long as there isn&#39;t a &#39;path collision&#39; with a relative path
+        &#39;&#39;&#39;
+        try:
+            return self.simDefinition.getValue(self.simDefDictPathToReadFrom + &#34;.&#34; + key)
+        except KeyError:
+            try:
+                return self.simDefinition.getValue(key)
+            except KeyError:
+                attemptedKey1 = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+                attemptedKey2 = key
+                raise KeyError(&#34;{} and {} not found in {} or in default value dictionary&#34;.format(attemptedKey1, attemptedKey2, self.simDefinition.fileName))
+
+    #### Get parsed values ####
+    def getInt(self, key: str) -&gt; int:
+        return int(self.getString(key))
+
+    def getFloat(self, key: str) -&gt; float:
+        return float(self.getString(key))
+
+    def getVector(self, key: str) -&gt; Vector:
+        return Vector(self.getString(key))
+
+    def getBool(self, key: str) -&gt; bool:
+        return strtobool(self.getString(key))
+
+    #### Try get values (return specified default value if not found) ####
+    def tryGetString(self, key: str, defaultValue: Union[None, str]=None):
+        try:
+            return self.getString(key)
+        except KeyError:
+            return defaultValue
+
+    def tryGetInt(self, key: str, defaultValue: Union[None, int]=None):
+        try:
+            return int(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    def tryGetFloat(self, key: str, defaultValue: Union[None, float]=None):
+        try:
+            return float(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    def tryGetVector(self, key: str, defaultValue: Union[None, Vector]=None):
+        try:
+            return Vector(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    def tryGetBool(self, key: str, defaultValue: Union[None, bool]=None):
+        try:
+            return strtobool(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    #### Introspection ####
+    def getImmediateSubDicts(self, key=None) -&gt; List[str]:
+        if key == None:
+            key = self.simDefDictPathToReadFrom
+        return self.simDefinition.getImmediateSubDicts(key)
+
+    def getSubKeys(self, key=None) -&gt; List[str]:
+        if key == None:
+            key = self.simDefDictPathToReadFrom
+        return self.simDefinition.getSubKeys(key)
+
+    def getImmediateSubKeys(self, key=None) -&gt; List[str]:
+        if key == None:
+            key = self.simDefDictPathToReadFrom
+        return self.simDefinition.getImmediateSubKeys(key)
+
+    def getDictName(self) -&gt; str:
+        lastDotIndex = self.simDefDictPathToReadFrom.rfind(&#39;.&#39;)
+        return self.simDefDictPathToReadFrom[lastDotIndex+1:]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader"><code class="flex name class">
+<span>class <span class="ident">SubDictReader</span></span>
+<span>(</span><span>stringPathToThisItemsSubDictionary, simDefinition)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper class to read from a specific sub-dictionary in a SimDefinition.</p>
+<p>Example stringPathToThisItemsSubDictionary = 'Rocket.Stage1.Nosecone' if we're initializing a nosecone object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SubDictReader():
+    &#39;&#39;&#39;
+        Wrapper class to read from a specific sub-dictionary in a SimDefinition.
+    &#39;&#39;&#39;
+    def __init__(self, stringPathToThisItemsSubDictionary, simDefinition):
+        &#39;&#39;&#39;
+            Example stringPathToThisItemsSubDictionary = &#39;Rocket.Stage1.Nosecone&#39; if we&#39;re initializing a nosecone object
+        &#39;&#39;&#39;
+        self.simDefDictPathToReadFrom = stringPathToThisItemsSubDictionary
+        self.simDefinition = simDefinition
+
+    def getString(self, key):
+        &#39;&#39;&#39; 
+            Pass in either relative key or absolute key:
+                Ex 1 (Relative): If object subdictionary (self.simDefDictPathToReadFrom) is &#39;Rocket.Stage1.Nosecone&#39;, relative keys could be &#39;position&#39; or &#39;aspectRatio&#39;
+                    These would retrieve Rocket.Stage1.Nosecone.position or Rocket.Stage1.Nosecone.aspectRatio from the sim definition
+                Ex 2 (Absolute): Can also pass in full absolute key, like &#39;Rocket.Stage1.Nosecone.position&#39;, and it will retrieve that value, as long as there isn&#39;t a &#39;path collision&#39; with a relative path
+        &#39;&#39;&#39;
+        try:
+            return self.simDefinition.getValue(self.simDefDictPathToReadFrom + &#34;.&#34; + key)
+        except KeyError:
+            try:
+                return self.simDefinition.getValue(key)
+            except KeyError:
+                attemptedKey1 = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+                attemptedKey2 = key
+                raise KeyError(&#34;{} and {} not found in {} or in default value dictionary&#34;.format(attemptedKey1, attemptedKey2, self.simDefinition.fileName))
+
+    #### Get parsed values ####
+    def getInt(self, key: str) -&gt; int:
+        return int(self.getString(key))
+
+    def getFloat(self, key: str) -&gt; float:
+        return float(self.getString(key))
+
+    def getVector(self, key: str) -&gt; Vector:
+        return Vector(self.getString(key))
+
+    def getBool(self, key: str) -&gt; bool:
+        return strtobool(self.getString(key))
+
+    #### Try get values (return specified default value if not found) ####
+    def tryGetString(self, key: str, defaultValue: Union[None, str]=None):
+        try:
+            return self.getString(key)
+        except KeyError:
+            return defaultValue
+
+    def tryGetInt(self, key: str, defaultValue: Union[None, int]=None):
+        try:
+            return int(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    def tryGetFloat(self, key: str, defaultValue: Union[None, float]=None):
+        try:
+            return float(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    def tryGetVector(self, key: str, defaultValue: Union[None, Vector]=None):
+        try:
+            return Vector(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    def tryGetBool(self, key: str, defaultValue: Union[None, bool]=None):
+        try:
+            return strtobool(self.getString(key))
+        except KeyError:
+            return defaultValue
+
+    #### Introspection ####
+    def getImmediateSubDicts(self, key=None) -&gt; List[str]:
+        if key == None:
+            key = self.simDefDictPathToReadFrom
+        return self.simDefinition.getImmediateSubDicts(key)
+
+    def getSubKeys(self, key=None) -&gt; List[str]:
+        if key == None:
+            key = self.simDefDictPathToReadFrom
+        return self.simDefinition.getSubKeys(key)
+
+    def getImmediateSubKeys(self, key=None) -&gt; List[str]:
+        if key == None:
+            key = self.simDefDictPathToReadFrom
+        return self.simDefinition.getImmediateSubKeys(key)
+
+    def getDictName(self) -&gt; str:
+        lastDotIndex = self.simDefDictPathToReadFrom.rfind(&#39;.&#39;)
+        return self.simDefDictPathToReadFrom[lastDotIndex+1:]</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></li>
+<li><a title="MAPLEAF.Rocket.Motor.Motor" href="../Rocket/Motor.html#MAPLEAF.Rocket.Motor.Motor">Motor</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getBool"><code class="name flex">
+<span>def <span class="ident">getBool</span></span>(<span>self, key: str) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getBool(self, key: str) -&gt; bool:
+    return strtobool(self.getString(key))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getDictName"><code class="name flex">
+<span>def <span class="ident">getDictName</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDictName(self) -&gt; str:
+    lastDotIndex = self.simDefDictPathToReadFrom.rfind(&#39;.&#39;)
+    return self.simDefDictPathToReadFrom[lastDotIndex+1:]</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getFloat"><code class="name flex">
+<span>def <span class="ident">getFloat</span></span>(<span>self, key: str) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getFloat(self, key: str) -&gt; float:
+    return float(self.getString(key))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubDicts"><code class="name flex">
+<span>def <span class="ident">getImmediateSubDicts</span></span>(<span>self, key=None) ‑> List[str]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getImmediateSubDicts(self, key=None) -&gt; List[str]:
+    if key == None:
+        key = self.simDefDictPathToReadFrom
+    return self.simDefinition.getImmediateSubDicts(key)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubKeys"><code class="name flex">
+<span>def <span class="ident">getImmediateSubKeys</span></span>(<span>self, key=None) ‑> List[str]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getImmediateSubKeys(self, key=None) -&gt; List[str]:
+    if key == None:
+        key = self.simDefDictPathToReadFrom
+    return self.simDefinition.getImmediateSubKeys(key)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getInt"><code class="name flex">
+<span>def <span class="ident">getInt</span></span>(<span>self, key: str) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInt(self, key: str) -&gt; int:
+    return int(self.getString(key))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getString"><code class="name flex">
+<span>def <span class="ident">getString</span></span>(<span>self, key)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Pass in either relative key or absolute key:
+Ex 1 (Relative): If object subdictionary (self.simDefDictPathToReadFrom) is 'Rocket.Stage1.Nosecone', relative keys could be 'position' or 'aspectRatio'
+These would retrieve Rocket.Stage1.Nosecone.position or Rocket.Stage1.Nosecone.aspectRatio from the sim definition
+Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecone.position', and it will retrieve that value, as long as there isn't a 'path collision' with a relative path</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getString(self, key):
+    &#39;&#39;&#39; 
+        Pass in either relative key or absolute key:
+            Ex 1 (Relative): If object subdictionary (self.simDefDictPathToReadFrom) is &#39;Rocket.Stage1.Nosecone&#39;, relative keys could be &#39;position&#39; or &#39;aspectRatio&#39;
+                These would retrieve Rocket.Stage1.Nosecone.position or Rocket.Stage1.Nosecone.aspectRatio from the sim definition
+            Ex 2 (Absolute): Can also pass in full absolute key, like &#39;Rocket.Stage1.Nosecone.position&#39;, and it will retrieve that value, as long as there isn&#39;t a &#39;path collision&#39; with a relative path
+    &#39;&#39;&#39;
+    try:
+        return self.simDefinition.getValue(self.simDefDictPathToReadFrom + &#34;.&#34; + key)
+    except KeyError:
+        try:
+            return self.simDefinition.getValue(key)
+        except KeyError:
+            attemptedKey1 = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            attemptedKey2 = key
+            raise KeyError(&#34;{} and {} not found in {} or in default value dictionary&#34;.format(attemptedKey1, attemptedKey2, self.simDefinition.fileName))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getSubKeys"><code class="name flex">
+<span>def <span class="ident">getSubKeys</span></span>(<span>self, key=None) ‑> List[str]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getSubKeys(self, key=None) -&gt; List[str]:
+    if key == None:
+        key = self.simDefDictPathToReadFrom
+    return self.simDefinition.getSubKeys(key)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getVector"><code class="name flex">
+<span>def <span class="ident">getVector</span></span>(<span>self, key: str) ‑> <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getVector(self, key: str) -&gt; Vector:
+    return Vector(self.getString(key))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetBool"><code class="name flex">
+<span>def <span class="ident">tryGetBool</span></span>(<span>self, key: str, defaultValue: Union[NoneType, bool] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tryGetBool(self, key: str, defaultValue: Union[None, bool]=None):
+    try:
+        return strtobool(self.getString(key))
+    except KeyError:
+        return defaultValue</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetFloat"><code class="name flex">
+<span>def <span class="ident">tryGetFloat</span></span>(<span>self, key: str, defaultValue: Union[NoneType, float] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tryGetFloat(self, key: str, defaultValue: Union[None, float]=None):
+    try:
+        return float(self.getString(key))
+    except KeyError:
+        return defaultValue</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetInt"><code class="name flex">
+<span>def <span class="ident">tryGetInt</span></span>(<span>self, key: str, defaultValue: Union[NoneType, int] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tryGetInt(self, key: str, defaultValue: Union[None, int]=None):
+    try:
+        return int(self.getString(key))
+    except KeyError:
+        return defaultValue</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetString"><code class="name flex">
+<span>def <span class="ident">tryGetString</span></span>(<span>self, key: str, defaultValue: Union[NoneType, str] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tryGetString(self, key: str, defaultValue: Union[None, str]=None):
+    try:
+        return self.getString(key)
+    except KeyError:
+        return defaultValue</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetVector"><code class="name flex">
+<span>def <span class="ident">tryGetVector</span></span>(<span>self, key: str, defaultValue: Union[NoneType, <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tryGetVector(self, key: str, defaultValue: Union[None, Vector]=None):
+    try:
+        return Vector(self.getString(key))
+    except KeyError:
+        return defaultValue</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.IO" href="index.html">MAPLEAF.IO</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getBool" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getBool">getBool</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getDictName" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getDictName">getDictName</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getFloat" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getFloat">getFloat</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubDicts" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubDicts">getImmediateSubDicts</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubKeys" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubKeys">getImmediateSubKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getInt" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getInt">getInt</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getString" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getString">getString</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getSubKeys" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getSubKeys">getSubKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getVector" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getVector">getVector</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetBool" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetBool">tryGetBool</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetFloat" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetFloat">tryGetFloat</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetInt" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetInt">tryGetInt</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetString" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetString">tryGetString</a></code></li>
+<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetVector" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetVector">tryGetVector</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

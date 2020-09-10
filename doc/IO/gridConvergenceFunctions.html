@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>MAPLEAF.IO.gridConvergenceFunctions API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.IO.gridConvergenceFunctions</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+#Author: Henry Stoldt
+#June 2019
+
+import os
+from math import log
+from statistics import mean
+
+from scipy.interpolate import interp1d
+
+#TODO: Create a class to hold convergence results?
+
+############# Functions used internally by checkConvergence ################
+def orderOfConvergence(coarseVal, medVal, fineVal, gridRefinementRatio, minOrder=0.5, maxOrder=2):
+    &#39;&#39;&#39; Function includes limiter &#39;&#39;&#39;
+    logBody = (coarseVal - medVal) / (medVal - fineVal)
+    if logBody &lt;= 0:
+        return minOrder
+    else:
+        p = log(logBody) / log(gridRefinementRatio)
+        
+        #Apply Limits
+        p = max(minOrder, p)
+        p = min(maxOrder, p)
+        
+        return p
+
+def relError(coarserVal, finerVal):
+    return (coarserVal - finerVal) / finerVal
+
+def GCI(coarserVal, finerVal, gridRefinementRatio, observedOrderOfConvergence, factorOfSafety=3, normalizationConstant=None):
+    if normalizationConstant == None:
+        normalizationConstant = finerVal
+    numerator = factorOfSafety * abs((coarserVal - finerVal)/normalizationConstant)
+    
+    denominator = (gridRefinementRatio**observedOrderOfConvergence - 1)
+    return abs(numerator / denominator) * 100
+
+def asymptoticCheck(GCIFiner, GCICoarser, refinementRatio, observedOrderOfConvergence):
+    return GCICoarser / (GCIFiner * refinementRatio**observedOrderOfConvergence)
+
+def richardsonExtrap(finerVal, coarserVal, refinementRatio, orderOfConvergence=2):
+    return finerVal + (finerVal - coarserVal) / (refinementRatio**orderOfConvergence - 1)
+
+def errorEstimate(order, fineVal, medVal, meshRatio):
+    return abs(fineVal - medVal) / (meshRatio**order - 1)
+
+def interpolateDataToCoarseMesh(coarseX, medX, medY, fineX, fineY):
+    &#39;&#39;&#39; Uses cubic spline &#39;&#39;&#39;
+    medVal = interp1d(medX, medY, kind=&#34;cubic&#34;, fill_value=&#34;extrapolate&#34;, bounds_error=False)
+    fineVal = interp1d(fineX, fineY, kind=&#34;cubic&#34;, fill_value=&#34;extrapolate&#34;, bounds_error=False)
+
+    interpMed = [ medVal(x) for x in coarseX ]
+    interpFine = [ fineVal(x) for x in coarseX ]
+
+    return interpMed, interpFine
+
+################ Uncertainty Calculation - Pass one of these into checkConvergence as uncertaintyEstimator ###################
+def uncertainty_FS(order, fineVal, medVal, meshRatio, formalOrder=2):
+    &#39;&#39;&#39; Factor of Safety Method, Xing and Stern &#39;&#39;&#39;
+    P = order/formalOrder
+    if P &gt; 0 and P &lt;= 1:
+        FS = 1.6*P + 2.45*(1-P)
+    elif P &gt; 1:
+        FS = 1.6*P + 14.8*(P-1)
+    return FS * errorEstimate(order, fineVal, medVal, meshRatio)
+
+def uncertainty_GCIOR(order, fineVal, medVal, meshRatio, formalOrder=2):
+    if order &gt; 1.8 and order &lt; 2.2:
+        return 1.25 * errorEstimate(order, fineVal, medVal, meshRatio)
+    else:
+        return 3 * errorEstimate(order, fineVal, medVal, meshRatio)
+
+def uncertainty_GCI2g(order, fineVal, medVal, meshRatio, formalOrder=2):
+    return 3 * errorEstimate(formalOrder, fineVal, medVal, meshRatio)
+
+def uncertainty_GCIglb(order, fineVal, medVal, meshRatio, formalOrder=2):
+    return 1.25 * errorEstimate(order, fineVal, medVal, meshRatio)
+
+############# Main Convergence Check Function ################
+def checkConvergence(coarseVals, medVals, fineVals, gridRefinementRatio, minConvergOrder=0.5, maxConvergOrder=2, orderTolerance=0.2, \
+        asympTolerance=0.05, theoreticalOrderOfConvergence=2, GCINormalizationConstant=None, \
+        uncertaintyEstimator=uncertainty_GCI2g, useAvgOrderOfConvergence=False, writeSummaryToConsole=False):
+    &#39;&#39;&#39;
+        #minConvergOrder: limiter on convergence order, recommend 0.5
+        #maxConvergOrder: limiter on convergence order, recommend 2
+        #orderTolerance: tolerance to set the safety factor in grid convergence 
+        #   -&gt; if orderTolerance=0.2, observed orders of 1.8-2.2 get a GCI safety factor of 1.25, others get 3
+        #asympTolerance: tolerance for asymptotic convergence, if out 1 +/- asympTolerance range, GCI safety factor is 3
+    &#39;&#39;&#39;
+    def actuallyCheckConvergence(cV, mV, fV, p):
+        &#39;&#39;&#39; Pass in single coarse, medium and fine values, as well as the observed order of convergence &#39;&#39;&#39;
+
+        # Calculate GCI12 &amp; GCI23
+        if GCINormalizationConstant == None:  
+            GCI12 = GCI(mV, fV, gridRefinementRatio, p)
+            GCI23 = GCI(cV, mV, gridRefinementRatio, p)
+        else:
+            GCI12 = GCI(mV, fV, gridRefinementRatio, p)
+            GCI23 = GCI(cV, mV, gridRefinementRatio, p)
+
+        # Check whether asymptotic
+        asympCheck = asymptoticCheck(GCI12, GCI23, gridRefinementRatio, p)
+        
+        # If results match tolerances, recalculate GCI&#39;s with 1.25 factor of safety
+        matchesExpectedOrderOfConvergence = (p &lt; theoreticalOrderOfConvergence + orderTolerance and p &gt; theoreticalOrderOfConvergence - orderTolerance)
+        isAsymptotic = abs(asympCheck - 1) &lt; asympTolerance
+        if matchesExpectedOrderOfConvergence and isAsymptotic:
+            GCI12 = GCI(mV, fV, gridRefinementRatio, p, factorOfSafety=1.25)
+            GCI23 = GCI(cV, mV, gridRefinementRatio, p, factorOfSafety=1.25)
+            
+        # Calculate richardson value and uncertainty estimate
+        richardsonVal = richardsonExtrap(fV, mV, gridRefinementRatio, orderOfConvergence=p)
+        uncertaintyEstimate = uncertaintyEstimator(p, fV, mV, gridRefinementRatio, theoreticalOrderOfConvergence)
+
+        # Return results
+        return [p, GCI12, GCI23, asympCheck, richardsonVal, uncertaintyEstimate]
+
+    # If single values are passed in for coarse/med/fine values, put them in 1-length lists
+    try:
+        t = iter(coarseVals)
+        t = iter(medVals)
+        t = iter(fineVals)
+    except TypeError:
+        # Items passed in are not lists, they are single values
+        # So make them lists
+        coarseVals = [ coarseVals ]
+        medVals = [ medVals ]
+        fineVals = [ fineVals ]
+
+    # Calculate local and average orders of convergence
+    ordersOfConvergence = [ orderOfConvergence(cV, mV, fV, gridRefinementRatio, minOrder=minConvergOrder, maxOrder=maxConvergOrder) for cV, mV, fV in zip(coarseVals, medVals, fineVals) ]
+    avgP = mean(ordersOfConvergence)
+
+    # Create empty lists to hold convergence data for each point
+    GCI12s = []
+    GCI23s = []
+    asymptoticChecks = []
+    richardsonExtrapVals = []
+    uncertainties = []
+    # Call actuallyCheckConvergence for each point
+    for cV, mV, fV, aP in zip(coarseVals, medVals, fineVals, ordersOfConvergence):
+        # Call actualluCheckConvergence
+        if useAvgOrderOfConvergence:
+            # Pass in average order of convergence
+            p, G1, G2, asymp, rVal, u = actuallyCheckConvergence(cV, mV, fV, avgP)
+        else:
+            # Pass in local order of convergence
+            p, G1, G2, asymp, rVal, u = actuallyCheckConvergence(cV, mV, fV, aP)
+        
+        # Store results
+        GCI12s.append(G1)
+        GCI23s.append(G2)
+        asymptoticChecks.append(asymp)
+        richardsonExtrapVals.append(rVal)
+        uncertainties.append(u)
+
+    ### Output/Return results ###
+    if writeSummaryToConsole:
+        print(&#34;Avg observed order of convergence: {}&#34;.format(mean(ordersOfConvergence)))
+        print(&#34;Avg GCI(Fine): {}%&#34;.format(mean(GCI12s)))
+        print(&#34;Avg GCI(Medium): {}%&#34;.format(mean(GCI23s)))
+        print(&#34;Avg asymptotic check: {}&#34;.format(mean(asymptoticChecks)))
+        print(&#34;Avg uncertainty: +/-{}&#34;.format(mean(uncertainties)))
+
+
+    # If there was only a single data point passed in, return values instead of lists
+    if len(ordersOfConvergence) == 1:
+        ordersOfConvergence = ordersOfConvergence[0]
+        GCI12s = GCI12s[0]
+        GCI23s = GCI23s[0]
+        asymptoticChecks = asymptoticChecks[0]
+        richardsonExtrapVals = richardsonExtrapVals[0]
+        uncertainties = uncertainties[0]
+    return [ ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties ]
+
+############# Calculate &amp; Plot Results ################
+def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
+    minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, \
+    xLabel=r&#34;Plate location (m)&#34;, yLabel=r&#34;Wall Heat Flux (W)&#34;, xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
+    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix=&#34;&#34;, lineLabels=[&#34;Coarse&#34;, &#34;Medium&#34;, &#34;Fine&#34;], lineColor=&#34;k&#34;, \
+    createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
+    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None):    
+    &#39;&#39;&#39;
+        Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
+        Show figures if showPlot is true
+
+        Inputs:
+            x/yLim:         (List or None) List should be lower, then upper limit for x or y Axis ex: [0, 1]
+            x/yLabel:       (string or None)
+
+        Inputs are organized by line:
+            Data
+            Convergence Settings
+            Plotting Settings
+            Plotting Settings
+            Zoomed inset settings
+            Fig/Axes inputs (to have lines plotted on existing graphs)
+    &#39;&#39;&#39;
+    
+    import matplotlib.pyplot as plt
+    LLP = lineLabelPrefix
+
+    # Make sure we have data at the same x-locations
+    interpMedY, interpFineY = interpolateDataToCoarseMesh(coarseX, medX, medY, fineX, fineY)
+
+    # Calculate mesh convergence
+    observedOrder, GCI12, GCI23, asymptCheck, richardsonVal, uncertainties = checkConvergence(coarseY, interpMedY, interpFineY, refinementRatio, \
+        minConvergOrder=minConvergOrder, maxConvergOrder=maxConvergOrder, uncertaintyEstimator=uncertainty_FS, \
+        writeSummaryToConsole=writeSummaryToConsole, useAvgOrderOfConvergence=useAvgOrderOfConvergence)
+
+    print(&#34;\nPlotting Data\n&#34;)
+
+    # Determine whether to save figures
+    saveFigures = False
+    if saveToDirectory != None:
+        if os.path.isdir(saveToDirectory):
+            saveFigures = True
+        else:
+            print(&#34;Error: {} is not a directory. Plots will not be saved.&#34;.format(saveToDirectory))
+
+    ######## Figure 1 - Results ########
+    if resultsAxes == None or (resultsFig == None and saveFigures):
+        resultsFig, resultsAxes = plt.subplots(figsize=figSize)
+    
+    # Plot uncertainty range
+    if showUncertainty:
+        maxEst = [ f + e for f,e in zip(interpFineY, uncertainties)]
+        minEst = [ f - e for f,e in zip(interpFineY, uncertainties)]
+        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True, label=LLP+&#34;Uncertainty&#34;)
+    # Plot coarse/med/fine lines
+    coarseLineStyle = &#34;-.&#34;
+    medLineStyle = &#34;--&#34;
+    fineLineStyle = &#34;:&#34;
+    resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
+    resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, alpha=0.5)
+    resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=3)
+    if showRichardson:
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+&#34;Richardson&#34;)
+
+    if yLabel != None:
+        resultsAxes.set_ylabel(yLabel)
+    if yLim != None:
+        resultsAxes.set_ylim(top=yLim[1], bottom=yLim[0])
+
+    # Create zoomed inset
+    if createZoomedInset:
+        from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+
+        if resultsAxins == None:
+            resultsAxins = zoomed_inset_axes(resultsAxes, 20, loc=4) # zoom-factor: 2.5, location: upper-left
+
+        if showUncertainty:
+            resultsAxins.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True)
+        resultsAxins.plot(coarseX, coarseY, coarseLineStyle, alpha=0.5)
+        resultsAxins.plot(medX, medY, medLineStyle, alpha=0.5)
+        resultsAxins.plot(fineX, fineY, fineLineStyle, lw=3)
+        if showRichardson:
+            resultsAxins.plot(coarseX, richardsonVal, lineColor)
+
+        resultsAxins.set_xlim(insetXLim[0], insetXLim[1]) # apply the x-limits
+        resultsAxins.set_ylim(insetYLim[0], insetYLim[1]) # apply the y-limits
+
+        # plt.xticks(visible=False)
+        # plt.yticks(visible=False)
+
+        plt.setp(resultsAxins.get_xticklabels(), visible=False)
+        plt.setp(resultsAxins.get_yticklabels(), visible=False)
+        mark_inset(resultsAxes, resultsAxins, loc1=mark_insetLoc1, loc2=mark_insetLoc2, fc=&#34;none&#34;, ec=&#34;0.5&#34;)
+
+    #### Set up figure 2 - convergence properties ####
+    if convergenceAxes == None or (convergenceFig == None and saveFigures):
+        convergenceFig, convergenceAxes = plt.subplots(figsize=figSize)
+    convergenceAxes.plot(coarseX, observedOrder, fineLineStyle, label=LLP+&#34;Observed order of convergence&#34;)
+    convergenceAxes.plot(coarseX, asymptCheck, color=lineColor, label=LLP+&#34;Asymptotic check&#34;)
+    convergenceAxes.set_ylim(top=5, bottom=0)
+
+    #### Set up figure 3 - Uncertainty ####
+    if uncertaintyAxes == None or (uncertaintyAxes == None and saveFigures):
+        uncertaintyFig, uncertaintyAxes = plt.subplots(figsize=figSize)
+    uncertaintyAxes.plot(coarseX, uncertainties, color=lineColor, label=LLP+&#34;Uncertainty&#34;)
+
+    # The embedded axes output warnings about tight_layout
+    # for fig in [ resultsFig, convergenceFig, uncertaintyFig ]:
+    #     fig.tight_layout()
+
+    # Create legends
+    for ax in [ resultsAxes, convergenceAxes, uncertaintyAxes ]:
+        ax.legend()
+
+    if xLim != None:
+        resultsAxes.set_xlim(left=xLim[0], right=xLim[1])
+        convergenceAxes.set_xlim(left=xLim[0], right=xLim[1])
+        uncertaintyAxes.set_xlim(left=xLim[0], right=xLim[1])
+
+    if xLabel != None:
+        resultsAxes.set_xlabel(xLabel)
+        convergenceAxes.set_xlabel(xLabel)
+        uncertaintyAxes.set_xlabel(xLabel)
+
+    #### Save / Show / Return Figures ####
+    if saveFigures:
+        saveFigureAndPrintNotification(&#34;Results&#34;, resultsFig, saveToDirectory, overwrite=overwrite)
+        saveFigureAndPrintNotification(&#34;Convergence&#34;, convergenceFig, saveToDirectory, overwrite=overwrite)
+        saveFigureAndPrintNotification(&#34;Uncertainty&#34;, uncertaintyFig, saveToDirectory, overwrite=overwrite)
+
+    if showPlot:
+        plt.show()
+
+    return resultsAxes, resultsFig, resultsAxins, convergenceAxes, convergenceFig, uncertaintyAxes, uncertaintyFig
+
+def saveFigureAndPrintNotification(fileName, figure, saveToDirectory, overwrite=False, pngVersion=True, epsVersion=True, pdfVersion=True, printStatementPrefix=&#34;&#34;):
+        def saveFigure(filePath):
+            if overwrite or not os.path.exists(filePath):
+                figure.savefig(filePath)
+                print(&#34;{}Saved Image: {}&#34;.format(printStatementPrefix, filePath))
+            elif not overwrite and os.path.exists(filePath):
+                print(&#34;{}WARNING: Did not save image: {} - file already exists&#34;.format(printStatementPrefix, filePath))
+        
+        def getNoExtensionFilePath(filePath):
+            noExtensionPath = filePath
+
+            # Remove extension if it exists
+            if &#39;.&#39; in filePath:
+                dotIndex = filePath.rfind(&#39;.&#39;)
+                noExtensionPath = filePath[:dotIndex]
+
+            return noExtensionPath
+
+        filePath = os.path.join(saveToDirectory, fileName)
+        noExtensionPath = getNoExtensionFilePath(filePath)
+
+        # Save each desired version of the figure
+        if pngVersion:
+            pngFilePath = noExtensionPath + &#34;.png&#34;
+            saveFigure(pngFilePath)
+
+        if epsVersion:
+            epsFilePath = noExtensionPath + &#34;.eps&#34;
+            saveFigure(epsFilePath)
+
+        if pdfVersion:
+            pdfFilePath = noExtensionPath + &#34;.pdf&#34;
+            saveFigure(pdfFilePath)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.GCI"><code class="name flex">
+<span>def <span class="ident">GCI</span></span>(<span>coarserVal, finerVal, gridRefinementRatio, observedOrderOfConvergence, factorOfSafety=3, normalizationConstant=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def GCI(coarserVal, finerVal, gridRefinementRatio, observedOrderOfConvergence, factorOfSafety=3, normalizationConstant=None):
+    if normalizationConstant == None:
+        normalizationConstant = finerVal
+    numerator = factorOfSafety * abs((coarserVal - finerVal)/normalizationConstant)
+    
+    denominator = (gridRefinementRatio**observedOrderOfConvergence - 1)
+    return abs(numerator / denominator) * 100</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.asymptoticCheck"><code class="name flex">
+<span>def <span class="ident">asymptoticCheck</span></span>(<span>GCIFiner, GCICoarser, refinementRatio, observedOrderOfConvergence)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def asymptoticCheck(GCIFiner, GCICoarser, refinementRatio, observedOrderOfConvergence):
+    return GCICoarser / (GCIFiner * refinementRatio**observedOrderOfConvergence)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.checkConvergence"><code class="name flex">
+<span>def <span class="ident">checkConvergence</span></span>(<span>coarseVals, medVals, fineVals, gridRefinementRatio, minConvergOrder=0.5, maxConvergOrder=2, orderTolerance=0.2, asympTolerance=0.05, theoreticalOrderOfConvergence=2, GCINormalizationConstant=None, uncertaintyEstimator=&lt;function uncertainty_GCI2g&gt;, useAvgOrderOfConvergence=False, writeSummaryToConsole=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><h1 id="minconvergorder-limiter-on-convergence-order-recommend-05">minConvergOrder: limiter on convergence order, recommend 0.5</h1>
+<h1 id="maxconvergorder-limiter-on-convergence-order-recommend-2">maxConvergOrder: limiter on convergence order, recommend 2</h1>
+<h1 id="ordertolerance-tolerance-to-set-the-safety-factor-in-grid-convergence">orderTolerance: tolerance to set the safety factor in grid convergence</h1>
+<h1 id="-if-ordertolerance02-observed-orders-of-18-22-get-a-gci-safety-factor-of-125-others-get-3">-&gt; if orderTolerance=0.2, observed orders of 1.8-2.2 get a GCI safety factor of 1.25, others get 3</h1>
+<h1 id="asymptolerance-tolerance-for-asymptotic-convergence-if-out-1-asymptolerance-range-gci-safety-factor-is-3">asympTolerance: tolerance for asymptotic convergence, if out 1 +/- asympTolerance range, GCI safety factor is 3</h1></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def checkConvergence(coarseVals, medVals, fineVals, gridRefinementRatio, minConvergOrder=0.5, maxConvergOrder=2, orderTolerance=0.2, \
+        asympTolerance=0.05, theoreticalOrderOfConvergence=2, GCINormalizationConstant=None, \
+        uncertaintyEstimator=uncertainty_GCI2g, useAvgOrderOfConvergence=False, writeSummaryToConsole=False):
+    &#39;&#39;&#39;
+        #minConvergOrder: limiter on convergence order, recommend 0.5
+        #maxConvergOrder: limiter on convergence order, recommend 2
+        #orderTolerance: tolerance to set the safety factor in grid convergence 
+        #   -&gt; if orderTolerance=0.2, observed orders of 1.8-2.2 get a GCI safety factor of 1.25, others get 3
+        #asympTolerance: tolerance for asymptotic convergence, if out 1 +/- asympTolerance range, GCI safety factor is 3
+    &#39;&#39;&#39;
+    def actuallyCheckConvergence(cV, mV, fV, p):
+        &#39;&#39;&#39; Pass in single coarse, medium and fine values, as well as the observed order of convergence &#39;&#39;&#39;
+
+        # Calculate GCI12 &amp; GCI23
+        if GCINormalizationConstant == None:  
+            GCI12 = GCI(mV, fV, gridRefinementRatio, p)
+            GCI23 = GCI(cV, mV, gridRefinementRatio, p)
+        else:
+            GCI12 = GCI(mV, fV, gridRefinementRatio, p)
+            GCI23 = GCI(cV, mV, gridRefinementRatio, p)
+
+        # Check whether asymptotic
+        asympCheck = asymptoticCheck(GCI12, GCI23, gridRefinementRatio, p)
+        
+        # If results match tolerances, recalculate GCI&#39;s with 1.25 factor of safety
+        matchesExpectedOrderOfConvergence = (p &lt; theoreticalOrderOfConvergence + orderTolerance and p &gt; theoreticalOrderOfConvergence - orderTolerance)
+        isAsymptotic = abs(asympCheck - 1) &lt; asympTolerance
+        if matchesExpectedOrderOfConvergence and isAsymptotic:
+            GCI12 = GCI(mV, fV, gridRefinementRatio, p, factorOfSafety=1.25)
+            GCI23 = GCI(cV, mV, gridRefinementRatio, p, factorOfSafety=1.25)
+            
+        # Calculate richardson value and uncertainty estimate
+        richardsonVal = richardsonExtrap(fV, mV, gridRefinementRatio, orderOfConvergence=p)
+        uncertaintyEstimate = uncertaintyEstimator(p, fV, mV, gridRefinementRatio, theoreticalOrderOfConvergence)
+
+        # Return results
+        return [p, GCI12, GCI23, asympCheck, richardsonVal, uncertaintyEstimate]
+
+    # If single values are passed in for coarse/med/fine values, put them in 1-length lists
+    try:
+        t = iter(coarseVals)
+        t = iter(medVals)
+        t = iter(fineVals)
+    except TypeError:
+        # Items passed in are not lists, they are single values
+        # So make them lists
+        coarseVals = [ coarseVals ]
+        medVals = [ medVals ]
+        fineVals = [ fineVals ]
+
+    # Calculate local and average orders of convergence
+    ordersOfConvergence = [ orderOfConvergence(cV, mV, fV, gridRefinementRatio, minOrder=minConvergOrder, maxOrder=maxConvergOrder) for cV, mV, fV in zip(coarseVals, medVals, fineVals) ]
+    avgP = mean(ordersOfConvergence)
+
+    # Create empty lists to hold convergence data for each point
+    GCI12s = []
+    GCI23s = []
+    asymptoticChecks = []
+    richardsonExtrapVals = []
+    uncertainties = []
+    # Call actuallyCheckConvergence for each point
+    for cV, mV, fV, aP in zip(coarseVals, medVals, fineVals, ordersOfConvergence):
+        # Call actualluCheckConvergence
+        if useAvgOrderOfConvergence:
+            # Pass in average order of convergence
+            p, G1, G2, asymp, rVal, u = actuallyCheckConvergence(cV, mV, fV, avgP)
+        else:
+            # Pass in local order of convergence
+            p, G1, G2, asymp, rVal, u = actuallyCheckConvergence(cV, mV, fV, aP)
+        
+        # Store results
+        GCI12s.append(G1)
+        GCI23s.append(G2)
+        asymptoticChecks.append(asymp)
+        richardsonExtrapVals.append(rVal)
+        uncertainties.append(u)
+
+    ### Output/Return results ###
+    if writeSummaryToConsole:
+        print(&#34;Avg observed order of convergence: {}&#34;.format(mean(ordersOfConvergence)))
+        print(&#34;Avg GCI(Fine): {}%&#34;.format(mean(GCI12s)))
+        print(&#34;Avg GCI(Medium): {}%&#34;.format(mean(GCI23s)))
+        print(&#34;Avg asymptotic check: {}&#34;.format(mean(asymptoticChecks)))
+        print(&#34;Avg uncertainty: +/-{}&#34;.format(mean(uncertainties)))
+
+
+    # If there was only a single data point passed in, return values instead of lists
+    if len(ordersOfConvergence) == 1:
+        ordersOfConvergence = ordersOfConvergence[0]
+        GCI12s = GCI12s[0]
+        GCI23s = GCI23s[0]
+        asymptoticChecks = asymptoticChecks[0]
+        richardsonExtrapVals = richardsonExtrapVals[0]
+        uncertainties = uncertainties[0]
+    return [ ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties ]</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.errorEstimate"><code class="name flex">
+<span>def <span class="ident">errorEstimate</span></span>(<span>order, fineVal, medVal, meshRatio)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def errorEstimate(order, fineVal, medVal, meshRatio):
+    return abs(fineVal - medVal) / (meshRatio**order - 1)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.interpolateDataToCoarseMesh"><code class="name flex">
+<span>def <span class="ident">interpolateDataToCoarseMesh</span></span>(<span>coarseX, medX, medY, fineX, fineY)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Uses cubic spline</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def interpolateDataToCoarseMesh(coarseX, medX, medY, fineX, fineY):
+    &#39;&#39;&#39; Uses cubic spline &#39;&#39;&#39;
+    medVal = interp1d(medX, medY, kind=&#34;cubic&#34;, fill_value=&#34;extrapolate&#34;, bounds_error=False)
+    fineVal = interp1d(fineX, fineY, kind=&#34;cubic&#34;, fill_value=&#34;extrapolate&#34;, bounds_error=False)
+
+    interpMed = [ medVal(x) for x in coarseX ]
+    interpFine = [ fineVal(x) for x in coarseX ]
+
+    return interpMed, interpFine</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.orderOfConvergence"><code class="name flex">
+<span>def <span class="ident">orderOfConvergence</span></span>(<span>coarseVal, medVal, fineVal, gridRefinementRatio, minOrder=0.5, maxOrder=2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function includes limiter</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def orderOfConvergence(coarseVal, medVal, fineVal, gridRefinementRatio, minOrder=0.5, maxOrder=2):
+    &#39;&#39;&#39; Function includes limiter &#39;&#39;&#39;
+    logBody = (coarseVal - medVal) / (medVal - fineVal)
+    if logBody &lt;= 0:
+        return minOrder
+    else:
+        p = log(logBody) / log(gridRefinementRatio)
+        
+        #Apply Limits
+        p = max(minOrder, p)
+        p = min(maxOrder, p)
+        
+        return p</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.plotConvergence"><code class="name flex">
+<span>def <span class="ident">plotConvergence</span></span>(<span>coarseX, coarseY, medX, medY, fineX, fineY, minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, xLabel='Plate location (m)', yLabel='Wall Heat Flux (W)', xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6, 4), saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix='', lineLabels=['Coarse', 'Medium', 'Fine'], lineColor='k', createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
+Show figures if showPlot is true</p>
+<h2 id="inputs">Inputs</h2>
+<p>x/yLim:
+(List or None) List should be lower, then upper limit for x or y Axis ex: [0, 1]
+x/yLabel:
+(string or None)</p>
+<p>Inputs are organized by line:
+Data
+Convergence Settings
+Plotting Settings
+Plotting Settings
+Zoomed inset settings
+Fig/Axes inputs (to have lines plotted on existing graphs)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
+    minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, \
+    xLabel=r&#34;Plate location (m)&#34;, yLabel=r&#34;Wall Heat Flux (W)&#34;, xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
+    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix=&#34;&#34;, lineLabels=[&#34;Coarse&#34;, &#34;Medium&#34;, &#34;Fine&#34;], lineColor=&#34;k&#34;, \
+    createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
+    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None):    
+    &#39;&#39;&#39;
+        Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
+        Show figures if showPlot is true
+
+        Inputs:
+            x/yLim:         (List or None) List should be lower, then upper limit for x or y Axis ex: [0, 1]
+            x/yLabel:       (string or None)
+
+        Inputs are organized by line:
+            Data
+            Convergence Settings
+            Plotting Settings
+            Plotting Settings
+            Zoomed inset settings
+            Fig/Axes inputs (to have lines plotted on existing graphs)
+    &#39;&#39;&#39;
+    
+    import matplotlib.pyplot as plt
+    LLP = lineLabelPrefix
+
+    # Make sure we have data at the same x-locations
+    interpMedY, interpFineY = interpolateDataToCoarseMesh(coarseX, medX, medY, fineX, fineY)
+
+    # Calculate mesh convergence
+    observedOrder, GCI12, GCI23, asymptCheck, richardsonVal, uncertainties = checkConvergence(coarseY, interpMedY, interpFineY, refinementRatio, \
+        minConvergOrder=minConvergOrder, maxConvergOrder=maxConvergOrder, uncertaintyEstimator=uncertainty_FS, \
+        writeSummaryToConsole=writeSummaryToConsole, useAvgOrderOfConvergence=useAvgOrderOfConvergence)
+
+    print(&#34;\nPlotting Data\n&#34;)
+
+    # Determine whether to save figures
+    saveFigures = False
+    if saveToDirectory != None:
+        if os.path.isdir(saveToDirectory):
+            saveFigures = True
+        else:
+            print(&#34;Error: {} is not a directory. Plots will not be saved.&#34;.format(saveToDirectory))
+
+    ######## Figure 1 - Results ########
+    if resultsAxes == None or (resultsFig == None and saveFigures):
+        resultsFig, resultsAxes = plt.subplots(figsize=figSize)
+    
+    # Plot uncertainty range
+    if showUncertainty:
+        maxEst = [ f + e for f,e in zip(interpFineY, uncertainties)]
+        minEst = [ f - e for f,e in zip(interpFineY, uncertainties)]
+        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True, label=LLP+&#34;Uncertainty&#34;)
+    # Plot coarse/med/fine lines
+    coarseLineStyle = &#34;-.&#34;
+    medLineStyle = &#34;--&#34;
+    fineLineStyle = &#34;:&#34;
+    resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
+    resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, alpha=0.5)
+    resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=3)
+    if showRichardson:
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+&#34;Richardson&#34;)
+
+    if yLabel != None:
+        resultsAxes.set_ylabel(yLabel)
+    if yLim != None:
+        resultsAxes.set_ylim(top=yLim[1], bottom=yLim[0])
+
+    # Create zoomed inset
+    if createZoomedInset:
+        from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+
+        if resultsAxins == None:
+            resultsAxins = zoomed_inset_axes(resultsAxes, 20, loc=4) # zoom-factor: 2.5, location: upper-left
+
+        if showUncertainty:
+            resultsAxins.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True)
+        resultsAxins.plot(coarseX, coarseY, coarseLineStyle, alpha=0.5)
+        resultsAxins.plot(medX, medY, medLineStyle, alpha=0.5)
+        resultsAxins.plot(fineX, fineY, fineLineStyle, lw=3)
+        if showRichardson:
+            resultsAxins.plot(coarseX, richardsonVal, lineColor)
+
+        resultsAxins.set_xlim(insetXLim[0], insetXLim[1]) # apply the x-limits
+        resultsAxins.set_ylim(insetYLim[0], insetYLim[1]) # apply the y-limits
+
+        # plt.xticks(visible=False)
+        # plt.yticks(visible=False)
+
+        plt.setp(resultsAxins.get_xticklabels(), visible=False)
+        plt.setp(resultsAxins.get_yticklabels(), visible=False)
+        mark_inset(resultsAxes, resultsAxins, loc1=mark_insetLoc1, loc2=mark_insetLoc2, fc=&#34;none&#34;, ec=&#34;0.5&#34;)
+
+    #### Set up figure 2 - convergence properties ####
+    if convergenceAxes == None or (convergenceFig == None and saveFigures):
+        convergenceFig, convergenceAxes = plt.subplots(figsize=figSize)
+    convergenceAxes.plot(coarseX, observedOrder, fineLineStyle, label=LLP+&#34;Observed order of convergence&#34;)
+    convergenceAxes.plot(coarseX, asymptCheck, color=lineColor, label=LLP+&#34;Asymptotic check&#34;)
+    convergenceAxes.set_ylim(top=5, bottom=0)
+
+    #### Set up figure 3 - Uncertainty ####
+    if uncertaintyAxes == None or (uncertaintyAxes == None and saveFigures):
+        uncertaintyFig, uncertaintyAxes = plt.subplots(figsize=figSize)
+    uncertaintyAxes.plot(coarseX, uncertainties, color=lineColor, label=LLP+&#34;Uncertainty&#34;)
+
+    # The embedded axes output warnings about tight_layout
+    # for fig in [ resultsFig, convergenceFig, uncertaintyFig ]:
+    #     fig.tight_layout()
+
+    # Create legends
+    for ax in [ resultsAxes, convergenceAxes, uncertaintyAxes ]:
+        ax.legend()
+
+    if xLim != None:
+        resultsAxes.set_xlim(left=xLim[0], right=xLim[1])
+        convergenceAxes.set_xlim(left=xLim[0], right=xLim[1])
+        uncertaintyAxes.set_xlim(left=xLim[0], right=xLim[1])
+
+    if xLabel != None:
+        resultsAxes.set_xlabel(xLabel)
+        convergenceAxes.set_xlabel(xLabel)
+        uncertaintyAxes.set_xlabel(xLabel)
+
+    #### Save / Show / Return Figures ####
+    if saveFigures:
+        saveFigureAndPrintNotification(&#34;Results&#34;, resultsFig, saveToDirectory, overwrite=overwrite)
+        saveFigureAndPrintNotification(&#34;Convergence&#34;, convergenceFig, saveToDirectory, overwrite=overwrite)
+        saveFigureAndPrintNotification(&#34;Uncertainty&#34;, uncertaintyFig, saveToDirectory, overwrite=overwrite)
+
+    if showPlot:
+        plt.show()
+
+    return resultsAxes, resultsFig, resultsAxins, convergenceAxes, convergenceFig, uncertaintyAxes, uncertaintyFig</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.relError"><code class="name flex">
+<span>def <span class="ident">relError</span></span>(<span>coarserVal, finerVal)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def relError(coarserVal, finerVal):
+    return (coarserVal - finerVal) / finerVal</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.richardsonExtrap"><code class="name flex">
+<span>def <span class="ident">richardsonExtrap</span></span>(<span>finerVal, coarserVal, refinementRatio, orderOfConvergence=2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def richardsonExtrap(finerVal, coarserVal, refinementRatio, orderOfConvergence=2):
+    return finerVal + (finerVal - coarserVal) / (refinementRatio**orderOfConvergence - 1)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.saveFigureAndPrintNotification"><code class="name flex">
+<span>def <span class="ident">saveFigureAndPrintNotification</span></span>(<span>fileName, figure, saveToDirectory, overwrite=False, pngVersion=True, epsVersion=True, pdfVersion=True, printStatementPrefix='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def saveFigureAndPrintNotification(fileName, figure, saveToDirectory, overwrite=False, pngVersion=True, epsVersion=True, pdfVersion=True, printStatementPrefix=&#34;&#34;):
+        def saveFigure(filePath):
+            if overwrite or not os.path.exists(filePath):
+                figure.savefig(filePath)
+                print(&#34;{}Saved Image: {}&#34;.format(printStatementPrefix, filePath))
+            elif not overwrite and os.path.exists(filePath):
+                print(&#34;{}WARNING: Did not save image: {} - file already exists&#34;.format(printStatementPrefix, filePath))
+        
+        def getNoExtensionFilePath(filePath):
+            noExtensionPath = filePath
+
+            # Remove extension if it exists
+            if &#39;.&#39; in filePath:
+                dotIndex = filePath.rfind(&#39;.&#39;)
+                noExtensionPath = filePath[:dotIndex]
+
+            return noExtensionPath
+
+        filePath = os.path.join(saveToDirectory, fileName)
+        noExtensionPath = getNoExtensionFilePath(filePath)
+
+        # Save each desired version of the figure
+        if pngVersion:
+            pngFilePath = noExtensionPath + &#34;.png&#34;
+            saveFigure(pngFilePath)
+
+        if epsVersion:
+            epsFilePath = noExtensionPath + &#34;.eps&#34;
+            saveFigure(epsFilePath)
+
+        if pdfVersion:
+            pdfFilePath = noExtensionPath + &#34;.pdf&#34;
+            saveFigure(pdfFilePath)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_FS"><code class="name flex">
+<span>def <span class="ident">uncertainty_FS</span></span>(<span>order, fineVal, medVal, meshRatio, formalOrder=2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Factor of Safety Method, Xing and Stern</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uncertainty_FS(order, fineVal, medVal, meshRatio, formalOrder=2):
+    &#39;&#39;&#39; Factor of Safety Method, Xing and Stern &#39;&#39;&#39;
+    P = order/formalOrder
+    if P &gt; 0 and P &lt;= 1:
+        FS = 1.6*P + 2.45*(1-P)
+    elif P &gt; 1:
+        FS = 1.6*P + 14.8*(P-1)
+    return FS * errorEstimate(order, fineVal, medVal, meshRatio)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCI2g"><code class="name flex">
+<span>def <span class="ident">uncertainty_GCI2g</span></span>(<span>order, fineVal, medVal, meshRatio, formalOrder=2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uncertainty_GCI2g(order, fineVal, medVal, meshRatio, formalOrder=2):
+    return 3 * errorEstimate(formalOrder, fineVal, medVal, meshRatio)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCIOR"><code class="name flex">
+<span>def <span class="ident">uncertainty_GCIOR</span></span>(<span>order, fineVal, medVal, meshRatio, formalOrder=2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uncertainty_GCIOR(order, fineVal, medVal, meshRatio, formalOrder=2):
+    if order &gt; 1.8 and order &lt; 2.2:
+        return 1.25 * errorEstimate(order, fineVal, medVal, meshRatio)
+    else:
+        return 3 * errorEstimate(order, fineVal, medVal, meshRatio)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCIglb"><code class="name flex">
+<span>def <span class="ident">uncertainty_GCIglb</span></span>(<span>order, fineVal, medVal, meshRatio, formalOrder=2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def uncertainty_GCIglb(order, fineVal, medVal, meshRatio, formalOrder=2):
+    return 1.25 * errorEstimate(order, fineVal, medVal, meshRatio)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.IO" href="index.html">MAPLEAF.IO</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.GCI" href="#MAPLEAF.IO.gridConvergenceFunctions.GCI">GCI</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.asymptoticCheck" href="#MAPLEAF.IO.gridConvergenceFunctions.asymptoticCheck">asymptoticCheck</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.checkConvergence" href="#MAPLEAF.IO.gridConvergenceFunctions.checkConvergence">checkConvergence</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.errorEstimate" href="#MAPLEAF.IO.gridConvergenceFunctions.errorEstimate">errorEstimate</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.interpolateDataToCoarseMesh" href="#MAPLEAF.IO.gridConvergenceFunctions.interpolateDataToCoarseMesh">interpolateDataToCoarseMesh</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.orderOfConvergence" href="#MAPLEAF.IO.gridConvergenceFunctions.orderOfConvergence">orderOfConvergence</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.plotConvergence" href="#MAPLEAF.IO.gridConvergenceFunctions.plotConvergence">plotConvergence</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.relError" href="#MAPLEAF.IO.gridConvergenceFunctions.relError">relError</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.richardsonExtrap" href="#MAPLEAF.IO.gridConvergenceFunctions.richardsonExtrap">richardsonExtrap</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.saveFigureAndPrintNotification" href="#MAPLEAF.IO.gridConvergenceFunctions.saveFigureAndPrintNotification">saveFigureAndPrintNotification</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_FS" href="#MAPLEAF.IO.gridConvergenceFunctions.uncertainty_FS">uncertainty_FS</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCI2g" href="#MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCI2g">uncertainty_GCI2g</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCIOR" href="#MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCIOR">uncertainty_GCIOR</a></code></li>
+<li><code><a title="MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCIglb" href="#MAPLEAF.IO.gridConvergenceFunctions.uncertainty_GCIglb">uncertainty_GCIglb</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

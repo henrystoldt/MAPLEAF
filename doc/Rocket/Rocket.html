@@ -1,0 +1,1517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>MAPLEAF.Rocket.Rocket API documentation</title>
+<meta name="description" content="Created on Thu Jan 3, 2019 …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Rocket.Rocket</code></h1>
+</header>
+<section id="section-intro">
+<p>Created on Thu Jan 3, 2019</p>
+<p>@author: Henry Stoldt, Declan Quinn</p>
+<p>Defines the Rocket class, which ties together the code in <code><a title="MAPLEAF.GNC" href="../GNC/index.html">MAPLEAF.GNC</a></code>, <code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code>, <code><a title="MAPLEAF.Motion" href="../Motion/index.html">MAPLEAF.Motion</a></code>, and <code><a title="MAPLEAF.ENV" href="../ENV/index.html">MAPLEAF.ENV</a></code> to
+simulate the flight of a single rocket or dropped rocket stage (always only represents one rigid body at a time).</p>
+<p><img alt="" src="https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG"></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+Created on Thu Jan 3, 2019
+
+@author: Henry Stoldt, Declan Quinn
+
+Defines the Rocket class, which ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to 
+simulate the flight of a single rocket or dropped rocket stage (always only represents one rigid body at a time).
+
+.. image:: https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG
+&#34;&#34;&#34;
+
+import math
+import re
+from distutils.util import strtobool
+
+import matplotlib.pyplot as plt
+import numpy
+
+import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
+from MAPLEAF.GNC.ControlSystems import RocketControlSystem
+from MAPLEAF.IO.HIL import HILInterface
+from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion.CompositeObject import CompositeObject
+from MAPLEAF.Motion.CythonQuaternion import Quaternion
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion.Inertia import Inertia
+from MAPLEAF.Motion.RigidBody import RigidBody, RigidBody_3DoF
+from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+from MAPLEAF.Rocket.BoatTail import BoatTail
+from MAPLEAF.Rocket.Bodytube import Bodytube
+from MAPLEAF.Rocket.Fins import FinSet
+from MAPLEAF.Rocket.Motor import Motor
+from MAPLEAF.Rocket.Nosecone import Nosecone
+from MAPLEAF.Rocket.RocketComponents import BodyComponent, PlanarInterface
+from MAPLEAF.Rocket.SimEventDetector import SimEventDetector
+from MAPLEAF.Rocket.Stage import Stage
+
+
+class Rocket(CompositeObject):
+    &#39;&#39;&#39;
+        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage.Stage` objects.
+        New instances of this class are also created to model the flight of dropped stages.
+    &#39;&#39;&#39;
+    #### Initialization ####
+    def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
+        &#39;&#39;&#39;
+            Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
+            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.Main.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            This will return a Rocket initialized on the pad with all its stages, ready for flight.
+
+            If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
+
+            Inputs:
+
+            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
+            * silent:               (bool) controls console output  
+            * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.  
+            * simRunner:            (`MAPLEAF.Main.SingleSimRunner`) reference to the current simulation driver/runner
+            * environment:          (`MAPLEAF.ENV.Environment.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
+        &#39;&#39;&#39;
+        self.rocketDictReader = rocketDictReader
+        self.simDefinition = rocketDictReader.simDefinition
+
+        self.simRunner = simRunner
+        &#39;&#39;&#39; Parent instance of `MAPLEAF.Main.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
+        
+        self.environment = environment
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment` &#39;&#39;&#39;
+        if self.environment == None:
+            # If no environment is passed in, create one
+            self.environment = Environment(self.simDefinition, silent=silent)
+
+        self.name = rocketDictReader.getString(&#34;name&#34;)
+
+        self.silent = silent
+        &#39;&#39;&#39; Controls output to console &#39;&#39;&#39;
+
+        self.stage = stageToInitialize
+        &#39;&#39;&#39; If controls whether the whole rocket is initialized (if == None), or a single stage is initialized (Integer stage number) &#39;&#39;&#39;
+
+        self.stages = []
+        &#39;&#39;&#39;
+            A list of `MAPLEAF.Rocket.Stage.Stage` objects that make up the rocket, ordered from top to bottom.  
+            Populated by `Rocket._initializeSubComponents`.
+        &#39;&#39;&#39;
+
+        self.targetLocation = None
+        &#39;&#39;&#39; (`MAPLEAF.Motion.Vector.Vector`) set by `MAPLEAF.GNC.ControlSystems.RocketControlSystem` upon initialization, if a constant target location is defined &#39;&#39;&#39;
+
+        self.recoverySystem = None
+        &#39;&#39;&#39;
+            Reference to the current Rocket&#39;s (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.  
+            Set in `MAPLEAF.Rocket.RecoverySystem.RecoverySystem.__init__`
+        &#39;&#39;&#39;
+
+        self.rigidBody = None            
+        &#39;&#39;&#39; 
+            (`MAPLEAF.Motion.RigidBody.RigidBody` or `MAPLEAF.Motion.RigidBody.RigidBody_3DoF`) Responsible for motion integration.  
+            Set in `MAPLEAF.Rocket.Rocket._initializeRigidBody()`.
+        &#39;&#39;&#39;
+
+        self.isUnderChute = False
+        &#39;&#39;&#39; (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()` &#39;&#39;&#39;
+
+        self.mainChuteDeployTime = None
+        &#39;&#39;&#39; (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()`  &#39;&#39;&#39;
+        
+        self.engineShutOffTime = None
+        &#39;&#39;&#39; (float) Filled in by `MAPLEAF.Rocket.Motor.Motor.__init__()` upon initialization &#39;&#39;&#39;
+
+        self.turbulenceOffWhenUnderChute = rocketDictReader.getBool(&#34;Environment.turbulenceOffWhenUnderChute&#34;)
+        &#39;&#39;&#39; (bool) &#39;&#39;&#39;
+
+        self.bodyTubeDiameter = self._getMaxBodyTubeDiameter()     
+        &#39;&#39;&#39; (float) Holds maximum constant-size body tube diameter, from bodytube components in stages &#39;&#39;&#39;
+
+        self.Aref = self.bodyTubeDiameter**2 / 4
+        &#39;&#39;&#39; 
+            Reference area for force and moment coefficients.
+            Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
+            Always based on the maximum body tube diameter in the fully-assembled rocket.
+        &#39;&#39;&#39;
+        
+        self.simEventDetector = SimEventDetector(self) 
+        &#39;&#39;&#39; (`MAPLEAF.SimEventDetector.SimEventDetector`) Used to trigger things like recovery systems and staging &#39;&#39;&#39;
+
+        self.eventTimeStep = rocketDictReader.getFloat(&#34;SimControl.TimeStepAdaptation.eventTimingAccuracy&#34;)
+        &#39;&#39;&#39; If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value &#39;&#39;&#39;
+
+        self.addZeroLengthBoatTailsToAccountForBaseDrag = rocketDictReader.getBool(&#34;Aero.addZeroLengthBoatTailsToAccountForBaseDrag&#34;)
+        &#39;&#39;&#39; Controls whether zero-length boat tails are automatically added to the bottom of rockets without them, to make sure base drag is accounted for &#39;&#39;&#39;
+
+        self.fullyTurbulentBL = rocketDictReader.getBool(&#34;Aero.fullyTurbulentBL&#34;)
+        &#39;&#39;&#39; Controls whether skin friction is solved assuming a fully turbulent BL or using laminar/transitional flow at lower Reynolds numbers &#39;&#39;&#39;
+
+        self.surfaceRoughness = rocketDictReader.getFloat(&#34;Aero.surfaceRoughness&#34;)
+        &#39;&#39;&#39; Default surface roughness for all rocket components &#39;&#39;&#39;
+
+        self.finenessRatio = None
+        &#39;&#39;&#39; Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket &#39;&#39;&#39;
+     
+        #### Init Hardware in the loop ####
+        subDicts = rocketDictReader.getImmediateSubDicts()
+        if &#34;Rocket.HIL&#34; in subDicts:
+            self.hardwareInTheLoopControl = &#34;yes&#34;
+            quatUpdateRate = rocketDictReader.getInt(&#34;HIL.quatUpdateRate&#34;)
+            posUpdateRate = rocketDictReader.getInt(&#34;HIL.posUpdateRate&#34;)
+            velUpdateRate = rocketDictReader.getInt(&#34;HIL.velUpdateRate&#34;)
+            teensyComPort = rocketDictReader.getString(&#34;HIL.teensyComPort&#34;)
+            imuComPort = rocketDictReader.getString(&#34;HIL.imuComPort&#34;)
+            teensyBaudrate = rocketDictReader.getInt(&#34;HIL.teensyBaudrate&#34;)
+            imuBaudrate = rocketDictReader.getInt(&#34;HIL.imuBaudrate&#34;)
+            self.hilInterface = HILInterface(quatUpdateRate,posUpdateRate,velUpdateRate, teensyComPort, imuComPort, teensyBaudrate, imuBaudrate)
+        else:
+            self.hardwareInTheLoopControl = &#34;no&#34;
+
+        #### Init Components ####
+        self._initializeRigidBody()
+        self._initializeStages()
+        self._initializeStagingTriggers()
+
+        #### Init Parent classes ####
+        CompositeObject.__init__(self, self.stages)
+        self._updateFinenessRatio()
+
+        # Adjust rigid body state position to correspond to the rocket&#39;s CG instead of nose cone tip position
+        self._moveStatePositionToCG()
+
+        #### Init Guidance/Navigation/Control System (if required) ####
+        self.controlSystem = None
+        &#39;&#39;&#39; None for uncontrolled rockets. `MAPLEAF.GNC.ControlSystems.RocketControlSystem` for controlled rockets &#39;&#39;&#39;
+        if rocketDictReader.tryGetString(&#34;ControlSystem.controlledSystem&#34;) != None and stageToInitialize == None:
+            # Only create a control system if this is NOT a dropped stage
+            ControlSystemDictReader = SubDictReader(&#34;Rocket.ControlSystem&#34;, simDefinition=self.simDefinition)
+            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
+
+    def _getMaxBodyTubeDiameter(self):
+        &#39;&#39;&#39; Gets max body tube diameter directly from config file &#39;&#39;&#39;
+        stageDicts = self._getStageSubDicts()
+
+        maxDiameter = 0
+        for stageDict in stageDicts:
+            componentDicts = self.rocketDictReader.getImmediateSubDicts(stageDict)
+            for componentDict in componentDicts:
+                className = self.rocketDictReader.getString(componentDict + &#34;.class&#34;)
+                if className == &#34;Bodytube&#34;:
+                    diameter = self.rocketDictReader.getFloat(componentDict + &#34;.outerDiameter&#34;)
+                    if diameter &gt; maxDiameter:
+                        maxDiameter = diameter
+        
+        return maxDiameter
+
+    def _getStageSubDicts(self):
+        # Get all immediate subdictionaries of &#39;Rocket&#39;
+        stageDicts = self.rocketDictReader.getImmediateSubDicts()
+
+        # Assume all subdictionaries represent rocket stages except for these exceptions
+        nonStageSubDicts = [ &#34;Rocket.ControlSystem&#34;, &#34;Rocket.HIL&#34;, &#34;Rocket.Aero&#34; ]
+        # Remove them from the list if they&#39;re in it
+        for dictName in nonStageSubDicts:
+            if dictName in stageDicts:
+                stageDicts.remove(dictName)
+
+        return stageDicts
+
+    def _initializeRigidBody(self):
+        #### Get initial kinematic state (in launch tower frame) ####
+        initPos = self.rocketDictReader.getVector(&#34;position&#34;)
+        initVel = self.rocketDictReader.getVector(&#34;velocity&#34;)
+        
+        # Check whether precise initial orientation has been specified
+        rotationAxis = self.rocketDictReader.tryGetVector(&#34;rotationAxis&#34;, defaultValue=None)
+        if rotationAxis != None:
+            rotationAngle = math.radians(self.rocketDictReader.getFloat(&#34;rotationAngle&#34;))
+            initOrientation = Quaternion(rotationAxis, rotationAngle)
+        else:
+            # Calculate initial orientation quaternion in launch tower frame
+            initialDirection = self.rocketDictReader.getVector(&#34;initialDirection&#34;).normalize()
+            angleFromVertical = Vector(0,0,1).angle(initialDirection)
+            rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+            initOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+        initAngVel = AngularVelocity(rotationVector=self.rocketDictReader.getVector(&#34;angularVelocity&#34;))
+     
+        initState_launchTowerFrame = RigidBodyState(initPos, initVel, initOrientation, initAngVel)
+
+        # Convert to the global inertial frame
+        initState_globalInertialFrame = self.environment.convertInitialStateToGlobalFrame(initState_launchTowerFrame)
+
+        # Get desired time discretization method
+        timeDisc = self.rocketDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
+
+        #### Initialize the rigid body ####
+        if self.simRunner != None:
+            self.rigidBody = RigidBody(
+                initState_globalInertialFrame, 
+                self._getAppliedForce, 
+                self.getInertia, 
+                integrationMethod=timeDisc, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                simDefinition=self.simDefinition
+            )
+        else:
+            self.rigidBody = RigidBody(
+                initState_globalInertialFrame, 
+                self._getAppliedForce, 
+                self.getInertia, 
+                integrationMethod=timeDisc, 
+                simDefinition=self.simDefinition
+            )
+
+    def _initializeStages(self):
+        &#39;&#39;&#39; Initialize each of the stages and all of their subcomponents. &#39;&#39;&#39;
+        stageDicts = self._getStageSubDicts()
+
+        # If we&#39;re initializing a dropped stage, figure out which one
+        if self.stage != None:
+            stageNumbers = []
+            stageNumberSet = set()
+            for stageDict in stageDicts:
+                stageNumber = self.rocketDictReader.getFloat(stageDict + &#34;.stageNumber&#34;)
+                stageNumbers.append(stageNumber)
+                stageNumberSet.add(stageNumber)
+            
+            if len(stageNumbers) != len(stageNumberSet):
+                raise ValueError(&#34;For multi-stage rockets, each stage must have a unique stage number. Set the Rocket.StageName.stageNumber value for each stage. 0 for first stage, 1 for second, etc...&#34;)
+            
+            stageNumbers.sort()
+            stageToInitialize = stageNumbers[self.stage]
+
+        # Initialize Stage(s)
+        initializingAllStages = (self.stage == None)
+        for stageDictionary in stageDicts:
+            stageDictReader = SubDictReader(stageDictionary, self.simDefinition)
+            stageNumber = stageDictReader.getFloat(&#34;stageNumber&#34;)
+
+            if initializingAllStages or stageNumber == stageToInitialize:
+                newStage = Stage(stageDictReader, self)
+                self.stages.append(newStage)
+
+        self.stages = PlanarInterface.sortByZLocation(self.stages)
+        self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
+
+        if self.bodyTubeDiameter &gt; 0:
+            # Only run this if we&#39;re running a real rocket with body tubes
+            self._ensureBaseDragIsAccountedFor()
+
+    def _initializeStagingTriggers(self):
+        &#39;&#39;&#39; Set up trigger conditions for staging &#39;&#39;&#39;
+        # Self.stage is not passed in if the current instance represents a rocket ready to launch - then we have to set up staging events
+        if self.stage == None:
+            for stageIndex in range(len(self.stages)):
+                stage = self.stages[stageIndex]
+
+                if stage.separationConditionType != &#39;None&#39;:
+                    self.simEventDetector.subscribeToEvent(
+                        stage.separationConditionType, 
+                        self._stageSeparation, 
+                        stage.separationConditionValue, 
+                        triggerDelay=stage.separationDelay
+                    )
+                
+                if stageIndex != len(self.stages)-1:
+                    # Set all upper stage motors to ignite a very long time in the future    
+                    stage.motor.updateIgnitionTime(1000000000, fakeValue=True)
+
+        else:
+            # Otherwise this rocket object is representing a single dropped stage, and no stage separations are necessary
+            # Motor is burned out
+            self.stages[0].motor.updateIgnitionTime(-1000000000, fakeValue=True)
+    
+    def _moveStatePositionToCG(self):
+        &#39;&#39;&#39; Moves self.rigidBody.state.position to have it represent the rocket&#39;s initial CG position, not the initial nose cone position &#39;&#39;&#39;
+        initInertia = self.getInertia(0, self.rigidBody.state)
+        CGPosition_wrtNoseCone_localFrame = initInertia.CG
+        CGPosition__wrtNoseCone_globalFrame = self.rigidBody.state.orientation.rotate(CGPosition_wrtNoseCone_localFrame)
+        CGPosition_globalFrame = self.rigidBody.state.position + CGPosition__wrtNoseCone_globalFrame
+        self.rigidBody.state.position = CGPosition_globalFrame
+
+    def getLength(self):
+        totalLength = 0
+        for stage in self.stages:
+            try:
+                totalLength += stage.getLength()
+            except TypeError:
+                pass # Stage Length was None - no body components in stage
+
+        return totalLength
+
+    def plotShape(self):
+        plt.figure()
+        plt.gca().set_aspect(&#39;equal&#39;)
+
+        rocketInertia = self.getInertia(0, self.rigidBody.state)
+        TotalCG = rocketInertia.CG.Z
+        TotalMass = rocketInertia.mass
+        
+        TotalCGplt = plt.plot(TotalCG, 0, color=&#39;b&#39;, marker=&#39;d&#39;, label=&#39;Total CG&#39;, linestyle=&#39;None&#39;)
+        CGsubZ = []
+        CGsubY = []
+
+        plt.title(&#39;Total Rocket CG: %10.4f m \n Total Rocket Mass: %10.4f Kg&#39; % (TotalCG,TotalMass) )
+
+        for stage in self.stages:
+            zCGs, yCGs = stage.plotShape()
+
+            # Add subcomponents CGs to arrays
+            CGsubZ += zCGs
+            CGsubY += yCGs
+
+        SubCGplt = plt.plot(CGsubZ, CGsubY, color=&#39;g&#39;, marker=&#39;.&#39;, label=&#39;Subcomponent CG&#39;, linestyle=&#39;None&#39;)
+        legendHeight = self.bodyTubeDiameter
+        plt.legend(loc=&#39;upper center&#39;, bbox_to_anchor = (0.5,-1.05))
+        plt.show()
+
+    #### Stage Separation ####
+    def _stageSeparation(self):
+        print(&#34;Stage {} Separation&#34;.format(self.simRunner.stagingIndex + 1))
+        # Initialize dropped stage as a new rocket
+        self.simRunner.createNewDetachedStage()
+
+        # Drop stage from current rocket
+        self._dropStage()
+        
+        # Ignite next motor (set ignition time to the time of stage separation)
+        currentTime = self.rigidBody.time
+        self.stages[0].motor.updateIgnitionTime(currentTime)
+
+        self._ensureBaseDragIsAccountedFor()
+        self._updateFinenessRatio()
+
+    def _dropStage(self, stageIndex=-1):
+        droppedStage = self.stages.pop(stageIndex)
+        self.recomputeFixedMassInertia()
+
+        if self.controlSystem != None:
+            # Check whether the controlled system was part of the dropped stage
+            if self.controlSystem.controlledSystem in droppedStage.components:
+                # If so delete the rocket&#39;s control system and remove any control system-induced time stepping modifications
+                print(&#34;Rocket&#39;s controlled system was on the dropped stage. Deactivating control system.&#34;)
+                self.controlSystem.restoreOriginalTimeStepping()
+                self.controlSystem = None
+
+    def _ensureBaseDragIsAccountedFor(self):
+        &#39;&#39;&#39; If no BoatTail exists at the bottom of the rocket, adds a zero-length boat tail. This is necessary b/c Boat Tail aero-functions are the ones that account for base drag &#39;&#39;&#39;
+        boatTailComponentAtBottomOfRocket = False
+        bottomStage = self.stages[-1]
+        for comp in reversed(bottomStage.components):
+            if isinstance(comp, BodyComponent):
+                if isinstance(comp, BoatTail):
+                    boatTailComponentAtBottomOfRocket = True
+                break
+        
+        if not boatTailComponentAtBottomOfRocket and self.addZeroLengthBoatTailsToAccountForBaseDrag:
+            if not self.silent:
+                print(&#34;Adding zero-length BoatTail to the bottom of current bottom stage ({}) to account for base drag&#34;.format(bottomStage.name))
+            # Create a zero-length, zero-mass boat tail to account for base drag
+            zeroInertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+            diameter = self.bodyTubeDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
+            length = 0
+            position = bottomStage.getBottomInterfaceLocation()
+            boatTail = BoatTail(
+                diameter, 
+                diameter, 
+                length, 
+                position, 
+                zeroInertia, 
+                self, 
+                bottomStage, 
+                &#34;Auto-AddedZeroLengthBoatTail&#34;, 
+                self.surfaceRoughness
+            )
+            bottomStage.components.append(boatTail)     
+
+    def _updateFinenessRatio(self):
+        &#39;&#39;&#39; Updates self.finenessRatio based on current BodyComponents in rocket stages &#39;&#39;&#39;
+        length = self.getLength()
+        maxDiameter = max([ stage.getMaxDiameter() for stage in self.stages ])
+        if maxDiameter == 0:
+            self.finenessRatio = None
+        else:
+            self.finenessRatio = length/maxDiameter
+
+    #### Logging ####
+    def appendToForceLogLine(self, txt: str):
+        &#39;&#39;&#39; Appends txt to the current line of `Rocket.simRunner.forceEvaluationLog` &#39;&#39;&#39;
+        try:
+            self.simRunner.forceEvaluationLog[-1] += txt
+        except AttributeError:
+            pass # Force logging not set up for this sim
+
+    #### Component-buildup method for Force ####
+    def _getEnvironmentalConditions(self, time, state, logWind=True):
+        env = self.environment.getAirProperties(state.position, time)
+
+        # Neglect turbulent component of wind if required
+        if self.isUnderChute and self.turbulenceOffWhenUnderChute:
+            env = EnvironmentalConditions(
+                env.ASLAltitude,
+                env.Temp,
+                env.Pressure,
+                env.Density,
+                env.DynamicViscosity,
+                env.MeanWind,
+                env.MeanWind,
+                Vector(0, 0, 0),
+            )
+
+        # Log Wind
+        if logWind:
+            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;7.4}&#34;.format(env.Wind, env.Density))
+        
+        return env
+
+    def _getAppliedForce(self, time, state):
+        &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
+        self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
+        
+        environment = self._getEnvironmentalConditions(time, state, logWind=True)   # Get and log current air/wind properties
+        
+        rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
+        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
+        
+        ### Component Forces ###
+        if not self.isUnderChute:
+            # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
+            Mach = AeroFunctions.getMachNumber(state, environment)
+            unitRe = AeroFunctions.getReynoldsNumber(state, environment, 1.0)
+            AOA = AeroFunctions.getTotalAOA(state, environment)
+            rollAngle = AeroFunctions.getRollAngle(state, environment)
+
+            # Log current rocket / flight conditions
+            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle))
+
+            # This function will be the inherited function CompositeObject.getAeroForce
+            componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
+
+        else:
+            # When under chute, neglect forces from other components
+            componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
+
+        componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
+
+        # Compute and log center of pressure z-location
+        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
+           
+        ### Gravity ###
+        gravityForce = self.environment.getGravityForce(rocketInertia, state)        
+        totalForce = componentForces + gravityForce
+
+        ### Launch Rail ###
+        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
+
+        self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
+            componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
+        )
+
+        return totalForce
+    
+    #### Driving / Controlling Simulation ####
+    def _runControlSystemAndLogStartingState(self, dt):
+        startState = self.rigidBody.state
+        startTime = self.rigidBody.time       
+
+        # Control loop (if applicable)
+        controlLogString = &#34;&#34; # Empty string if not overridden by running the control loop
+        if self.controlSystem != None and not self.isUnderChute:
+            environment = self._getEnvironmentalConditions(startTime, startState, logWind=False)
+
+            ### Run Control Loop ###
+            newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
+            
+            if newTargetActuatorDeflections != False:
+                # runControlLoopIfRequired returns False if the control doesn&#39;t run
+                # Add target deflections to the main log string
+                deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
+                controlLogString = &#34;&#34;.join(deflStrings)
+
+        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
+        try: # 6DoF Mode
+            globalOrientation = startState.orientation
+            orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+            orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
+            eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+            eulerAnglesString =  &#34; {:&gt;10.6f}&#34;.format(eulerAngles)
+        except AttributeError:
+            eulerAnglesString = &#34;&#34; # 3DoF mode
+
+        # Log -&gt; Main Sim Log
+        mainLogString = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
+        print(mainLogString)
+
+    def timeStep(self, dt: float):
+        &#39;&#39;&#39;
+            Tells the simulation to take a time step of size dt.  
+
+            Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+
+            Returns:
+                * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
+                * dt:                       (float) actual size of time step taken. Adaptive methods will override the dt asked for if the predicted error for a time step is over their error threshold.
+        &#39;&#39;&#39;
+        # Stop the rocket from sliding off the bottom of the launch rail
+        self.rigidBody.state = self.environment.applyLaunchRailMotionConstraints(self.rigidBody.state, self.rigidBody.time)
+        
+        # Trigger any events that occurred during the last time step
+        estimatedTimeToNextEvent, accuratePrediction = self.simEventDetector.triggerEvents()
+
+        if &#34;Adapt&#34; in self.rigidBody.integrate.method and estimatedTimeToNextEvent &lt; dt:
+            # Override time step to accurately resolve discrete events
+            if accuratePrediction:
+                # For time-deterministic events, just set the time step to ever so slightly past the event
+                dt = estimatedTimeToNextEvent + 1e-5
+            else:
+                # For time-nondeterministic events, slowly approach the event
+                dt = max(estimatedTimeToNextEvent/2, self.eventTimeStep)
+                
+        # Logs line to mainSimLog
+        self._runControlSystemAndLogStartingState(dt)
+
+        # Take timestep
+        timeStepAdjustmentFactor, dt = self.rigidBody.timeStep(dt)
+
+        # Return time step adaptation factor - will be 1 for constant time stepping
+        return timeStepAdjustmentFactor, dt
+    
+    def _switchTo3DoF(self):
+        &#39;&#39;&#39; Switch to 3DoF simulation after recovery system is deployed &#39;&#39;&#39;
+        print(&#34;Switching to 3DoF model for descent&#34;)
+        new3DoFState = RigidBodyState_3DoF(self.rigidBody.state.position, self.rigidBody.state.velocity)
+        
+        # Re-read time discretization in case an adaptive method has been selected while using a fixed-update rate control system - in that case, want to switch back to adaptive time stepping for the recovery (uncontrolled) portion of the flight
+        originalTimeDiscretization = self.rocketDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
+
+        if self.simRunner != None:
+            self.rigidBody = RigidBody_3DoF(
+                new3DoFState, 
+                self._getAppliedForce, 
+                self.getMass, 
+                startTime=self.rigidBody.time, 
+                integrationMethod=originalTimeDiscretization, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                simDefinition=self.simDefinition
+            )
+        else:
+            self.rigidBody = RigidBody_3DoF(
+                new3DoFState, 
+                self._getAppliedForce, 
+                self.getMass, 
+                startTime=self.rigidBody.time, 
+                integrationMethod=originalTimeDiscretization, 
+                simDefinition=self.simDefinition
+            )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket"><code class="flex name class">
+<span>class <span class="ident">Rocket</span></span>
+<span>(</span><span>rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class used to represent a single flying rigid body composed of <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> objects.
+New instances of this class are also created to model the flight of dropped stages.</p>
+<p>Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
+To get a single Rocket object, initialize a SingleSimRunner and call <code>MAPLEAF.Main.SingleSimRunner.prepRocketForSingleSimulation()</code>.<br>
+This will return a Rocket initialized on the pad with all its stages, ready for flight.</p>
+<p>If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.</p>
+<p>Inputs:</p>
+<ul>
+<li>rocketDictReader:
+(<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.
+</li>
+<li>silent:
+(bool) controls console output
+</li>
+<li>stageToInitialize:
+(int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.
+</li>
+<li>simRunner:
+(<code>MAPLEAF.Main.SingleSimRunner</code>) reference to the current simulation driver/runner</li>
+<li>environment:
+(<code><a title="MAPLEAF.ENV.Environment.Environment" href="../ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>) environment model from which the rocket will retrieve atmospheric properties and wind speeds</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Rocket(CompositeObject):
+    &#39;&#39;&#39;
+        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage.Stage` objects.
+        New instances of this class are also created to model the flight of dropped stages.
+    &#39;&#39;&#39;
+    #### Initialization ####
+    def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
+        &#39;&#39;&#39;
+            Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
+            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.Main.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            This will return a Rocket initialized on the pad with all its stages, ready for flight.
+
+            If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
+
+            Inputs:
+
+            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
+            * silent:               (bool) controls console output  
+            * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.  
+            * simRunner:            (`MAPLEAF.Main.SingleSimRunner`) reference to the current simulation driver/runner
+            * environment:          (`MAPLEAF.ENV.Environment.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
+        &#39;&#39;&#39;
+        self.rocketDictReader = rocketDictReader
+        self.simDefinition = rocketDictReader.simDefinition
+
+        self.simRunner = simRunner
+        &#39;&#39;&#39; Parent instance of `MAPLEAF.Main.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
+        
+        self.environment = environment
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment` &#39;&#39;&#39;
+        if self.environment == None:
+            # If no environment is passed in, create one
+            self.environment = Environment(self.simDefinition, silent=silent)
+
+        self.name = rocketDictReader.getString(&#34;name&#34;)
+
+        self.silent = silent
+        &#39;&#39;&#39; Controls output to console &#39;&#39;&#39;
+
+        self.stage = stageToInitialize
+        &#39;&#39;&#39; If controls whether the whole rocket is initialized (if == None), or a single stage is initialized (Integer stage number) &#39;&#39;&#39;
+
+        self.stages = []
+        &#39;&#39;&#39;
+            A list of `MAPLEAF.Rocket.Stage.Stage` objects that make up the rocket, ordered from top to bottom.  
+            Populated by `Rocket._initializeSubComponents`.
+        &#39;&#39;&#39;
+
+        self.targetLocation = None
+        &#39;&#39;&#39; (`MAPLEAF.Motion.Vector.Vector`) set by `MAPLEAF.GNC.ControlSystems.RocketControlSystem` upon initialization, if a constant target location is defined &#39;&#39;&#39;
+
+        self.recoverySystem = None
+        &#39;&#39;&#39;
+            Reference to the current Rocket&#39;s (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.  
+            Set in `MAPLEAF.Rocket.RecoverySystem.RecoverySystem.__init__`
+        &#39;&#39;&#39;
+
+        self.rigidBody = None            
+        &#39;&#39;&#39; 
+            (`MAPLEAF.Motion.RigidBody.RigidBody` or `MAPLEAF.Motion.RigidBody.RigidBody_3DoF`) Responsible for motion integration.  
+            Set in `MAPLEAF.Rocket.Rocket._initializeRigidBody()`.
+        &#39;&#39;&#39;
+
+        self.isUnderChute = False
+        &#39;&#39;&#39; (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()` &#39;&#39;&#39;
+
+        self.mainChuteDeployTime = None
+        &#39;&#39;&#39; (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()`  &#39;&#39;&#39;
+        
+        self.engineShutOffTime = None
+        &#39;&#39;&#39; (float) Filled in by `MAPLEAF.Rocket.Motor.Motor.__init__()` upon initialization &#39;&#39;&#39;
+
+        self.turbulenceOffWhenUnderChute = rocketDictReader.getBool(&#34;Environment.turbulenceOffWhenUnderChute&#34;)
+        &#39;&#39;&#39; (bool) &#39;&#39;&#39;
+
+        self.bodyTubeDiameter = self._getMaxBodyTubeDiameter()     
+        &#39;&#39;&#39; (float) Holds maximum constant-size body tube diameter, from bodytube components in stages &#39;&#39;&#39;
+
+        self.Aref = self.bodyTubeDiameter**2 / 4
+        &#39;&#39;&#39; 
+            Reference area for force and moment coefficients.
+            Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
+            Always based on the maximum body tube diameter in the fully-assembled rocket.
+        &#39;&#39;&#39;
+        
+        self.simEventDetector = SimEventDetector(self) 
+        &#39;&#39;&#39; (`MAPLEAF.SimEventDetector.SimEventDetector`) Used to trigger things like recovery systems and staging &#39;&#39;&#39;
+
+        self.eventTimeStep = rocketDictReader.getFloat(&#34;SimControl.TimeStepAdaptation.eventTimingAccuracy&#34;)
+        &#39;&#39;&#39; If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value &#39;&#39;&#39;
+
+        self.addZeroLengthBoatTailsToAccountForBaseDrag = rocketDictReader.getBool(&#34;Aero.addZeroLengthBoatTailsToAccountForBaseDrag&#34;)
+        &#39;&#39;&#39; Controls whether zero-length boat tails are automatically added to the bottom of rockets without them, to make sure base drag is accounted for &#39;&#39;&#39;
+
+        self.fullyTurbulentBL = rocketDictReader.getBool(&#34;Aero.fullyTurbulentBL&#34;)
+        &#39;&#39;&#39; Controls whether skin friction is solved assuming a fully turbulent BL or using laminar/transitional flow at lower Reynolds numbers &#39;&#39;&#39;
+
+        self.surfaceRoughness = rocketDictReader.getFloat(&#34;Aero.surfaceRoughness&#34;)
+        &#39;&#39;&#39; Default surface roughness for all rocket components &#39;&#39;&#39;
+
+        self.finenessRatio = None
+        &#39;&#39;&#39; Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket &#39;&#39;&#39;
+     
+        #### Init Hardware in the loop ####
+        subDicts = rocketDictReader.getImmediateSubDicts()
+        if &#34;Rocket.HIL&#34; in subDicts:
+            self.hardwareInTheLoopControl = &#34;yes&#34;
+            quatUpdateRate = rocketDictReader.getInt(&#34;HIL.quatUpdateRate&#34;)
+            posUpdateRate = rocketDictReader.getInt(&#34;HIL.posUpdateRate&#34;)
+            velUpdateRate = rocketDictReader.getInt(&#34;HIL.velUpdateRate&#34;)
+            teensyComPort = rocketDictReader.getString(&#34;HIL.teensyComPort&#34;)
+            imuComPort = rocketDictReader.getString(&#34;HIL.imuComPort&#34;)
+            teensyBaudrate = rocketDictReader.getInt(&#34;HIL.teensyBaudrate&#34;)
+            imuBaudrate = rocketDictReader.getInt(&#34;HIL.imuBaudrate&#34;)
+            self.hilInterface = HILInterface(quatUpdateRate,posUpdateRate,velUpdateRate, teensyComPort, imuComPort, teensyBaudrate, imuBaudrate)
+        else:
+            self.hardwareInTheLoopControl = &#34;no&#34;
+
+        #### Init Components ####
+        self._initializeRigidBody()
+        self._initializeStages()
+        self._initializeStagingTriggers()
+
+        #### Init Parent classes ####
+        CompositeObject.__init__(self, self.stages)
+        self._updateFinenessRatio()
+
+        # Adjust rigid body state position to correspond to the rocket&#39;s CG instead of nose cone tip position
+        self._moveStatePositionToCG()
+
+        #### Init Guidance/Navigation/Control System (if required) ####
+        self.controlSystem = None
+        &#39;&#39;&#39; None for uncontrolled rockets. `MAPLEAF.GNC.ControlSystems.RocketControlSystem` for controlled rockets &#39;&#39;&#39;
+        if rocketDictReader.tryGetString(&#34;ControlSystem.controlledSystem&#34;) != None and stageToInitialize == None:
+            # Only create a control system if this is NOT a dropped stage
+            ControlSystemDictReader = SubDictReader(&#34;Rocket.ControlSystem&#34;, simDefinition=self.simDefinition)
+            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
+
+    def _getMaxBodyTubeDiameter(self):
+        &#39;&#39;&#39; Gets max body tube diameter directly from config file &#39;&#39;&#39;
+        stageDicts = self._getStageSubDicts()
+
+        maxDiameter = 0
+        for stageDict in stageDicts:
+            componentDicts = self.rocketDictReader.getImmediateSubDicts(stageDict)
+            for componentDict in componentDicts:
+                className = self.rocketDictReader.getString(componentDict + &#34;.class&#34;)
+                if className == &#34;Bodytube&#34;:
+                    diameter = self.rocketDictReader.getFloat(componentDict + &#34;.outerDiameter&#34;)
+                    if diameter &gt; maxDiameter:
+                        maxDiameter = diameter
+        
+        return maxDiameter
+
+    def _getStageSubDicts(self):
+        # Get all immediate subdictionaries of &#39;Rocket&#39;
+        stageDicts = self.rocketDictReader.getImmediateSubDicts()
+
+        # Assume all subdictionaries represent rocket stages except for these exceptions
+        nonStageSubDicts = [ &#34;Rocket.ControlSystem&#34;, &#34;Rocket.HIL&#34;, &#34;Rocket.Aero&#34; ]
+        # Remove them from the list if they&#39;re in it
+        for dictName in nonStageSubDicts:
+            if dictName in stageDicts:
+                stageDicts.remove(dictName)
+
+        return stageDicts
+
+    def _initializeRigidBody(self):
+        #### Get initial kinematic state (in launch tower frame) ####
+        initPos = self.rocketDictReader.getVector(&#34;position&#34;)
+        initVel = self.rocketDictReader.getVector(&#34;velocity&#34;)
+        
+        # Check whether precise initial orientation has been specified
+        rotationAxis = self.rocketDictReader.tryGetVector(&#34;rotationAxis&#34;, defaultValue=None)
+        if rotationAxis != None:
+            rotationAngle = math.radians(self.rocketDictReader.getFloat(&#34;rotationAngle&#34;))
+            initOrientation = Quaternion(rotationAxis, rotationAngle)
+        else:
+            # Calculate initial orientation quaternion in launch tower frame
+            initialDirection = self.rocketDictReader.getVector(&#34;initialDirection&#34;).normalize()
+            angleFromVertical = Vector(0,0,1).angle(initialDirection)
+            rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+            initOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+        initAngVel = AngularVelocity(rotationVector=self.rocketDictReader.getVector(&#34;angularVelocity&#34;))
+     
+        initState_launchTowerFrame = RigidBodyState(initPos, initVel, initOrientation, initAngVel)
+
+        # Convert to the global inertial frame
+        initState_globalInertialFrame = self.environment.convertInitialStateToGlobalFrame(initState_launchTowerFrame)
+
+        # Get desired time discretization method
+        timeDisc = self.rocketDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
+
+        #### Initialize the rigid body ####
+        if self.simRunner != None:
+            self.rigidBody = RigidBody(
+                initState_globalInertialFrame, 
+                self._getAppliedForce, 
+                self.getInertia, 
+                integrationMethod=timeDisc, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                simDefinition=self.simDefinition
+            )
+        else:
+            self.rigidBody = RigidBody(
+                initState_globalInertialFrame, 
+                self._getAppliedForce, 
+                self.getInertia, 
+                integrationMethod=timeDisc, 
+                simDefinition=self.simDefinition
+            )
+
+    def _initializeStages(self):
+        &#39;&#39;&#39; Initialize each of the stages and all of their subcomponents. &#39;&#39;&#39;
+        stageDicts = self._getStageSubDicts()
+
+        # If we&#39;re initializing a dropped stage, figure out which one
+        if self.stage != None:
+            stageNumbers = []
+            stageNumberSet = set()
+            for stageDict in stageDicts:
+                stageNumber = self.rocketDictReader.getFloat(stageDict + &#34;.stageNumber&#34;)
+                stageNumbers.append(stageNumber)
+                stageNumberSet.add(stageNumber)
+            
+            if len(stageNumbers) != len(stageNumberSet):
+                raise ValueError(&#34;For multi-stage rockets, each stage must have a unique stage number. Set the Rocket.StageName.stageNumber value for each stage. 0 for first stage, 1 for second, etc...&#34;)
+            
+            stageNumbers.sort()
+            stageToInitialize = stageNumbers[self.stage]
+
+        # Initialize Stage(s)
+        initializingAllStages = (self.stage == None)
+        for stageDictionary in stageDicts:
+            stageDictReader = SubDictReader(stageDictionary, self.simDefinition)
+            stageNumber = stageDictReader.getFloat(&#34;stageNumber&#34;)
+
+            if initializingAllStages or stageNumber == stageToInitialize:
+                newStage = Stage(stageDictReader, self)
+                self.stages.append(newStage)
+
+        self.stages = PlanarInterface.sortByZLocation(self.stages)
+        self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
+
+        if self.bodyTubeDiameter &gt; 0:
+            # Only run this if we&#39;re running a real rocket with body tubes
+            self._ensureBaseDragIsAccountedFor()
+
+    def _initializeStagingTriggers(self):
+        &#39;&#39;&#39; Set up trigger conditions for staging &#39;&#39;&#39;
+        # Self.stage is not passed in if the current instance represents a rocket ready to launch - then we have to set up staging events
+        if self.stage == None:
+            for stageIndex in range(len(self.stages)):
+                stage = self.stages[stageIndex]
+
+                if stage.separationConditionType != &#39;None&#39;:
+                    self.simEventDetector.subscribeToEvent(
+                        stage.separationConditionType, 
+                        self._stageSeparation, 
+                        stage.separationConditionValue, 
+                        triggerDelay=stage.separationDelay
+                    )
+                
+                if stageIndex != len(self.stages)-1:
+                    # Set all upper stage motors to ignite a very long time in the future    
+                    stage.motor.updateIgnitionTime(1000000000, fakeValue=True)
+
+        else:
+            # Otherwise this rocket object is representing a single dropped stage, and no stage separations are necessary
+            # Motor is burned out
+            self.stages[0].motor.updateIgnitionTime(-1000000000, fakeValue=True)
+    
+    def _moveStatePositionToCG(self):
+        &#39;&#39;&#39; Moves self.rigidBody.state.position to have it represent the rocket&#39;s initial CG position, not the initial nose cone position &#39;&#39;&#39;
+        initInertia = self.getInertia(0, self.rigidBody.state)
+        CGPosition_wrtNoseCone_localFrame = initInertia.CG
+        CGPosition__wrtNoseCone_globalFrame = self.rigidBody.state.orientation.rotate(CGPosition_wrtNoseCone_localFrame)
+        CGPosition_globalFrame = self.rigidBody.state.position + CGPosition__wrtNoseCone_globalFrame
+        self.rigidBody.state.position = CGPosition_globalFrame
+
+    def getLength(self):
+        totalLength = 0
+        for stage in self.stages:
+            try:
+                totalLength += stage.getLength()
+            except TypeError:
+                pass # Stage Length was None - no body components in stage
+
+        return totalLength
+
+    def plotShape(self):
+        plt.figure()
+        plt.gca().set_aspect(&#39;equal&#39;)
+
+        rocketInertia = self.getInertia(0, self.rigidBody.state)
+        TotalCG = rocketInertia.CG.Z
+        TotalMass = rocketInertia.mass
+        
+        TotalCGplt = plt.plot(TotalCG, 0, color=&#39;b&#39;, marker=&#39;d&#39;, label=&#39;Total CG&#39;, linestyle=&#39;None&#39;)
+        CGsubZ = []
+        CGsubY = []
+
+        plt.title(&#39;Total Rocket CG: %10.4f m \n Total Rocket Mass: %10.4f Kg&#39; % (TotalCG,TotalMass) )
+
+        for stage in self.stages:
+            zCGs, yCGs = stage.plotShape()
+
+            # Add subcomponents CGs to arrays
+            CGsubZ += zCGs
+            CGsubY += yCGs
+
+        SubCGplt = plt.plot(CGsubZ, CGsubY, color=&#39;g&#39;, marker=&#39;.&#39;, label=&#39;Subcomponent CG&#39;, linestyle=&#39;None&#39;)
+        legendHeight = self.bodyTubeDiameter
+        plt.legend(loc=&#39;upper center&#39;, bbox_to_anchor = (0.5,-1.05))
+        plt.show()
+
+    #### Stage Separation ####
+    def _stageSeparation(self):
+        print(&#34;Stage {} Separation&#34;.format(self.simRunner.stagingIndex + 1))
+        # Initialize dropped stage as a new rocket
+        self.simRunner.createNewDetachedStage()
+
+        # Drop stage from current rocket
+        self._dropStage()
+        
+        # Ignite next motor (set ignition time to the time of stage separation)
+        currentTime = self.rigidBody.time
+        self.stages[0].motor.updateIgnitionTime(currentTime)
+
+        self._ensureBaseDragIsAccountedFor()
+        self._updateFinenessRatio()
+
+    def _dropStage(self, stageIndex=-1):
+        droppedStage = self.stages.pop(stageIndex)
+        self.recomputeFixedMassInertia()
+
+        if self.controlSystem != None:
+            # Check whether the controlled system was part of the dropped stage
+            if self.controlSystem.controlledSystem in droppedStage.components:
+                # If so delete the rocket&#39;s control system and remove any control system-induced time stepping modifications
+                print(&#34;Rocket&#39;s controlled system was on the dropped stage. Deactivating control system.&#34;)
+                self.controlSystem.restoreOriginalTimeStepping()
+                self.controlSystem = None
+
+    def _ensureBaseDragIsAccountedFor(self):
+        &#39;&#39;&#39; If no BoatTail exists at the bottom of the rocket, adds a zero-length boat tail. This is necessary b/c Boat Tail aero-functions are the ones that account for base drag &#39;&#39;&#39;
+        boatTailComponentAtBottomOfRocket = False
+        bottomStage = self.stages[-1]
+        for comp in reversed(bottomStage.components):
+            if isinstance(comp, BodyComponent):
+                if isinstance(comp, BoatTail):
+                    boatTailComponentAtBottomOfRocket = True
+                break
+        
+        if not boatTailComponentAtBottomOfRocket and self.addZeroLengthBoatTailsToAccountForBaseDrag:
+            if not self.silent:
+                print(&#34;Adding zero-length BoatTail to the bottom of current bottom stage ({}) to account for base drag&#34;.format(bottomStage.name))
+            # Create a zero-length, zero-mass boat tail to account for base drag
+            zeroInertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
+            diameter = self.bodyTubeDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
+            length = 0
+            position = bottomStage.getBottomInterfaceLocation()
+            boatTail = BoatTail(
+                diameter, 
+                diameter, 
+                length, 
+                position, 
+                zeroInertia, 
+                self, 
+                bottomStage, 
+                &#34;Auto-AddedZeroLengthBoatTail&#34;, 
+                self.surfaceRoughness
+            )
+            bottomStage.components.append(boatTail)     
+
+    def _updateFinenessRatio(self):
+        &#39;&#39;&#39; Updates self.finenessRatio based on current BodyComponents in rocket stages &#39;&#39;&#39;
+        length = self.getLength()
+        maxDiameter = max([ stage.getMaxDiameter() for stage in self.stages ])
+        if maxDiameter == 0:
+            self.finenessRatio = None
+        else:
+            self.finenessRatio = length/maxDiameter
+
+    #### Logging ####
+    def appendToForceLogLine(self, txt: str):
+        &#39;&#39;&#39; Appends txt to the current line of `Rocket.simRunner.forceEvaluationLog` &#39;&#39;&#39;
+        try:
+            self.simRunner.forceEvaluationLog[-1] += txt
+        except AttributeError:
+            pass # Force logging not set up for this sim
+
+    #### Component-buildup method for Force ####
+    def _getEnvironmentalConditions(self, time, state, logWind=True):
+        env = self.environment.getAirProperties(state.position, time)
+
+        # Neglect turbulent component of wind if required
+        if self.isUnderChute and self.turbulenceOffWhenUnderChute:
+            env = EnvironmentalConditions(
+                env.ASLAltitude,
+                env.Temp,
+                env.Pressure,
+                env.Density,
+                env.DynamicViscosity,
+                env.MeanWind,
+                env.MeanWind,
+                Vector(0, 0, 0),
+            )
+
+        # Log Wind
+        if logWind:
+            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;7.4}&#34;.format(env.Wind, env.Density))
+        
+        return env
+
+    def _getAppliedForce(self, time, state):
+        &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
+        self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
+        
+        environment = self._getEnvironmentalConditions(time, state, logWind=True)   # Get and log current air/wind properties
+        
+        rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
+        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
+        
+        ### Component Forces ###
+        if not self.isUnderChute:
+            # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
+            Mach = AeroFunctions.getMachNumber(state, environment)
+            unitRe = AeroFunctions.getReynoldsNumber(state, environment, 1.0)
+            AOA = AeroFunctions.getTotalAOA(state, environment)
+            rollAngle = AeroFunctions.getRollAngle(state, environment)
+
+            # Log current rocket / flight conditions
+            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle))
+
+            # This function will be the inherited function CompositeObject.getAeroForce
+            componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
+
+        else:
+            # When under chute, neglect forces from other components
+            componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
+
+        componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
+
+        # Compute and log center of pressure z-location
+        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
+           
+        ### Gravity ###
+        gravityForce = self.environment.getGravityForce(rocketInertia, state)        
+        totalForce = componentForces + gravityForce
+
+        ### Launch Rail ###
+        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
+
+        self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
+            componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
+        )
+
+        return totalForce
+    
+    #### Driving / Controlling Simulation ####
+    def _runControlSystemAndLogStartingState(self, dt):
+        startState = self.rigidBody.state
+        startTime = self.rigidBody.time       
+
+        # Control loop (if applicable)
+        controlLogString = &#34;&#34; # Empty string if not overridden by running the control loop
+        if self.controlSystem != None and not self.isUnderChute:
+            environment = self._getEnvironmentalConditions(startTime, startState, logWind=False)
+
+            ### Run Control Loop ###
+            newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
+            
+            if newTargetActuatorDeflections != False:
+                # runControlLoopIfRequired returns False if the control doesn&#39;t run
+                # Add target deflections to the main log string
+                deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
+                controlLogString = &#34;&#34;.join(deflStrings)
+
+        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
+        try: # 6DoF Mode
+            globalOrientation = startState.orientation
+            orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+            orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
+            eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+            eulerAnglesString =  &#34; {:&gt;10.6f}&#34;.format(eulerAngles)
+        except AttributeError:
+            eulerAnglesString = &#34;&#34; # 3DoF mode
+
+        # Log -&gt; Main Sim Log
+        mainLogString = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
+        print(mainLogString)
+
+    def timeStep(self, dt: float):
+        &#39;&#39;&#39;
+            Tells the simulation to take a time step of size dt.  
+
+            Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+
+            Returns:
+                * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
+                * dt:                       (float) actual size of time step taken. Adaptive methods will override the dt asked for if the predicted error for a time step is over their error threshold.
+        &#39;&#39;&#39;
+        # Stop the rocket from sliding off the bottom of the launch rail
+        self.rigidBody.state = self.environment.applyLaunchRailMotionConstraints(self.rigidBody.state, self.rigidBody.time)
+        
+        # Trigger any events that occurred during the last time step
+        estimatedTimeToNextEvent, accuratePrediction = self.simEventDetector.triggerEvents()
+
+        if &#34;Adapt&#34; in self.rigidBody.integrate.method and estimatedTimeToNextEvent &lt; dt:
+            # Override time step to accurately resolve discrete events
+            if accuratePrediction:
+                # For time-deterministic events, just set the time step to ever so slightly past the event
+                dt = estimatedTimeToNextEvent + 1e-5
+            else:
+                # For time-nondeterministic events, slowly approach the event
+                dt = max(estimatedTimeToNextEvent/2, self.eventTimeStep)
+                
+        # Logs line to mainSimLog
+        self._runControlSystemAndLogStartingState(dt)
+
+        # Take timestep
+        timeStepAdjustmentFactor, dt = self.rigidBody.timeStep(dt)
+
+        # Return time step adaptation factor - will be 1 for constant time stepping
+        return timeStepAdjustmentFactor, dt
+    
+    def _switchTo3DoF(self):
+        &#39;&#39;&#39; Switch to 3DoF simulation after recovery system is deployed &#39;&#39;&#39;
+        print(&#34;Switching to 3DoF model for descent&#34;)
+        new3DoFState = RigidBodyState_3DoF(self.rigidBody.state.position, self.rigidBody.state.velocity)
+        
+        # Re-read time discretization in case an adaptive method has been selected while using a fixed-update rate control system - in that case, want to switch back to adaptive time stepping for the recovery (uncontrolled) portion of the flight
+        originalTimeDiscretization = self.rocketDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
+
+        if self.simRunner != None:
+            self.rigidBody = RigidBody_3DoF(
+                new3DoFState, 
+                self._getAppliedForce, 
+                self.getMass, 
+                startTime=self.rigidBody.time, 
+                integrationMethod=originalTimeDiscretization, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                simDefinition=self.simDefinition
+            )
+        else:
+            self.rigidBody = RigidBody_3DoF(
+                new3DoFState, 
+                self._getAppliedForce, 
+                self.getMass, 
+                startTime=self.rigidBody.time, 
+                integrationMethod=originalTimeDiscretization, 
+                simDefinition=self.simDefinition
+            )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="../Motion/CompositeObject.html#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.Aref"><code class="name">var <span class="ident">Aref</span></code></dt>
+<dd>
+<div class="desc"><p>Reference area for force and moment coefficients.
+Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
+Always based on the maximum body tube diameter in the fully-assembled rocket.</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag"><code class="name">var <span class="ident">addZeroLengthBoatTailsToAccountForBaseDrag</span></code></dt>
+<dd>
+<div class="desc"><p>Controls whether zero-length boat tails are automatically added to the bottom of rockets without them, to make sure base drag is accounted for</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.bodyTubeDiameter"><code class="name">var <span class="ident">bodyTubeDiameter</span></code></dt>
+<dd>
+<div class="desc"><p>(float) Holds maximum constant-size body tube diameter, from bodytube components in stages</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
+<dd>
+<div class="desc"><p>None for uncontrolled rockets. <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> for controlled rockets</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.engineShutOffTime"><code class="name">var <span class="ident">engineShutOffTime</span></code></dt>
+<dd>
+<div class="desc"><p>(float) Filled in by <code><a title="MAPLEAF.Rocket.Motor.Motor" href="Motor.html#MAPLEAF.Rocket.Motor.Motor">Motor</a></code> upon initialization</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.environment"><code class="name">var <span class="ident">environment</span></code></dt>
+<dd>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment.Environment" href="../ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code></p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.eventTimeStep"><code class="name">var <span class="ident">eventTimeStep</span></code></dt>
+<dd>
+<div class="desc"><p>If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.finenessRatio"><code class="name">var <span class="ident">finenessRatio</span></code></dt>
+<dd>
+<div class="desc"><p>Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.fullyTurbulentBL"><code class="name">var <span class="ident">fullyTurbulentBL</span></code></dt>
+<dd>
+<div class="desc"><p>Controls whether skin friction is solved assuming a fully turbulent BL or using laminar/transitional flow at lower Reynolds numbers</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.isUnderChute"><code class="name">var <span class="ident">isUnderChute</span></code></dt>
+<dd>
+<div class="desc"><p>(bool) Controlled by <code><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.mainChuteDeployTime"><code class="name">var <span class="ident">mainChuteDeployTime</span></code></dt>
+<dd>
+<div class="desc"><p>(float) Filled in during flight by <code><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.recoverySystem"><code class="name">var <span class="ident">recoverySystem</span></code></dt>
+<dd>
+<div class="desc"><p>Reference to the current Rocket's (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.<br>
+Set in <code><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem">RecoverySystem</a></code></p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.rigidBody"><code class="name">var <span class="ident">rigidBody</span></code></dt>
+<dd>
+<div class="desc"><p>(<code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="../Motion/RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code> or <code><a title="MAPLEAF.Motion.RigidBody.RigidBody_3DoF" href="../Motion/RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody_3DoF">RigidBody_3DoF</a></code>) Responsible for motion integration.<br>
+Set in <code>MAPLEAF.Rocket.Rocket._initializeRigidBody()</code>.</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.silent"><code class="name">var <span class="ident">silent</span></code></dt>
+<dd>
+<div class="desc"><p>Controls output to console</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.simEventDetector"><code class="name">var <span class="ident">simEventDetector</span></code></dt>
+<dd>
+<div class="desc"><p>(<code>MAPLEAF.SimEventDetector.SimEventDetector</code>) Used to trigger things like recovery systems and staging</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.simRunner"><code class="name">var <span class="ident">simRunner</span></code></dt>
+<dd>
+<div class="desc"><p>Parent instance of <code>MAPLEAF.Main.SingleSimRunner</code> (or derivative sim runner). This is usually the object that has created the current instance of Rocket.</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.stage"><code class="name">var <span class="ident">stage</span></code></dt>
+<dd>
+<div class="desc"><p>If controls whether the whole rocket is initialized (if == None), or a single stage is initialized (Integer stage number)</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.stages"><code class="name">var <span class="ident">stages</span></code></dt>
+<dd>
+<div class="desc"><p>A list of <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> objects that make up the rocket, ordered from top to bottom.<br>
+Populated by <code>Rocket._initializeSubComponents</code>.</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.surfaceRoughness"><code class="name">var <span class="ident">surfaceRoughness</span></code></dt>
+<dd>
+<div class="desc"><p>Default surface roughness for all rocket components</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.targetLocation"><code class="name">var <span class="ident">targetLocation</span></code></dt>
+<dd>
+<div class="desc"><p>(<code>MAPLEAF.Motion.Vector.Vector</code>) set by <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> upon initialization, if a constant target location is defined</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.turbulenceOffWhenUnderChute"><code class="name">var <span class="ident">turbulenceOffWhenUnderChute</span></code></dt>
+<dd>
+<div class="desc"><p>(bool)</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.appendToForceLogLine"><code class="name flex">
+<span>def <span class="ident">appendToForceLogLine</span></span>(<span>self, txt: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Appends txt to the current line of <code>Rocket.simRunner.forceEvaluationLog</code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def appendToForceLogLine(self, txt: str):
+    &#39;&#39;&#39; Appends txt to the current line of `Rocket.simRunner.forceEvaluationLog` &#39;&#39;&#39;
+    try:
+        self.simRunner.forceEvaluationLog[-1] += txt
+    except AttributeError:
+        pass # Force logging not set up for this sim</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.getLength"><code class="name flex">
+<span>def <span class="ident">getLength</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLength(self):
+    totalLength = 0
+    for stage in self.stages:
+        try:
+            totalLength += stage.getLength()
+        except TypeError:
+            pass # Stage Length was None - no body components in stage
+
+    return totalLength</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.plotShape"><code class="name flex">
+<span>def <span class="ident">plotShape</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plotShape(self):
+    plt.figure()
+    plt.gca().set_aspect(&#39;equal&#39;)
+
+    rocketInertia = self.getInertia(0, self.rigidBody.state)
+    TotalCG = rocketInertia.CG.Z
+    TotalMass = rocketInertia.mass
+    
+    TotalCGplt = plt.plot(TotalCG, 0, color=&#39;b&#39;, marker=&#39;d&#39;, label=&#39;Total CG&#39;, linestyle=&#39;None&#39;)
+    CGsubZ = []
+    CGsubY = []
+
+    plt.title(&#39;Total Rocket CG: %10.4f m \n Total Rocket Mass: %10.4f Kg&#39; % (TotalCG,TotalMass) )
+
+    for stage in self.stages:
+        zCGs, yCGs = stage.plotShape()
+
+        # Add subcomponents CGs to arrays
+        CGsubZ += zCGs
+        CGsubY += yCGs
+
+    SubCGplt = plt.plot(CGsubZ, CGsubY, color=&#39;g&#39;, marker=&#39;.&#39;, label=&#39;Subcomponent CG&#39;, linestyle=&#39;None&#39;)
+    legendHeight = self.bodyTubeDiameter
+    plt.legend(loc=&#39;upper center&#39;, bbox_to_anchor = (0.5,-1.05))
+    plt.show()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.Rocket.timeStep"><code class="name flex">
+<span>def <span class="ident">timeStep</span></span>(<span>self, dt: float)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tells the simulation to take a time step of size dt.
+</p>
+<p>Usually called by functions like <code>MAPLEAF.Main.SingleSimRunner.runSingleSimulation()</code></p>
+<h2 id="returns">Returns</h2>
+<ul>
+<li>timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)</li>
+<li>dt:
+(float) actual size of time step taken. Adaptive methods will override the dt asked for if the predicted error for a time step is over their error threshold.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def timeStep(self, dt: float):
+    &#39;&#39;&#39;
+        Tells the simulation to take a time step of size dt.  
+
+        Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+
+        Returns:
+            * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
+            * dt:                       (float) actual size of time step taken. Adaptive methods will override the dt asked for if the predicted error for a time step is over their error threshold.
+    &#39;&#39;&#39;
+    # Stop the rocket from sliding off the bottom of the launch rail
+    self.rigidBody.state = self.environment.applyLaunchRailMotionConstraints(self.rigidBody.state, self.rigidBody.time)
+    
+    # Trigger any events that occurred during the last time step
+    estimatedTimeToNextEvent, accuratePrediction = self.simEventDetector.triggerEvents()
+
+    if &#34;Adapt&#34; in self.rigidBody.integrate.method and estimatedTimeToNextEvent &lt; dt:
+        # Override time step to accurately resolve discrete events
+        if accuratePrediction:
+            # For time-deterministic events, just set the time step to ever so slightly past the event
+            dt = estimatedTimeToNextEvent + 1e-5
+        else:
+            # For time-nondeterministic events, slowly approach the event
+            dt = max(estimatedTimeToNextEvent/2, self.eventTimeStep)
+            
+    # Logs line to mainSimLog
+    self._runControlSystemAndLogStartingState(dt)
+
+    # Take timestep
+    timeStepAdjustmentFactor, dt = self.rigidBody.timeStep(dt)
+
+    # Return time step adaptation factor - will be 1 for constant time stepping
+    return timeStepAdjustmentFactor, dt</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="../Motion/CompositeObject.html#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia" href="../Motion/CompositeObject.html#MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia">recomputeFixedMassInertia</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.Aref" href="#MAPLEAF.Rocket.Rocket.Rocket.Aref">Aref</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.Rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.bodyTubeDiameter" href="#MAPLEAF.Rocket.Rocket.Rocket.bodyTubeDiameter">bodyTubeDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.Rocket.Rocket.controlSystem">controlSystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.Rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.environment" href="#MAPLEAF.Rocket.Rocket.Rocket.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.eventTimeStep" href="#MAPLEAF.Rocket.Rocket.Rocket.eventTimeStep">eventTimeStep</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.finenessRatio" href="#MAPLEAF.Rocket.Rocket.Rocket.finenessRatio">finenessRatio</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.fullyTurbulentBL" href="#MAPLEAF.Rocket.Rocket.Rocket.fullyTurbulentBL">fullyTurbulentBL</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.getLength" href="#MAPLEAF.Rocket.Rocket.Rocket.getLength">getLength</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.isUnderChute" href="#MAPLEAF.Rocket.Rocket.Rocket.isUnderChute">isUnderChute</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.mainChuteDeployTime" href="#MAPLEAF.Rocket.Rocket.Rocket.mainChuteDeployTime">mainChuteDeployTime</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.plotShape" href="#MAPLEAF.Rocket.Rocket.Rocket.plotShape">plotShape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.recoverySystem" href="#MAPLEAF.Rocket.Rocket.Rocket.recoverySystem">recoverySystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.rigidBody" href="#MAPLEAF.Rocket.Rocket.Rocket.rigidBody">rigidBody</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.silent" href="#MAPLEAF.Rocket.Rocket.Rocket.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.simEventDetector" href="#MAPLEAF.Rocket.Rocket.Rocket.simEventDetector">simEventDetector</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.simRunner" href="#MAPLEAF.Rocket.Rocket.Rocket.simRunner">simRunner</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.stage" href="#MAPLEAF.Rocket.Rocket.Rocket.stage">stage</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.stages" href="#MAPLEAF.Rocket.Rocket.Rocket.stages">stages</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.surfaceRoughness" href="#MAPLEAF.Rocket.Rocket.Rocket.surfaceRoughness">surfaceRoughness</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.targetLocation" href="#MAPLEAF.Rocket.Rocket.Rocket.targetLocation">targetLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.timeStep" href="#MAPLEAF.Rocket.Rocket.Rocket.timeStep">timeStep</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.turbulenceOffWhenUnderChute" href="#MAPLEAF.Rocket.Rocket.Rocket.turbulenceOffWhenUnderChute">turbulenceOffWhenUnderChute</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

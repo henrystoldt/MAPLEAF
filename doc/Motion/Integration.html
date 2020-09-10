@@ -1,0 +1,1429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>MAPLEAF.Motion.Integration API documentation</title>
+<meta name="description" content="Defines ODE integrators for constant and adaptive time stepping. Used by the `MAPLEAF.Motion.RigidBody` classes to integrate rocket motion" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Motion.Integration</code></h1>
+</header>
+<section id="section-intro">
+<p>Defines ODE integrators for constant and adaptive time stepping. Used by the <code><a title="MAPLEAF.Motion.RigidBody" href="RigidBody.html">MAPLEAF.Motion.RigidBody</a></code> classes to integrate rocket motion</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39; Defines ODE integrators for constant and adaptive time stepping. Used by the `MAPLEAF.Motion.RigidBody` classes to integrate rocket motion &#39;&#39;&#39;
+
+import math
+
+from MAPLEAF.GNC.PID import PIDController
+from MAPLEAF.IO.SubDictReader import SubDictReader
+
+def checkButcherTableau(tableau):
+    &#39;&#39;&#39; 
+        Checks that the Butcher tableau passed in represents a consistent R-K method 
+        Expected Format (Example is RK4 - 3/8 method):
+            [                                   # Top 0 row ommitted
+                [ 1/3, 1/3 ],                   # Row 1: all coefficients sequentially
+                [ 2/3, -1/3, 1.0 ],             # Row 2: &#39;&#39;
+                [ 1.0, 1.0, -1.0, 1.0 ],        # Row 3: &#39;&#39;
+                [ 1/8, 3/8, 3/8, 1/8 ]          # Row 4: (result calculation row) - empty space on left ignored, just enter all coefficients
+            ]
+
+        Learn about Butcher Tableaus here: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+            RK4 - 3/8 Butcher Tableau is present there in the Examples section
+    &#39;&#39;&#39;
+
+    lastRowLength = 0
+    for i in range(len(tableau)):
+        if len(tableau[i]) == lastRowLength:
+            # We&#39;re checking a row of &#34;b&#34; coefficients (constructing a final answer)
+            # Here the sum of all numbers should be 1
+            sumB = sum(tableau[i])
+            assert math.isclose(sumB, 1.0), &#34;Sum of &#39;b&#39; coefficients ({}) of butcher tableau row {} don&#39;t = 1&#34;.format(sumB, i)
+        else:
+            # We&#39;re checking a row of &#34;c&#34; and &#34;a&#34; coefficients (constructing one of the k values)
+            # Here the first number, the c coefficient, should be equal to the sum of all the other numbers (the a coefficients)
+            c = tableau[i][0]
+            sumA = sum(tableau[i][1:])
+            assert math.isclose(c, sumA), &#34;Sum of &#39;a&#39; coefficients ({}) of butcher tableau row {} don&#39;t = &#39;c&#39; coefficient from the same row {}&#34;.format(sumA, i, c)
+
+        lastRowLength = len(tableau[i])
+
+def integratorFactory(integrationMethod=&#34;Euler&#34;, simDefinition=None, discardedTimeStepCallback=None):
+    &#39;&#39;&#39; 
+        Returns a callable integrator object
+
+        Inputs:
+            * integrationMethod: (str) Name of integration method: Examples = &#34;Euler&#34;, &#34;RK4&#34;, &#34;RK23Adaptive&#34;, and &#34;RK45Adaptive&#34;
+            * simDefinition: (`MAPLEAF.IO.SimDefinition.SimDefinition`) for adaptive integration, provide a simdefinition file with time step adaptation parameters
+            * discardedTimeStepCallback: (1-argument function reference) for adaptive integration, this function (if provided) is called when a time step is computed,
+                but then discarded and re-computed with a smaller timestep to remain below the max estimated error threshold. Used by MAPLEAF to remove
+                force calculation logs from those discarded time steps
+    &#39;&#39;&#39;
+    if &#34;Adapt&#34; in integrationMethod:
+        if simDefinition == None:
+            raise ValueError(&#34;SimDefinition object required to initialize adaptive integrator&#34;)
+
+        adaptDictReader = SubDictReader(&#34;SimControl.TimeStepAdaptation&#34;, simDefinition)
+
+        # Adaptive Integration
+        controller = adaptDictReader.getString(&#34;controller&#34;)
+        if controller == &#34;PID&#34;:
+            PIDCoeffs = [ float(x) for x in adaptDictReader.getString(&#34;PID.coefficients&#34;).split() ]
+            safetyFactor = None
+        elif controller == &#34;elementary&#34;:
+            safetyFactor = adaptDictReader.getFloat(&#34;Elementary.safetyFactor&#34;)
+            PIDCoeffs = None
+
+        targetError = adaptDictReader.getFloat(&#34;targetError&#34;)
+        minFactor = adaptDictReader.getFloat(&#34;minFactor&#34;)
+        maxFactor = adaptDictReader.getFloat(&#34;maxFactor&#34;)
+        maxTimeStep = adaptDictReader.getFloat(&#34;maxTimeStep&#34;)
+        minTimeStep = adaptDictReader.getFloat(&#34;minTimeStep&#34;)
+        
+        return AdaptiveIntegrator(
+            method=integrationMethod, 
+            controller=controller, 
+            targetError=targetError, 
+            maxMinSafetyFactors=[maxFactor, minFactor, safetyFactor], 
+            PIDCoeffs=PIDCoeffs, 
+            maxTimeStep=maxTimeStep, 
+            minTimeStep=minTimeStep, 
+            discardedTimeStepCallback=discardedTimeStepCallback
+        )
+    
+    else:
+        # Constant time step integrator
+        return Integrator(method=integrationMethod)
+
+class Integrator:
+    &#39;&#39;&#39; Callable class for constant-dt ODE integration &#39;&#39;&#39;
+
+    def __init__(self, method=&#34;Euler&#34;):
+        # Save integration method and associated
+        self.method = method
+        self.tableau = None
+        if method == &#34;Euler&#34;:
+            self.integrate = self.IntegrateEuler
+        elif method == &#34;RK2Midpoint&#34;:
+            self.integrate = self.IntegrateRK2MidPoint
+        elif method == &#34;RK2Heun&#34;:
+            self.integrate = self.IntegrateRK2Heun
+        elif method == &#34;RK4&#34;:
+            self.integrate = self.IntegrateRK4
+        elif method == &#34;RK4_3/8&#34;:
+            self.integrate = self.IntegrateByButcherTableau
+            self.tableau = [
+                [ 1/3, 1/3 ],
+                [ 2/3, -1/3, 1.0 ],
+                [ 1.0, 1.0, -1.0, 1.0 ],
+                [ 1/8, 3/8, 3/8, 1/8 ]
+            ]
+        else:       
+            raise ValueError(&#34;Integration method: {} not implemented. See SimDefinitionTemplate.txt for options.&#34;.format(method))
+
+        # If a butcher tableau is used to define the R-K method, check that it is valid
+        if self.tableau != None:
+            checkButcherTableau(self.tableau)
+
+    def __call__(self, initVal, initTime, derivativeFunc, dt):
+        return self.integrate(initVal, initTime, derivativeFunc, dt)
+
+    def integrate(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39; Template method, replaced by one of the Constant time step methods below in self.__init__ &#39;&#39;&#39;
+        pass
+
+    #### Constant time step methods ####
+    def IntegrateEuler(self, initVal, initTime, derivativeFunc, dt):
+        yPrime = derivativeFunc(initTime, initVal)
+        return initVal + yPrime * dt, 1.0, dt
+
+    def IntegrateRK2MidPoint(self, initVal, initTime, derivativeFunc, dt):
+        initSlope = derivativeFunc(initTime, initVal)
+
+        halfwayVal = initVal + initSlope*(dt/2)
+        halfwayTime = initTime + dt/2
+        halfwaySlope = derivativeFunc(halfwayTime, halfwayVal)
+
+        return initVal + halfwaySlope*dt, 1.0, dt
+
+    def IntegrateRK2Heun(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39;
+            Integrates a function using second order Runge Kutta Method (Heun Variant).
+            Inputs:
+                initVal: Implement (+, *) operator
+                initTime: Implement (+) operator
+                derivativeFunc: Function(time, val)
+                    Should return an object of the same type as initVal, representing the derivative
+                    Accepts time and value objects of the same types as initTime, initVal
+                dt: Must implement multiplication
+            Outputs:
+                Returns estimated integral value after timestep dt
+        &#39;&#39;&#39;
+        initSlope = derivativeFunc(initTime, initVal)
+
+        endEstimate = initVal + initSlope*dt
+        endSlope = derivativeFunc(initTime + dt, endEstimate)
+
+        slopeEstimate = (endSlope + initSlope)/2
+        return initVal + slopeEstimate*dt, 1.0, dt
+
+    def IntegrateRK4(self, initVal, initTime, derivativeFunc, dt):
+        k1 = derivativeFunc(initTime, initVal)
+
+        halfwayVal = initVal + k1*(dt/2)
+        halfwayTime = initTime + (dt/2)
+        k2 = derivativeFunc(halfwayTime, halfwayVal)
+
+        halfwayVal2 = initVal + k2*(dt/2)
+        k3 = derivativeFunc(halfwayTime, halfwayVal2)
+
+        endVal = initVal + k3*dt
+        endTime = initTime + dt
+        k4 = derivativeFunc(endTime, endVal)
+
+        slopeEstimate = ((k1+k4)/2 + k2 + k3) / 3
+        return initVal + slopeEstimate*dt, 1.0, dt
+
+    def IntegrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39;
+            Integrates a function based on a Butcher tableau defined in self.tableau
+            Format expected is:
+            [
+                [ c2, a21 ],
+                [ c3, a31, a32 ],
+                ...
+                [ b1, b2, ... ]
+
+            Then for row i of the tableau, ki = derivativefunc(t + ci*dt, y + dt(ai1*k1 + ai2*k2 + ...))
+            Then final result is y + dt*(b1*k1 + b2*k2 + ...)
+            Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
+        &#39;&#39;&#39;
+        tab = self.tableau
+
+        # Initialize array of derivatives (k&#39;s) with first k-value from beginning of interval
+        k = [ derivativeFunc(initTime, initVal) ]
+        # Calculate all other k&#39;s - one for each row of the tableau except the last one
+        for i in range(len(tab) - 1):
+            evalTime = initTime + dt*tab[i][0]
+            dy = k[0] * tab[i][1]
+            for a in range(2, len(tab[i])):
+                dy = dy + k[a-1] * tab[i][a]
+            evalY = initVal + dy*dt
+            k.append(derivativeFunc(evalTime, evalY))
+
+        # Calculate final result using last row of coefficients
+        totalDerivative = tab[-1][0] * k[0]
+        for i in range(1, len(tab[-1])):
+            totalDerivative = totalDerivative + tab[-1][i]*k[i]
+
+        return (initVal + totalDerivative*dt), 1.0, dt        
+
+class AdaptiveIntegrator():
+    &#39;&#39;&#39; Callable class for adaptive-dt ODE integration &#39;&#39;&#39;
+
+    def __init__(self, method=&#34;RK45Adaptive&#34;, controller=&#34;constant&#34;, targetError=0.001, maxMinSafetyFactors=[1.5, 0.3, 0.9], PIDCoeffs=[1.0, 0.1, 0.0], maxTimeStep=5, minTimeStep=0.0001, discardedTimeStepCallback=None):
+        &#39;&#39;&#39;
+            RepeatedTimeStepCallback: (function) will be called with (self) when a computed time step is discarded and recompouted (occurs if the estimated error is &gt; targetError * 100)
+                                            this callback is currently used to discard log entries associate with discarded time steps
+        &#39;&#39;&#39;
+        # Save integration method and associated
+        self.method = method
+        self.tableau = None
+    
+        self.derivativeCache = None # For some adaptive methods, the last derivative of the previous integration step is the same as the first of the following step. This field caches it
+        if method == &#34;RK12Adaptive&#34;: # Just a test method, already implemented non-butcher tableau version
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 0.5, 0.5 ],
+                [ 0.0, 1.0 ],
+                [ 1.0, 0.0 ]
+            ]
+            self.firstSameAsLast = False
+        elif method == &#34;RK23Adaptive&#34;: # Bogacki-Shampine method
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 0.5, 0.5 ],
+                [ 3/4, 0.0, 3/4 ],
+                [ 1.0, 2/9, 1/3, 4/9 ],
+                [ 2/9, 1/3, 4/9, 0.0 ],
+                [ 7/24, 1/4, 1/3, 1/8 ]
+            ]
+            self.firstSameAsLast = True
+        elif method == &#34;RK45Adaptive&#34;: # Dormand-Prince RK5(4)7FM method
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 1/5, 1/5 ],
+                [ 3/10, 3/40, 9/40 ],
+                [ 4/5, 44/45, -56/15, 32/9 ],
+                [ 8/9, 19372/6561, -25360/2187, 64448/6561, -212/729 ],
+                [ 1.0, 9017/3168, -355/33, 46732/5247, 49/176, -5103/18656 ],
+                [ 1.0, 35/384, 0.0, 500/1113, 125/192, -2187/6784, 11/84 ],
+                [ 35/384, 0.0, 500/1113, 125/192, -2187/6784, 11/84, 0.0 ], # 5th order
+                [ 5179/57600, 0.0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40 ] # 4th order
+            ]
+            self.firstSameAsLast = True
+        elif method == &#34;RK78Adaptive&#34;: # Dormand-Prince RK8(7)13M method (rational approximation)
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 1/18, 1/18 ], 
+                [ 1/12, 1/48, 1/16 ], 
+                [ 1/8, 1/32, 0, 3/32 ], 
+                [ 5/16, 5/16, 0, -75/64, 75/64 ], 
+                [ 3/8, 3/80, 0, 0, 3/16, 3/20 ], 
+                [ 59/400, 29443841/614563906, 0, 0, 77736538/692538347, -28693883/1125000000, 23124283/1800000000 ],
+                [ 93/200, 16016141/946692911, 0, 0, 61564180/158732637, 22789713/633445777, 545815736/2771057229, -180193667/1043307555 ],
+                [ 5490023248/9719169821, 39632708/573591083, 0, 0, -433636366/683701615, -421739975/2616292301, 100302831/723423059, 790204164/839813087, 800635310/3783071287 ],
+                [ 13/20, 246121993/1340847787, 0, 0, -37695042795/15268766246, -309121744/1061227803, -12992083/490766935, 6005943493/2108947869, 393006217/1396673457, 123872331/1001029789 ],
+                [ 1201146811/1299019798, -1028468189/846180014, 0, 0, 8478235783/508512852, 1311729495/1432422823, -10304129995/1701304382, -48777925059/3047939560, 15336726248/1032824649, -45442868181/3398467696, 3065993473/597172653 ],
+                [ 1, 185892177/718116043, 0, 0, -3185094517/667107341, -477755414/1098053517, -703635378/230739211, 5731566787/1027545527, 5232866602/850066563, -4093664535/808688257, 3962137247/1805957418, 65686358/487910083 ],
+                [ 1, 403863854/491063109, 0, 0, -5068492393/434740067, -411421997/543043805, 652783627/914296604, 11173962825/925320556, -13158990841/6184727034, 3936647629/1978049680, -160528059/685178525, 248638103/1413531060, 0 ],
+                [ 14005451/335480064, 0, 0, 0, 0, -59238493/1068277825, 181606767/758867731,   561292985/797845732,   -1041891430/1371343529,  760417239/1151165299, 118820643/751138087, -528747749/2220607170,  1/4], # 8th order
+                [ 13451932/455176623, 0, 0, 0, 0, -808719846/976000145, 1757004468/5645159321, 656045339/265891186,   -3867574721/1518517206,   465885868/322736535,  53011238/667516719,                  2/45,    0] # 7th order
+            ]
+            self.firstSameAsLast = False
+        else:
+            raise ValueError(&#34;Integration method: {} not implemented. See SimDefinitionTemplate.txt for options.&#34;.format(method))
+
+        # If a butcher tableau is used to define the R-K method, check that it is valid
+        if self.tableau != None:
+            checkButcherTableau(self.tableau)
+
+        # Save limiter info and target error, required for any adaptation scheme
+        self.maxFactor, self.minFactor, self.safetyFactor = maxMinSafetyFactors
+        self.targetError = targetError
+        self.maxTimeStep = maxTimeStep
+        self.minTimeStep = minTimeStep
+        self.discardedTimeStepCallback = discardedTimeStepCallback
+
+        ### Set up the chosen adaptation method ###
+        if controller == &#34;elementary&#34;:
+            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_Elementary
+
+        elif controller == &#34;PID&#34;:
+            self.safetyFactor = 1
+            P, I, D = PIDCoeffs
+            self.PIDController = PIDController(P, I, D, maxIntegral=1)
+            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_PID
+
+        elif controller == &#34;Constant&#34;:
+            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_Constant
+
+        else:
+            raise ValueError(&#34;Adaptive Integrator requires non-constant step size controller such as &#39;PID&#39; or &#39;elementary&#39;&#34;)
+
+    def __call__(self, initVal, initTime, derivativeFunc, dt):
+        return self.errorLimitedAdaptiveIntegration(initVal, initTime, derivativeFunc, dt)
+
+    def integrate(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39; Template method, replaced by one of the Constant time step methods below in self.__init__ &#39;&#39;&#39;
+        pass
+
+    def errorLimitedAdaptiveIntegration(self, initVal, initTime, derivativeFunc, dt):
+        # Set up incorrect values to force first iteration, like a do-while loop
+        errorMagEstimate = 10000000
+        maxErrorMultiple = 100 # Will recompute timestep if estimated error &gt; maxErrorMultiple * targetError
+        dt *= 3
+
+        # Loop will lower the actual time step taken if error is more than 3*target
+        while errorMagEstimate &gt; maxErrorMultiple*self.targetError:
+            if errorMagEstimate != 10000000:
+                # This means this is not the first loop. Therefore a previously-computed time step has been discarded, and will be recomputed below with a smaller time step
+                # if self.discardedTimeStepCallback != None:
+                self.discardedTimeStepCallback(self)
+
+            dt = max(self.minTimeStep, dt/3)
+            result, errorMagEstimate, lastDerivativeEvaluation = self.integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
+            if math.isclose(dt,self.minTimeStep):
+                break
+        
+        if self.firstSameAsLast:
+            self.derivativeCache = lastDerivativeEvaluation
+
+        adaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
+
+        # Correct finer result with error estimate (Richardson Extrapolation), timestepAdaptationFactor, actual time step taken
+        return result, adaptFactor, dt
+
+    #### Time Step adjustment ####
+    def limitAdaptationFactor(func):
+        &#39;&#39;&#39; 
+            Function decorator - limits the returned adaptation factor to enforce min/max time step size and min/max adaptation factor restrictions 
+            Expects the wrapped function to return two values: desiredAdaptationFactor, currentTimeStep
+        &#39;&#39;&#39;
+
+        def limitedDtControllerFunction(*args, **kwargs):
+            # Calculate desired adaptation factor using the wrapped function
+            self, desiredAdaptFactor, currentTimeStep = func(*args, **kwargs)
+
+            ### Apply adaptation limiters ###
+            # Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
+                # The below checks which limitation is currently most restrictive and applies that one
+            
+            # Calculate min/max adaptation factors based on min/max time step size restrictions
+            minFactor2 = self.minTimeStep / currentTimeStep
+            maxFactor2 = self.maxTimeStep / currentTimeStep
+
+            # Calculate resulting total min/max factors
+            minFactor = max(minFactor2, self.minFactor)
+            maxFactor = min(maxFactor2, self.maxFactor)
+
+            # Apply limits
+            return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)
+        
+        return limitedDtControllerFunction
+
+    # Constant dt does not require limiting
+    def getTimeStepAdjustmentFactor_Constant(self, errorMag, dt):
+        &#39;&#39;&#39; Calculates the time step adjustment factor when using a constant time stepping (always 1.0) &#39;&#39;&#39;
+        return 1
+
+    @limitAdaptationFactor
+    def getTimeStepAdjustmentFactor_Elementary(self, errorMag, dt):
+        &#39;&#39;&#39; Calculates the time step adjustment factor when using an elementary controller &#39;&#39;&#39;
+        return self, (self.targetError / (2*errorMag))**0.5, dt
+
+    @limitAdaptationFactor
+    def getTimeStepAdjustmentFactor_PID(self, errorMag, dt):
+        &#39;&#39;&#39; Calculates the time step adjustment factor when using a PID controller &#39;&#39;&#39;
+        errorInErrorMagnitude = (errorMag - self.targetError) / self.targetError
+        return self, 1 + self.PIDController.getNewSetPoint(errorInErrorMagnitude, dt), dt
+
+    #### Adaptive Integration Method ####
+    def IntegrateByButcherTableau_Adaptive(self, initVal, initTime, derivativeFunc, dt, firstSameAsLast=None):
+        &#39;&#39;&#39;
+            Integrates a function based on a Butcher tableau defined in self.tableau
+            Format expected is:
+            [
+                [ c2, a21 ],
+                [ c3, a31, a32 ],
+                ...
+                [ b1, b2, ... ]
+                [ b1*, b2*, ... ]
+
+            Then for row i of the tableau, ki = derivativefunc(t + ci*dt, y + dt(ai1*k1 + ai2*k2 + ...))
+            Then final result is y + dt*(b1*k1 + b2*k2 + ...)
+            For these adaptive methods, two rows of b&#39;s (b&#39;s and b*&#39;s) produce two estimates of the solution
+            Subtracting these gives an error estimate which can be used to adjust the time step size
+            It is assumed that the 
+            Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
+        &#39;&#39;&#39;
+        tab = self.tableau
+
+        # Initialize array of derivatives (k&#39;s) with first k-value from beginning of interval
+        if firstSameAsLast != None:
+            # Use first same as last property if possible to save a function evaluation
+            k = [ firstSameAsLast ]
+        else:
+            k = [ derivativeFunc(initTime, initVal) ]
+
+        # Calculate all other k&#39;s - one for each row of the tableau except the last two
+        for i in range(len(tab) - 2):
+            evalTime = initTime + dt*tab[i][0]
+            dy = k[0] * tab[i][1]
+            for a in range(2, len(tab[i])):
+                dy = dy + k[a-1] * tab[i][a]
+            evalY = initVal + dy*dt
+            k.append(derivativeFunc(evalTime, evalY))
+
+        lastDerivativeEvaluation = k[-1]
+
+        # Calculate final high/low accuracy results
+        fineDerivative = tab[-2][0] * k[0]
+        coarseDerivative = tab[-1][0] * k[0]
+        for i in range(1, len(tab[-1])):
+            fineDerivative = fineDerivative + tab[-2][i]*k[i]
+            coarseDerivative = coarseDerivative + tab[-1][i]*k[i]
+
+        # Compute error estimate
+        finePred = initVal + fineDerivative*dt
+        coarsePred = initVal + coarseDerivative*dt
+        errorEstimate = (-coarsePred + finePred)
+        errorMagEstimate = abs(errorEstimate)
+
+        return finePred, errorMagEstimate, lastDerivativeEvaluation</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.Motion.Integration.checkButcherTableau"><code class="name flex">
+<span>def <span class="ident">checkButcherTableau</span></span>(<span>tableau)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks that the Butcher tableau passed in represents a consistent R-K method
+Expected Format (Example is RK4 - 3/8 method):
+[
+# Top 0 row ommitted
+[ 1/3, 1/3 ],
+# Row 1: all coefficients sequentially
+[ 2/3, -1/3, 1.0 ],
+# Row 2: ''
+[ 1.0, 1.0, -1.0, 1.0 ],
+# Row 3: ''
+[ 1/8, 3/8, 3/8, 1/8 ]
+# Row 4: (result calculation row) - empty space on left ignored, just enter all coefficients
+]</p>
+<p>Learn about Butcher Tableaus here: <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods">https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods</a>
+RK4 - 3/8 Butcher Tableau is present there in the Examples section</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def checkButcherTableau(tableau):
+    &#39;&#39;&#39; 
+        Checks that the Butcher tableau passed in represents a consistent R-K method 
+        Expected Format (Example is RK4 - 3/8 method):
+            [                                   # Top 0 row ommitted
+                [ 1/3, 1/3 ],                   # Row 1: all coefficients sequentially
+                [ 2/3, -1/3, 1.0 ],             # Row 2: &#39;&#39;
+                [ 1.0, 1.0, -1.0, 1.0 ],        # Row 3: &#39;&#39;
+                [ 1/8, 3/8, 3/8, 1/8 ]          # Row 4: (result calculation row) - empty space on left ignored, just enter all coefficients
+            ]
+
+        Learn about Butcher Tableaus here: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+            RK4 - 3/8 Butcher Tableau is present there in the Examples section
+    &#39;&#39;&#39;
+
+    lastRowLength = 0
+    for i in range(len(tableau)):
+        if len(tableau[i]) == lastRowLength:
+            # We&#39;re checking a row of &#34;b&#34; coefficients (constructing a final answer)
+            # Here the sum of all numbers should be 1
+            sumB = sum(tableau[i])
+            assert math.isclose(sumB, 1.0), &#34;Sum of &#39;b&#39; coefficients ({}) of butcher tableau row {} don&#39;t = 1&#34;.format(sumB, i)
+        else:
+            # We&#39;re checking a row of &#34;c&#34; and &#34;a&#34; coefficients (constructing one of the k values)
+            # Here the first number, the c coefficient, should be equal to the sum of all the other numbers (the a coefficients)
+            c = tableau[i][0]
+            sumA = sum(tableau[i][1:])
+            assert math.isclose(c, sumA), &#34;Sum of &#39;a&#39; coefficients ({}) of butcher tableau row {} don&#39;t = &#39;c&#39; coefficient from the same row {}&#34;.format(sumA, i, c)
+
+        lastRowLength = len(tableau[i])</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.integratorFactory"><code class="name flex">
+<span>def <span class="ident">integratorFactory</span></span>(<span>integrationMethod='Euler', simDefinition=None, discardedTimeStepCallback=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a callable integrator object</p>
+<h2 id="inputs">Inputs</h2>
+<ul>
+<li>integrationMethod: (str) Name of integration method: Examples = "Euler", "RK4", "RK23Adaptive", and "RK45Adaptive"</li>
+<li>simDefinition: (<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="../IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) for adaptive integration, provide a simdefinition file with time step adaptation parameters</li>
+<li>discardedTimeStepCallback: (1-argument function reference) for adaptive integration, this function (if provided) is called when a time step is computed,
+but then discarded and re-computed with a smaller timestep to remain below the max estimated error threshold. Used by MAPLEAF to remove
+force calculation logs from those discarded time steps</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def integratorFactory(integrationMethod=&#34;Euler&#34;, simDefinition=None, discardedTimeStepCallback=None):
+    &#39;&#39;&#39; 
+        Returns a callable integrator object
+
+        Inputs:
+            * integrationMethod: (str) Name of integration method: Examples = &#34;Euler&#34;, &#34;RK4&#34;, &#34;RK23Adaptive&#34;, and &#34;RK45Adaptive&#34;
+            * simDefinition: (`MAPLEAF.IO.SimDefinition.SimDefinition`) for adaptive integration, provide a simdefinition file with time step adaptation parameters
+            * discardedTimeStepCallback: (1-argument function reference) for adaptive integration, this function (if provided) is called when a time step is computed,
+                but then discarded and re-computed with a smaller timestep to remain below the max estimated error threshold. Used by MAPLEAF to remove
+                force calculation logs from those discarded time steps
+    &#39;&#39;&#39;
+    if &#34;Adapt&#34; in integrationMethod:
+        if simDefinition == None:
+            raise ValueError(&#34;SimDefinition object required to initialize adaptive integrator&#34;)
+
+        adaptDictReader = SubDictReader(&#34;SimControl.TimeStepAdaptation&#34;, simDefinition)
+
+        # Adaptive Integration
+        controller = adaptDictReader.getString(&#34;controller&#34;)
+        if controller == &#34;PID&#34;:
+            PIDCoeffs = [ float(x) for x in adaptDictReader.getString(&#34;PID.coefficients&#34;).split() ]
+            safetyFactor = None
+        elif controller == &#34;elementary&#34;:
+            safetyFactor = adaptDictReader.getFloat(&#34;Elementary.safetyFactor&#34;)
+            PIDCoeffs = None
+
+        targetError = adaptDictReader.getFloat(&#34;targetError&#34;)
+        minFactor = adaptDictReader.getFloat(&#34;minFactor&#34;)
+        maxFactor = adaptDictReader.getFloat(&#34;maxFactor&#34;)
+        maxTimeStep = adaptDictReader.getFloat(&#34;maxTimeStep&#34;)
+        minTimeStep = adaptDictReader.getFloat(&#34;minTimeStep&#34;)
+        
+        return AdaptiveIntegrator(
+            method=integrationMethod, 
+            controller=controller, 
+            targetError=targetError, 
+            maxMinSafetyFactors=[maxFactor, minFactor, safetyFactor], 
+            PIDCoeffs=PIDCoeffs, 
+            maxTimeStep=maxTimeStep, 
+            minTimeStep=minTimeStep, 
+            discardedTimeStepCallback=discardedTimeStepCallback
+        )
+    
+    else:
+        # Constant time step integrator
+        return Integrator(method=integrationMethod)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator"><code class="flex name class">
+<span>class <span class="ident">AdaptiveIntegrator</span></span>
+<span>(</span><span>method='RK45Adaptive', controller='constant', targetError=0.001, maxMinSafetyFactors=[1.5, 0.3, 0.9], PIDCoeffs=[1.0, 0.1, 0.0], maxTimeStep=5, minTimeStep=0.0001, discardedTimeStepCallback=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Callable class for adaptive-dt ODE integration </p>
+<p>RepeatedTimeStepCallback: (function) will be called with (self) when a computed time step is discarded and recompouted (occurs if the estimated error is &gt; targetError * 100)
+this callback is currently used to discard log entries associate with discarded time steps</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AdaptiveIntegrator():
+    &#39;&#39;&#39; Callable class for adaptive-dt ODE integration &#39;&#39;&#39;
+
+    def __init__(self, method=&#34;RK45Adaptive&#34;, controller=&#34;constant&#34;, targetError=0.001, maxMinSafetyFactors=[1.5, 0.3, 0.9], PIDCoeffs=[1.0, 0.1, 0.0], maxTimeStep=5, minTimeStep=0.0001, discardedTimeStepCallback=None):
+        &#39;&#39;&#39;
+            RepeatedTimeStepCallback: (function) will be called with (self) when a computed time step is discarded and recompouted (occurs if the estimated error is &gt; targetError * 100)
+                                            this callback is currently used to discard log entries associate with discarded time steps
+        &#39;&#39;&#39;
+        # Save integration method and associated
+        self.method = method
+        self.tableau = None
+    
+        self.derivativeCache = None # For some adaptive methods, the last derivative of the previous integration step is the same as the first of the following step. This field caches it
+        if method == &#34;RK12Adaptive&#34;: # Just a test method, already implemented non-butcher tableau version
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 0.5, 0.5 ],
+                [ 0.0, 1.0 ],
+                [ 1.0, 0.0 ]
+            ]
+            self.firstSameAsLast = False
+        elif method == &#34;RK23Adaptive&#34;: # Bogacki-Shampine method
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 0.5, 0.5 ],
+                [ 3/4, 0.0, 3/4 ],
+                [ 1.0, 2/9, 1/3, 4/9 ],
+                [ 2/9, 1/3, 4/9, 0.0 ],
+                [ 7/24, 1/4, 1/3, 1/8 ]
+            ]
+            self.firstSameAsLast = True
+        elif method == &#34;RK45Adaptive&#34;: # Dormand-Prince RK5(4)7FM method
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 1/5, 1/5 ],
+                [ 3/10, 3/40, 9/40 ],
+                [ 4/5, 44/45, -56/15, 32/9 ],
+                [ 8/9, 19372/6561, -25360/2187, 64448/6561, -212/729 ],
+                [ 1.0, 9017/3168, -355/33, 46732/5247, 49/176, -5103/18656 ],
+                [ 1.0, 35/384, 0.0, 500/1113, 125/192, -2187/6784, 11/84 ],
+                [ 35/384, 0.0, 500/1113, 125/192, -2187/6784, 11/84, 0.0 ], # 5th order
+                [ 5179/57600, 0.0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40 ] # 4th order
+            ]
+            self.firstSameAsLast = True
+        elif method == &#34;RK78Adaptive&#34;: # Dormand-Prince RK8(7)13M method (rational approximation)
+            self.integrate = self.IntegrateByButcherTableau_Adaptive
+            self.tableau = [
+                [ 1/18, 1/18 ], 
+                [ 1/12, 1/48, 1/16 ], 
+                [ 1/8, 1/32, 0, 3/32 ], 
+                [ 5/16, 5/16, 0, -75/64, 75/64 ], 
+                [ 3/8, 3/80, 0, 0, 3/16, 3/20 ], 
+                [ 59/400, 29443841/614563906, 0, 0, 77736538/692538347, -28693883/1125000000, 23124283/1800000000 ],
+                [ 93/200, 16016141/946692911, 0, 0, 61564180/158732637, 22789713/633445777, 545815736/2771057229, -180193667/1043307555 ],
+                [ 5490023248/9719169821, 39632708/573591083, 0, 0, -433636366/683701615, -421739975/2616292301, 100302831/723423059, 790204164/839813087, 800635310/3783071287 ],
+                [ 13/20, 246121993/1340847787, 0, 0, -37695042795/15268766246, -309121744/1061227803, -12992083/490766935, 6005943493/2108947869, 393006217/1396673457, 123872331/1001029789 ],
+                [ 1201146811/1299019798, -1028468189/846180014, 0, 0, 8478235783/508512852, 1311729495/1432422823, -10304129995/1701304382, -48777925059/3047939560, 15336726248/1032824649, -45442868181/3398467696, 3065993473/597172653 ],
+                [ 1, 185892177/718116043, 0, 0, -3185094517/667107341, -477755414/1098053517, -703635378/230739211, 5731566787/1027545527, 5232866602/850066563, -4093664535/808688257, 3962137247/1805957418, 65686358/487910083 ],
+                [ 1, 403863854/491063109, 0, 0, -5068492393/434740067, -411421997/543043805, 652783627/914296604, 11173962825/925320556, -13158990841/6184727034, 3936647629/1978049680, -160528059/685178525, 248638103/1413531060, 0 ],
+                [ 14005451/335480064, 0, 0, 0, 0, -59238493/1068277825, 181606767/758867731,   561292985/797845732,   -1041891430/1371343529,  760417239/1151165299, 118820643/751138087, -528747749/2220607170,  1/4], # 8th order
+                [ 13451932/455176623, 0, 0, 0, 0, -808719846/976000145, 1757004468/5645159321, 656045339/265891186,   -3867574721/1518517206,   465885868/322736535,  53011238/667516719,                  2/45,    0] # 7th order
+            ]
+            self.firstSameAsLast = False
+        else:
+            raise ValueError(&#34;Integration method: {} not implemented. See SimDefinitionTemplate.txt for options.&#34;.format(method))
+
+        # If a butcher tableau is used to define the R-K method, check that it is valid
+        if self.tableau != None:
+            checkButcherTableau(self.tableau)
+
+        # Save limiter info and target error, required for any adaptation scheme
+        self.maxFactor, self.minFactor, self.safetyFactor = maxMinSafetyFactors
+        self.targetError = targetError
+        self.maxTimeStep = maxTimeStep
+        self.minTimeStep = minTimeStep
+        self.discardedTimeStepCallback = discardedTimeStepCallback
+
+        ### Set up the chosen adaptation method ###
+        if controller == &#34;elementary&#34;:
+            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_Elementary
+
+        elif controller == &#34;PID&#34;:
+            self.safetyFactor = 1
+            P, I, D = PIDCoeffs
+            self.PIDController = PIDController(P, I, D, maxIntegral=1)
+            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_PID
+
+        elif controller == &#34;Constant&#34;:
+            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_Constant
+
+        else:
+            raise ValueError(&#34;Adaptive Integrator requires non-constant step size controller such as &#39;PID&#39; or &#39;elementary&#39;&#34;)
+
+    def __call__(self, initVal, initTime, derivativeFunc, dt):
+        return self.errorLimitedAdaptiveIntegration(initVal, initTime, derivativeFunc, dt)
+
+    def integrate(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39; Template method, replaced by one of the Constant time step methods below in self.__init__ &#39;&#39;&#39;
+        pass
+
+    def errorLimitedAdaptiveIntegration(self, initVal, initTime, derivativeFunc, dt):
+        # Set up incorrect values to force first iteration, like a do-while loop
+        errorMagEstimate = 10000000
+        maxErrorMultiple = 100 # Will recompute timestep if estimated error &gt; maxErrorMultiple * targetError
+        dt *= 3
+
+        # Loop will lower the actual time step taken if error is more than 3*target
+        while errorMagEstimate &gt; maxErrorMultiple*self.targetError:
+            if errorMagEstimate != 10000000:
+                # This means this is not the first loop. Therefore a previously-computed time step has been discarded, and will be recomputed below with a smaller time step
+                # if self.discardedTimeStepCallback != None:
+                self.discardedTimeStepCallback(self)
+
+            dt = max(self.minTimeStep, dt/3)
+            result, errorMagEstimate, lastDerivativeEvaluation = self.integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
+            if math.isclose(dt,self.minTimeStep):
+                break
+        
+        if self.firstSameAsLast:
+            self.derivativeCache = lastDerivativeEvaluation
+
+        adaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
+
+        # Correct finer result with error estimate (Richardson Extrapolation), timestepAdaptationFactor, actual time step taken
+        return result, adaptFactor, dt
+
+    #### Time Step adjustment ####
+    def limitAdaptationFactor(func):
+        &#39;&#39;&#39; 
+            Function decorator - limits the returned adaptation factor to enforce min/max time step size and min/max adaptation factor restrictions 
+            Expects the wrapped function to return two values: desiredAdaptationFactor, currentTimeStep
+        &#39;&#39;&#39;
+
+        def limitedDtControllerFunction(*args, **kwargs):
+            # Calculate desired adaptation factor using the wrapped function
+            self, desiredAdaptFactor, currentTimeStep = func(*args, **kwargs)
+
+            ### Apply adaptation limiters ###
+            # Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
+                # The below checks which limitation is currently most restrictive and applies that one
+            
+            # Calculate min/max adaptation factors based on min/max time step size restrictions
+            minFactor2 = self.minTimeStep / currentTimeStep
+            maxFactor2 = self.maxTimeStep / currentTimeStep
+
+            # Calculate resulting total min/max factors
+            minFactor = max(minFactor2, self.minFactor)
+            maxFactor = min(maxFactor2, self.maxFactor)
+
+            # Apply limits
+            return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)
+        
+        return limitedDtControllerFunction
+
+    # Constant dt does not require limiting
+    def getTimeStepAdjustmentFactor_Constant(self, errorMag, dt):
+        &#39;&#39;&#39; Calculates the time step adjustment factor when using a constant time stepping (always 1.0) &#39;&#39;&#39;
+        return 1
+
+    @limitAdaptationFactor
+    def getTimeStepAdjustmentFactor_Elementary(self, errorMag, dt):
+        &#39;&#39;&#39; Calculates the time step adjustment factor when using an elementary controller &#39;&#39;&#39;
+        return self, (self.targetError / (2*errorMag))**0.5, dt
+
+    @limitAdaptationFactor
+    def getTimeStepAdjustmentFactor_PID(self, errorMag, dt):
+        &#39;&#39;&#39; Calculates the time step adjustment factor when using a PID controller &#39;&#39;&#39;
+        errorInErrorMagnitude = (errorMag - self.targetError) / self.targetError
+        return self, 1 + self.PIDController.getNewSetPoint(errorInErrorMagnitude, dt), dt
+
+    #### Adaptive Integration Method ####
+    def IntegrateByButcherTableau_Adaptive(self, initVal, initTime, derivativeFunc, dt, firstSameAsLast=None):
+        &#39;&#39;&#39;
+            Integrates a function based on a Butcher tableau defined in self.tableau
+            Format expected is:
+            [
+                [ c2, a21 ],
+                [ c3, a31, a32 ],
+                ...
+                [ b1, b2, ... ]
+                [ b1*, b2*, ... ]
+
+            Then for row i of the tableau, ki = derivativefunc(t + ci*dt, y + dt(ai1*k1 + ai2*k2 + ...))
+            Then final result is y + dt*(b1*k1 + b2*k2 + ...)
+            For these adaptive methods, two rows of b&#39;s (b&#39;s and b*&#39;s) produce two estimates of the solution
+            Subtracting these gives an error estimate which can be used to adjust the time step size
+            It is assumed that the 
+            Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
+        &#39;&#39;&#39;
+        tab = self.tableau
+
+        # Initialize array of derivatives (k&#39;s) with first k-value from beginning of interval
+        if firstSameAsLast != None:
+            # Use first same as last property if possible to save a function evaluation
+            k = [ firstSameAsLast ]
+        else:
+            k = [ derivativeFunc(initTime, initVal) ]
+
+        # Calculate all other k&#39;s - one for each row of the tableau except the last two
+        for i in range(len(tab) - 2):
+            evalTime = initTime + dt*tab[i][0]
+            dy = k[0] * tab[i][1]
+            for a in range(2, len(tab[i])):
+                dy = dy + k[a-1] * tab[i][a]
+            evalY = initVal + dy*dt
+            k.append(derivativeFunc(evalTime, evalY))
+
+        lastDerivativeEvaluation = k[-1]
+
+        # Calculate final high/low accuracy results
+        fineDerivative = tab[-2][0] * k[0]
+        coarseDerivative = tab[-1][0] * k[0]
+        for i in range(1, len(tab[-1])):
+            fineDerivative = fineDerivative + tab[-2][i]*k[i]
+            coarseDerivative = coarseDerivative + tab[-1][i]*k[i]
+
+        # Compute error estimate
+        finePred = initVal + fineDerivative*dt
+        coarsePred = initVal + coarseDerivative*dt
+        errorEstimate = (-coarsePred + finePred)
+        errorMagEstimate = abs(errorEstimate)
+
+        return finePred, errorMagEstimate, lastDerivativeEvaluation</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.IntegrateByButcherTableau_Adaptive"><code class="name flex">
+<span>def <span class="ident">IntegrateByButcherTableau_Adaptive</span></span>(<span>self, initVal, initTime, derivativeFunc, dt, firstSameAsLast=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Integrates a function based on a Butcher tableau defined in self.tableau
+Format expected is:
+[
+[ c2, a21 ],
+[ c3, a31, a32 ],
+&hellip;
+[ b1, b2, &hellip; ]
+[ b1<em>, b2</em>, &hellip; ]</p>
+<p>Then for row i of the tableau, ki = derivativefunc(t + ci<em>dt, y + dt(ai1</em>k1 + ai2<em>k2 + &hellip;))
+Then final result is y + dt</em>(b1<em>k1 + b2</em>k2 + &hellip;)
+For these adaptive methods, two rows of b's (b's and b*'s) produce two estimates of the solution
+Subtracting these gives an error estimate which can be used to adjust the time step size
+It is assumed that the
+Further explanation: <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use">https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IntegrateByButcherTableau_Adaptive(self, initVal, initTime, derivativeFunc, dt, firstSameAsLast=None):
+    &#39;&#39;&#39;
+        Integrates a function based on a Butcher tableau defined in self.tableau
+        Format expected is:
+        [
+            [ c2, a21 ],
+            [ c3, a31, a32 ],
+            ...
+            [ b1, b2, ... ]
+            [ b1*, b2*, ... ]
+
+        Then for row i of the tableau, ki = derivativefunc(t + ci*dt, y + dt(ai1*k1 + ai2*k2 + ...))
+        Then final result is y + dt*(b1*k1 + b2*k2 + ...)
+        For these adaptive methods, two rows of b&#39;s (b&#39;s and b*&#39;s) produce two estimates of the solution
+        Subtracting these gives an error estimate which can be used to adjust the time step size
+        It is assumed that the 
+        Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
+    &#39;&#39;&#39;
+    tab = self.tableau
+
+    # Initialize array of derivatives (k&#39;s) with first k-value from beginning of interval
+    if firstSameAsLast != None:
+        # Use first same as last property if possible to save a function evaluation
+        k = [ firstSameAsLast ]
+    else:
+        k = [ derivativeFunc(initTime, initVal) ]
+
+    # Calculate all other k&#39;s - one for each row of the tableau except the last two
+    for i in range(len(tab) - 2):
+        evalTime = initTime + dt*tab[i][0]
+        dy = k[0] * tab[i][1]
+        for a in range(2, len(tab[i])):
+            dy = dy + k[a-1] * tab[i][a]
+        evalY = initVal + dy*dt
+        k.append(derivativeFunc(evalTime, evalY))
+
+    lastDerivativeEvaluation = k[-1]
+
+    # Calculate final high/low accuracy results
+    fineDerivative = tab[-2][0] * k[0]
+    coarseDerivative = tab[-1][0] * k[0]
+    for i in range(1, len(tab[-1])):
+        fineDerivative = fineDerivative + tab[-2][i]*k[i]
+        coarseDerivative = coarseDerivative + tab[-1][i]*k[i]
+
+    # Compute error estimate
+    finePred = initVal + fineDerivative*dt
+    coarsePred = initVal + coarseDerivative*dt
+    errorEstimate = (-coarsePred + finePred)
+    errorMagEstimate = abs(errorEstimate)
+
+    return finePred, errorMagEstimate, lastDerivativeEvaluation</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.errorLimitedAdaptiveIntegration"><code class="name flex">
+<span>def <span class="ident">errorLimitedAdaptiveIntegration</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def errorLimitedAdaptiveIntegration(self, initVal, initTime, derivativeFunc, dt):
+    # Set up incorrect values to force first iteration, like a do-while loop
+    errorMagEstimate = 10000000
+    maxErrorMultiple = 100 # Will recompute timestep if estimated error &gt; maxErrorMultiple * targetError
+    dt *= 3
+
+    # Loop will lower the actual time step taken if error is more than 3*target
+    while errorMagEstimate &gt; maxErrorMultiple*self.targetError:
+        if errorMagEstimate != 10000000:
+            # This means this is not the first loop. Therefore a previously-computed time step has been discarded, and will be recomputed below with a smaller time step
+            # if self.discardedTimeStepCallback != None:
+            self.discardedTimeStepCallback(self)
+
+        dt = max(self.minTimeStep, dt/3)
+        result, errorMagEstimate, lastDerivativeEvaluation = self.integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
+        if math.isclose(dt,self.minTimeStep):
+            break
+    
+    if self.firstSameAsLast:
+        self.derivativeCache = lastDerivativeEvaluation
+
+    adaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
+
+    # Correct finer result with error estimate (Richardson Extrapolation), timestepAdaptationFactor, actual time step taken
+    return result, adaptFactor, dt</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_Constant"><code class="name flex">
+<span>def <span class="ident">getTimeStepAdjustmentFactor_Constant</span></span>(<span>self, errorMag, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculates the time step adjustment factor when using a constant time stepping (always 1.0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTimeStepAdjustmentFactor_Constant(self, errorMag, dt):
+    &#39;&#39;&#39; Calculates the time step adjustment factor when using a constant time stepping (always 1.0) &#39;&#39;&#39;
+    return 1</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_Elementary"><code class="name flex">
+<span>def <span class="ident">getTimeStepAdjustmentFactor_Elementary</span></span>(<span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def limitedDtControllerFunction(*args, **kwargs):
+    # Calculate desired adaptation factor using the wrapped function
+    self, desiredAdaptFactor, currentTimeStep = func(*args, **kwargs)
+
+    ### Apply adaptation limiters ###
+    # Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
+        # The below checks which limitation is currently most restrictive and applies that one
+    
+    # Calculate min/max adaptation factors based on min/max time step size restrictions
+    minFactor2 = self.minTimeStep / currentTimeStep
+    maxFactor2 = self.maxTimeStep / currentTimeStep
+
+    # Calculate resulting total min/max factors
+    minFactor = max(minFactor2, self.minFactor)
+    maxFactor = min(maxFactor2, self.maxFactor)
+
+    # Apply limits
+    return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_PID"><code class="name flex">
+<span>def <span class="ident">getTimeStepAdjustmentFactor_PID</span></span>(<span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def limitedDtControllerFunction(*args, **kwargs):
+    # Calculate desired adaptation factor using the wrapped function
+    self, desiredAdaptFactor, currentTimeStep = func(*args, **kwargs)
+
+    ### Apply adaptation limiters ###
+    # Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
+        # The below checks which limitation is currently most restrictive and applies that one
+    
+    # Calculate min/max adaptation factors based on min/max time step size restrictions
+    minFactor2 = self.minTimeStep / currentTimeStep
+    maxFactor2 = self.maxTimeStep / currentTimeStep
+
+    # Calculate resulting total min/max factors
+    minFactor = max(minFactor2, self.minFactor)
+    maxFactor = min(maxFactor2, self.maxFactor)
+
+    # Apply limits
+    return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.integrate"><code class="name flex">
+<span>def <span class="ident">integrate</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Template method, replaced by one of the Constant time step methods below in self.<strong>init</strong></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def integrate(self, initVal, initTime, derivativeFunc, dt):
+    &#39;&#39;&#39; Template method, replaced by one of the Constant time step methods below in self.__init__ &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.AdaptiveIntegrator.limitAdaptationFactor"><code class="name flex">
+<span>def <span class="ident">limitAdaptationFactor</span></span>(<span>func)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function decorator - limits the returned adaptation factor to enforce min/max time step size and min/max adaptation factor restrictions
+Expects the wrapped function to return two values: desiredAdaptationFactor, currentTimeStep</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def limitAdaptationFactor(func):
+    &#39;&#39;&#39; 
+        Function decorator - limits the returned adaptation factor to enforce min/max time step size and min/max adaptation factor restrictions 
+        Expects the wrapped function to return two values: desiredAdaptationFactor, currentTimeStep
+    &#39;&#39;&#39;
+
+    def limitedDtControllerFunction(*args, **kwargs):
+        # Calculate desired adaptation factor using the wrapped function
+        self, desiredAdaptFactor, currentTimeStep = func(*args, **kwargs)
+
+        ### Apply adaptation limiters ###
+        # Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
+            # The below checks which limitation is currently most restrictive and applies that one
+        
+        # Calculate min/max adaptation factors based on min/max time step size restrictions
+        minFactor2 = self.minTimeStep / currentTimeStep
+        maxFactor2 = self.maxTimeStep / currentTimeStep
+
+        # Calculate resulting total min/max factors
+        minFactor = max(minFactor2, self.minFactor)
+        maxFactor = min(maxFactor2, self.maxFactor)
+
+        # Apply limits
+        return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)
+    
+    return limitedDtControllerFunction</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.Integrator"><code class="flex name class">
+<span>class <span class="ident">Integrator</span></span>
+<span>(</span><span>method='Euler')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Callable class for constant-dt ODE integration</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Integrator:
+    &#39;&#39;&#39; Callable class for constant-dt ODE integration &#39;&#39;&#39;
+
+    def __init__(self, method=&#34;Euler&#34;):
+        # Save integration method and associated
+        self.method = method
+        self.tableau = None
+        if method == &#34;Euler&#34;:
+            self.integrate = self.IntegrateEuler
+        elif method == &#34;RK2Midpoint&#34;:
+            self.integrate = self.IntegrateRK2MidPoint
+        elif method == &#34;RK2Heun&#34;:
+            self.integrate = self.IntegrateRK2Heun
+        elif method == &#34;RK4&#34;:
+            self.integrate = self.IntegrateRK4
+        elif method == &#34;RK4_3/8&#34;:
+            self.integrate = self.IntegrateByButcherTableau
+            self.tableau = [
+                [ 1/3, 1/3 ],
+                [ 2/3, -1/3, 1.0 ],
+                [ 1.0, 1.0, -1.0, 1.0 ],
+                [ 1/8, 3/8, 3/8, 1/8 ]
+            ]
+        else:       
+            raise ValueError(&#34;Integration method: {} not implemented. See SimDefinitionTemplate.txt for options.&#34;.format(method))
+
+        # If a butcher tableau is used to define the R-K method, check that it is valid
+        if self.tableau != None:
+            checkButcherTableau(self.tableau)
+
+    def __call__(self, initVal, initTime, derivativeFunc, dt):
+        return self.integrate(initVal, initTime, derivativeFunc, dt)
+
+    def integrate(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39; Template method, replaced by one of the Constant time step methods below in self.__init__ &#39;&#39;&#39;
+        pass
+
+    #### Constant time step methods ####
+    def IntegrateEuler(self, initVal, initTime, derivativeFunc, dt):
+        yPrime = derivativeFunc(initTime, initVal)
+        return initVal + yPrime * dt, 1.0, dt
+
+    def IntegrateRK2MidPoint(self, initVal, initTime, derivativeFunc, dt):
+        initSlope = derivativeFunc(initTime, initVal)
+
+        halfwayVal = initVal + initSlope*(dt/2)
+        halfwayTime = initTime + dt/2
+        halfwaySlope = derivativeFunc(halfwayTime, halfwayVal)
+
+        return initVal + halfwaySlope*dt, 1.0, dt
+
+    def IntegrateRK2Heun(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39;
+            Integrates a function using second order Runge Kutta Method (Heun Variant).
+            Inputs:
+                initVal: Implement (+, *) operator
+                initTime: Implement (+) operator
+                derivativeFunc: Function(time, val)
+                    Should return an object of the same type as initVal, representing the derivative
+                    Accepts time and value objects of the same types as initTime, initVal
+                dt: Must implement multiplication
+            Outputs:
+                Returns estimated integral value after timestep dt
+        &#39;&#39;&#39;
+        initSlope = derivativeFunc(initTime, initVal)
+
+        endEstimate = initVal + initSlope*dt
+        endSlope = derivativeFunc(initTime + dt, endEstimate)
+
+        slopeEstimate = (endSlope + initSlope)/2
+        return initVal + slopeEstimate*dt, 1.0, dt
+
+    def IntegrateRK4(self, initVal, initTime, derivativeFunc, dt):
+        k1 = derivativeFunc(initTime, initVal)
+
+        halfwayVal = initVal + k1*(dt/2)
+        halfwayTime = initTime + (dt/2)
+        k2 = derivativeFunc(halfwayTime, halfwayVal)
+
+        halfwayVal2 = initVal + k2*(dt/2)
+        k3 = derivativeFunc(halfwayTime, halfwayVal2)
+
+        endVal = initVal + k3*dt
+        endTime = initTime + dt
+        k4 = derivativeFunc(endTime, endVal)
+
+        slopeEstimate = ((k1+k4)/2 + k2 + k3) / 3
+        return initVal + slopeEstimate*dt, 1.0, dt
+
+    def IntegrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
+        &#39;&#39;&#39;
+            Integrates a function based on a Butcher tableau defined in self.tableau
+            Format expected is:
+            [
+                [ c2, a21 ],
+                [ c3, a31, a32 ],
+                ...
+                [ b1, b2, ... ]
+
+            Then for row i of the tableau, ki = derivativefunc(t + ci*dt, y + dt(ai1*k1 + ai2*k2 + ...))
+            Then final result is y + dt*(b1*k1 + b2*k2 + ...)
+            Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
+        &#39;&#39;&#39;
+        tab = self.tableau
+
+        # Initialize array of derivatives (k&#39;s) with first k-value from beginning of interval
+        k = [ derivativeFunc(initTime, initVal) ]
+        # Calculate all other k&#39;s - one for each row of the tableau except the last one
+        for i in range(len(tab) - 1):
+            evalTime = initTime + dt*tab[i][0]
+            dy = k[0] * tab[i][1]
+            for a in range(2, len(tab[i])):
+                dy = dy + k[a-1] * tab[i][a]
+            evalY = initVal + dy*dt
+            k.append(derivativeFunc(evalTime, evalY))
+
+        # Calculate final result using last row of coefficients
+        totalDerivative = tab[-1][0] * k[0]
+        for i in range(1, len(tab[-1])):
+            totalDerivative = totalDerivative + tab[-1][i]*k[i]
+
+        return (initVal + totalDerivative*dt), 1.0, dt        </code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Integration.Integrator.IntegrateByButcherTableau"><code class="name flex">
+<span>def <span class="ident">IntegrateByButcherTableau</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Integrates a function based on a Butcher tableau defined in self.tableau
+Format expected is:
+[
+[ c2, a21 ],
+[ c3, a31, a32 ],
+&hellip;
+[ b1, b2, &hellip; ]</p>
+<p>Then for row i of the tableau, ki = derivativefunc(t + ci<em>dt, y + dt(ai1</em>k1 + ai2<em>k2 + &hellip;))
+Then final result is y + dt</em>(b1<em>k1 + b2</em>k2 + &hellip;)
+Further explanation: <a href="https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use">https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IntegrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
+    &#39;&#39;&#39;
+        Integrates a function based on a Butcher tableau defined in self.tableau
+        Format expected is:
+        [
+            [ c2, a21 ],
+            [ c3, a31, a32 ],
+            ...
+            [ b1, b2, ... ]
+
+        Then for row i of the tableau, ki = derivativefunc(t + ci*dt, y + dt(ai1*k1 + ai2*k2 + ...))
+        Then final result is y + dt*(b1*k1 + b2*k2 + ...)
+        Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
+    &#39;&#39;&#39;
+    tab = self.tableau
+
+    # Initialize array of derivatives (k&#39;s) with first k-value from beginning of interval
+    k = [ derivativeFunc(initTime, initVal) ]
+    # Calculate all other k&#39;s - one for each row of the tableau except the last one
+    for i in range(len(tab) - 1):
+        evalTime = initTime + dt*tab[i][0]
+        dy = k[0] * tab[i][1]
+        for a in range(2, len(tab[i])):
+            dy = dy + k[a-1] * tab[i][a]
+        evalY = initVal + dy*dt
+        k.append(derivativeFunc(evalTime, evalY))
+
+    # Calculate final result using last row of coefficients
+    totalDerivative = tab[-1][0] * k[0]
+    for i in range(1, len(tab[-1])):
+        totalDerivative = totalDerivative + tab[-1][i]*k[i]
+
+    return (initVal + totalDerivative*dt), 1.0, dt        </code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.Integrator.IntegrateEuler"><code class="name flex">
+<span>def <span class="ident">IntegrateEuler</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IntegrateEuler(self, initVal, initTime, derivativeFunc, dt):
+    yPrime = derivativeFunc(initTime, initVal)
+    return initVal + yPrime * dt, 1.0, dt</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.Integrator.IntegrateRK2Heun"><code class="name flex">
+<span>def <span class="ident">IntegrateRK2Heun</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Integrates a function using second order Runge Kutta Method (Heun Variant).</p>
+<h2 id="inputs">Inputs</h2>
+<p>initVal: Implement (+, *) operator
+initTime: Implement (+) operator
+derivativeFunc: Function(time, val)
+Should return an object of the same type as initVal, representing the derivative
+Accepts time and value objects of the same types as initTime, initVal
+dt: Must implement multiplication</p>
+<h2 id="outputs">Outputs</h2>
+<p>Returns estimated integral value after timestep dt</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IntegrateRK2Heun(self, initVal, initTime, derivativeFunc, dt):
+    &#39;&#39;&#39;
+        Integrates a function using second order Runge Kutta Method (Heun Variant).
+        Inputs:
+            initVal: Implement (+, *) operator
+            initTime: Implement (+) operator
+            derivativeFunc: Function(time, val)
+                Should return an object of the same type as initVal, representing the derivative
+                Accepts time and value objects of the same types as initTime, initVal
+            dt: Must implement multiplication
+        Outputs:
+            Returns estimated integral value after timestep dt
+    &#39;&#39;&#39;
+    initSlope = derivativeFunc(initTime, initVal)
+
+    endEstimate = initVal + initSlope*dt
+    endSlope = derivativeFunc(initTime + dt, endEstimate)
+
+    slopeEstimate = (endSlope + initSlope)/2
+    return initVal + slopeEstimate*dt, 1.0, dt</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.Integrator.IntegrateRK2MidPoint"><code class="name flex">
+<span>def <span class="ident">IntegrateRK2MidPoint</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IntegrateRK2MidPoint(self, initVal, initTime, derivativeFunc, dt):
+    initSlope = derivativeFunc(initTime, initVal)
+
+    halfwayVal = initVal + initSlope*(dt/2)
+    halfwayTime = initTime + dt/2
+    halfwaySlope = derivativeFunc(halfwayTime, halfwayVal)
+
+    return initVal + halfwaySlope*dt, 1.0, dt</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.Integrator.IntegrateRK4"><code class="name flex">
+<span>def <span class="ident">IntegrateRK4</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def IntegrateRK4(self, initVal, initTime, derivativeFunc, dt):
+    k1 = derivativeFunc(initTime, initVal)
+
+    halfwayVal = initVal + k1*(dt/2)
+    halfwayTime = initTime + (dt/2)
+    k2 = derivativeFunc(halfwayTime, halfwayVal)
+
+    halfwayVal2 = initVal + k2*(dt/2)
+    k3 = derivativeFunc(halfwayTime, halfwayVal2)
+
+    endVal = initVal + k3*dt
+    endTime = initTime + dt
+    k4 = derivativeFunc(endTime, endVal)
+
+    slopeEstimate = ((k1+k4)/2 + k2 + k3) / 3
+    return initVal + slopeEstimate*dt, 1.0, dt</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Integration.Integrator.integrate"><code class="name flex">
+<span>def <span class="ident">integrate</span></span>(<span>self, initVal, initTime, derivativeFunc, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Template method, replaced by one of the Constant time step methods below in self.<strong>init</strong></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def integrate(self, initVal, initTime, derivativeFunc, dt):
+    &#39;&#39;&#39; Template method, replaced by one of the Constant time step methods below in self.__init__ &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Motion" href="index.html">MAPLEAF.Motion</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.Integration.checkButcherTableau" href="#MAPLEAF.Motion.Integration.checkButcherTableau">checkButcherTableau</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.integratorFactory" href="#MAPLEAF.Motion.Integration.integratorFactory">integratorFactory</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator">AdaptiveIntegrator</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.IntegrateByButcherTableau_Adaptive" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.IntegrateByButcherTableau_Adaptive">IntegrateByButcherTableau_Adaptive</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.errorLimitedAdaptiveIntegration" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.errorLimitedAdaptiveIntegration">errorLimitedAdaptiveIntegration</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_Constant" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_Constant">getTimeStepAdjustmentFactor_Constant</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_Elementary" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_Elementary">getTimeStepAdjustmentFactor_Elementary</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_PID" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.getTimeStepAdjustmentFactor_PID">getTimeStepAdjustmentFactor_PID</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.integrate" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.integrate">integrate</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.AdaptiveIntegrator.limitAdaptationFactor" href="#MAPLEAF.Motion.Integration.AdaptiveIntegrator.limitAdaptationFactor">limitAdaptationFactor</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.Integration.Integrator" href="#MAPLEAF.Motion.Integration.Integrator">Integrator</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.Integration.Integrator.IntegrateByButcherTableau" href="#MAPLEAF.Motion.Integration.Integrator.IntegrateByButcherTableau">IntegrateByButcherTableau</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.Integrator.IntegrateEuler" href="#MAPLEAF.Motion.Integration.Integrator.IntegrateEuler">IntegrateEuler</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.Integrator.IntegrateRK2Heun" href="#MAPLEAF.Motion.Integration.Integrator.IntegrateRK2Heun">IntegrateRK2Heun</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.Integrator.IntegrateRK2MidPoint" href="#MAPLEAF.Motion.Integration.Integrator.IntegrateRK2MidPoint">IntegrateRK2MidPoint</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.Integrator.IntegrateRK4" href="#MAPLEAF.Motion.Integration.Integrator.IntegrateRK4">IntegrateRK4</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Integration.Integrator.integrate" href="#MAPLEAF.Motion.Integration.Integrator.integrate">integrate</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>MAPLEAF.Rocket.Fins API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Rocket.Fins</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import copy
+import math
+import re
+from collections import namedtuple
+from math import asin, cos, degrees, radians, sqrt
+
+import numpy as np
+
+import MAPLEAF.Interpolation as Interpolation
+import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.ENV.Environment import EnvironmentalConditions
+from MAPLEAF.GNC.ActuatedSystem import ActuatedSystem
+from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion.CythonQuaternion import Quaternion
+from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
+from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,
+                                           getFinSliceForce_Supersonic,
+                                           getSubsonicFinNormalForce,
+                                           getSupersonicFinNormalForce)
+from MAPLEAF.Rocket.RocketComponents import FixedMass
+
+# This named tuple is used to pass data between a FinSet and its child Fins.
+    # All the data in this tuple is used by all Fins in a FinSet to complete an aero calculation.
+    # To avoid recomputing it over and over, the FinSet computes it all once, then passes the info to each of its fins.
+PreComputedFinAeroData = namedtuple(&#34;PreComputedFinAeroData&#34;, [ &#34;finVelWithoutRoll&#34;, &#34;CPXPos&#34;, &#34;totalDragCoefficient&#34; ])
+
+@cacheLastResult
+def getFinCnAlpha_Subsonic_Barrowman(span, planformArea, beta, midChordSweep):
+    &#39;&#39;&#39; Implements Barrowman&#39;s equation for Fin CN_alpha (3-6), based on the work of Diederich and Gothert &#39;&#39;&#39;
+    # Version from Niskanen Eqn 3.37
+    AR = 2*span**2 / planformArea
+
+    # Barrowman Eqn 3-6
+    numer = 2 * math.pi * AR
+    denom = 2 + math.sqrt(4 + (beta*AR/cos(midChordSweep))**2)
+    return numer/denom
+
+@cacheLastResult
+def getBusemannCoefficients(Mach, beta, gamma=1.4):
+    K1 = 2/beta #Supersonic correlations, Niskanen Eq. 3.41-3.44, Barrowman Appendix A (2a-2c)
+    K2 = ((gamma + 1)*Mach**4 - 4*beta**2) / (4*beta**4)
+    K3 = ((gamma + 1)*Mach**8 + (2*gamma**2 - 7*gamma -5)*Mach**6 + 10*(gamma+1)*Mach**4 + 8) / (6 * beta**7)
+    return K1, K2, K3
+
+class FinSet(FixedMass, ActuatedSystem):
+
+    #### Initialization Functions ####
+    def __init__(self, componentDictReader, rocket, stage):
+        FixedMass.__init__(self, componentDictReader, rocket, stage)
+
+        self.controlSystem = None   # Set by self.initializeActuators, if it is called by a control system being initialized ex: RocketControlSystem.__init__()
+        self.actuatorList = None    # Set by self.initializeActuators, if it is called by a control system being initialized ex: RocketControlSystem.__init__()
+
+        self.numFins = componentDictReader.getInt(&#34;numFins&#34;)
+        self.firstFinAngle = componentDictReader.getFloat(&#34;firstFinAngle&#34;)
+
+        # Set fin properties
+        self.finAngle = componentDictReader.getFloat(&#34;finCantAngle&#34;)
+        self.sweepAngle = math.radians(componentDictReader.getFloat(&#34;sweepAngle&#34;))
+        self.rootChord = componentDictReader.getFloat(&#34;rootChord&#34;)
+        self.tipChord = componentDictReader.getFloat(&#34;tipChord&#34;)
+        self.span = componentDictReader.getFloat(&#34;span&#34;)
+        self.surfaceRoughness = componentDictReader.tryGetFloat(&#34;surfaceRoughness&#34;, defaultValue=self.rocket.surfaceRoughness)
+        self.thickness = componentDictReader.getFloat(&#34;thickness&#34;)
+        self.numFinSpanSteps = componentDictReader.getInt(&#34;numFinSpanSlicesForIntegration&#34;)
+        
+        # Leading Edge properties
+        self.leadingEdgeShape = componentDictReader.getString(&#34;LeadingEdge.shape&#34;)
+        if self.leadingEdgeShape == &#34;Round&#34;:
+            self.leadingEdgeRadius = componentDictReader.tryGetFloat(&#34;LeadingEdge.radius&#34;, defaultValue=self.thickness/100)
+        elif self.leadingEdgeShape == &#34;Blunt&#34;:
+            self.leadingEdgeThickness = componentDictReader.tryGetFloat(&#34;LeadingEdge.thickness&#34;, defaultValue=self.thickness)
+        else:
+            raise ValueError(&#34;ERROR: Leading edge shape: {} not implemented. Use &#39;Round&#39; or &#39;Blunt&#39;&#34;.format(self.leadingEdgeShape))
+
+        # Trailing Edge properties
+        self.trailingEdgeShape = componentDictReader.getString(&#34;TrailingEdge.shape&#34;)
+        if self.trailingEdgeShape == &#34;Round&#34;:
+            self.trailingEdgeRadius = componentDictReader.getFloat(&#34;TrailingEdge.radius&#34;)
+        elif self.trailingEdgeShape == &#34;Blunt&#34;:
+            self.trailingEdgeThickness = componentDictReader.getFloat(&#34;TrailingEdge.thickness&#34;)
+        elif self.trailingEdgeShape != &#34;Tapered&#34;:
+            raise ValueError(&#34;ERROR: Trailing edge shape: {} not implemented. Use &#39;Round&#39;, &#39;Blunt&#39;, or &#39;Tapered&#39;&#34;.format(self.trailingEdgeShape))
+
+        # Common fin properties for all child fins
+        self._precomputeGeometry()
+        
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(componentDictReader, rocket, stage)
+
+    def initializeActuators(self, controlSystem):
+        self.controlSystem = controlSystem
+
+        # Initialize an actuator model for each fin
+        ActuatedSystem.__init__(self, self.numFins)
+
+    def _precomputeGeometry(self):
+        self._calculateSweepAngles()
+
+        ### Compute Other Simple Properties ####
+        self.planformArea = self.span * (self.tipChord + self.rootChord) / 2
+        self.wettedArea = 2*self.planformArea
+        self.aspectRatio = (2*self.span)**2/self.planformArea # Aspect ratio of the wing that would be created by reflecting the fin about its root chord (Fleeman/Niskanen)
+        self.stallAngle = 15 * (1 + 1.1/self.aspectRatio) # Compute stall angle from Hoerner, &#39;Fluid Dynamic Lift&#39; for low aspect ratio wings
+
+        # Get the body radius where the fin is mounted
+        stageTopZ = self.stage.position.Z
+        distanceFromTopOfStageToTopOfThisFinSet = stageTopZ - self.position.Z
+        self.bodyRadius = self.stage.getRadius(distanceFromTopOfStageToTopOfThisFinSet)
+
+        self._calculateInterferenceFactors()
+        self._calculateMACProperties()
+        self._splitFinsIntoSlices()
+
+        self._precomputeSubsonicFinThicknessDrag()
+        self._precomputeCPInterpolationPolynomial()
+    
+    def _calculateSweepAngles(self):
+        &#39;&#39;&#39; Compute Trailing Edge (TE) and Mid Chord sweep angles &#39;&#39;&#39;
+        LEtipChordBehindRootChord = self.span * math.tan(self.sweepAngle) # Z-distance the front of the tip chord is behind the front of the root chord
+        TETipChordBehindRootChord = self.tipChord + LEtipChordBehindRootChord - self.rootChord # Z-distance the back of the tip chord is behind the back of the root chord
+
+        if(TETipChordBehindRootChord == 0):
+            self.trailingEdgeSweep = 0.0
+        elif(TETipChordBehindRootChord &lt; 0):
+            # Negative trailing edge sweep is a forward-swept rear
+            self.trailingEdgeSweep = -1*math.atan2(abs(TETipChordBehindRootChord),self.span)
+        else:
+            self.trailingEdgeSweep = math.atan2(abs(TETipChordBehindRootChord), self.span)
+
+        self.midChordSweep = (self.sweepAngle + self.trailingEdgeSweep) / 2
+
+        self.dZ_dSpan_LE_neg = math.tan(self.sweepAngle) # -dZ/dSpan (leading edge slope)
+        self.dZ_dSpan_TE_neg = math.tan(self.trailingEdgeSweep) # dZ/dSpan (trailing edge slope)
+
+    def _calculateInterferenceFactors(self):
+        # Interference w/ body tube
+        # Accounts for additional normal forces generated by the fins, due to the presence of the rocket body
+        # Niskanen Eqn 3.56, originally from Barrowman
+        self.bodyOnFinInterferenceFactor = 1 + self.bodyRadius / (self.span + self.bodyRadius)
+
+        # Interference b/w the fins
+        # Niskanen Eqn 3.54, from MIL-HDBK-762
+        # Accounts for reduced normal force generated by large numbers of fins in a group
+        # Not expected to work well for more than 8 fins
+        if self.numFins &lt;= 4:
+            self.finNumberInterferenceFactor = 1.0
+        elif self.numFins &lt;= 8:
+            numberToFactorMap = {
+                5: 0.948,
+                6: 0.913,
+                7: 0.854,
+                8: 0.810,
+            }
+            self.finNumberInterferenceFactor = numberToFactorMap[self.finNumber]
+        else:
+            self.finNumberInterferenceFactor = 0.75
+
+    def _calculateMACProperties(self):
+        &#39;&#39;&#39; Calculates MAC Length, MACY, and MACX - Niskanen (Eqn. 3.30-3.32) &#39;&#39;&#39;
+        def LEdgeAtY(y): # Leading Edge at y - where y is the spanwise coordinate
+            return self.dZ_dSpan_LE_neg*y
+                    
+        numSpanSteps = round(self.span / 0.0001) # One step per 0.1 mm
+        finSpanStep = self.span / numSpanSteps
+
+        MACIntegralSum = 0
+        MACYPosIntegralSum = 0
+        XMACLeadingEdgeIntegralSum = 0
+        for i in range(numSpanSteps):
+            y = i * finSpanStep + finSpanStep/2
+            MACIntegralSum += ((self.getChord(y)**2)*finSpanStep) # Eqn 3.30, integrated numerically
+            MACYPosIntegralSum += y * (self.getChord(y) * finSpanStep) # Eqn 3.31, integrated numerically
+            XMACLeadingEdgeIntegralSum += LEdgeAtY(y) * self.getChord(y)*finSpanStep # Eqn 3.32, integrated numerically
+
+        # Save results
+        self.MACLength = MACIntegralSum/self.planformArea
+        self.MACYPos = MACYPosIntegralSum/self.planformArea
+        self.XMACLeadingEdge = XMACLeadingEdgeIntegralSum/self.planformArea
+
+    def _splitFinsIntoSlices(self):
+        &#39;&#39;&#39; Precomputes fin area slices for normal force integration &#39;&#39;&#39;
+        stepSize = self.span / self.numFinSpanSteps
+        bodyRadius = self.bodyRadius
+        
+        self.spanSliceAreas = []
+        self.spanSliceRadii = []
+        for i in range(self.numFinSpanSteps):
+            y = i*stepSize + stepSize*0.5
+            self.spanSliceRadii.append(y + bodyRadius)
+            self.spanSliceAreas.append(stepSize*self.getChord(y))
+
+    def _precomputeSubsonicFinThicknessDrag(self):
+        &#39;&#39;&#39; Precompute the subsonic thickness drag coefficient (Barrowman Eqn 4-36) &#39;&#39;&#39;
+        sigma = (self.aspectRatio/2) * (self.thickness / self.rootChord)**(1/3) # Barrowman Eqn 4-35 b
+        CD_TT_star = 1.15 * (self.thickness/self.rootChord)**(5/3) * (1.61 + sigma - sqrt((sigma - 1.43)**2 + 0.578))
+        
+        # Get skin friction coefficient at Mach 1
+        mach1State = copy.deepcopy(self.rocket.rigidBody.state)
+        mach1State.velocity = Vector(0,0,340.3) # Get speed up around Mach 1
+        environment = self.rocket.environment.getAirProperties(self.rocket.rigidBody.state.position, 0)
+        CD_f_star = AeroFunctions.getSkinFrictionCoefficient(mach1State, environment, self.MACLength, 1.0, self.surfaceRoughness, self.rocket.fullyTurbulentBL)
+        
+        # Final result
+        self.subsonicFinThicknessK = cos(self.midChordSweep)**2 + (((CD_TT_star/CD_f_star - 4*cos(self.midChordSweep)*(self.thickness/self.rootChord)) / (120 * cos(self.midChordSweep)**2 * (self.thickness/self.rootChord)**4))**2)**(1/3)
+
+    def _precomputeCPInterpolationPolynomial(self):
+        &#39;&#39;&#39; Precompute Interpolation polynomial coefficients for getCPXLocation function &#39;&#39;&#39;
+        AR = self.aspectRatio
+        f_2 = (AR * (3)**0.5 - 0.67) / (2 * (3)**0.5 * AR - 1)
+        f_prime_2_t1 = (2 * (3)**-0.5 * AR) * (2 * AR * (3)**0.5 - 1) 
+        f_prime_2_t2 = ((3)**0.5 * AR - 0.67) * (AR * 4 * (3)**-0.5)
+        f_prime_2_denom = (2 * AR * (3)**0.5 -1)**2
+        f_prime_2 = (f_prime_2_t1 - f_prime_2_t2) / f_prime_2_denom
+        
+        a_mat = [
+                [0.5**5, 0.5**4, 0.5**3, 0.5**2, 0.5, 1],
+                [5*(0.5)**4, 4*(0.5)**3, 3*(0.5)**2, 2*(0.5), 1, 0],
+                [2**5, 2**4, 2**3, 2**2, 2, 1],
+                [5*(2)**4, 4*(2)**3, 3*(2)**2, 2*2, 1, 0],
+                [20*2**3, 12*2**2, 6*2, 2, 0, 0],
+                [60*2**2, 24*2, 6, 0, 0, 0],
+                ]
+        
+        b_vec = [0.25, 0, f_2, f_prime_2, 0, 0]
+        
+        # Save results
+        self.x = np.linalg.solve(a_mat, b_vec)   
+
+    def _initChildFins(self, componentDictReader, rocket, stage):
+        self.finList = []
+        
+        finSeparationAngle = 360/self.numFins
+        firstFinAngle = self.firstFinAngle
+
+        # Create child fins
+        for i in range(self.numFins):
+            # Figure out what direction the fin points in
+            spanwiseUnitX = math.cos(math.radians(firstFinAngle + i*finSeparationAngle))
+            spanwiseUnitY = math.sin(math.radians(firstFinAngle + i*finSeparationAngle))
+            spanWiseDirection = Vector(spanwiseUnitX, spanwiseUnitY, 0)
+
+            #Initialize each fin separately and keep in a list
+            self.finList.append(Fin(componentDictReader, self, spanWiseDirection, rocket, stage))
+
+    def getLogHeader(self):
+        header = &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+        
+        if self.controlSystem != None:
+            for finNumber in range(1, self.numFins+1):
+                header += &#34; {}Fin{}Angle(deg)&#34;.format(self.name, finNumber)
+
+        return header
+
+    ### Functions used during simulation ###
+    def getAeroForce(self, rocketState, time, environment, CG):
+        #### If control system exists, use actuator deflections 1:1 to set fin angles ####
+        if self.controlSystem != None:
+            # Update fin angles
+            for i in range(self.numFins):
+                self.finList[i].finAngle = self.actuatorList[i].getDeflection(time)
+
+        #### Pre-calculate common properties for all child Fins ####
+        precomputedData = self._getPreComputedFinAeroData(rocketState, environment, CG)
+
+        #### Add up forces from all child Fins ####
+        aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
+        for fin in self.finList:
+            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+
+        # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
+        
+        # Apply fin-body interference factor to total forces in the normal (X/Y) directions and moments
+        totalInterferenceFactor = self.bodyOnFinInterferenceFactor * self.finNumberInterferenceFactor
+        aeroForce.force.X *= totalInterferenceFactor
+        aeroForce.force.Y *= totalInterferenceFactor
+        aeroForce.moment.X *= totalInterferenceFactor
+        aeroForce.moment.Y *= totalInterferenceFactor          
+
+        #### Log results ####
+        forceLogLine = &#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment)
+        if self.controlSystem != None:
+            for i in range(len(self.actuatorList)):
+                forceLogLine += &#34; {:&gt;6.4}&#34;.format(self.finList[i].finAngle)
+        self.rocket.appendToForceLogLine(forceLogLine)
+
+        return aeroForce
+
+    def _getPreComputedFinAeroData(self, rocketState, environment, CG):
+        #General Info ---------------------------------------------------------------------------------------------------------------------
+        Aref = self.rocket.Aref
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+
+        # Skin Friction Drag -------------------------------------------------------------------------------------------------------------
+        
+        skinFrictionCoefficient = AeroFunctions.getSkinFrictionCoefficient(rocketState, environment, self.MACLength, Mach, self.surfaceRoughness, self.rocket.fullyTurbulentBL)    
+        # Adjust to the rocket reference area (skinFrictionCoefficient is based on wetted area)
+        skinFrictionDragCoefficient = skinFrictionCoefficient*(self.wettedArea / Aref)
+        # Correct for additional surface area due to fin thickness - Niskanen Eqn 3.85
+        skinFrictionDragCoefficient *= (1 + 2*self.thickness/self.MACLength)
+        
+        # Pressure Drag ------------------------------------------------------------------------------------------------------------------
+
+        # Leading edge drag coefficient
+        if self.leadingEdgeShape == &#34;Round&#34;:
+            leadingEdgeCd = AeroFunctions.getCylinderCrossFlowCd_ZeroBaseDrag(Mach)
+            LEthickness = self.leadingEdgeRadius*2
+        elif self.leadingEdgeShape == &#34;Blunt&#34;:
+            leadingEdgeCd = AeroFunctions.getBluntBodyCd_ZeroBaseDrag(Mach)
+            LEthickness = self.leadingEdgeThickness
+
+        # Adjust for leading edge angle and convert reference area to rocket reference area - Barrowman Eqn 4-22
+        leadingEdgeCdAdjustmentFactor = LEthickness * self.span * cos(self.sweepAngle)**2 / Aref
+        leadingEdgeCd *= leadingEdgeCdAdjustmentFactor
+            
+        # Trailing edge drag coefficient - simpler method from Niskanen section 3.4.4. Corrected to use only the trailing edge area, not the full fin frontal area
+            # more intricate method available in Barrowman
+        baseDragCd = AeroFunctions.getBaseDragCoefficient(Mach)
+        if self.trailingEdgeShape == &#34;Tapered&#34;:
+            TEthickness = 0 # Zero base drag
+        elif self.trailingEdgeShape == &#34;Round&#34;:
+            TEthickness = self.trailingEdgeRadius # 0.5 base drag
+        elif self.trailingEdgeShape == &#34;Blunt&#34;:
+            TEthickness = self.trailingEdgeThickness # Full base drag
+        
+        # Convert to standard rocket reference Area
+        trailingEdgeCd = baseDragCd * self.span*TEthickness/Aref
+
+        # Thickness / Wave Drag
+        #TODO: This section doesn&#39;t seem to be working quite right
+        if Mach &lt;= 1:
+            # Thickness drag, subsonic
+            thicknessDrag = 4*skinFrictionCoefficient*((self.thickness/self.rootChord)*cos(self.midChordSweep) + \
+                (30 * (self.thickness/self.rootChord)**4 * cos(self.midChordSweep)**2) /  \
+                    (self.subsonicFinThicknessK - Mach**2 * cos(self.midChordSweep)**2)**(3/2))
+        else:
+            # Supersonic wave drag
+            # Using simplistic method from Hoerner - assumes diamond profile (pg 17-12, Eqn 29)
+            # TODO: Implement method from Barrowman&#39;s FIN program
+            thicknessDrag = 2.3*self.aspectRatio * (self.thickness / self.MACLength)**2
+
+        thicknessDrag *= self.planformArea/Aref
+
+        pressureDragCoefficient = leadingEdgeCd + trailingEdgeCd + thicknessDrag
+                        
+        # Total Drag --------------------------------------------------------------------------------------------------------------------
+        
+        totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
+
+        localFrameRocketVelocity = AeroFunctions.getLocalFrameAirVel(rocketState, environment)
+        axialPositionRelCG = self.position - CG
+        finVelocityDueToRocketPitchYaw = rocketState.angularVelocity.crossProduct(axialPositionRelCG) 
+        airVelRelativeToFin = localFrameRocketVelocity - finVelocityDueToRocketPitchYaw # The negative puts it in the wind frame
+        CPXPos = self._getCPXPos(Mach)
+
+        #### Transfer info to fins ####
+        return PreComputedFinAeroData(airVelRelativeToFin, CPXPos, totalDragCoefficient)
+
+    def _getCPXPos(self, Mach):
+        &#39;&#39;&#39; 
+            Finds the chordwise position of the center of pressure, relative to the tip of the root chord (self.position) 
+            Methods from Tactical missile design by Fleeman through Niskanen
+        &#39;&#39;&#39;
+        if Mach &lt; 0.5:
+            XF = self.XMACLeadingEdge + 0.25*self.MACLength #As per open rocket documentation
+
+        elif Mach &gt;= 2.0:
+            beta = AeroFunctions.getBeta(Mach)
+            CPCalc = lambda AR, B : (AR*B - 0.67) / (2*AR*B - 1) #Eq 3.35 of open rocket documentation (greater than M = 2)
+            XF = self.MACLength*CPCalc(self.aspectRatio, beta) + self.XMACLeadingEdge #As per open rocket documentation
+
+        else:
+            #Between the two extremes is a polynomial curve fit
+            #Fifth order polynomial fit as per Niskanen Eqn 3.36 (Originally from Fleeman)
+                # Old code: XF = np.polyval(self.x, Mach)*self.MACLength + self.XMACLeadingEdge
+                # Evaluate polynomial manually for maximum speed (8.5x improvement for 6 coeffs)
+                    # Speed test in test/speedTests/PolyvalSpeed.py
+            polyval = 0
+            nTerms = len(self.x)
+            for i in range(nTerms):
+                polyval += self.x[i]*Mach**(nTerms-1-i)
+
+            XF = polyval*self.MACLength + self.XMACLeadingEdge # Polyval defines the fraction of the MAC that the Cp is behind the leading edge
+
+        return XF
+
+    def getChord(self, y):
+        &#39;&#39;&#39; Returns chord at y, where y==0 is at the root chord, and y==span is at the tip chord &#39;&#39;&#39;
+        return (self.tipChord - self.rootChord) * (y/self.span) + self.rootChord
+
+    def plotShape(self):
+        import matplotlib.pyplot as plt
+
+        BodyTubeDiameter = self.bodyRadius*2
+        SubComponentPos = self.position.Z
+        span = self.span
+        rootChord = self.rootChord
+        tipChord = self.tipChord
+        sweepAngle = self.sweepAngle
+        Xvals = []
+        Yvals = []
+        Xvals.append(SubComponentPos)
+        Yvals.append(BodyTubeDiameter/2)
+        Xvals.append(Xvals[0]-span*math.tan(sweepAngle))
+        Yvals.append(Yvals[0]+span)
+        Xvals.append(Xvals[1]-tipChord)
+        Yvals.append(Yvals[1])
+        Xvals.append(Xvals[0]-rootChord)
+        Yvals.append(Yvals[0])
+        Xvals.append(Xvals[0])
+        Yvals.append(Yvals[0])
+        plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+
+        if self.numFins == 4:
+            Yvals = [-1*i for i in Yvals]
+            plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+            Yvals = [0*i for i in Yvals]
+            plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+
+        elif self.numFins == 3:
+            Yvals = []
+            Yvals.append(-BodyTubeDiameter/2*math.sin(math.radians(30)))
+            Yvals.append(-(BodyTubeDiameter/2 + span)*math.sin(math.radians(30)))
+            Yvals.append(Yvals[1])
+            Yvals.append(Yvals[0])
+            Yvals.append(Yvals[0])
+            plt.plot (Xvals, Yvals, color = &#39;k&#39;)
+
+class Fin(FixedMass):
+
+    def __init__(self, componentDictReader, parentFinSet, spanwiseDirection, rocket, stage):
+
+        FixedMass.__init__(self, componentDictReader, rocket, stage)
+
+        self.finSet = parentFinSet # type: FinSet
+        &#39;&#39;&#39; Reference to the parent fin set &#39;&#39;&#39;
+
+        self.spanSliceAreas = self.finSet.spanSliceAreas
+        self.spanSliceRadii = self.finSet.spanSliceRadii
+
+        self.finAngle = self.finSet.finAngle
+        self.stallAngle = self.finSet.stallAngle
+
+        self.span = self.finSet.span
+        self.planformArea = self.finSet.planformArea
+        self.midChordSweep = self.finSet.midChordSweep
+        
+        # Unit vector parallel to the fin&#39;s shaft and/or fin&#39;s spanwise direction, normal to the rocket&#39;s body tube
+        self.spanwiseDirection = spanwiseDirection
+
+        # Vector normal to the fin surface, in the X/Y Plane, when self.finAngle == 0
+        self.undeflectedFinNormal = Vector(self.spanwiseDirection[1], -self.spanwiseDirection[0], 0)
+
+        # Spanwise component of Center of Pressure (CP) location
+        self.CPSpanWisePosition = self.spanwiseDirection*(self.finSet.MACYPos + self.finSet.bodyRadius)
+
+    def _barrowmanAeroFunc(self, rocketState, time, environment, precomputedData, CG = Vector(0,0,0), finDeflectionAngle = None):
+        &#39;&#39;&#39;
+            Precomputed Data is a named tuple (PreComputedFinAeroData) which contains data/results from the parts of the fin aerodynamics calculation
+                that are common to all fins in a FinSet (drag calculations mostly). These calculations are performed at the FinSet level.
+            Only the parts of the Fin Aero Computation that change from fin to fin (normal force mostly, since different fins can have different angles of attack) are computed here
+        &#39;&#39;&#39;
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+
+        if finDeflectionAngle == None:
+            finDeflectionAngle = self.finAngle # Adjusted by parent finset during each timestep, when the FinSet is controlled
+
+        # Unpack precomputedData
+        airVelRelativeToFin, CPXPos, totalDragCoefficient = precomputedData
+
+        #### Compute normal force-----------------------------------------------------------------------------------------------------------------
+           
+        # Find fin normal vector after fin deflection       
+        finDeflectionRotation = Quaternion(axisOfRotation=self.spanwiseDirection, angle=radians(finDeflectionAngle))
+        finNormal = finDeflectionRotation.rotate(self.undeflectedFinNormal)
+        # Get the tangential velocity component vector, per unit radial distance from the rocket centerline
+        rollAngVel = AngularVelocity(0, 0, rocketState.angularVelocity.Z)
+        unitSpanTangentialAirVelocity = rollAngVel.crossProduct(self.spanwiseDirection)*(-1)
+        
+        def subsonicNormalForce(Mach): # Subsonic linear method
+            tempBeta = AeroFunctions.getBeta(Mach)
+            CnAlpha = getFinCnAlpha_Subsonic_Barrowman(self.span, self.planformArea, tempBeta, self.midChordSweep)
+            return getSubsonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), CnAlpha, self)
+
+        def supersonicNormalForce(Mach): # Supersonic Busemann method
+            gamma = AeroFunctions.getGamma()
+            tempBeta = AeroFunctions.getBeta(Mach)
+            K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
+            return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
+
+        if Mach &lt;= 0.8:
+            normalForceMagnitude, finMoment = subsonicNormalForce(Mach)
+
+        elif Mach &lt; 1.5:
+            # Interpolate in transonic region
+            # TODO: Do this with less function evaluations? Perhaps precompute AOA and Mach combinations and simply interpolate? Lazy precompute? Cython?
+            x1, x2 = 0.8, 1.5 # Start, end pts of interpolated region
+            dx = 0.001
+
+            # Find normal force and derivative at start of interpolation interval
+            f_x1, m_x1 = subsonicNormalForce(x1)
+            f_x12, m_x12 = subsonicNormalForce(x1+dx)
+
+            # Find normal force and derivative at end of interpolation interval
+            f_x2, m_x2 = supersonicNormalForce(x2)
+            f_x22, m_x22 = supersonicNormalForce(x2+dx)
+
+            normalForceMagnitude = Interpolation.cubicInterp(Mach, x1, x2, f_x1, f_x2, f_x12, f_x22, dx)
+            finMoment = Interpolation.cubicInterp(Mach, x1, x2, m_x1, m_x2, m_x12, m_x22, dx)
+        else:
+            normalForceMagnitude, finMoment = supersonicNormalForce(Mach)
+             
+        # Complete redimensionalization of normal force coefficients by multiplying by dynamic pressure
+        # Direct the normal force along the fin&#39;s normal direction
+        normalForce = normalForceMagnitude * dynamicPressure * finNormal
+        finMoment *= dynamicPressure
+                
+        #### Get axial force-----------------------------------------------------------------------------------------------------------------------
+        
+        avgAOA = getFinSliceAngleOfAttack(self.spanSliceRadii[round(len(self.spanSliceAreas)/2)], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.stallAngle) # Approximate average fin AOA
+        totalAxialForceCoefficient = AeroFunctions.getDragToAxialForceFactor(avgAOA) * totalDragCoefficient
+        axialForceMagnitude = totalAxialForceCoefficient * self.rocket.Aref * dynamicPressure
+        axialForceDirection = self.spanwiseDirection.crossProduct(finNormal)
+        axialForce = axialForceDirection*axialForceMagnitude
+        
+        #### Get CP Location ----------------------------------------------------------------------------------------------------------------------
+
+        CPChordWisePosition = self.position - Vector(0, 0, CPXPos) # Ignoring the change in CP position due to fin deflection for now
+        globalCP = self.CPSpanWisePosition + CPChordWisePosition
+
+        #### Assemble total force moment system objects--------------------------------------------------------------------------------------------
+
+        totalForce = normalForce + axialForce
+        return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
+
+    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+        [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
+        return aeroForce</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Rocket.Fins.Fin"><code class="flex name class">
+<span>class <span class="ident">Fin</span></span>
+<span>(</span><span>componentDictReader, parentFinSet, spanwiseDirection, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all fixed-mass rocket components
+Implements functionality to read inertia and position info from sim definition file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Fin(FixedMass):
+
+    def __init__(self, componentDictReader, parentFinSet, spanwiseDirection, rocket, stage):
+
+        FixedMass.__init__(self, componentDictReader, rocket, stage)
+
+        self.finSet = parentFinSet # type: FinSet
+        &#39;&#39;&#39; Reference to the parent fin set &#39;&#39;&#39;
+
+        self.spanSliceAreas = self.finSet.spanSliceAreas
+        self.spanSliceRadii = self.finSet.spanSliceRadii
+
+        self.finAngle = self.finSet.finAngle
+        self.stallAngle = self.finSet.stallAngle
+
+        self.span = self.finSet.span
+        self.planformArea = self.finSet.planformArea
+        self.midChordSweep = self.finSet.midChordSweep
+        
+        # Unit vector parallel to the fin&#39;s shaft and/or fin&#39;s spanwise direction, normal to the rocket&#39;s body tube
+        self.spanwiseDirection = spanwiseDirection
+
+        # Vector normal to the fin surface, in the X/Y Plane, when self.finAngle == 0
+        self.undeflectedFinNormal = Vector(self.spanwiseDirection[1], -self.spanwiseDirection[0], 0)
+
+        # Spanwise component of Center of Pressure (CP) location
+        self.CPSpanWisePosition = self.spanwiseDirection*(self.finSet.MACYPos + self.finSet.bodyRadius)
+
+    def _barrowmanAeroFunc(self, rocketState, time, environment, precomputedData, CG = Vector(0,0,0), finDeflectionAngle = None):
+        &#39;&#39;&#39;
+            Precomputed Data is a named tuple (PreComputedFinAeroData) which contains data/results from the parts of the fin aerodynamics calculation
+                that are common to all fins in a FinSet (drag calculations mostly). These calculations are performed at the FinSet level.
+            Only the parts of the Fin Aero Computation that change from fin to fin (normal force mostly, since different fins can have different angles of attack) are computed here
+        &#39;&#39;&#39;
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+
+        if finDeflectionAngle == None:
+            finDeflectionAngle = self.finAngle # Adjusted by parent finset during each timestep, when the FinSet is controlled
+
+        # Unpack precomputedData
+        airVelRelativeToFin, CPXPos, totalDragCoefficient = precomputedData
+
+        #### Compute normal force-----------------------------------------------------------------------------------------------------------------
+           
+        # Find fin normal vector after fin deflection       
+        finDeflectionRotation = Quaternion(axisOfRotation=self.spanwiseDirection, angle=radians(finDeflectionAngle))
+        finNormal = finDeflectionRotation.rotate(self.undeflectedFinNormal)
+        # Get the tangential velocity component vector, per unit radial distance from the rocket centerline
+        rollAngVel = AngularVelocity(0, 0, rocketState.angularVelocity.Z)
+        unitSpanTangentialAirVelocity = rollAngVel.crossProduct(self.spanwiseDirection)*(-1)
+        
+        def subsonicNormalForce(Mach): # Subsonic linear method
+            tempBeta = AeroFunctions.getBeta(Mach)
+            CnAlpha = getFinCnAlpha_Subsonic_Barrowman(self.span, self.planformArea, tempBeta, self.midChordSweep)
+            return getSubsonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), CnAlpha, self)
+
+        def supersonicNormalForce(Mach): # Supersonic Busemann method
+            gamma = AeroFunctions.getGamma()
+            tempBeta = AeroFunctions.getBeta(Mach)
+            K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
+            return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
+
+        if Mach &lt;= 0.8:
+            normalForceMagnitude, finMoment = subsonicNormalForce(Mach)
+
+        elif Mach &lt; 1.5:
+            # Interpolate in transonic region
+            # TODO: Do this with less function evaluations? Perhaps precompute AOA and Mach combinations and simply interpolate? Lazy precompute? Cython?
+            x1, x2 = 0.8, 1.5 # Start, end pts of interpolated region
+            dx = 0.001
+
+            # Find normal force and derivative at start of interpolation interval
+            f_x1, m_x1 = subsonicNormalForce(x1)
+            f_x12, m_x12 = subsonicNormalForce(x1+dx)
+
+            # Find normal force and derivative at end of interpolation interval
+            f_x2, m_x2 = supersonicNormalForce(x2)
+            f_x22, m_x22 = supersonicNormalForce(x2+dx)
+
+            normalForceMagnitude = Interpolation.cubicInterp(Mach, x1, x2, f_x1, f_x2, f_x12, f_x22, dx)
+            finMoment = Interpolation.cubicInterp(Mach, x1, x2, m_x1, m_x2, m_x12, m_x22, dx)
+        else:
+            normalForceMagnitude, finMoment = supersonicNormalForce(Mach)
+             
+        # Complete redimensionalization of normal force coefficients by multiplying by dynamic pressure
+        # Direct the normal force along the fin&#39;s normal direction
+        normalForce = normalForceMagnitude * dynamicPressure * finNormal
+        finMoment *= dynamicPressure
+                
+        #### Get axial force-----------------------------------------------------------------------------------------------------------------------
+        
+        avgAOA = getFinSliceAngleOfAttack(self.spanSliceRadii[round(len(self.spanSliceAreas)/2)], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.stallAngle) # Approximate average fin AOA
+        totalAxialForceCoefficient = AeroFunctions.getDragToAxialForceFactor(avgAOA) * totalDragCoefficient
+        axialForceMagnitude = totalAxialForceCoefficient * self.rocket.Aref * dynamicPressure
+        axialForceDirection = self.spanwiseDirection.crossProduct(finNormal)
+        axialForce = axialForceDirection*axialForceMagnitude
+        
+        #### Get CP Location ----------------------------------------------------------------------------------------------------------------------
+
+        CPChordWisePosition = self.position - Vector(0, 0, CPXPos) # Ignoring the change in CP position due to fin deflection for now
+        globalCP = self.CPSpanWisePosition + CPChordWisePosition
+
+        #### Assemble total force moment system objects--------------------------------------------------------------------------------------------
+
+        totalForce = normalForce + axialForce
+        return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
+
+    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+        [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
+        return aeroForce</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Fins.Fin.finSet"><code class="name">var <span class="ident">finSet</span></code></dt>
+<dd>
+<div class="desc"><p>Reference to the parent fin set</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Fins.Fin.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG, precomputedData)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+    [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
+    return aeroForce</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.FinSet"><code class="flex name class">
+<span>class <span class="ident">FinSet</span></span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all fixed-mass rocket components
+Implements functionality to read inertia and position info from sim definition file</p>
+<p>This is a conrete, implemented method, intended to be called by child classes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FinSet(FixedMass, ActuatedSystem):
+
+    #### Initialization Functions ####
+    def __init__(self, componentDictReader, rocket, stage):
+        FixedMass.__init__(self, componentDictReader, rocket, stage)
+
+        self.controlSystem = None   # Set by self.initializeActuators, if it is called by a control system being initialized ex: RocketControlSystem.__init__()
+        self.actuatorList = None    # Set by self.initializeActuators, if it is called by a control system being initialized ex: RocketControlSystem.__init__()
+
+        self.numFins = componentDictReader.getInt(&#34;numFins&#34;)
+        self.firstFinAngle = componentDictReader.getFloat(&#34;firstFinAngle&#34;)
+
+        # Set fin properties
+        self.finAngle = componentDictReader.getFloat(&#34;finCantAngle&#34;)
+        self.sweepAngle = math.radians(componentDictReader.getFloat(&#34;sweepAngle&#34;))
+        self.rootChord = componentDictReader.getFloat(&#34;rootChord&#34;)
+        self.tipChord = componentDictReader.getFloat(&#34;tipChord&#34;)
+        self.span = componentDictReader.getFloat(&#34;span&#34;)
+        self.surfaceRoughness = componentDictReader.tryGetFloat(&#34;surfaceRoughness&#34;, defaultValue=self.rocket.surfaceRoughness)
+        self.thickness = componentDictReader.getFloat(&#34;thickness&#34;)
+        self.numFinSpanSteps = componentDictReader.getInt(&#34;numFinSpanSlicesForIntegration&#34;)
+        
+        # Leading Edge properties
+        self.leadingEdgeShape = componentDictReader.getString(&#34;LeadingEdge.shape&#34;)
+        if self.leadingEdgeShape == &#34;Round&#34;:
+            self.leadingEdgeRadius = componentDictReader.tryGetFloat(&#34;LeadingEdge.radius&#34;, defaultValue=self.thickness/100)
+        elif self.leadingEdgeShape == &#34;Blunt&#34;:
+            self.leadingEdgeThickness = componentDictReader.tryGetFloat(&#34;LeadingEdge.thickness&#34;, defaultValue=self.thickness)
+        else:
+            raise ValueError(&#34;ERROR: Leading edge shape: {} not implemented. Use &#39;Round&#39; or &#39;Blunt&#39;&#34;.format(self.leadingEdgeShape))
+
+        # Trailing Edge properties
+        self.trailingEdgeShape = componentDictReader.getString(&#34;TrailingEdge.shape&#34;)
+        if self.trailingEdgeShape == &#34;Round&#34;:
+            self.trailingEdgeRadius = componentDictReader.getFloat(&#34;TrailingEdge.radius&#34;)
+        elif self.trailingEdgeShape == &#34;Blunt&#34;:
+            self.trailingEdgeThickness = componentDictReader.getFloat(&#34;TrailingEdge.thickness&#34;)
+        elif self.trailingEdgeShape != &#34;Tapered&#34;:
+            raise ValueError(&#34;ERROR: Trailing edge shape: {} not implemented. Use &#39;Round&#39;, &#39;Blunt&#39;, or &#39;Tapered&#39;&#34;.format(self.trailingEdgeShape))
+
+        # Common fin properties for all child fins
+        self._precomputeGeometry()
+        
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(componentDictReader, rocket, stage)
+
+    def initializeActuators(self, controlSystem):
+        self.controlSystem = controlSystem
+
+        # Initialize an actuator model for each fin
+        ActuatedSystem.__init__(self, self.numFins)
+
+    def _precomputeGeometry(self):
+        self._calculateSweepAngles()
+
+        ### Compute Other Simple Properties ####
+        self.planformArea = self.span * (self.tipChord + self.rootChord) / 2
+        self.wettedArea = 2*self.planformArea
+        self.aspectRatio = (2*self.span)**2/self.planformArea # Aspect ratio of the wing that would be created by reflecting the fin about its root chord (Fleeman/Niskanen)
+        self.stallAngle = 15 * (1 + 1.1/self.aspectRatio) # Compute stall angle from Hoerner, &#39;Fluid Dynamic Lift&#39; for low aspect ratio wings
+
+        # Get the body radius where the fin is mounted
+        stageTopZ = self.stage.position.Z
+        distanceFromTopOfStageToTopOfThisFinSet = stageTopZ - self.position.Z
+        self.bodyRadius = self.stage.getRadius(distanceFromTopOfStageToTopOfThisFinSet)
+
+        self._calculateInterferenceFactors()
+        self._calculateMACProperties()
+        self._splitFinsIntoSlices()
+
+        self._precomputeSubsonicFinThicknessDrag()
+        self._precomputeCPInterpolationPolynomial()
+    
+    def _calculateSweepAngles(self):
+        &#39;&#39;&#39; Compute Trailing Edge (TE) and Mid Chord sweep angles &#39;&#39;&#39;
+        LEtipChordBehindRootChord = self.span * math.tan(self.sweepAngle) # Z-distance the front of the tip chord is behind the front of the root chord
+        TETipChordBehindRootChord = self.tipChord + LEtipChordBehindRootChord - self.rootChord # Z-distance the back of the tip chord is behind the back of the root chord
+
+        if(TETipChordBehindRootChord == 0):
+            self.trailingEdgeSweep = 0.0
+        elif(TETipChordBehindRootChord &lt; 0):
+            # Negative trailing edge sweep is a forward-swept rear
+            self.trailingEdgeSweep = -1*math.atan2(abs(TETipChordBehindRootChord),self.span)
+        else:
+            self.trailingEdgeSweep = math.atan2(abs(TETipChordBehindRootChord), self.span)
+
+        self.midChordSweep = (self.sweepAngle + self.trailingEdgeSweep) / 2
+
+        self.dZ_dSpan_LE_neg = math.tan(self.sweepAngle) # -dZ/dSpan (leading edge slope)
+        self.dZ_dSpan_TE_neg = math.tan(self.trailingEdgeSweep) # dZ/dSpan (trailing edge slope)
+
+    def _calculateInterferenceFactors(self):
+        # Interference w/ body tube
+        # Accounts for additional normal forces generated by the fins, due to the presence of the rocket body
+        # Niskanen Eqn 3.56, originally from Barrowman
+        self.bodyOnFinInterferenceFactor = 1 + self.bodyRadius / (self.span + self.bodyRadius)
+
+        # Interference b/w the fins
+        # Niskanen Eqn 3.54, from MIL-HDBK-762
+        # Accounts for reduced normal force generated by large numbers of fins in a group
+        # Not expected to work well for more than 8 fins
+        if self.numFins &lt;= 4:
+            self.finNumberInterferenceFactor = 1.0
+        elif self.numFins &lt;= 8:
+            numberToFactorMap = {
+                5: 0.948,
+                6: 0.913,
+                7: 0.854,
+                8: 0.810,
+            }
+            self.finNumberInterferenceFactor = numberToFactorMap[self.finNumber]
+        else:
+            self.finNumberInterferenceFactor = 0.75
+
+    def _calculateMACProperties(self):
+        &#39;&#39;&#39; Calculates MAC Length, MACY, and MACX - Niskanen (Eqn. 3.30-3.32) &#39;&#39;&#39;
+        def LEdgeAtY(y): # Leading Edge at y - where y is the spanwise coordinate
+            return self.dZ_dSpan_LE_neg*y
+                    
+        numSpanSteps = round(self.span / 0.0001) # One step per 0.1 mm
+        finSpanStep = self.span / numSpanSteps
+
+        MACIntegralSum = 0
+        MACYPosIntegralSum = 0
+        XMACLeadingEdgeIntegralSum = 0
+        for i in range(numSpanSteps):
+            y = i * finSpanStep + finSpanStep/2
+            MACIntegralSum += ((self.getChord(y)**2)*finSpanStep) # Eqn 3.30, integrated numerically
+            MACYPosIntegralSum += y * (self.getChord(y) * finSpanStep) # Eqn 3.31, integrated numerically
+            XMACLeadingEdgeIntegralSum += LEdgeAtY(y) * self.getChord(y)*finSpanStep # Eqn 3.32, integrated numerically
+
+        # Save results
+        self.MACLength = MACIntegralSum/self.planformArea
+        self.MACYPos = MACYPosIntegralSum/self.planformArea
+        self.XMACLeadingEdge = XMACLeadingEdgeIntegralSum/self.planformArea
+
+    def _splitFinsIntoSlices(self):
+        &#39;&#39;&#39; Precomputes fin area slices for normal force integration &#39;&#39;&#39;
+        stepSize = self.span / self.numFinSpanSteps
+        bodyRadius = self.bodyRadius
+        
+        self.spanSliceAreas = []
+        self.spanSliceRadii = []
+        for i in range(self.numFinSpanSteps):
+            y = i*stepSize + stepSize*0.5
+            self.spanSliceRadii.append(y + bodyRadius)
+            self.spanSliceAreas.append(stepSize*self.getChord(y))
+
+    def _precomputeSubsonicFinThicknessDrag(self):
+        &#39;&#39;&#39; Precompute the subsonic thickness drag coefficient (Barrowman Eqn 4-36) &#39;&#39;&#39;
+        sigma = (self.aspectRatio/2) * (self.thickness / self.rootChord)**(1/3) # Barrowman Eqn 4-35 b
+        CD_TT_star = 1.15 * (self.thickness/self.rootChord)**(5/3) * (1.61 + sigma - sqrt((sigma - 1.43)**2 + 0.578))
+        
+        # Get skin friction coefficient at Mach 1
+        mach1State = copy.deepcopy(self.rocket.rigidBody.state)
+        mach1State.velocity = Vector(0,0,340.3) # Get speed up around Mach 1
+        environment = self.rocket.environment.getAirProperties(self.rocket.rigidBody.state.position, 0)
+        CD_f_star = AeroFunctions.getSkinFrictionCoefficient(mach1State, environment, self.MACLength, 1.0, self.surfaceRoughness, self.rocket.fullyTurbulentBL)
+        
+        # Final result
+        self.subsonicFinThicknessK = cos(self.midChordSweep)**2 + (((CD_TT_star/CD_f_star - 4*cos(self.midChordSweep)*(self.thickness/self.rootChord)) / (120 * cos(self.midChordSweep)**2 * (self.thickness/self.rootChord)**4))**2)**(1/3)
+
+    def _precomputeCPInterpolationPolynomial(self):
+        &#39;&#39;&#39; Precompute Interpolation polynomial coefficients for getCPXLocation function &#39;&#39;&#39;
+        AR = self.aspectRatio
+        f_2 = (AR * (3)**0.5 - 0.67) / (2 * (3)**0.5 * AR - 1)
+        f_prime_2_t1 = (2 * (3)**-0.5 * AR) * (2 * AR * (3)**0.5 - 1) 
+        f_prime_2_t2 = ((3)**0.5 * AR - 0.67) * (AR * 4 * (3)**-0.5)
+        f_prime_2_denom = (2 * AR * (3)**0.5 -1)**2
+        f_prime_2 = (f_prime_2_t1 - f_prime_2_t2) / f_prime_2_denom
+        
+        a_mat = [
+                [0.5**5, 0.5**4, 0.5**3, 0.5**2, 0.5, 1],
+                [5*(0.5)**4, 4*(0.5)**3, 3*(0.5)**2, 2*(0.5), 1, 0],
+                [2**5, 2**4, 2**3, 2**2, 2, 1],
+                [5*(2)**4, 4*(2)**3, 3*(2)**2, 2*2, 1, 0],
+                [20*2**3, 12*2**2, 6*2, 2, 0, 0],
+                [60*2**2, 24*2, 6, 0, 0, 0],
+                ]
+        
+        b_vec = [0.25, 0, f_2, f_prime_2, 0, 0]
+        
+        # Save results
+        self.x = np.linalg.solve(a_mat, b_vec)   
+
+    def _initChildFins(self, componentDictReader, rocket, stage):
+        self.finList = []
+        
+        finSeparationAngle = 360/self.numFins
+        firstFinAngle = self.firstFinAngle
+
+        # Create child fins
+        for i in range(self.numFins):
+            # Figure out what direction the fin points in
+            spanwiseUnitX = math.cos(math.radians(firstFinAngle + i*finSeparationAngle))
+            spanwiseUnitY = math.sin(math.radians(firstFinAngle + i*finSeparationAngle))
+            spanWiseDirection = Vector(spanwiseUnitX, spanwiseUnitY, 0)
+
+            #Initialize each fin separately and keep in a list
+            self.finList.append(Fin(componentDictReader, self, spanWiseDirection, rocket, stage))
+
+    def getLogHeader(self):
+        header = &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+        
+        if self.controlSystem != None:
+            for finNumber in range(1, self.numFins+1):
+                header += &#34; {}Fin{}Angle(deg)&#34;.format(self.name, finNumber)
+
+        return header
+
+    ### Functions used during simulation ###
+    def getAeroForce(self, rocketState, time, environment, CG):
+        #### If control system exists, use actuator deflections 1:1 to set fin angles ####
+        if self.controlSystem != None:
+            # Update fin angles
+            for i in range(self.numFins):
+                self.finList[i].finAngle = self.actuatorList[i].getDeflection(time)
+
+        #### Pre-calculate common properties for all child Fins ####
+        precomputedData = self._getPreComputedFinAeroData(rocketState, environment, CG)
+
+        #### Add up forces from all child Fins ####
+        aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
+        for fin in self.finList:
+            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+
+        # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
+        
+        # Apply fin-body interference factor to total forces in the normal (X/Y) directions and moments
+        totalInterferenceFactor = self.bodyOnFinInterferenceFactor * self.finNumberInterferenceFactor
+        aeroForce.force.X *= totalInterferenceFactor
+        aeroForce.force.Y *= totalInterferenceFactor
+        aeroForce.moment.X *= totalInterferenceFactor
+        aeroForce.moment.Y *= totalInterferenceFactor          
+
+        #### Log results ####
+        forceLogLine = &#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment)
+        if self.controlSystem != None:
+            for i in range(len(self.actuatorList)):
+                forceLogLine += &#34; {:&gt;6.4}&#34;.format(self.finList[i].finAngle)
+        self.rocket.appendToForceLogLine(forceLogLine)
+
+        return aeroForce
+
+    def _getPreComputedFinAeroData(self, rocketState, environment, CG):
+        #General Info ---------------------------------------------------------------------------------------------------------------------
+        Aref = self.rocket.Aref
+        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+
+        # Skin Friction Drag -------------------------------------------------------------------------------------------------------------
+        
+        skinFrictionCoefficient = AeroFunctions.getSkinFrictionCoefficient(rocketState, environment, self.MACLength, Mach, self.surfaceRoughness, self.rocket.fullyTurbulentBL)    
+        # Adjust to the rocket reference area (skinFrictionCoefficient is based on wetted area)
+        skinFrictionDragCoefficient = skinFrictionCoefficient*(self.wettedArea / Aref)
+        # Correct for additional surface area due to fin thickness - Niskanen Eqn 3.85
+        skinFrictionDragCoefficient *= (1 + 2*self.thickness/self.MACLength)
+        
+        # Pressure Drag ------------------------------------------------------------------------------------------------------------------
+
+        # Leading edge drag coefficient
+        if self.leadingEdgeShape == &#34;Round&#34;:
+            leadingEdgeCd = AeroFunctions.getCylinderCrossFlowCd_ZeroBaseDrag(Mach)
+            LEthickness = self.leadingEdgeRadius*2
+        elif self.leadingEdgeShape == &#34;Blunt&#34;:
+            leadingEdgeCd = AeroFunctions.getBluntBodyCd_ZeroBaseDrag(Mach)
+            LEthickness = self.leadingEdgeThickness
+
+        # Adjust for leading edge angle and convert reference area to rocket reference area - Barrowman Eqn 4-22
+        leadingEdgeCdAdjustmentFactor = LEthickness * self.span * cos(self.sweepAngle)**2 / Aref
+        leadingEdgeCd *= leadingEdgeCdAdjustmentFactor
+            
+        # Trailing edge drag coefficient - simpler method from Niskanen section 3.4.4. Corrected to use only the trailing edge area, not the full fin frontal area
+            # more intricate method available in Barrowman
+        baseDragCd = AeroFunctions.getBaseDragCoefficient(Mach)
+        if self.trailingEdgeShape == &#34;Tapered&#34;:
+            TEthickness = 0 # Zero base drag
+        elif self.trailingEdgeShape == &#34;Round&#34;:
+            TEthickness = self.trailingEdgeRadius # 0.5 base drag
+        elif self.trailingEdgeShape == &#34;Blunt&#34;:
+            TEthickness = self.trailingEdgeThickness # Full base drag
+        
+        # Convert to standard rocket reference Area
+        trailingEdgeCd = baseDragCd * self.span*TEthickness/Aref
+
+        # Thickness / Wave Drag
+        #TODO: This section doesn&#39;t seem to be working quite right
+        if Mach &lt;= 1:
+            # Thickness drag, subsonic
+            thicknessDrag = 4*skinFrictionCoefficient*((self.thickness/self.rootChord)*cos(self.midChordSweep) + \
+                (30 * (self.thickness/self.rootChord)**4 * cos(self.midChordSweep)**2) /  \
+                    (self.subsonicFinThicknessK - Mach**2 * cos(self.midChordSweep)**2)**(3/2))
+        else:
+            # Supersonic wave drag
+            # Using simplistic method from Hoerner - assumes diamond profile (pg 17-12, Eqn 29)
+            # TODO: Implement method from Barrowman&#39;s FIN program
+            thicknessDrag = 2.3*self.aspectRatio * (self.thickness / self.MACLength)**2
+
+        thicknessDrag *= self.planformArea/Aref
+
+        pressureDragCoefficient = leadingEdgeCd + trailingEdgeCd + thicknessDrag
+                        
+        # Total Drag --------------------------------------------------------------------------------------------------------------------
+        
+        totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
+
+        localFrameRocketVelocity = AeroFunctions.getLocalFrameAirVel(rocketState, environment)
+        axialPositionRelCG = self.position - CG
+        finVelocityDueToRocketPitchYaw = rocketState.angularVelocity.crossProduct(axialPositionRelCG) 
+        airVelRelativeToFin = localFrameRocketVelocity - finVelocityDueToRocketPitchYaw # The negative puts it in the wind frame
+        CPXPos = self._getCPXPos(Mach)
+
+        #### Transfer info to fins ####
+        return PreComputedFinAeroData(airVelRelativeToFin, CPXPos, totalDragCoefficient)
+
+    def _getCPXPos(self, Mach):
+        &#39;&#39;&#39; 
+            Finds the chordwise position of the center of pressure, relative to the tip of the root chord (self.position) 
+            Methods from Tactical missile design by Fleeman through Niskanen
+        &#39;&#39;&#39;
+        if Mach &lt; 0.5:
+            XF = self.XMACLeadingEdge + 0.25*self.MACLength #As per open rocket documentation
+
+        elif Mach &gt;= 2.0:
+            beta = AeroFunctions.getBeta(Mach)
+            CPCalc = lambda AR, B : (AR*B - 0.67) / (2*AR*B - 1) #Eq 3.35 of open rocket documentation (greater than M = 2)
+            XF = self.MACLength*CPCalc(self.aspectRatio, beta) + self.XMACLeadingEdge #As per open rocket documentation
+
+        else:
+            #Between the two extremes is a polynomial curve fit
+            #Fifth order polynomial fit as per Niskanen Eqn 3.36 (Originally from Fleeman)
+                # Old code: XF = np.polyval(self.x, Mach)*self.MACLength + self.XMACLeadingEdge
+                # Evaluate polynomial manually for maximum speed (8.5x improvement for 6 coeffs)
+                    # Speed test in test/speedTests/PolyvalSpeed.py
+            polyval = 0
+            nTerms = len(self.x)
+            for i in range(nTerms):
+                polyval += self.x[i]*Mach**(nTerms-1-i)
+
+            XF = polyval*self.MACLength + self.XMACLeadingEdge # Polyval defines the fraction of the MAC that the Cp is behind the leading edge
+
+        return XF
+
+    def getChord(self, y):
+        &#39;&#39;&#39; Returns chord at y, where y==0 is at the root chord, and y==span is at the tip chord &#39;&#39;&#39;
+        return (self.tipChord - self.rootChord) * (y/self.span) + self.rootChord
+
+    def plotShape(self):
+        import matplotlib.pyplot as plt
+
+        BodyTubeDiameter = self.bodyRadius*2
+        SubComponentPos = self.position.Z
+        span = self.span
+        rootChord = self.rootChord
+        tipChord = self.tipChord
+        sweepAngle = self.sweepAngle
+        Xvals = []
+        Yvals = []
+        Xvals.append(SubComponentPos)
+        Yvals.append(BodyTubeDiameter/2)
+        Xvals.append(Xvals[0]-span*math.tan(sweepAngle))
+        Yvals.append(Yvals[0]+span)
+        Xvals.append(Xvals[1]-tipChord)
+        Yvals.append(Yvals[1])
+        Xvals.append(Xvals[0]-rootChord)
+        Yvals.append(Yvals[0])
+        Xvals.append(Xvals[0])
+        Yvals.append(Yvals[0])
+        plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+
+        if self.numFins == 4:
+            Yvals = [-1*i for i in Yvals]
+            plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+            Yvals = [0*i for i in Yvals]
+            plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+
+        elif self.numFins == 3:
+            Yvals = []
+            Yvals.append(-BodyTubeDiameter/2*math.sin(math.radians(30)))
+            Yvals.append(-(BodyTubeDiameter/2 + span)*math.sin(math.radians(30)))
+            Yvals.append(Yvals[1])
+            Yvals.append(Yvals[0])
+            Yvals.append(Yvals[0])
+            plt.plot (Xvals, Yvals, color = &#39;k&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
+<li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
+<li><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="../GNC/ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Fins.FinSet.getAeroForce"><code class="name flex">
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    #### If control system exists, use actuator deflections 1:1 to set fin angles ####
+    if self.controlSystem != None:
+        # Update fin angles
+        for i in range(self.numFins):
+            self.finList[i].finAngle = self.actuatorList[i].getDeflection(time)
+
+    #### Pre-calculate common properties for all child Fins ####
+    precomputedData = self._getPreComputedFinAeroData(rocketState, environment, CG)
+
+    #### Add up forces from all child Fins ####
+    aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
+    for fin in self.finList:
+        aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+
+    # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
+    
+    # Apply fin-body interference factor to total forces in the normal (X/Y) directions and moments
+    totalInterferenceFactor = self.bodyOnFinInterferenceFactor * self.finNumberInterferenceFactor
+    aeroForce.force.X *= totalInterferenceFactor
+    aeroForce.force.Y *= totalInterferenceFactor
+    aeroForce.moment.X *= totalInterferenceFactor
+    aeroForce.moment.Y *= totalInterferenceFactor          
+
+    #### Log results ####
+    forceLogLine = &#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment)
+    if self.controlSystem != None:
+        for i in range(len(self.actuatorList)):
+            forceLogLine += &#34; {:&gt;6.4}&#34;.format(self.finList[i].finAngle)
+    self.rocket.appendToForceLogLine(forceLogLine)
+
+    return aeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.FinSet.getChord"><code class="name flex">
+<span>def <span class="ident">getChord</span></span>(<span>self, y)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns chord at y, where y==0 is at the root chord, and y==span is at the tip chord</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getChord(self, y):
+    &#39;&#39;&#39; Returns chord at y, where y==0 is at the root chord, and y==span is at the tip chord &#39;&#39;&#39;
+    return (self.tipChord - self.rootChord) * (y/self.span) + self.rootChord</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.FinSet.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    header = &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
+    
+    if self.controlSystem != None:
+        for finNumber in range(1, self.numFins+1):
+            header += &#34; {}Fin{}Angle(deg)&#34;.format(self.name, finNumber)
+
+    return header</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.FinSet.plotShape"><code class="name flex">
+<span>def <span class="ident">plotShape</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plotShape(self):
+    import matplotlib.pyplot as plt
+
+    BodyTubeDiameter = self.bodyRadius*2
+    SubComponentPos = self.position.Z
+    span = self.span
+    rootChord = self.rootChord
+    tipChord = self.tipChord
+    sweepAngle = self.sweepAngle
+    Xvals = []
+    Yvals = []
+    Xvals.append(SubComponentPos)
+    Yvals.append(BodyTubeDiameter/2)
+    Xvals.append(Xvals[0]-span*math.tan(sweepAngle))
+    Yvals.append(Yvals[0]+span)
+    Xvals.append(Xvals[1]-tipChord)
+    Yvals.append(Yvals[1])
+    Xvals.append(Xvals[0]-rootChord)
+    Yvals.append(Yvals[0])
+    Xvals.append(Xvals[0])
+    Yvals.append(Yvals[0])
+    plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+
+    if self.numFins == 4:
+        Yvals = [-1*i for i in Yvals]
+        plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+        Yvals = [0*i for i in Yvals]
+        plt.plot(Xvals,Yvals, color = &#39;k&#39;)
+
+    elif self.numFins == 3:
+        Yvals = []
+        Yvals.append(-BodyTubeDiameter/2*math.sin(math.radians(30)))
+        Yvals.append(-(BodyTubeDiameter/2 + span)*math.sin(math.radians(30)))
+        Yvals.append(Yvals[1])
+        Yvals.append(Yvals[0])
+        Yvals.append(Yvals[0])
+        plt.plot (Xvals, Yvals, color = &#39;k&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="../GNC/ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators" href="../GNC/ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators">initializeActuators</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData"><code class="flex name class">
+<span>class <span class="ident">PreComputedFinAeroData</span></span>
+<span>(</span><span>finVelWithoutRoll, CPXPos, totalDragCoefficient)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>PreComputedFinAeroData(finVelWithoutRoll, CPXPos, totalDragCoefficient)</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.CPXPos"><code class="name">var <span class="ident">CPXPos</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.finVelWithoutRoll"><code class="name">var <span class="ident">finVelWithoutRoll</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.totalDragCoefficient"><code class="name">var <span class="ident">totalDragCoefficient</span></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.Fins.Fin" href="#MAPLEAF.Rocket.Fins.Fin">Fin</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.Fins.Fin.finSet" href="#MAPLEAF.Rocket.Fins.Fin.finSet">finSet</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.Fin.getAeroForce" href="#MAPLEAF.Rocket.Fins.Fin.getAeroForce">getAeroForce</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.Fins.FinSet" href="#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getAeroForce" href="#MAPLEAF.Rocket.Fins.FinSet.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getChord" href="#MAPLEAF.Rocket.Fins.FinSet.getChord">getChord</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getLogHeader" href="#MAPLEAF.Rocket.Fins.FinSet.getLogHeader">getLogHeader</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.plotShape" href="#MAPLEAF.Rocket.Fins.FinSet.plotShape">plotShape</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData">PreComputedFinAeroData</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.CPXPos" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData.CPXPos">CPXPos</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.finVelWithoutRoll" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData.finVelWithoutRoll">finVelWithoutRoll</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.totalDragCoefficient" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData.totalDragCoefficient">totalDragCoefficient</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
+</footer>
+</body>
+</html>
