@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF API documentation</title>
-<meta name="description" content="Source code for the rocket simulator …" />
+<title>MAPLEAF.Examples.Simulations.ClearFiles API documentation</title>
+<meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -19,91 +19,24 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>MAPLEAF</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Examples.Simulations.ClearFiles</code></h1>
 </header>
 <section id="section-intro">
-<p>Source code for the rocket simulator.</p>
-<p>The <code><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code> module is the entry point for running a simulation.<br>
-The <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">MAPLEAF.Rocket.Rocket</a></code> class is the main class responsible for coordinating the modelling of a Rocket.</p>
-<p>See ReadMe.md in the main project folder for detailed info about:
-</p>
-<ul>
-<li>Installation/setup</li>
-<li>Running simulations
-</li>
-<li>Running unit tests
-</li>
-<li>Running regression/validation tests</li>
-</ul>
-<p><img alt="" src="https://upload.wikimedia.org/wikipedia/commons/3/30/BFR_in_flight_%28cropped%29-2018_version.png"></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39;
-Source code for the rocket simulator.
+<pre><code class="python">if __name__ == &#34;__main__&#34;:
+    import os
+    keyword = input(&#34;Enter a keyword belonging to the file(s) you wish to delete: &#34;)
+    directory = &#34;./MAPLEAF/Examples/Simulations&#34;
 
-The `MAPLEAF.Main` module is the entry point for running a simulation.  
-The `MAPLEAF.Rocket.Rocket` class is the main class responsible for coordinating the modelling of a Rocket.
-
-See ReadMe.md in the main project folder for detailed info about:  
-
-* Installation/setup
-* Running simulations  
-* Running unit tests  
-* Running regression/validation tests
-
-.. image:: https://upload.wikimedia.org/wikipedia/commons/3/30/BFR_in_flight_%28cropped%29-2018_version.png
-&#39;&#39;&#39;</code></pre>
+    for fileName in os.listdir(directory):
+        if keyword in fileName:
+            os.remove(directory + &#34;/&#34; + fileName)</code></pre>
 </details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="MAPLEAF.ENV" href="ENV/index.html">MAPLEAF.ENV</a></code></dt>
-<dd>
-<div class="desc"><p>Modelling of the aircraft environment.
-Main class is <code><a title="MAPLEAF.ENV.Environment.Environment" href="ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>.
-Aircaft access atmospheric models, mean wind models, and …</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Examples" href="Examples/index.html">MAPLEAF.Examples</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.GNC" href="GNC/index.html">MAPLEAF.GNC</a></code></dt>
-<dd>
-<div class="desc"><p>Guidance, Navigation, and Control functionality for 3D navigation (air vehicles).
-Main module is <code><a title="MAPLEAF.GNC.ControlSystems" href="GNC/ControlSystems.html">MAPLEAF.GNC.ControlSystems</a></code> …</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.IO" href="IO/index.html">MAPLEAF.IO</a></code></dt>
-<dd>
-<div class="desc"><p>Input/Output functionality: …</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Interpolation" href="Interpolation.html">MAPLEAF.Interpolation</a></code></dt>
-<dd>
-<div class="desc"><p>Linear interpolation on sorted lists of values and rigid body states</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code></dt>
-<dd>
-<div class="desc"><p>Script to run flight simulations from the command line
-If MAPLEAF has been installed with pip, this script is accessible through the 'mapleaf' command</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Motion" href="Motion/index.html">MAPLEAF.Motion</a></code></dt>
-<dd>
-<div class="desc"><p>Generalized Rigid body motion integration functionality.
-Main class (6Dof) is <code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="Motion/RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code>.<br>
-Fundamental data types used …</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Rocket" href="Rocket/index.html">MAPLEAF.Rocket</a></code></dt>
-<dd>
-<div class="desc"><p>Code specific to modelling Rockets.<br>
-Main class is <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">MAPLEAF.Rocket.Rocket</a></code> …</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.SimulationRunners" href="SimulationRunners.html">MAPLEAF.SimulationRunners</a></code></dt>
-<dd>
-<div class="desc"><p>Defines a basic single simulation runner <code>SingleSimRunner</code>, as well as more specialized child classes that run several simulations in one go …</p></div>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -118,17 +51,9 @@ Main class is <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">M
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="MAPLEAF.ENV" href="ENV/index.html">MAPLEAF.ENV</a></code></li>
-<li><code><a title="MAPLEAF.Examples" href="Examples/index.html">MAPLEAF.Examples</a></code></li>
-<li><code><a title="MAPLEAF.GNC" href="GNC/index.html">MAPLEAF.GNC</a></code></li>
-<li><code><a title="MAPLEAF.IO" href="IO/index.html">MAPLEAF.IO</a></code></li>
-<li><code><a title="MAPLEAF.Interpolation" href="Interpolation.html">MAPLEAF.Interpolation</a></code></li>
-<li><code><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code></li>
-<li><code><a title="MAPLEAF.Motion" href="Motion/index.html">MAPLEAF.Motion</a></code></li>
-<li><code><a title="MAPLEAF.Rocket" href="Rocket/index.html">MAPLEAF.Rocket</a></code></li>
-<li><code><a title="MAPLEAF.SimulationRunners" href="SimulationRunners.html">MAPLEAF.SimulationRunners</a></code></li>
+<li><code><a title="MAPLEAF.Examples.Simulations" href="index.html">MAPLEAF.Examples.Simulations</a></code></li>
 </ul>
 </li>
 </ul>

@@ -83,18 +83,11 @@ class Motor(RocketComponent, SubDictReader):
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
 
     def _parseMotorDefinitionFile(self, motorFilePath):
-        &#39;&#39;&#39; Parses a motor definition text file. See test/motorDefinitions for examples &#39;&#39;&#39;
+        &#39;&#39;&#39; Parses a motor definition text file. See MAPLEAF/Examples/Motors for examples &#39;&#39;&#39;
       
         # Get motor definition text
-        try:
-            with open(motorFilePath, &#34;r&#34;) as motorFile:
-                motorFileText = motorFile.read()
-        except:
-            # Check if the file path is relative to the MAPLEAF install location
-            mainDir = Path(__file__).parent.parent
-            motorPath = mainDir / motorFilePath
-            with motorPath.open(&#39;r&#39;) as motorFile:
-                motorFileText = motorFile.read()
+        with open(motorFilePath, &#34;r&#34;) as motorFile:
+            motorFileText = motorFile.read()
 
         # Remove all comment rows
         comment = re.compile(&#34;#.*&#34;) 
@@ -111,7 +104,7 @@ class Motor(RocketComponent, SubDictReader):
         self.finalFuelCG_Z = float(motorFileText[3].split()[1]) + self.stage.position.Z
         motorFileText = motorFileText[4:]
 
-        # Parse data; Columns defined in test/motorDefinitions/test.txt
+        # Parse data; Columns defined in MAPLEAF/Examples/Motors/test.txt
         # Gets defined values for: Time, thrust, oxFlowRate, fuelFlowRate, oxMOI, fuelMOI
         self.times = []
         self.thrustLevels = []
@@ -326,18 +319,11 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
 
     def _parseMotorDefinitionFile(self, motorFilePath):
-        &#39;&#39;&#39; Parses a motor definition text file. See test/motorDefinitions for examples &#39;&#39;&#39;
+        &#39;&#39;&#39; Parses a motor definition text file. See MAPLEAF/Examples/Motors for examples &#39;&#39;&#39;
       
         # Get motor definition text
-        try:
-            with open(motorFilePath, &#34;r&#34;) as motorFile:
-                motorFileText = motorFile.read()
-        except:
-            # Check if the file path is relative to the MAPLEAF install location
-            mainDir = Path(__file__).parent.parent
-            motorPath = mainDir / motorFilePath
-            with motorPath.open(&#39;r&#39;) as motorFile:
-                motorFileText = motorFile.read()
+        with open(motorFilePath, &#34;r&#34;) as motorFile:
+            motorFileText = motorFile.read()
 
         # Remove all comment rows
         comment = re.compile(&#34;#.*&#34;) 
@@ -354,7 +340,7 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
         self.finalFuelCG_Z = float(motorFileText[3].split()[1]) + self.stage.position.Z
         motorFileText = motorFileText[4:]
 
-        # Parse data; Columns defined in test/motorDefinitions/test.txt
+        # Parse data; Columns defined in MAPLEAF/Examples/Motors/test.txt
         # Gets defined values for: Time, thrust, oxFlowRate, fuelFlowRate, oxMOI, fuelMOI
         self.times = []
         self.thrustLevels = []

@@ -35,7 +35,7 @@ import pandas as pd
 from scipy.stats import rv_histogram
 
 from MAPLEAF.Interpolation import linInterp
-from MAPLEAF.IO.SimDefinition import defaultConfigValues
+from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 
@@ -53,7 +53,7 @@ class MeanWindModel(abc.ABC):
 
     @abc.abstractmethod
     def getMeanWind(self, AGLAltitude):
-        pass
+        pass 
 
 # Mean Wind Model Factory
 def meanWindModelFactory(simDefinition=None, silent=False):
@@ -299,10 +299,10 @@ class _windRoseDataSampler():
         return windRose
 
     def _getAveragedWindRose(self, Months=[&#34;May&#34;], MonthWeights=[1.0], locations=[&#34;MedecineHat&#34;], locationWeights=[1.0]):
-        windRose = self._readWindRose(&#34;test/WindData/WindroseAprMedecineHat.txt&#34;)*0.0 # Initialize as zero
+        windRose = self._readWindRose(&#34;MAPLEAF/Examples/Wind/WindroseAprMedecineHat.txt&#34;)*0.0 # Initialize as zero
         for i in range(len(Months)):
             for a in range(len(locations)):
-                windRoseFilePath = &#34;test/WindData/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
+                windRoseFilePath = &#34;MAPLEAF/Examples/Wind/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
                 windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
 
         return windRose.copy()
@@ -368,7 +368,7 @@ class _windRoseDataSampler():
 
 class _radioSondeDataSampler():
     &#39;&#39;&#39; 
-        Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by test/WindData/filterRadioSondeData.py
+        Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
         IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
     &#39;&#39;&#39;
 
@@ -397,7 +397,9 @@ class _radioSondeDataSampler():
 
         locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
         # Load radiosonde data for that location
-        radioSondeFilePath = &#34;test/WindData/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
+        radioSondeFilePath = &#34;MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
+        # Convert to absolute file path
+        radioSondeFilePath = getAbsoluteFilePath(radioSondeFilePath)
         
         # Read datasets from fille
         if launchMonth != &#34;Yearly&#34;:
@@ -498,7 +500,7 @@ class _radioSondeDataSampler():
             Both returned lists are sorted from lowest to highest altitude
 
             Further info about radio sonde input data at: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
-            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using test/WindData/filterRadioSondeData.py
+            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using MAPLEAF/Examples/Wind/filterRadioSondeData.py
         &#39;&#39;&#39;
         result = []
         for line in data:
@@ -537,7 +539,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 #If this file is run by itself
 # if __name__ == &#39;__main__&#39;:
     # from SimDefinition import SimDefinition
-    # fW = SimDefinition(&#34;test/simDefinitions/Wind.txt&#34;)
+    # fW = SimDefinition(&#34;MAPLEAF/Examples/Simulations/Wind.txt&#34;)
     # fW.setValue(&#34;Environment.MeanWindModel&#34;, &#34;SampledGroundWindData&#34;)
 
     # a = meanWindModelFactory(fW)
@@ -745,7 +747,7 @@ simDefinition: A SimDefinition containing the simulation definition file for the
 
     @abc.abstractmethod
     def getMeanWind(self, AGLAltitude):
-        pass</code></pre>
+        pass </code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -770,7 +772,7 @@ simDefinition: A SimDefinition containing the simulation definition file for the
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def getMeanWind(self, AGLAltitude):
-    pass</code></pre>
+    pass </code></pre>
 </details>
 </dd>
 </dl>
@@ -965,7 +967,7 @@ wz2</p>
 <span>(</span><span>silent=False, monteCarloDataLogger=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Parses data from radio sonde data files from IGRA-2 after they've been post-processed by test/WindData/filterRadioSondeData.py
+<div class="desc"><p>Parses data from radio sonde data files from IGRA-2 after they've been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
 IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt">https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt</a></p></div>
 <details class="source">
 <summary>
@@ -973,7 +975,7 @@ IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2
 </summary>
 <pre><code class="python">class _radioSondeDataSampler():
     &#39;&#39;&#39; 
-        Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by test/WindData/filterRadioSondeData.py
+        Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
         IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
     &#39;&#39;&#39;
 
@@ -1002,7 +1004,9 @@ IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2
 
         locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
         # Load radiosonde data for that location
-        radioSondeFilePath = &#34;test/WindData/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
+        radioSondeFilePath = &#34;MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
+        # Convert to absolute file path
+        radioSondeFilePath = getAbsoluteFilePath(radioSondeFilePath)
         
         # Read datasets from fille
         if launchMonth != &#34;Yearly&#34;:
@@ -1103,7 +1107,7 @@ IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2
             Both returned lists are sorted from lowest to highest altitude
 
             Further info about radio sonde input data at: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
-            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using test/WindData/filterRadioSondeData.py
+            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using MAPLEAF/Examples/Wind/filterRadioSondeData.py
         &#39;&#39;&#39;
         result = []
         for line in data:
@@ -1180,7 +1184,9 @@ Pass in the same random seed to pick the same radio sonde profile</p>
 
     locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
     # Load radiosonde data for that location
-    radioSondeFilePath = &#34;test/WindData/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
+    radioSondeFilePath = &#34;MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
+    # Convert to absolute file path
+    radioSondeFilePath = getAbsoluteFilePath(radioSondeFilePath)
     
     # Read datasets from fille
     if launchMonth != &#34;Yearly&#34;:
@@ -1283,10 +1289,10 @@ Pass in the same random seed to pick the same radio sonde profile</p>
         return windRose
 
     def _getAveragedWindRose(self, Months=[&#34;May&#34;], MonthWeights=[1.0], locations=[&#34;MedecineHat&#34;], locationWeights=[1.0]):
-        windRose = self._readWindRose(&#34;test/WindData/WindroseAprMedecineHat.txt&#34;)*0.0 # Initialize as zero
+        windRose = self._readWindRose(&#34;MAPLEAF/Examples/Wind/WindroseAprMedecineHat.txt&#34;)*0.0 # Initialize as zero
         for i in range(len(Months)):
             for a in range(len(locations)):
-                windRoseFilePath = &#34;test/WindData/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
+                windRoseFilePath = &#34;MAPLEAF/Examples/Wind/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
                 windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
 
         return windRose.copy()

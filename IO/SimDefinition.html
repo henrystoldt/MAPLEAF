@@ -36,11 +36,11 @@ default values for simulation definitions, and a few utility functions for worki
 Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
 default values for simulation definitions, and a few utility functions for working with string dictionary keys
 &#39;&#39;&#39;
-
 import random
 import re
 import shlex
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 from MAPLEAF.Motion.CythonVector import Vector
@@ -163,6 +163,7 @@ simDefinitionHelpMessage = \
 &#34;&#34;&#34;
 class SimDefinition():
     
+    #### Parsing / Initialization ####
     def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None):
         &#39;&#39;&#39;
         Parse simulation definition files into a dictionary of string values accessible by string keys.
@@ -380,11 +381,24 @@ class SimDefinition():
         #### Parse any regular values in derived dict ####
         return self._parseDictionaryContents(workingText, i, derivedDictName, allowKeyOverwriting=True)
 
+    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self):
+        &#39;&#39;&#39; 
+            Right after parsing a sim definition file, replaces paths relative to the MAPLEAF installation directory with absolute paths.
+            This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
+        &#39;&#39;&#39;
+        for key in self.dict:
+            # Iterate over all keys, looking for file path relative to the MAPLEAF repo
+            val = self.dict[key]
+
+            if len(val) &gt; 8 and val[:8] == &#34;MAPLEAF/&#34;:
+                # Replace the relative path with an absolute one
+                self.dict[key] = getAbsoluteFilePath(val)
+
     def _parseSimDefinitionFile(self, fileName):
         self.fileName = fileName
         self.dict = {}
         
-        #Read all of the file&#39;s contents
+        # Read all of the file&#39;s contents
         file = open(fileName, &#34;r+&#34;)
         workingText = file.read()
         file.close()
@@ -398,6 +412,8 @@ class SimDefinition():
         
         # Start recursive parse by asking to parse the root-level dictionary
         self._parseDictionaryContents(workingText, 0, &#34;&#34;)
+
+        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths()
 
     #### Normal Usage ####
     def getValue(self, key: str) -&gt; str:
@@ -818,7 +834,24 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -&gt; Tuple[str]:
     keyNames = key.split(&#39;.&#39;)
     prefix = &#34;.&#34;.join(keyNames[:n])
     suffix = &#34;.&#34;.join(keyNames[n:])
-    return prefix, suffix</code></pre>
+    return prefix, suffix
+
+def getAbsoluteFilePath(relativePath: str) -&gt; str:
+    &#39;&#39;&#39; 
+        Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
+        Returns original relativePath if an absolute path is not found
+    &#39;&#39;&#39;
+    # This file is at MAPLEAF/IO/SimDefinition, so MAPLEAF&#39;s install directory is three levels up
+    pathToMAPLEAFInstallation = Path(__file__).parent.parent.parent
+
+    relativePath = Path(relativePath)
+    absolutePath = pathToMAPLEAFInstallation / relativePath
+
+    if absolutePath.exists:
+        return str(absolutePath)
+    else:
+        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(val))
+        return relativePath</code></pre>
 </details>
 </section>
 <section>
@@ -828,6 +861,34 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -&gt; Tuple[str]:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="MAPLEAF.IO.SimDefinition.getAbsoluteFilePath"><code class="name flex">
+<span>def <span class="ident">getAbsoluteFilePath</span></span>(<span>relativePath: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
+Returns original relativePath if an absolute path is not found</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAbsoluteFilePath(relativePath: str) -&gt; str:
+    &#39;&#39;&#39; 
+        Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
+        Returns original relativePath if an absolute path is not found
+    &#39;&#39;&#39;
+    # This file is at MAPLEAF/IO/SimDefinition, so MAPLEAF&#39;s install directory is three levels up
+    pathToMAPLEAFInstallation = Path(__file__).parent.parent.parent
+
+    relativePath = Path(relativePath)
+    absolutePath = pathToMAPLEAFInstallation / relativePath
+
+    if absolutePath.exists:
+        return str(absolutePath)
+    else:
+        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(val))
+        return relativePath</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.IO.SimDefinition.getImmediateSubKey"><code class="name flex">
 <span>def <span class="ident">getImmediateSubKey</span></span>(<span>parent, child)</span>
 </code></dt>
@@ -1006,6 +1067,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
 </summary>
 <pre><code class="python">class SimDefinition():
     
+    #### Parsing / Initialization ####
     def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None):
         &#39;&#39;&#39;
         Parse simulation definition files into a dictionary of string values accessible by string keys.
@@ -1223,11 +1285,24 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
         #### Parse any regular values in derived dict ####
         return self._parseDictionaryContents(workingText, i, derivedDictName, allowKeyOverwriting=True)
 
+    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self):
+        &#39;&#39;&#39; 
+            Right after parsing a sim definition file, replaces paths relative to the MAPLEAF installation directory with absolute paths.
+            This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
+        &#39;&#39;&#39;
+        for key in self.dict:
+            # Iterate over all keys, looking for file path relative to the MAPLEAF repo
+            val = self.dict[key]
+
+            if len(val) &gt; 8 and val[:8] == &#34;MAPLEAF/&#34;:
+                # Replace the relative path with an absolute one
+                self.dict[key] = getAbsoluteFilePath(val)
+
     def _parseSimDefinitionFile(self, fileName):
         self.fileName = fileName
         self.dict = {}
         
-        #Read all of the file&#39;s contents
+        # Read all of the file&#39;s contents
         file = open(fileName, &#34;r+&#34;)
         workingText = file.read()
         file.close()
@@ -1241,6 +1316,8 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
         
         # Start recursive parse by asking to parse the root-level dictionary
         self._parseDictionaryContents(workingText, 0, &#34;&#34;)
+
+        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths()
 
     #### Normal Usage ####
     def getValue(self, key: str) -&gt; str:
@@ -2054,7 +2131,8 @@ Newly written file will not contain any comments!</p></div>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="MAPLEAF.IO.SimDefinition.getAbsoluteFilePath" href="#MAPLEAF.IO.SimDefinition.getAbsoluteFilePath">getAbsoluteFilePath</a></code></li>
 <li><code><a title="MAPLEAF.IO.SimDefinition.getImmediateSubKey" href="#MAPLEAF.IO.SimDefinition.getImmediateSubKey">getImmediateSubKey</a></code></li>
 <li><code><a title="MAPLEAF.IO.SimDefinition.getKeyLevel" href="#MAPLEAF.IO.SimDefinition.getKeyLevel">getKeyLevel</a></code></li>
 <li><code><a title="MAPLEAF.IO.SimDefinition.getParentKeyAtLevel" href="#MAPLEAF.IO.SimDefinition.getParentKeyAtLevel">getParentKeyAtLevel</a></code></li>
