@@ -5,11 +5,11 @@
 Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
 default values for simulation definitions, and a few utility functions for working with string dictionary keys
 '''
-
 import random
 import re
 import shlex
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
 from MAPLEAF.Motion.CythonVector import Vector
@@ -132,6 +132,7 @@ simDefinitionHelpMessage = \
 """
 class SimDefinition():
     
+    #### Parsing / Initialization ####
     def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None):
         '''
         Parse simulation definition files into a dictionary of string values accessible by string keys.
@@ -349,11 +350,24 @@ class SimDefinition():
         #### Parse any regular values in derived dict ####
         return self._parseDictionaryContents(workingText, i, derivedDictName, allowKeyOverwriting=True)
 
+    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self):
+        ''' 
+            Right after parsing a sim definition file, replaces paths relative to the MAPLEAF installation directory with absolute paths.
+            This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
+        '''
+        for key in self.dict:
+            # Iterate over all keys, looking for file path relative to the MAPLEAF repo
+            val = self.dict[key]
+
+            if len(val) > 8 and val[:8] == "MAPLEAF/":
+                # Replace the relative path with an absolute one
+                self.dict[key] = getAbsoluteFilePath(val)
+
     def _parseSimDefinitionFile(self, fileName):
         self.fileName = fileName
         self.dict = {}
         
-        #Read all of the file's contents
+        # Read all of the file's contents
         file = open(fileName, "r+")
         workingText = file.read()
         file.close()
@@ -367,6 +381,8 @@ class SimDefinition():
         
         # Start recursive parse by asking to parse the root-level dictionary
         self._parseDictionaryContents(workingText, 0, "")
+
+        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths()
 
     #### Normal Usage ####
     def getValue(self, key: str) -> str:
@@ -788,3 +804,20 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -> Tuple[str]:
     prefix = ".".join(keyNames[:n])
     suffix = ".".join(keyNames[n:])
     return prefix, suffix
+
+def getAbsoluteFilePath(relativePath: str) -> str:
+    ''' 
+        Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
+        Returns original relativePath if an absolute path is not found
+    '''
+    # This file is at MAPLEAF/IO/SimDefinition, so MAPLEAF's install directory is three levels up
+    pathToMAPLEAFInstallation = Path(__file__).parent.parent.parent
+
+    relativePath = Path(relativePath)
+    absolutePath = pathToMAPLEAFInstallation / relativePath
+
+    if absolutePath.exists:
+        return str(absolutePath)
+    else:
+        print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(val))
+        return relativePath

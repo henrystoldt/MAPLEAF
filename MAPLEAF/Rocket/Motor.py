@@ -58,15 +58,8 @@ class Motor(RocketComponent, SubDictReader):
         ''' Parses a motor definition text file. See MAPLEAF/Examples/Motors for examples '''
       
         # Get motor definition text
-        try:
-            with open(motorFilePath, "r") as motorFile:
-                motorFileText = motorFile.read()
-        except:
-            # Check if the file path is relative to the MAPLEAF install location
-            mainDir = Path(__file__).parent.parent
-            motorPath = mainDir / motorFilePath
-            with motorPath.open('r') as motorFile:
-                motorFileText = motorFile.read()
+        with open(motorFilePath, "r") as motorFile:
+            motorFileText = motorFile.read()
 
         # Remove all comment rows
         comment = re.compile("#.*") 

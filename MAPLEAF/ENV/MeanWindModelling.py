@@ -7,7 +7,7 @@ import pandas as pd
 from scipy.stats import rv_histogram
 
 from MAPLEAF.Interpolation import linInterp
-from MAPLEAF.IO.SimDefinition import defaultConfigValues
+from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 
@@ -25,7 +25,7 @@ class MeanWindModel(abc.ABC):
 
     @abc.abstractmethod
     def getMeanWind(self, AGLAltitude):
-        pass
+        pass 
 
 # Mean Wind Model Factory
 def meanWindModelFactory(simDefinition=None, silent=False):
@@ -370,6 +370,8 @@ class _radioSondeDataSampler():
         locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
         # Load radiosonde data for that location
         radioSondeFilePath = "MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt".format(selectedLocation)
+        # Convert to absolute file path
+        radioSondeFilePath = getAbsoluteFilePath(radioSondeFilePath)
         
         # Read datasets from fille
         if launchMonth != "Yearly":

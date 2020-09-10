@@ -15,6 +15,7 @@ from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
                                    SingleSimRunner, isMonteCarloSimulation)
 
+
 def buildParser() -> argparse.ArgumentParser:
     ''' Builds the command-line argument parser using argparse '''
     parser = argparse.ArgumentParser(description="""
