@@ -42,7 +42,7 @@ from typing import List
 
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO.SimDefinition import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
                                    SingleSimRunner, isMonteCarloSimulation)
 
@@ -102,6 +102,29 @@ def checkForMutuallyExclusiveArgs(args):
         print(&#34;ERROR: --converge, --compareIntegrationSchemes, --compareAdaptiveIntegrationSchemes, and --plotFromLog are mutually exclusive. Please only use one at a time.&#34;)
         sys.exit()
 
+def findSimDefinitionFile(providedPath):
+    if os.path.isfile(providedPath):
+        return providedPath
+
+    # Check if it&#39;s a relative path that needs to be made absolute
+    possibleRelPath = providedPath
+    absPath = getAbsoluteFilePath(possibleRelPath)
+    if os.path.isfile(absPath):
+        return absPath
+    
+    # Check if it&#39;s an example case
+    if possibleRelPath[-8:] != &#34;.mapleaf&#34;:
+        # If it&#39;s just the case name (ex: &#39;Staging&#39;) add the file extension
+        possibleRelPath += &#34;.mapleaf&#34;
+    
+    possibleRelPath = &#34;MAPLEAF/Examples/Simulations/&#34; + possibleRelPath
+    absPath = getAbsoluteFilePath(possibleRelPath)
+    if os.path.isfile(absPath):
+        return absPath  
+
+    print(&#34;ERROR: Unable to locate simulation definition file: {}!&#34;.format(providedPath))
+    sys.exit()
+
 def main(argv: List[str]=None) -&gt; int:
     &#39;&#39;&#39; 
         Main function to run a MAPLEAF simulation. 
@@ -121,13 +144,10 @@ def main(argv: List[str]=None) -&gt; int:
         Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
         print(&#34;Exiting&#34;)
         sys.exit()
-
+     
     # Load simulation definition file
-    if not os.path.isfile(args.simDefinitionFile[0]):
-        print(&#34;ERROR: Simulation definition file: {} does not exist!&#34;.format(args.simDefinitionFile))
-        sys.exit()
-        
-    simDef = SimDefinition(args.simDefinitionFile[0])
+    simDefPath = findSimDefinitionFile(args.simDefinitionFile[0])
+    simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
     # Monte Carlo Sim
@@ -241,6 +261,39 @@ if __name__ == &#34;__main__&#34;:
         sys.exit()</code></pre>
 </details>
 </dd>
+<dt id="MAPLEAF.Main.findSimDefinitionFile"><code class="name flex">
+<span>def <span class="ident">findSimDefinitionFile</span></span>(<span>providedPath)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def findSimDefinitionFile(providedPath):
+    if os.path.isfile(providedPath):
+        return providedPath
+
+    # Check if it&#39;s a relative path that needs to be made absolute
+    possibleRelPath = providedPath
+    absPath = getAbsoluteFilePath(possibleRelPath)
+    if os.path.isfile(absPath):
+        return absPath
+    
+    # Check if it&#39;s an example case
+    if possibleRelPath[-8:] != &#34;.mapleaf&#34;:
+        # If it&#39;s just the case name (ex: &#39;Staging&#39;) add the file extension
+        possibleRelPath += &#34;.mapleaf&#34;
+    
+    possibleRelPath = &#34;MAPLEAF/Examples/Simulations/&#34; + possibleRelPath
+    absPath = getAbsoluteFilePath(possibleRelPath)
+    if os.path.isfile(absPath):
+        return absPath  
+
+    print(&#34;ERROR: Unable to locate simulation definition file: {}!&#34;.format(providedPath))
+    sys.exit()</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.Main.main"><code class="name flex">
 <span>def <span class="ident">main</span></span>(<span>argv: List[str] = None) ‑> int</span>
 </code></dt>
@@ -271,13 +324,10 @@ Expects to be called from the command line, using the argparse parser</p>
         Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
         print(&#34;Exiting&#34;)
         sys.exit()
-
+     
     # Load simulation definition file
-    if not os.path.isfile(args.simDefinitionFile[0]):
-        print(&#34;ERROR: Simulation definition file: {} does not exist!&#34;.format(args.simDefinitionFile))
-        sys.exit()
-        
-    simDef = SimDefinition(args.simDefinitionFile[0])
+    simDefPath = findSimDefinitionFile(args.simDefinitionFile[0])
+    simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
     # Monte Carlo Sim
@@ -326,6 +376,7 @@ Expects to be called from the command line, using the argparse parser</p>
 <ul class="">
 <li><code><a title="MAPLEAF.Main.buildParser" href="#MAPLEAF.Main.buildParser">buildParser</a></code></li>
 <li><code><a title="MAPLEAF.Main.checkForMutuallyExclusiveArgs" href="#MAPLEAF.Main.checkForMutuallyExclusiveArgs">checkForMutuallyExclusiveArgs</a></code></li>
+<li><code><a title="MAPLEAF.Main.findSimDefinitionFile" href="#MAPLEAF.Main.findSimDefinitionFile">findSimDefinitionFile</a></code></li>
 <li><code><a title="MAPLEAF.Main.main" href="#MAPLEAF.Main.main">main</a></code></li>
 </ul>
 </li>
