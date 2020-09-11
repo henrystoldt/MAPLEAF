@@ -850,7 +850,7 @@ def getAbsoluteFilePath(relativePath: str) -&gt; str:
     if absolutePath.exists:
         return str(absolutePath)
     else:
-        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(val))
+        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
         return relativePath</code></pre>
 </details>
 </section>
@@ -885,7 +885,7 @@ Returns original relativePath if an absolute path is not found</p></div>
     if absolutePath.exists:
         return str(absolutePath)
     else:
-        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(val))
+        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
         return relativePath</code></pre>
 </details>
 </dd>

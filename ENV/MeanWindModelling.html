@@ -303,6 +303,7 @@ class _windRoseDataSampler():
         for i in range(len(Months)):
             for a in range(len(locations)):
                 windRoseFilePath = &#34;MAPLEAF/Examples/Wind/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
+                windRoseFilePath = getAbsoluteFilePath(windRoseFilePath)
                 windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
 
         return windRose.copy()
@@ -534,66 +535,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
     x = sin(radians(totalAngleFromYAxis))
     headingVector = Vector(x, y, 0)
     windDirectionVector = -1 * headingVector # Wind is in opposite direction of heading
-    return windDirectionVector
-
-#If this file is run by itself
-# if __name__ == &#39;__main__&#39;:
-    # from SimDefinition import SimDefinition
-    # fW = SimDefinition(&#34;MAPLEAF/Examples/Simulations/Wind.txt&#34;)
-    # fW.setValue(&#34;Environment.MeanWindModel&#34;, &#34;SampledGroundWindData&#34;)
-
-    # a = meanWindModelFactory(fW)
-
-    # import matplotlib.pyplot as plt
-    # plt.figure(figsize=(3.5,3))
-    # plt.rcParams[&#34;font.family&#34;] = &#34;Times New Roman&#34;
-    # plt.rcParams[&#34;font.size&#34;] = &#34;10&#34;
-
-
-
-
-    # print(&#34;Plotting using scipy rv_histogram&#34;)
-    # rvHist = a._createHeadingCDF_scipy(wR, windSpeed=5)
-
-    # values = []
-    # for i in range(10000):
-    #     # Sample the rv_histogram using ppf function (Quantile)
-    #     values.append(rvHist.ppf(random.random()))
-
-    # plt.hist(values, bins=36, cumulative=True, density=True, label=&#34;Sampled CDF&#34;)
-
-    # X = np.linspace(0, 360, 100)
-    # plt.plot(X, rvHist.pdf(X)*100, label=&#34;PDF&#34;)
-    # plt.plot(X, rvHist.cdf(X), label=&#34;CDF&#34;)
-
-    # plt.legend()
-
-    # plt.show()
-
-
-
-
-    #### Plot radiosonde wind profile ####
-    # from math import atan2, degrees
-    # windHeadings = [ degrees(atan2(-x, -y)) for x,y,z in a.winds ]
-    # for i in range(len(windHeadings)):
-    #     if windHeadings[i] &lt; 0:
-    #         windHeadings[i] += 360
-    # windSpeeds = [ np.linalg.norm(x) for x in a.winds ]
-    # altitudes = [ x / 1000 for x in a.windAltitudes ]
-
-
-    # plt.plot(altitudes, windHeadings, label=&#34;Wind heading (degrees)&#34;)
-    # plt.plot(altitudes, windSpeeds, label=&#34;Wind speed (m/s)&#34;)
-    # plt.legend()
-    # plt.ylim([0,350])
-    # plt.xlim([0, 35])
-    # plt.xlabel(&#34;Altitude (km, AGL)&#34;)
-    # plt.tight_layout()
-    # plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/SampleRadioSondeProfile_Edmonton20120304_12.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
-
-
-    # plt.show()</code></pre>
+    return windDirectionVector</code></pre>
 </details>
 </section>
 <section>
@@ -1293,6 +1235,7 @@ Pass in the same random seed to pick the same radio sonde profile</p>
         for i in range(len(Months)):
             for a in range(len(locations)):
                 windRoseFilePath = &#34;MAPLEAF/Examples/Wind/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
+                windRoseFilePath = getAbsoluteFilePath(windRoseFilePath)
                 windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
 
         return windRose.copy()
