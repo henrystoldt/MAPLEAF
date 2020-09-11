@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF API documentation</title>
-<meta name="description" content="Source code for the rocket simulator …" />
+<meta name="description" content="&lt;p align=&#34;center&#34;&gt;
+&lt;img src=&#34;https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png&#34; alt=&#34;Logo&#34;
+title=&#34;MAPLEAF&#34; …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,39 +24,77 @@
 <h1 class="title">Package <code>MAPLEAF</code></h1>
 </header>
 <section id="section-intro">
-<p>Source code for the rocket simulator.</p>
+<p align="center">
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png" alt="Logo"
+title="MAPLEAF" height=125 style="padding-right: 10px;"/>
+</p>
+<p align="center">
+<a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Tests" src="https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg"></a>
+<a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Linting" src="https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg"></a>
+<a align="center" href="https://henrystoldt.github.io/MAPLEAF/"><img alt="Docs" src="https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg"></a>
+<a align="center" href="https://codecov.io/gh/henrystoldt/mapleaf"><img alt="Coverage" src="https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg"></a>
+<img alt="Python3" src="https://img.shields.io/badge/python-3.6+-brightgreen">
+<a align="center" href="https://lbesson.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+</p>
 <p>The <code><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code> module is the entry point for running a simulation.<br>
 The <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">MAPLEAF.Rocket.Rocket</a></code> class is the main class responsible for coordinating the modelling of a Rocket.</p>
-<p>See ReadMe.md in the main project folder for detailed info about:
+<p>See <a href="https://github.com/henrystoldt/MAPLEAF/blob/master/README.md">README.md</a> for info about:
 </p>
 <ul>
-<li>Installation/setup</li>
-<li>Running simulations
+<li>Installation/setup
 </li>
+<li>Running simulations </li>
+</ul>
+<p>See <a href="https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf">SimulationDefinitionTemplate.mapleaf</a> for details about all available options</p>
+<p>See README_Dev.md for info about:
+</p>
+<ul>
 <li>Running unit tests
 </li>
-<li>Running regression/validation tests</li>
+<li>Running regression/validation tests
+</li>
+<li>Recompiling Cython Code</li>
 </ul>
-<p><img alt="" src="https://upload.wikimedia.org/wikipedia/commons/3/30/BFR_in_flight_%28cropped%29-2018_version.png"></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;
-Source code for the rocket simulator.
+&lt;p align=&#34;center&#34;&gt;
+  &lt;img src=&#34;https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png&#34; alt=&#34;Logo&#34;
+    title=&#34;MAPLEAF&#34; height=125 style=&#34;padding-right: 10px;&#34;/&gt;
+&lt;/p&gt;
+
+&lt;p align=&#34;center&#34;&gt;
+&lt;a align=&#34;center&#34; href=&#34;https://github.com/henrystoldt/mapleaf/actions&#34;&gt;&lt;img alt=&#34;Tests&#34; src=&#34;https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg&#34;&gt;&lt;/a&gt;
+  &lt;a align=&#34;center&#34; href=&#34;https://github.com/henrystoldt/mapleaf/actions&#34;&gt;&lt;img alt=&#34;Linting&#34; src=&#34;https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg&#34;&gt;&lt;/a&gt;
+  &lt;a align=&#34;center&#34; href=&#34;https://henrystoldt.github.io/MAPLEAF/&#34;&gt;&lt;img alt=&#34;Docs&#34; src=&#34;https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg&#34;&gt;&lt;/a&gt;
+  &lt;a align=&#34;center&#34; href=&#34;https://codecov.io/gh/henrystoldt/mapleaf&#34;&gt;&lt;img alt=&#34;Coverage&#34; src=&#34;https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg&#34;&gt;&lt;/a&gt;
+  &lt;img alt=&#34;Python3&#34; src=&#34;https://img.shields.io/badge/python-3.6+-brightgreen&#34;&gt;
+  &lt;a align=&#34;center&#34; href=&#34;https://lbesson.mit-license.org/&#34;&gt;&lt;img alt=&#34;MIT License&#34; src=&#34;https://img.shields.io/badge/License-MIT-blue.svg&#34;&gt;&lt;/a&gt;
+&lt;/p&gt;
 
 The `MAPLEAF.Main` module is the entry point for running a simulation.  
 The `MAPLEAF.Rocket.Rocket` class is the main class responsible for coordinating the modelling of a Rocket.
 
-See ReadMe.md in the main project folder for detailed info about:  
+See [README.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README.md) for info about:  
 
-* Installation/setup
-* Running simulations  
+* Installation/setup  
+* Running simulations 
+
+See [SimulationDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf) for details about all available options
+
+See README_Dev.md for info about:  
+
 * Running unit tests  
-* Running regression/validation tests
+* Running regression/validation tests  
+* Recompiling Cython Code
 
-.. image:: https://upload.wikimedia.org/wikipedia/commons/3/30/BFR_in_flight_%28cropped%29-2018_version.png
-&#39;&#39;&#39;</code></pre>
+&#39;&#39;&#39;
+
+__pdoc__ = {
+    &#39;Examples&#39;: False
+}</code></pre>
 </details>
 </section>
 <section>
@@ -66,10 +106,6 @@ See ReadMe.md in the main project folder for detailed info about:
 Main class is <code><a title="MAPLEAF.ENV.Environment.Environment" href="ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>.
 Aircaft access atmospheric models, mean wind models, and …</p></div>
 </dd>
-<dt><code class="name"><a title="MAPLEAF.Examples" href="Examples/index.html">MAPLEAF.Examples</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="MAPLEAF.GNC" href="GNC/index.html">MAPLEAF.GNC</a></code></dt>
 <dd>
 <div class="desc"><p>Guidance, Navigation, and Control functionality for 3D navigation (air vehicles).
@@ -78,10 +114,6 @@ Main module is <code><a title="MAPLEAF.GNC.ControlSystems" href="GNC/ControlSyst
 <dt><code class="name"><a title="MAPLEAF.IO" href="IO/index.html">MAPLEAF.IO</a></code></dt>
 <dd>
 <div class="desc"><p>Input/Output functionality: …</p></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Interpolation" href="Interpolation.html">MAPLEAF.Interpolation</a></code></dt>
-<dd>
-<div class="desc"><p>Linear interpolation on sorted lists of values and rigid body states</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code></dt>
 <dd>
@@ -121,10 +153,8 @@ Main class is <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">M
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
 <li><code><a title="MAPLEAF.ENV" href="ENV/index.html">MAPLEAF.ENV</a></code></li>
-<li><code><a title="MAPLEAF.Examples" href="Examples/index.html">MAPLEAF.Examples</a></code></li>
 <li><code><a title="MAPLEAF.GNC" href="GNC/index.html">MAPLEAF.GNC</a></code></li>
 <li><code><a title="MAPLEAF.IO" href="IO/index.html">MAPLEAF.IO</a></code></li>
-<li><code><a title="MAPLEAF.Interpolation" href="Interpolation.html">MAPLEAF.Interpolation</a></code></li>
 <li><code><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code></li>
 <li><code><a title="MAPLEAF.Motion" href="Motion/index.html">MAPLEAF.Motion</a></code></li>
 <li><code><a title="MAPLEAF.Rocket" href="Rocket/index.html">MAPLEAF.Rocket</a></code></li>
