@@ -40,7 +40,7 @@ jobs:
           python3 -m pip install pdoc3
 
       - run: |
-          pdoc --html --output-dir docs ./MAPLEAF
+          pdoc --html --output-dir docs ./MAPLEAF --template-dir ./Resources/DocTemplate
           mv ./docs/MAPLEAF/* ./docs
           rm -r ./docs/MAPLEAF
 
