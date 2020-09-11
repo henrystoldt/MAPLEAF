@@ -11,7 +11,7 @@ from typing import List
 
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO.SimDefinition import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
                                    SingleSimRunner, isMonteCarloSimulation)
 
@@ -71,6 +71,29 @@ def checkForMutuallyExclusiveArgs(args):
         print("ERROR: --converge, --compareIntegrationSchemes, --compareAdaptiveIntegrationSchemes, and --plotFromLog are mutually exclusive. Please only use one at a time.")
         sys.exit()
 
+def findSimDefinitionFile(providedPath):
+    if os.path.isfile(providedPath):
+        return providedPath
+
+    # Check if it's a relative path that needs to be made absolute
+    possibleRelPath = providedPath
+    absPath = getAbsoluteFilePath(possibleRelPath)
+    if os.path.isfile(absPath):
+        return absPath
+    
+    # Check if it's an example case
+    if possibleRelPath[-8:] != ".mapleaf":
+        # If it's just the case name (ex: 'Staging') add the file extension
+        possibleRelPath += ".mapleaf"
+    
+    possibleRelPath = "MAPLEAF/Examples/Simulations/" + possibleRelPath
+    absPath = getAbsoluteFilePath(possibleRelPath)
+    if os.path.isfile(absPath):
+        return absPath  
+
+    print("ERROR: Unable to locate simulation definition file: {}!".format(providedPath))
+    sys.exit()
+
 def main(argv: List[str]=None) -> int:
     ''' 
         Main function to run a MAPLEAF simulation. 
@@ -90,13 +113,10 @@ def main(argv: List[str]=None) -> int:
         Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
         print("Exiting")
         sys.exit()
-
+     
     # Load simulation definition file
-    if not os.path.isfile(args.simDefinitionFile[0]):
-        print("ERROR: Simulation definition file: {} does not exist!".format(args.simDefinitionFile))
-        sys.exit()
-        
-    simDef = SimDefinition(args.simDefinitionFile[0])
+    simDefPath = findSimDefinitionFile(args.simDefinitionFile[0])
+    simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
     # Monte Carlo Sim

@@ -23,17 +23,19 @@
 ### Running a Simulation
 `mapleaf path/to/SimDefinitionFile.mapleaf`  
 
-Example config files are in the ./MAPLEAF/Examples/Simulations folder
+Sample simulation definitions: [MAPLEAF/Examples/Simulations](https://github.com/henrystoldt/MAPLEAF/tree/master/MAPLEAF/Examples/Simulations)  
+Running examples only requires the case name: `$ mapleaf NASATwoStageOrbitalRocket`  
+Same as running: `$ mapleaf MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf` from the repository's main directory or MAPLEAF's install location
 
 ### Simulation Definition Files
-More info, and descriptions of all possible options in: [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)
+Brief overview below. **More info, and definitions of all possible options in:** [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)
 
 Format is a simple key-value syntax similar to JSON or YAML.  
 Dictionaries can be nested arbitrarily deeply and are brace-delimited.  
 Keys and values in a dictionary are separated by the first whitespace in their line  
 No multiline values
 
-Example segment of a Sim Definition file:
+Example:
 ```  
 SimControl{
   timeDiscretization    RK45Adaptive
@@ -46,21 +48,21 @@ SimControl{
 }
 ```
 
-[Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) is very helpful in maintaining an overview of these files:
+[Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) is very helpful in maintaining a file overview:
 
 ![Folded Sim Definition](Diagrams/SimDefinitionFile_Folded.PNG?raw=true)
 
 The possible top level dictionaries are 'Monte Carlo', 'SimControl', 'Environment', and 'Rocket'.
 Of these, only the 'Rocket' dictionary is strictly required to run a simulation, and defines the rocket's initial position/velocity and the inertial/aerodynamic/control models used to simulate it.  
-The rocket is defined by nested subdictionaries, where the first level of nesting defines the rocket's stage(s) and the second level defines the rocket component(s) in each stage:
+The rocket is defined by nested subdictionaries, where the first level of nesting defines the rocket's stage(s) and the second level defines the component(s) in each stage:
 
 ![Rocket Definition](Diagrams/SimDefinitionFile_Rocket.PNG?raw=true)
 
-Default values from the defaultConfigValues dictionary in [MAPLEAF/IO/SimDefinition.py](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/IO/SimDefinition.py) will fill in when keys are undefined.
-Default values mostly match those in the [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf) file.
+Default values from the defaultConfigValues dictionary in [MAPLEAF/IO/SimDefinition.py](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/IO/SimDefinition.py) will fill in for omitted keys.
+Most defaults match the values in [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf).
 
 ### Simulation Outputs
-Depending on the options specified in the `SimControl` dictionary, MAPLEAF simulations can output:
+Depending on the options specified in the `SimControl` dictionary, MAPLEAF will output:
 - Detailed tabulated simulation position, component force, aerodynamic coefficient and control logs (see SimControl.loggingLevel):
 ![Sample section of log file](Diagrams/LogSample.PNG?raw=true)
 
@@ -74,7 +76,7 @@ Depending on the options specified in the `SimControl` dictionary, MAPLEAF simul
 <img src="Diagrams/FlightPaths.png?raw=true" alt="Flight Paths"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
-- Plots of any logged parameter (see SimControl.plot)  
+- Plots of any logged parameter (see SimControl.plot or --plotFromLog command line option)  
 <img src="Diagrams/PlottingFromLogs.png?raw=true" alt="Plotting from logs"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 

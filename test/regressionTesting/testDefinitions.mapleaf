@@ -2097,6 +2097,10 @@ NASADampedBrick{
 NASATwoStageOrbitalRocket{
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf
 
+	ParameterOverrides{
+		SimControl.StageDropPaths.compute false
+	}
+
 	ExpectedResultsAtEndOfSim{
 		PositionX(m)	6598829.9
 		PositionY(m)	637702.775

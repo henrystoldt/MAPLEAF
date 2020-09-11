@@ -5,16 +5,19 @@ SimControl{
     timeDiscretization      RK45Adaptive
     timeStep                0.1
 
-    StageDropPaths.compute  false
-
     EndCondition            Time
     EndConditionValue       200 # sec
+
+    StageDropPaths{
+        endCondition        Time
+        endConditionValue   200
+    }
 
     TimeStepAdaptation{
         targetError         0.0005
     }
 
-    plot                    TimeStep
+    plot                    TimeStep FlightAnimation Velocity
 }
 
 Environment{
