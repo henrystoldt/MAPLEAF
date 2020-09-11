@@ -69,7 +69,7 @@ Environment{
         # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in MAPLEAF/Examples/Wind
         locationsToSample               Edmonton 0.48 Glasgow 0.52 
         locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
-        # randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
+        randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
     }
 
     Hellman{
