@@ -2,8 +2,8 @@
 
 <p align="center">
   <img src="Diagrams/DraftLogo.png?raw=true" alt="Logo"
-    title="MAPLEAF" height=100 style="padding-right: 10px;"/>
-  <h1 align="center">MAPLEAF - Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
+    title="MAPLEAF" height=125 style="padding-right: 10px;"/>
+  <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
   <p align="center">6-DOF Rocket Flight Simulation Framework </p>
 </p>
 
@@ -16,6 +16,15 @@
   ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
   [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
   
+</p>
+
+<p align="center">
+<a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Tests" src="https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg"></a>
+  <a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Linting" src="https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg"></a>
+  <a align="center" href="https://henrystoldt.github.io/MAPLEAF/"><img alt="Docs" src="https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg"></a>
+  <a align="center" href="https://codecov.io/gh/henrystoldt/mapleaf"><img alt="Coverage" src="https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg"></a>
+  <img alt="Python3" src="https://img.shields.io/badge/python-3.6+-brightgreen">
+  <a align="center" href="https://lbesson.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
 
 ## Install:
@@ -93,9 +102,9 @@ To execute a batch run of this now-probabilistic simulation, create the top-leve
 From that, you can obtain distributions of outputs like flight paths or landing locations:
 
 <img src="Diagrams/FlightPathsPlot.png?raw=true" alt="Flight Paths Plot"
-  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+  title="MAPLEAF" height=350 style="padding-right: 10px;"/>
 <img src="Diagrams/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
-  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+  title="MAPLEAF" height=350 style="padding-right: 10px;"/>
 
 ### Developers
 To extend MAPLEAF, re-use its libraries or otherwise work with the code, have a look at [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md) the [code/api documentation website](https://henrystoldt.github.io/MAPLEAF/)
