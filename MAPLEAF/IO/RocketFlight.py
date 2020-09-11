@@ -1,6 +1,6 @@
 '''
-Class to temporarily hold simulation results.
-Used for creating flight animation.
+Temporarily holds simulation results.
+Used for creating flight animations.
 '''
 
 from math import sqrt

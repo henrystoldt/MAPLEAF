@@ -10,6 +10,8 @@ __pdoc__ = {
 }
 
 class RecoverySystem(FixedMass):
+    ''' Represents a recovery system with an arbitrary number of stages '''
+
     #### Init Functions ####
     def __init__(self, componentDictReader, rocket, stage):
         FixedMass.__init__(self, componentDictReader, rocket, stage)

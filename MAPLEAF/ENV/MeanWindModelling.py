@@ -1,3 +1,5 @@
+''' Modeling of the mean / average component of wind velocity '''
+
 import abc
 import random
 from math import cos, radians, sin
@@ -11,34 +13,22 @@ from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 
-__pdoc__ = {
-    '_meanWindModel_Constant':            True,
-    '_meanWindModel_Hellman':             True,
-    '_meanWindModel_InterpolatedProfile': True,
-    '_windRoseDataSampler':               True,
-    '_radioSondeDataSampler':             True,
-}
 
 # Mean Wind Model Abstract Base Class / Interface Definition
 class MeanWindModel(abc.ABC):
-    ''' Defines the interface for Mean Wind Models instantiated by meanWindModelFactory.    '''
+    ''' Defines the interface for Mean Wind Models '''
 
     @abc.abstractmethod
     def getMeanWind(self, AGLAltitude):
         pass 
 
 # Mean Wind Model Factory
-def meanWindModelFactory(simDefinition=None, silent=False):
-    '''
-        Arguments: 
-            simDefinition: A SimDefinition containing the simulation definition file for the present simulation
+def meanWindModelFactory(simDefinition=None, silent=False) -> MeanWindModel:
+    ''' Instantiates a mean wind model '''
 
-        Returns:
-            meanWindModel, created based on the parameters provided in the SimDefinition passed in 
-    '''
     if simDefinition == None:
         constWind = Vector(defaultConfigValues["Environment.ConstantMeanWind.velocity"])
-        return _meanWindModel_Constant(constWind)
+        return Constant(constWind)
 
     envReader = SubDictReader('Environment', simDefinition)
     meanWindModel = None
@@ -49,7 +39,7 @@ def meanWindModelFactory(simDefinition=None, silent=False):
         if not silent:
             print("Constant ground wind: {:1.2f} m/s".format(meanGroundWind))
 
-        meanWindModel = _meanWindModel_Constant(meanGroundWind)
+        meanWindModel = Constant(meanGroundWind)
 
     elif meanWindModelType in [ "SampledGroundWindData", "Hellman" ]:
         def getLocationSampledGroundWindVel():
@@ -64,7 +54,7 @@ def meanWindModelFactory(simDefinition=None, silent=False):
             launchMonth = envReader.getString("SampledGroundWindData.launchMonth")
 
             # Sample wind rose(s)
-            sampler = _windRoseDataSampler(silent=silent)
+            sampler = WindRoseDataSampler(silent=silent)
             meanGroundWind = sampler.sampleWindRoses(locationsSampled, locationWeights, launchMonth)
 
             # Output choices parsed from input file and resulting wind
@@ -87,7 +77,7 @@ def meanWindModelFactory(simDefinition=None, silent=False):
             meanGroundWind = getLocationSampledGroundWindVel()
             if not silent:
                 print("Wind is not a function of altitude")
-            meanWindModel = _meanWindModel_Constant(meanGroundWind)
+            meanWindModel = Constant(meanGroundWind)
 
         elif meanWindModelType == "Hellman":
             groundWindModel = envReader.getString("Hellman.groundWindModel")
@@ -106,11 +96,11 @@ def meanWindModelFactory(simDefinition=None, silent=False):
                 print("Wind vs. altitude governed by Hellman law: v2 = v1*(z2/10)^a where a = {}".format(HellmanAlphaCoeff))
                 print("Hellman law is taken to apply up to an altitude of {} m AGL".format(HellmanAltitudeLimit))
 
-            meanWindModel = _meanWindModel_Hellman(meanGroundWind, HellmanAltitudeLimit, HellmanAlphaCoeff)
+            meanWindModel = Hellman(meanGroundWind, HellmanAltitudeLimit, HellmanAlphaCoeff)
     
     elif meanWindModelType == "CustomWindProfile":
         meanWindProfileFilePath = envReader.getString("CustomWindProfile.filePath")
-        meanWindModel = _meanWindModel_InterpolatedProfile(windFilePath=meanWindProfileFilePath)
+        meanWindModel = InterpolatedProfile(windFilePath=meanWindProfileFilePath)
 
     elif meanWindModelType == "SampledRadioSondeData":
         # Get locations and location weights
@@ -130,18 +120,18 @@ def meanWindModelFactory(simDefinition=None, silent=False):
         radioSondeRandomSeed = envReader.tryGetString("SampledRadioSondeData.randomSeed")
 
         # Select and parse radio sonde profile
-        sampler = _radioSondeDataSampler(silent=silent)
+        sampler = RadioSondeDataSampler(silent=silent)
         altitudes, windVectors = sampler.getRadioSondeWindProfile(locations, weights, locationASLAltitudes, launchMonth, radioSondeRandomSeed)
         
-        meanWindModel = _meanWindModel_InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
+        meanWindModel = InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
 
     else:
         raise ValueError("Unknown MeanWindModel: {}. Please see SimDefinitionTemplate.txt for available options.".format(meanWindModelType))
 
     return meanWindModel
 
-# Actual Mean Wind Model classes - these are instantiated by meanWindModelFactory
-class _meanWindModel_Constant(MeanWindModel):
+#### Actual Mean Wind Model classes - these are instantiated by meanWindModelFactory ####
+class Constant(MeanWindModel):
     ''' Defines a constant wind speed at all altitudes  '''
     
     def __init__(self, wind):
@@ -150,7 +140,7 @@ class _meanWindModel_Constant(MeanWindModel):
     def getMeanWind(self, AGLAltitude):
         return self.wind
 
-class _meanWindModel_Hellman(MeanWindModel):
+class Hellman(MeanWindModel):
     '''
         Uses the Hellman law to scale a ground velocity using a power law as the atmospheric boundary layer is exited.
         Low-altitude only. https://en.wikipedia.org/wiki/Wind_gradient -> Engineering Section.
@@ -173,7 +163,7 @@ class _meanWindModel_Hellman(MeanWindModel):
         # Assume initial winds come from a height of 10m
         return self.groundMeanWind * (HellmanAltitude/10)**self.hellmanAlphaCoeff
 
-class _meanWindModel_InterpolatedProfile(MeanWindModel):
+class InterpolatedProfile(MeanWindModel):
     def __init__(self, windAltitudes=[], winds=[], windFilePath=None):
         '''
             Arguments:
@@ -207,7 +197,7 @@ class _meanWindModel_InterpolatedProfile(MeanWindModel):
         return Vector(*linInterp(self.windAltitudes, self.winds, AGLAltitude))
 
 # Wind Data readers/samplers
-class _windRoseDataSampler():
+class WindRoseDataSampler():
     ''' 
         Parses wind rose data files from Iowa State University's Environmental Mesonet.
     '''
@@ -339,7 +329,7 @@ class _windRoseDataSampler():
         #TODO: Need to de-rotate these headings by 5 degrees?
         return rv_histogram((likelyhoodByHeading, headings))
 
-class _radioSondeDataSampler():
+class RadioSondeDataSampler():
     ''' 
         Parses data from radio sonde data files from IGRA-2 after they've been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
         IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt

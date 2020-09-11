@@ -10,9 +10,8 @@ class Inertia():
 
     def __init__(self, MOI, MOICentroidLocation, mass, CG=None, componentLocation=Vector(0,0,0)):
         """ 
-            MOIVector: Ixx, Iyy, Izz
-            MOICentroidLocation: The point about which Ixx, Iyy, and Izz were calculated. 
-                For the rocket simulator, this is assumed to be in the rocket frame
+            * MOIVector: Ixx, Iyy, Izz  
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
         """
         self.MOI = MOI
         self.MOICentroidLocation = MOICentroidLocation + componentLocation

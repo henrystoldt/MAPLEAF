@@ -1,10 +1,7 @@
 """
-Created on Thu Jan 3, 2019
-
-@author: Henry Stoldt, Declan Quinn
-
-Defines the Rocket class, which ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to 
-simulate the flight of a single rocket or dropped rocket stage (always only represents one rigid body at a time).
+`Rocket ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to 
+simulate the flight of a single rocket or dropped rocket stage (`Rocket` always only represents a single rigid body at a time).
+New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.SingleSimRunner` to represent dropped stages.
 
 .. image:: https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG
 """

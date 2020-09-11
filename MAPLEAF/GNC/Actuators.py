@@ -1,3 +1,7 @@
+'''
+Modelling of actuators, which can control things like the position of rocket fin angles...
+'''
+
 import abc
 from math import e
 
@@ -27,12 +31,19 @@ class FirstOrderSystem():
 
 
 class ActuatorController(abc.ABC):
+    ''' 
+        Interface for actuator controllers.   
+        Actuator controllers are in charge of determining what actuator deflections are required to produce moments desired by the rocket's `MAPLEAF.GNC.ControlSystems.ControlSystem`
+    '''
     @abc.abstractmethod
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         ''' Should return nothing, control the appropriate rocket system to generate the desired moments '''
         pass
 
 class TableInterpolatingActuatorController(ActuatorController):
+    '''
+        Controls actuators 
+    '''
     def __init__(self, deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList):
         self.actuatorList = actuatorList
         self.keyFunctionList = keyFunctionList
@@ -73,6 +84,11 @@ class TableInterpolatingActuatorController(ActuatorController):
 
 
 class Actuator(abc.ABC):
+    ''' 
+        Interface for actuators.
+        Actuators model the movement of a physical actuator (ex. servo, hydraulics).
+        Target deflections are usually provided by the rocket's `MAPLEAF.GNC.ControlSystems.ControlSystem`, usually obtained from a `ActuatorController`
+    '''
     @abc.abstractmethod
     def setTargetDeflection(self, newTarget, time):
         ''' Should return nothing, update setPoint for the actuator '''

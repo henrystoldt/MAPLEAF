@@ -10,6 +10,7 @@ from MAPLEAF.Rocket.RocketComponents import BodyComponent, PlanarInterface
 
 
 class Stage(CompositeObject, BodyComponent):
+    ''' Represents a single rocket stage '''
 
     def __init__(self, stageDictReader, rocket):
         #TODO: This should take a boolean parameter 'dropped' which specified whether the stage being initialized is on the pad (full engine) or being dropped (empty engine)

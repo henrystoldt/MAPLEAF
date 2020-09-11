@@ -19,11 +19,11 @@
 `pip install MAPLEAF`
     
 ## Running a Simulation
-`mapleaf path/to/SimDefinitionFile.mapleaf`  
+`$ mapleaf path/to/SimDefinitionFile.mapleaf`  
 
 Sample simulation definitions: [MAPLEAF/Examples/Simulations](https://github.com/henrystoldt/MAPLEAF/tree/master/MAPLEAF/Examples/Simulations)  
-Running examples only requires the case name: `$ mapleaf NASATwoStageOrbitalRocket`  
-Same as running: `$ mapleaf MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf` from the repository's main directory or MAPLEAF's install location
+Example cases be run with just the case name: `$ mapleaf NASATwoStageOrbitalRocket`  
+This is the same as running: `$ mapleaf MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf` from MAPLEAF's install location
 
 ### Simulation Definition Files
 Brief overview below. **More info, and definitions of all possible options in:** [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)

@@ -59,6 +59,8 @@ def computeTransonicPolyCoeffs(coneHalfAngle):
     return Interpolation.calculateCubicInterpCoefficients(1.0, 1.3, Cd_M1, Cd_M13, dCd_dMa_M1, dCd_dMa_M13)
 
 class Nosecone(FixedMass, BodyComponent):
+    ''' Represent a Tangent Ogive Nosecone '''
+
     canConnectToComponentAbove = False # Overrides attribute from BodyComponent -> Nosecone must be at top of rocket
 
     #### Initialization Functions ####
@@ -147,8 +149,7 @@ class Nosecone(FixedMass, BodyComponent):
     def _getWettedArea(self):
 
         if self.shape == "tangentOgive":
-            #TODO Find an analytical solution if it exists - implement the one below
-                # Analytical solution in here: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            #TODO Analytical Solution: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
             baseRadius = self.baseDiameter / 2
             length = self.baseDiameter * self.aspectRatio
 

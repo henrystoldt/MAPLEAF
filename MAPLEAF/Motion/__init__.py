@@ -3,11 +3,11 @@ Generalized Rigid body motion integration functionality.
 Main class (6Dof) is `MAPLEAF.Motion.RigidBody.RigidBody`.  
 Fundamental data types used throughout the simulator defined in:
 
-* `Vector`
-* `Quaternion` - represents orientation
-* `AngularVelocity` 
-* `Inertia` - stores component masses and moments of inertias
-* `ForceMomentSystem`  - stores a repositionable force-moment system
+* `CythonVector.Vector`
+* `CythonQuaternion.Quaternion` - represents orientation
+* `CythonAngularVelocity.AngularVelocity` 
+* `Inertia.Inertia` - stores component masses and moments of inertias
+* `ForceMomentSystem.ForceMomentSystem`  - stores a repositionable force-moment system
 
 3Dof and 6DoF Rigid body states are composed of these fundamental data types and defined in `RigidBodyStates`
 

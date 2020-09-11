@@ -1,3 +1,7 @@
+'''
+In charge of initializing rocket components. Add new components to `stringNameToClassMap` to make them instantiate themselves when included in a Rocket
+'''
+
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Rocket.BoatTail import BoatTail, Transition
 from MAPLEAF.Rocket.Bodytube import Bodytube
@@ -8,7 +12,6 @@ from MAPLEAF.Rocket.RecoverySystem import RecoverySystem
 from MAPLEAF.Rocket.RocketComponents import (AeroDamping, AeroForce, FixedForce,
                                          FixedMass, FractionalJetDamping,
                                          TabulatedAeroForce, TabulatedInertia)
-
     
 stringNameToClassMap = {
     "AeroDamping":          AeroDamping,

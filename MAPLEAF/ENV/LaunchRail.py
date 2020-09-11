@@ -1,3 +1,4 @@
+''' Modeling of the effects of a Launch Rail on rocket launches '''
 
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity

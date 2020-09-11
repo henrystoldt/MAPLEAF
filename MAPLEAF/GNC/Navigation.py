@@ -1,3 +1,5 @@
+''' Navigators determine where to go '''
+
 import abc
 
 from MAPLEAF.Motion.CythonQuaternion import Quaternion

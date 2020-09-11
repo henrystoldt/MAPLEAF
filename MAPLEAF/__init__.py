@@ -23,12 +23,11 @@ See [README.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README.md) fo
 
 See [SimulationDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf) for details about all available options
 
-See README_Dev.md for info about:  
+See [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md) for info about:  
 
 * Running unit tests  
 * Running regression/validation tests  
 * Recompiling Cython Code
-
 '''
 
 __pdoc__ = {

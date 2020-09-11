@@ -45,6 +45,7 @@ def getBusemannCoefficients(Mach, beta, gamma=1.4):
     return K1, K2, K3
 
 class FinSet(FixedMass, ActuatedSystem):
+    ''' Class represents a set of n identical fins, all at the same longitudinal location, arranged axisymmetrically. Fin orientations can be controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` '''
 
     #### Initialization Functions ####
     def __init__(self, componentDictReader, rocket, stage):
@@ -430,6 +431,7 @@ class FinSet(FixedMass, ActuatedSystem):
             plt.plot (Xvals, Yvals, color = 'k')
 
 class Fin(FixedMass):
+    ''' Represents a single fin in a FinSet '''
 
     def __init__(self, componentDictReader, parentFinSet, spanwiseDirection, rocket, stage):
 

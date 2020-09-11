@@ -1,3 +1,5 @@
+''' Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket.Rocket` '''
+
 import math
 from collections import namedtuple
 from typing import Union

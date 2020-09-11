@@ -1,5 +1,7 @@
 '''
-Linear interpolation on sorted lists of values and rigid body states
+Interpolation rigid body states and scalar values.
+State interpolation used in flight animations.
+Scalar interpolation used for interpolation of transonic aerodynamic forces.
 '''
 from bisect import bisect
 

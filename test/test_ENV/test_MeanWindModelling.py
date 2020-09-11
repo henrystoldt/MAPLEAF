@@ -12,11 +12,10 @@ from test.testUtilities import assertVectorsAlmostEqual
 import numpy as np
 
 from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.ENV.MeanWindModelling import (
+    Constant, InterpolatedProfile, RadioSondeDataSampler,
+    _convertWindHeadingToXYPlaneWindDirection, meanWindModelFactory)
 from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.ENV.MeanWindModelling import (_convertWindHeadingToXYPlaneWindDirection,
-                               _meanWindModel_InterpolatedProfile,
-                               _meanWindModel_Constant,
-                               meanWindModelFactory, _radioSondeDataSampler)
 from MAPLEAF.Motion.CythonVector import Vector
 
 
@@ -33,7 +32,7 @@ class TestMeanWindModels(unittest.TestCase):
         assertVectorsAlmostEqual(self, _convertWindHeadingToXYPlaneWindDirection(360), Vector(0,-1,0))
 
     def test_readCustomWindProfile(self):
-        windModel = _meanWindModel_InterpolatedProfile(windFilePath="MAPLEAF/Examples/Wind/testWindProfile.txt")
+        windModel = InterpolatedProfile(windFilePath="MAPLEAF/Examples/Wind/testWindProfile.txt")
         
         self.assertTrue(np.allclose(windModel.windAltitudes, np.array([ 2000, 6000, 7000 ])))
         self.assertTrue(np.allclose(windModel.winds, np.array([ [ 10, 0, 0 ],
@@ -71,7 +70,7 @@ class TestMeanWindModels(unittest.TestCase):
         assertVectorsAlmostEqual(self, mWM.getMeanWind(0), Vector(5, 1, 0))
 
     def test_getMeanWind_Constant(self):
-        windModel = _meanWindModel_Constant(Vector(1,2,3))
+        windModel = Constant(Vector(1,2,3))
         for altitude in [ 0, 1000, 10000, 100000 ]:
             self.assertEqual(windModel.getMeanWind(altitude), Vector(1,2,3))
 
@@ -91,7 +90,7 @@ class TestRadioSondeDataReader(unittest.TestCase):
         self.mWM = meanWindModelFactory(self.simDefinition, self.rocket)
 
     def test_readRadioSondeDataFile(self):
-        reader = _radioSondeDataSampler()
+        reader = RadioSondeDataSampler()
         datasetStartLines, data = reader._readRadioSondeDataFile("MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt")
         self.assertEqual(datasetStartLines, [0])
         self.assertEqual(len(datasetStartLines), 1)
@@ -101,14 +100,14 @@ class TestRadioSondeDataReader(unittest.TestCase):
 
     def test_radioSondeMonthFiltering(self):
         filePath = "MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt"
-        reader = _radioSondeDataSampler()
+        reader = RadioSondeDataSampler()
         datasetStartLines, data = reader._readRadioSondeDataFile(filePath, filterByMonth="Jan")
         self.assertEqual(len(datasetStartLines), 1)
         datasetStartLines, data = reader._readRadioSondeDataFile(filePath, filterByMonth="Feb")
         self.assertEqual(len(datasetStartLines), 0)
 
     def test_extractRadioSondeData(self):
-        reader = _radioSondeDataSampler()
+        reader = RadioSondeDataSampler()
         datasetStartLines, data = reader._readRadioSondeDataFile("MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt")
         header, data2 = reader._extractRadioSondeDataSet(datasetStartLines, data, 0)
 
@@ -118,7 +117,7 @@ class TestRadioSondeDataReader(unittest.TestCase):
 
     def test_parseRadioSondeHeader(self):
         header = "#CAM00071119 2000 01 01 00 2315   83 ncdc-gts ncdc-gts  535475 -1141083\n"
-        reader = _radioSondeDataSampler()
+        reader = RadioSondeDataSampler()
         stationID, year, month, day, hour = reader._parseRadioSondeHeader(header)
         self.assertEqual(stationID, "CAM00071119")
         self.assertEqual(year, 2000)
@@ -127,7 +126,7 @@ class TestRadioSondeDataReader(unittest.TestCase):
         self.assertEqual(hour, 00)
 
     def test_parseRadioSondeData(self):
-        reader = _radioSondeDataSampler()
+        reader = RadioSondeDataSampler()
 
         datasetStartLines, data = reader._readRadioSondeDataFile("MAPLEAF/Examples/Wind/RadioSondetestLocation_filtered.txt")
         header, data2 = reader._extractRadioSondeDataSet(datasetStartLines, data, 0)

@@ -1,7 +1,6 @@
 """
-Created Jan 7 2019
-
-@author: Henry Stoldt
+Classes that represent 3- and 6-DoF rigid bodies.
+Rigid body classes contain the logic for calculating rigid body state derivatives, given current applied forces and inertia of the rigid body
 """
 
 from collections import namedtuple

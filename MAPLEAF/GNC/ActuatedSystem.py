@@ -1,3 +1,8 @@
+''' 
+The actuated system class initializes actuators, which are controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` 
+Rocket component classes need to inherit from this class to become controllable (see `MAPLEAF.Rocket.Fins.FinSet`)
+'''
+
 import abc
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
@@ -7,17 +12,16 @@ from MAPLEAF.GNC.Actuators import (FirstOrderActuator,
 
 class ActuatedSystem(abc.ABC):
     '''
-        Mixin-type class
-            Inherit from this class to add its functionality to a class
-                __init__ method initializes actuators defined in the component's 'Actuator' subdictionary
-                These actuators are then stored in self.actuatorList
-            
-            Child classes must call ActuatedSystem.__init__() to actually instantiate the actuators
-                Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
-                Expects that child classes have a self.rocket attribute
+            **Mixin-type class**  
+            Inherit from this class to add its functionality to a class  
+                
+            * ActuatedSystem.\_\_init\_\_ initializes actuators defined in the component's 'Actuator' subdictionary  
+            * These actuators are then stored in self.actuatorList  
+            * Child classes must call ActuatedSystem.\_\_init\_\_() to actually instantiate the actuators
+            * Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
+            * Expects that child classes have a self.rocket attribute
     '''
     def __init__(self, nActuators):
-        '''  This is a conrete, implemented method, intended to be called by child classes '''
 
         # Initialize Actuator Models
         actuatorList = []
@@ -61,7 +65,5 @@ class ActuatedSystem(abc.ABC):
 
     @abc.abstractmethod
     def initializeActuators(self, controlSystem):
-        ''' 
-            Function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators
-        '''        
+        ''' Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  '''        
         pass

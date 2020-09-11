@@ -10,6 +10,7 @@ from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
 
 
 class Bodytube(FixedMass, BodyComponent):
+    ''' Represent a cylindrical body tube '''
     
     #### Init Functions ####
     def __init__(self, componentDictReader, rocket, stage):

@@ -1,3 +1,8 @@
+'''
+Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inherit from `CompositeObject`.
+It implements functionality to add forces and inertias from an arbitrary number of subcomponents.
+'''
+
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia

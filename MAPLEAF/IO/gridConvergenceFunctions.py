@@ -1,8 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-#Author: Henry Stoldt
-#June 2019
+''' Functions to analyze grid convergence of simulations '''
 
 import os
 from math import log

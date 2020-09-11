@@ -1,3 +1,8 @@
+''' 
+Define standard and time-derivative rigid body states.  
+These are defined in such a way that, for the purposes of Runge-Kutta motion integration, they can be treated like scalars.
+'''
+
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity

@@ -1,3 +1,7 @@
+'''
+Moment controllers determine what overall moments should be applied to the rocket to remain on the course provided by the `MAPLEAF.GNC.ControlSystems.ControlSystem`
+'''
+
 import abc
 
 import numpy as np

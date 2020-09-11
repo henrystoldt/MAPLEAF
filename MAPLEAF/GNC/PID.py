@@ -1,3 +1,5 @@
+''' PID controllers control parts of the control system and adaptive simulation timestepping '''
+
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 

@@ -1,3 +1,5 @@
+''' Cython functions to speed up the `MAPLEAF.Rocket.Fins.FinSet` aerodynamic model '''
+
 # distutils: language = c++
 
 from MAPLEAF.Motion.CythonVector cimport Vector

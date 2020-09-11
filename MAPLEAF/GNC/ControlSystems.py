@@ -1,3 +1,8 @@
+''' 
+Classes that implement air vehicle control systems by tying together a`MAPLEAF.GNC.Navigation.Navigator`, a `MAPLEAF.GNC.MomentControllers.MomentController`, and an `MAPLEAF.GNC.Actuators.ActuatorController`.  
+Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the `MAPLEAF.GNC.ActuatedSystem.ActuatedSystem` they control.
+'''
+
 import abc
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
@@ -8,6 +13,8 @@ from MAPLEAF.IO.SubDictReader import SubDictReader
 
 
 class ControlSystem(abc.ABC):
+    ''' Interface for control systems '''
+
     @abc.abstractmethod
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         ''' 
@@ -25,11 +32,11 @@ class ControlSystem(abc.ABC):
 
     @abc.abstractmethod
     def getLogHeader(self):
-        '''
-            Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired
-        '''
+        ''' Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired '''
 
 class RocketControlSystem(ControlSystem, SubDictReader):
+    ''' Simplest possible control system for a rocket '''
+
     def __init__(self, controlSystemDictReader, rocket, initTime=0):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader

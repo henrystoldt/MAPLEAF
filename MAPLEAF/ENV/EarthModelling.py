@@ -1,3 +1,5 @@
+''' These classes model the earth's gravity and perform some coordinate transformations between the global inertial frame and the ENU/launch tower frame '''
+
 from abc import ABC, abstractmethod
 from math import atan2, cos, degrees, radians, sin, sqrt, pi
 from typing import Union
@@ -9,23 +11,8 @@ from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
 
-# Draft text for gravity modelling in SimDefinitionTemplate:
-    # WGS84{
-        # Determines what gravity model is used with the WGS84 earth model
-            # spherical - simplest model, same as round earth. Gravity always points at earth's center of mass.
-            # J2 - only includes first term of spherical harmonic expansion, accounts for oblateness of the earth. 
-                # Gravity becomes a function of latitude and radius, does not always point at earth's center of mass
-                # Appropriate for preliminary orbital calculations
-            # TODO: 4x4 - includes first 14 terms of spherical harmonic expansion
-                # Full spherical harmonic expansion up to order/degree 4. Gravity is a function of latitude, longitude, 
-                # and radius; does not point at earth's center of mass
-            # TODO: 8x8 - includes first 44 terms of spherical harmonic expansion
-                # ' ' order/degree 8. ' '
-        # gravityModel        J2;
-    # }
-
 class EarthModel(ABC):
-    ''' Defines interface for the earth models defined below, and instantiated by earthModelFactory '''
+    ''' Interface for all earth models '''
     # All earth models will have these default values
     rotationRate = 0
 
@@ -66,8 +53,8 @@ class EarthModel(ABC):
         '''
         return
 
-def earthModelFactory(envDictReader=None):
-    # Handle the no-input case w/ default flat earth model
+def earthModelFactory(envDictReader=None) -> EarthModel:
+    ''' Provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`). If none is provided, returns a FlatEarth model '''
     if envDictReader == None:
         return FlatEarth()
 

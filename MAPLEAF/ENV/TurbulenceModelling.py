@@ -1,3 +1,5 @@
+''' Modeling of turbulent, fluctuating component of wind velocity '''
+
 import abc
 import random
 from math import cos, pi
@@ -7,7 +9,8 @@ from MAPLEAF.IO.SubDictReader import SubDictReader
 
 #TODO: Implement vonKarman or Dryden model with std deviation / length scale that varies with altitude as per NASA HDBK-1001
 
-class _TurbulenceModel(abc.ABC):
+class TurbulenceModel(abc.ABC):
+    ''' Interface for all turbulence models '''
     @abc.abstractmethod
     def getTurbVelocity(self, altitude, meanWindVelocity, time):
         pass
@@ -22,7 +25,7 @@ def turbulenceModelFactory(simDefinition, silent=False):
         print("Turbulence/Gust Model: {}".format(turbModelType))
 
     if turbModelType== "None":
-        turbulenceModel = _turbModel_None()
+        turbulenceModel = NoTurb()
         
     elif "PinkNoise" in turbModelType:
         def tryGetValue(key):
@@ -46,18 +49,18 @@ def turbulenceModelFactory(simDefinition, silent=False):
         pinkNoiseRandomSeed3 = envReader.tryGetInt("PinkNoiseModel.randomSeed3")
             
         if turbModelType == "PinkNoise1D":
-            turbulenceModel = _turbModel_PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
+            turbulenceModel = PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
             if not silent:
                 print("Random seed 1: {}".format(turbulenceModel.png1.seed))
 
         elif turbModelType == "PinkNoise2D":
-            turbulenceModel = _turbModel_PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
+            turbulenceModel = PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
             if not silent:
                 print("Random seed 1: {}".format(turbulenceModel.png1.seed))
                 print("Random seed 2: {}".format(turbulenceModel.png2.seed))
 
         elif turbModelType == "PinkNoise3D":
-            turbulenceModel = _turbModel_PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
+            turbulenceModel = PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
             if not silent:
                 print("Random seed 1: {}".format(turbulenceModel.png1.seed))
                 print("Random seed 2: {}".format(turbulenceModel.png2.seed))
@@ -70,7 +73,7 @@ def turbulenceModelFactory(simDefinition, silent=False):
         GustLayerThickness = envReader.getFloat("CustomSineGust.thickness")
         GustDirection = envReader.getVector("CustomSineGust.direction").normalize()
 
-        turbulenceModel = _turbModel_customSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
+        turbulenceModel = CustomSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
 
         if not silent:
             print("Gust Altitude: {}".format(GustStartAltitude))
@@ -81,11 +84,11 @@ def turbulenceModelFactory(simDefinition, silent=False):
 
     return turbulenceModel
 
-class _turbModel_None(_TurbulenceModel):
+class NoTurb(TurbulenceModel):
     def getTurbVelocity(self, _, __, ___):
         return Vector(0,0,0)
 
-class _PinkNoiseModel(_TurbulenceModel):
+class _PinkNoiseTurbModel(TurbulenceModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
         self.velStdDev = velocityStdDev
         self.turbulenceIntensity = turbulenceIntensity
@@ -101,7 +104,7 @@ class _PinkNoiseModel(_TurbulenceModel):
         else:
             return self.velStdDev
 
-class _turbModel_PinkNoise1D(_PinkNoiseModel):
+class PinkNoise1D(_PinkNoiseTurbModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
 
@@ -110,7 +113,7 @@ class _turbModel_PinkNoise1D(_PinkNoiseModel):
         newTurbMagnitude = self.png1.getValue(time) * self.velStdDev
         return meanWindVelocity.normalize() * newTurbMagnitude
 
-class _turbModel_PinkNoise2D(_PinkNoiseModel):
+class PinkNoise2D(_PinkNoiseTurbModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
         self.png2 = PinkNoiseGenerator(seed=randomSeed2)
@@ -121,7 +124,7 @@ class _turbModel_PinkNoise2D(_PinkNoiseModel):
         yTurbVel = self.png2.getValue(time) * velStdDev
         return Vector(xTurbVel, yTurbVel, 0)
 
-class _turbModel_PinkNoise3D(_TurbulenceModel):
+class PinkNoise3D(TurbulenceModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
         self.png2 = PinkNoiseGenerator(seed=randomSeed2)
@@ -134,7 +137,7 @@ class _turbModel_PinkNoise3D(_TurbulenceModel):
         newZTurbVel = self.png2.getValue(time) * velStdDev
         return Vector(newXTurbVel, newYTurbVel, newZTurbVel)
 
-class _turbModel_customSineGust(_TurbulenceModel):
+class CustomSineGust(TurbulenceModel):
     def __init__(self, GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection):
         self.GustStartAltitude = GustStartAltitude
         self.GustSineBlendDistance = GustSineBlendDistance
@@ -172,20 +175,22 @@ class _turbModel_customSineGust(_TurbulenceModel):
 class PinkNoiseGenerator():
     '''
         Inputs:
-            alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
-                default value of 5/3 matches power spectrum slope of turbulent integral scales
-            seed - pink noise generated based on applying a filter to gaussian white noise specifying
-                the seed for the input random noise allows for repeatable sequences of values
-            nPoles - more poles include more low frequency content in the spectrum
-                parameter could be interpreted as similar to the turbulence length scale
-                can be varied in more sophisticated models
-            simulatedSamplingFreqHz - controls "sampling frequency" that the pink noise is interpreted as
-                also modulated the effective length scale of turbulence, together with nPoles
+            
+            * alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.  
+                default value of 5/3 matches power spectrum slope of turbulent integral scales  
+            * seed - pink noise generated based on applying a filter to gaussian white noise specifying  
+                the seed for the input random noise allows for repeatable sequences of values  
+            * nPoles - more poles include more low frequency content in the spectrum  
+                parameter could be interpreted as similar to the turbulence length scale  
+                can be varied in more sophisticated models  
+            * simulatedSamplingFreqHz - controls "sampling frequency" that the pink noise is interpreted as  
+                also modulated the effective length scale of turbulence, together with nPoles  
         Methods:
-            .getValue(time)
-                If the value is requested at time values that fall between sampling intervals, linearly
-                interpolated values (from adjacent samples) are returned
-                If no time is provided, the sampling frequency is ignored and a new value is computed
+            
+            * .getValue(time)  
+                If the value is requested at time values that fall between sampling intervals, linearly 
+                interpolated values (from adjacent samples) are returned.
+                If no time is provided, the sampling frequency is ignored and a new value is computed  
     '''
 
     def __init__(self, alpha=5/3, seed=None, nPoles=2, simulatedSamplingFreqHz=20):

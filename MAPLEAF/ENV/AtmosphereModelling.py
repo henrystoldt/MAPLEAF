@@ -1,4 +1,4 @@
-''' Atmospheric models used by `MAPLEAF.ENV.Environment.Environment` defined and initialized here '''
+''' These classes model the change of air properties (Pressure, Density, etc... with altitude) '''
 
 import abc
 from bisect import bisect
@@ -12,7 +12,7 @@ from MAPLEAF.IO.SimDefinition import defaultConfigValues
 
 
 class AtmosphericModel(abc.ABC):
-    ''' Defines the interface of atmospheric models returned by atmosphericModelFactory '''
+    ''' Interface for all atmosphere models '''
     
     @abc.abstractmethod
     def getAirProperties(self, ASLElevation: float, time: float) -> Sequence[float]:
@@ -26,7 +26,7 @@ class AtmosphericModel(abc.ABC):
         '''
         return
 
-def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
+def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -> AtmosphericModel:
     ''' 
         Provide either an atmosphericModel name ('USStandardAtmosphere' is only option right now that doesn't require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`)
@@ -49,7 +49,7 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
         # Return to reading from Environment for any subsequent parsing
         envDictReader.simDefDictPathToReadFrom = "Environment"
 
-        return ConstantAtmosphericProperties(constTemp, constPressure, constDensity, constViscosity)
+        return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
     elif atmosphericModel == "TabulatedAtmosphere":
         try:
@@ -64,7 +64,7 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
     else:
         raise ValueError("Atmospheric model: {} not implemented, try using 'USStandardAtmosphere'".format(atmosphericModel))
         
-class ConstantAtmosphericProperties(AtmosphericModel):
+class ConstantAtmosphere(AtmosphericModel):
     def __init__(self, temp, pressure, density, viscosity):
         self.airProperties = [ temp, pressure, density, viscosity ]
 
