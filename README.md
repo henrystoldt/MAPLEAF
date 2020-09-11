@@ -2,18 +2,20 @@
 
 <p align="center">
   <img src="Diagrams/DraftLogo.png?raw=true" alt="Logo"
-    title="MAPLEAF" height=75 style="padding-right: 10px;"/>
+    title="MAPLEAF" height=100 style="padding-right: 10px;"/>
   <h1 align="center">MAPLEAF - Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
   <p align="center">6-DOF Rocket Flight Simulation Framework </p>
 </p>
 
 <p align="center">
+  
   ![Unit Tests](https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg)
   ![Linting](https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg)
   [![Documentation](https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg)](https://henrystoldt.github.io/MAPLEAF/)
   [![codecov](https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg)](https://codecov.io/gh/henrystoldt/mapleaf)
   ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
   [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+  
 </p>
 
 ## Install:
@@ -50,13 +52,13 @@ SimControl{
 
 [Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) is very helpful in maintaining an overview of these files:
 
-![Folded Sim Definition](Diagrams/SimDefinitionFile_Folded.png?raw=true)
+![Folded Sim Definition](Diagrams/SimDefinitionFile_Folded.PNG?raw=true)
 
 The possible top level dictionaries are 'Monte Carlo', 'SimControl', 'Environment', and 'Rocket'.
 Of these, only the 'Rocket' dictionary is strictly required to run a simulation, and defines the rocket's initial position/velocity and the inertial/aerodynamic/control models used to simulate it.  
 The rocket is defined by nested subdictionaries, where the first level of nesting defines the rocket's stage(s) and the second level defines the rocket component(s) in each stage:
 
-![Rocket Definition](Diagrams/SimDefinitionFile_Rocket.png?raw=true)
+![Rocket Definition](Diagrams/SimDefinitionFile_Rocket.PNG?raw=true)
 
 Default values from the defaultConfigValues dictionary in [MAPLEAF/IO/SimDefinition.py](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/IO/SimDefinition.py) will fill in when keys are undefined.
 Default values mostly match those in the [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf) file.
@@ -64,7 +66,7 @@ Default values mostly match those in the [SimDefinitionTemplate.mapleaf](https:/
 ### Simulation Outputs
 Depending on the options specified in the `SimControl` dictionary, MAPLEAF simulations can output:
 - Detailed tabulated simulation position, component force, aerodynamic coefficient and control logs (see SimControl.loggingLevel):
-![Sample section of log file](Diagrams/LogSample.png?raw=true)
+![Sample section of log file](Diagrams/LogSample.PNG?raw=true)
 
 - Flight animations (see SimControl.plot)  
 <img src="Diagrams/FlightAnimation.gif?raw=true" alt="Flight Animation"
