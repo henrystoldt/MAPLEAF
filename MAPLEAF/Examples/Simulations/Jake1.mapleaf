@@ -19,7 +19,7 @@ SimControl{
 }
 
 Environment{
-    LaunchSite.elevation 1 #m, ASL
+    LaunchSite.elevation 0 #m, ASL
 
     launchRailLength    1
 

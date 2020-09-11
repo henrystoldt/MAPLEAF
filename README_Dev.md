@@ -2,7 +2,6 @@
   <img src="Diagrams/DraftLogo.png?raw=true" alt="Logo"
     title="MAPLEAF" height=125 style="padding-right: 10px;"/>
   <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
-  <p align="center">6-DOF Rocket Flight Simulation Framework </p>
 </p>
 
 <p align="center">

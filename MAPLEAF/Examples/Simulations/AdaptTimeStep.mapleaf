@@ -35,7 +35,7 @@ SimControl{
 }
 
 Environment{
-    LaunchSite.elevation 0 #m, ASL
+    LaunchSite.elevation 755 #m, ASL
 
     launchRailLength 5 #m
 
