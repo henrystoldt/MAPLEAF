@@ -27,8 +27,7 @@
 Example config files are in the ./MAPLEAF/Examples/Simulations folder
 
 ### Simulation Definition Files
-All possible Simulation Definition options are defined in [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)
-Only brief overview here
+More info, and descriptions of all possible options in: [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)
 
 Format is a simple key-value syntax similar to JSON or YAML.  
 Dictionaries can be nested arbitrarily deeply and are brace-delimited.  
