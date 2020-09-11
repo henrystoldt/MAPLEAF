@@ -31,7 +31,7 @@ class TestTableInterpActuatorControlAndPointAtTarget(unittest.TestCase):
             self.actuatorList.append(actuator)
 
         keyFnVector = [ AeroFunctions.getMachNumber, AeroFunctions.getAltitude ]
-        self.interpActuatorController = TableInterpolatingActuatorController("test/test_GNC/testFinDeflectionLaw.txt", 5, keyFnVector, self.actuatorList)
+        self.interpActuatorController = TableInterpolatingActuatorController("MAPLEAF/Examples/TabulatedData/testFinDeflectionLaw.txt", 5, keyFnVector, self.actuatorList)
 
     def test_interpDeflectionTargets(self):
         def getfakeMach(*args):

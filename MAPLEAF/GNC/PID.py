@@ -58,7 +58,7 @@ class GainScheduledPIDController(PIDController):
     def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
         '''
             Inputs:
-                gainTableFilePath:  (string) Path to gain table text file ex: './test/test_GNC/constPIDCoeffs.txt'
+                gainTableFilePath:  (string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
                 nKeyColumns:        (int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
                 PCol:               (int) zero-indexed column number of P Coefficient
                 DCol:               (int) zero-indexed column number of D Coefficient

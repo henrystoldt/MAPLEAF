@@ -14,7 +14,7 @@ from MAPLEAF.Motion.CythonVector import Vector
 
 class TestGainScheduledPIDRocketMomentController(unittest.TestCase):
     def setUp(self):
-        self.momentController = GainScheduledPIDRocketMomentController("test/test_GNC/testPIDControlLaw.txt", ["Mach", "Altitude"])
+        self.momentController = GainScheduledPIDRocketMomentController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", ["Mach", "Altitude"])
         self.stabilizer = Stabilizer(Vector(0,0,1))
 
     def test_getOrientationErrorAndGetTargetOrientation(self):

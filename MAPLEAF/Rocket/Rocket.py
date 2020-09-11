@@ -119,6 +119,9 @@ class Rocket(CompositeObject):
             Always based on the maximum body tube diameter in the fully-assembled rocket.
         '''
         
+        # TODO: Remove
+        self.targetLocation = None
+
         self.simEventDetector = SimEventDetector(self) 
         ''' (`MAPLEAF.Rocket.SimEventDetector.SimEventDetector`) Used to trigger things like recovery systems and staging '''
 

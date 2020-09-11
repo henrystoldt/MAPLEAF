@@ -77,7 +77,7 @@ class TestPIDController(unittest.TestCase):
 
 class TestGainSchedulePIDController(unittest.TestCase):
     def setUp(self):
-        self.gainScheduledPID = GainScheduledPIDController("test/test_GNC/testPIDControlLaw.txt", 2, 2, 7)
+        self.gainScheduledPID = GainScheduledPIDController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", 2, 2, 7)
 
     def test_getPIDCoeffs(self):
         MachNum, Alt = 0.15, 0

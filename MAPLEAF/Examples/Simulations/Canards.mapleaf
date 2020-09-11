@@ -44,7 +44,7 @@ Rocket{
     
         MomentController{
             Type                    GainScheduledPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
-            gainTableFilePath       test/test_GNC/constPIDCoeffs.txt
+            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
             scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
         }
 
@@ -116,7 +116,7 @@ Rocket{
                 class                   Actuator
                 controller              TableInterpolating
                 
-                deflectionTablePath     test/test_GNC/linearCanardDefls.txt
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/linearCanardDefls.txt
                 
                 # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
                     # Desired moments must come last

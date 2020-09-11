@@ -310,7 +310,7 @@ def plotFlightPaths_FullEarth(flightPaths, showPlot=True):
         plotFlightPaths_NoEarth(flightPaths)
 
 ### Flight Animation ###
-def _keepNTimeSteps(flights, nFramesToKeep=900):
+def _keepNTimeSteps(flights, nFramesToKeep=600):
     '''
         Pass in list of RocketFlight objects and the number of frames/timesteps you'd like to keep
         Will return a matching list of Rocket Flight objects with linearly-interpolated, evenly spaced (in time) timesteps

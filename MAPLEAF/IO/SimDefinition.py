@@ -358,6 +358,10 @@ class SimDefinition():
         for key in self.dict:
             # Iterate over all keys, looking for file path relative to the MAPLEAF repo
             val = self.dict[key]
+            
+            # Remove leading dot/slash
+            if val[:2] == "./":
+                val = val[2:]
 
             if len(val) > 8 and val[:8] == "MAPLEAF/":
                 # Replace the relative path with an absolute one

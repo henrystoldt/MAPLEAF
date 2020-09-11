@@ -10,6 +10,7 @@ from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+from MAPLEAF.IO.SimDefinition import getAbsoluteFilePath
 
 class EarthModel(ABC):
     ''' Interface for all earth models '''
@@ -241,7 +242,8 @@ class WGS84Earth(SphericalEarth):
     def __init__(self):
         # Read gravity coefficients from table
         # Columns are: Degree Order C S (Where C and S are the coefficients)
-        gravityCoeffs = np.loadtxt('./MAPLEAF/ENV/sphericalHarmonicGravityCoeffs.txt', skiprows=2)
+        coeffPath = getAbsoluteFilePath('./MAPLEAF/ENV/sphericalHarmonicGravityCoeffs.txt')
+        gravityCoeffs = np.loadtxt(coeffPath, skiprows=2)
         
         # Convert that table into nested dictionary form, to make C and S coefficients easily accessible by degree and order
         Ccoeffs = {}

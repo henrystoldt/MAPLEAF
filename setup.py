@@ -14,7 +14,7 @@ with open("requirements.txt") as reqFile:
     lines = reqFile.readlines()
     install_reqs = list([ str(x) for x in parse_requirements(lines)])
 
-MAPLEAFVersion = "0.8.3"
+MAPLEAFVersion = "0.8.5"
 
 #### Create list of setuptools.Extension objects for Cython to compile ####
 # Add Cython files here, together with ".c" if it compiles to Cython-Generated C code, or ".cpp" if it compiles to Cython-Generated C++ code

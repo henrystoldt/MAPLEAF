@@ -46,7 +46,7 @@ Rocket{
 
             # Provide file path to a .csv file containing the following columns, in order (1 header row):
                 # Time(s), Mass(kg), CGx, CGy, CGz, MOIx, MOIy, MOIz
-            filePath        ./test/test_Rocket/NASARocketTabulatedInertia.csv
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedInertia.csv
         }
 
         TabulatedAeroForces{
@@ -55,7 +55,7 @@ Rocket{
             Aref            7.0
 
             # Force coefficients are tabulated as a function of AOA
-            filePath        ./test/test_Rocket/NASARocketTabulatedAeroForces.csv
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedAeroForces.csv
         }
 
         TabulatedPitchMoment{
@@ -65,7 +65,7 @@ Rocket{
             Lref            3.0
 
             # Pitch Moment coefficient is a function of AOA
-            filePath        ./test/test_Rocket/NASARocketTabulatedAeroMoments.csv
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedAeroMoments.csv
         }
 
         TabulatedYawMoment{
@@ -75,7 +75,7 @@ Rocket{
             Lref            3.0
 
             # Yaw moment coefficient is a function of AOSS
-            filePath        ./test/test_Rocket/NASARocketTabulatedAeroMoments2.csv
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedAeroMoments2.csv
         }
 
         secondStageEngineJetDamping{

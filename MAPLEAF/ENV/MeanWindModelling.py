@@ -261,7 +261,7 @@ class WindRoseDataSampler():
         return windRose
 
     def _getAveragedWindRose(self, Months=["May"], MonthWeights=[1.0], locations=["MedecineHat"], locationWeights=[1.0]):
-        windRose = self._readWindRose("MAPLEAF/Examples/Wind/WindroseAprMedecineHat.txt")*0.0 # Initialize as zero
+        windRose = self._readWindRose(getAbsoluteFilePath("MAPLEAF/Examples/Wind/WindroseAprMedecineHat.txt"))*0.0 # Initialize as zero
         for i in range(len(Months)):
             for a in range(len(locations)):
                 windRoseFilePath = "MAPLEAF/Examples/Wind/Windrose{}{}.txt".format(Months[i], locations[a])
