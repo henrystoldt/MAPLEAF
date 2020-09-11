@@ -1,9 +1,9 @@
 # MAPLEAF
 #### .mapleaf File Format ####
     # All dictionary defining names (i.e Sustainer, Nosecone) must be unique in their parent dictionary. 
-        # They must be immediately followed by an opening brace {
+        # Dictionaries are delimited by braces {
     # keys must not contain spaces
-        # everything after the first space in a key-value line becomes the value
+        # Everything after the first whitespace in a key-value line becomes the value
 
   #### Working with sim definition files ####
   # Recommend viewing/editing these dictionary files programmatically or in a code editor with highlighting set to YAML or Python - if in the git repository, VS Code will do this automatically
@@ -20,9 +20,7 @@
     # using the syntax defined in ./test/test_IO/testDerivedDicts.mapleaf
     # Meaning of ./test/test_IO/testDerivedDicts.mapleaf is equivalent to ./test/test_IO/testDerivedDictsFinal.mapleaf
 
-#### All possible options to define simulations ####
-
-# Coordinate Systems:
+#### Coordinate Systems: #### 
     # Depending on the value of Environment.EarthModel, motion integration can happen in different global (always inertial) frames.
         # In the code, whichever frame is being used is referred to as the 'global inertial frame'
     # Global Inertial Frame by Earth Model:
@@ -63,6 +61,8 @@
         # Z: Longitudinal axis, +'ve goes ahead of rocket, -'ve goes through rocket body, out the rear
         # X: Radial axis 1
         # Y: Radial axis 2
+
+#### All possible options to define simulations ####
 
 MonteCarlo{
     randomSeed      458623 # (optional) for repeatability
@@ -273,7 +273,7 @@ Rocket{
     class               Rocket
 
     # Initial kinematic state
-    position            (0 0 15) # m - initial position above ground level of the rocket tip at the launch location. Set launch site elevation using Environment.launchSiteElevation
+    position            (0 0 15) # m - initial position above ground level of the rocket tip at the launch location. Set launch site elevation using Environment.LaunchSite.elevation
     velocity            (0 0 50) #m/s - initial velocity
     angularVelocity     (0 0 0) #rad/s - initial angular velocity - defined in the rocket's LOCAL frame
     

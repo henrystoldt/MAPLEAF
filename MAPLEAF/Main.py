@@ -54,6 +54,7 @@ def buildParser() -> argparse.ArgumentParser:
     parser.add_argument(
         "simDefinitionFile", 
         nargs=1, 
+        default="MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf",
         help="Path to a simulation definition (.mapleaf) file"
     )
 

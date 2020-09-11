@@ -15,17 +15,13 @@ SimControl{
 }
 
 Environment{
-    launchSiteElevation 755 #m, ASL
+    LaunchSite.elevation    755 #m, ASL
 
-    AtmosphericPropertiesModel          USStandardAtmosphere
-
-    MeanWindModel                       Constant
+    MeanWindModel           Constant
 
     ConstantMeanWind{
-        velocity                    ( -10 0 0 ) #m/s
+        velocity            ( -10 0 0 ) #m/s
     }
-
-    TurbulenceModel None
 }
 
 Rocket{

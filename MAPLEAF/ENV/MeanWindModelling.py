@@ -275,6 +275,7 @@ class _windRoseDataSampler():
         for i in range(len(Months)):
             for a in range(len(locations)):
                 windRoseFilePath = "MAPLEAF/Examples/Wind/Windrose{}{}.txt".format(Months[i], locations[a])
+                windRoseFilePath = getAbsoluteFilePath(windRoseFilePath)
                 windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
 
         return windRose.copy()
@@ -507,62 +508,3 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
     headingVector = Vector(x, y, 0)
     windDirectionVector = -1 * headingVector # Wind is in opposite direction of heading
     return windDirectionVector
-
-#If this file is run by itself
-# if __name__ == '__main__':
-    # from SimDefinition import SimDefinition
-    # fW = SimDefinition("MAPLEAF/Examples/Simulations/Wind.txt")
-    # fW.setValue("Environment.MeanWindModel", "SampledGroundWindData")
-
-    # a = meanWindModelFactory(fW)
-
-    # import matplotlib.pyplot as plt
-    # plt.figure(figsize=(3.5,3))
-    # plt.rcParams["font.family"] = "Times New Roman"
-    # plt.rcParams["font.size"] = "10"
-
-
-
-
-    # print("Plotting using scipy rv_histogram")
-    # rvHist = a._createHeadingCDF_scipy(wR, windSpeed=5)
-
-    # values = []
-    # for i in range(10000):
-    #     # Sample the rv_histogram using ppf function (Quantile)
-    #     values.append(rvHist.ppf(random.random()))
-
-    # plt.hist(values, bins=36, cumulative=True, density=True, label="Sampled CDF")
-
-    # X = np.linspace(0, 360, 100)
-    # plt.plot(X, rvHist.pdf(X)*100, label="PDF")
-    # plt.plot(X, rvHist.cdf(X), label="CDF")
-
-    # plt.legend()
-
-    # plt.show()
-
-
-
-
-    #### Plot radiosonde wind profile ####
-    # from math import atan2, degrees
-    # windHeadings = [ degrees(atan2(-x, -y)) for x,y,z in a.winds ]
-    # for i in range(len(windHeadings)):
-    #     if windHeadings[i] < 0:
-    #         windHeadings[i] += 360
-    # windSpeeds = [ np.linalg.norm(x) for x in a.winds ]
-    # altitudes = [ x / 1000 for x in a.windAltitudes ]
-
-
-    # plt.plot(altitudes, windHeadings, label="Wind heading (degrees)")
-    # plt.plot(altitudes, windSpeeds, label="Wind speed (m/s)")
-    # plt.legend()
-    # plt.ylim([0,350])
-    # plt.xlim([0, 35])
-    # plt.xlabel("Altitude (km, AGL)")
-    # plt.tight_layout()
-    # plt.savefig("C:/Users/rando/Documents/flightSimPaper/Figures/Images/SampleRadioSondeProfile_Edmonton20120304_12.eps", bbox_inches="tight", pad_inches=0)
-
-
-    # plt.show()

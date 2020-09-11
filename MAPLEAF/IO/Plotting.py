@@ -392,7 +392,7 @@ def _findEventTimeStepNumber(flight, time):
     else:
         return bisect_right(flight.times, time) # Binary search for time value in 
 
-def _createReferenceVectors(nCanards, maxAbsCoord, rocketLengthFactor=0.3, finLengthFactor=0.1):
+def _createReferenceVectors(nCanards, maxAbsCoord, rocketLengthFactor=0.25, finLengthFactor=0.05):
     '''
         Creates a longitudinal vector and an array of nCanards perpendicular vectors. 
         These represent the rocket in the local frame and are rotated according to it's rigid body state at each time step.
@@ -527,9 +527,9 @@ def _getRocketPoints(timeStepNumber, flight, refAxis, perpVectors):
         tip = rocketBase - refAxis*0.2
 
         if flight.mainChuteDeployTime == None or timeStepNumber < flight.mainChuteTimeStep:
-            chuteSize = 0.5
+            chuteSize = 0.35
         else:
-            chuteSize = 1.5
+            chuteSize = 1.0
 
         perpTips = [ rocketBase + x*chuteSize + axisVector for x in perpVectors ]
         canardTips = perpTips
@@ -615,7 +615,7 @@ def flightAnimation(flights, showPlot=True, saveAnimFileName=None):
     '''
     #### Set up data for animation ####
     # Filter out extra frames - seems like there's a limit to the number of frames that will work well with matplotlib, otherwise the end of the animation is weirdly sped up
-    flights = _keepNTimeSteps(flights, nFramesToKeep=600)
+    flights = _keepNTimeSteps(flights, nFramesToKeep=900)
 
     # Transform position info into arrays of x, y, z coordinates
     for flight in flights:

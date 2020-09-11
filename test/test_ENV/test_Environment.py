@@ -40,7 +40,7 @@ class TestEnvironment(unittest.TestCase):
         self.assertEqual(constAirProps3, props3)
 
     def test_getAirProperties_TabulatedAtm(self):
-        self.simDefinition.setValue("Environment.launchSiteElevation", "0")
+        self.simDefinition.setValue("Environment.LaunchSite.elevation", "0")
         self.simDefinition.setValue("Environment.AtmosphericPropertiesModel", "TabulatedAtmosphere")
         self.simDefinition.setValue("Environment.TabulatedAtmosphere.filePath", "MAPLEAF/ENV/US_STANDARD_ATMOSPHERE.txt")
         stdAtm = Environment(self.simDefinition, silent=True)
@@ -61,7 +61,7 @@ class TestEnvironment(unittest.TestCase):
         assertIterablesAlmostEqual(self, calculated3750Properties, expected3570Properties)
 
     def test_getAirProperties_USSTDA(self):
-        self.simDefinition.setValue("Environment.launchSiteElevation", "0")
+        self.simDefinition.setValue("Environment.LaunchSite.elevation", "0")
         self.simDefinition.setValue("Environment.AtmosphericPropertiesModel", "USStandardAtmosphere")
         stdAtm = Environment(self.simDefinition, silent=True)
 
@@ -94,7 +94,7 @@ class TestEnvironment(unittest.TestCase):
         calculatedProperties = stdAtm.getAirProperties(Vector(0,0,85500))
 
     def test_LayerBaseProperties(self):
-        self.simDefinition.setValue("Environment.launchSiteElevation", "0")
+        self.simDefinition.setValue("Environment.LaunchSite.elevation", "0")
         self.simDefinition.setValue("Environment.AtmosphericPropertiesModel", "USStandardAtmosphere")
         stdAtm = Environment(self.simDefinition, silent=True)
 

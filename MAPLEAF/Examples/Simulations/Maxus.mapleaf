@@ -19,7 +19,7 @@ SimControl{
 }
 
 Environment{
-    launchSiteElevation 1 #m, ASL
+    LaunchSite.elevation 1 #m, ASL
 
     AtmosphericPropertiesModel          USStandardAtmosphere
 

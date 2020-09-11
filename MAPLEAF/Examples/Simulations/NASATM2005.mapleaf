@@ -15,7 +15,7 @@ SimControl{
 }
 
 Environment{
-    launchSiteElevation 10 #m, ASL
+    LaunchSite.elevation 10 #m, ASL
 
     AtmosphericPropertiesModel          Constant
 

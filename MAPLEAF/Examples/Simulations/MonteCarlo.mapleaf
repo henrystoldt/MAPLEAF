@@ -29,18 +29,12 @@ SimControl{
 }
 
 Environment{
-    launchSiteElevation 755 #m, ASL
-
-    AtmosphericPropertiesModel          USStandardAtmosphere
-
     MeanWindModel                       Constant
 
     ConstantMeanWind{
         velocity                    ( -10 0 0 ) # m/s
-        windVelocity_stdDev             (  5  1 1 ) # m/s
+        velocity_stdDev             (  5  1 1 ) # m/s
     }
-
-    TurbulenceModel None
 }
 
 
