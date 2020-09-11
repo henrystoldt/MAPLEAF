@@ -41,7 +41,7 @@ from typing import Sequence
 import numpy as np
 
 from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SimDefinition import defaultConfigValues
+from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
 
 
 class AtmosphericModel(abc.ABC):
@@ -89,6 +89,8 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; Atm
             tableFilePath = envDictReader.getString(&#34;TabulatedAtmosphere.filePath&#34;)
         except AttributeError:
             tableFilePath = defaultConfigValues[&#34;Environment.TabulatedAtmosphere.filePath&#34;]
+
+        tableFilePath = getAbsoluteFilePath(tableFilePath)
         return TabulatedAtmosphere(tableFilePath)
 
     elif atmosphericModel == &#34;USStandardAtmosphere&#34;:
@@ -257,6 +259,8 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader.SubDictRea
             tableFilePath = envDictReader.getString(&#34;TabulatedAtmosphere.filePath&#34;)
         except AttributeError:
             tableFilePath = defaultConfigValues[&#34;Environment.TabulatedAtmosphere.filePath&#34;]
+
+        tableFilePath = getAbsoluteFilePath(tableFilePath)
         return TabulatedAtmosphere(tableFilePath)
 
     elif atmosphericModel == &#34;USStandardAtmosphere&#34;:

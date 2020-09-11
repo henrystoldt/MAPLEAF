@@ -91,7 +91,7 @@ class GainScheduledPIDController(PIDController):
     def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
         &#39;&#39;&#39;
             Inputs:
-                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./test/test_GNC/constPIDCoeffs.txt&#39;
+                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt&#39;
                 nKeyColumns:        (int) Number of &#39;key&#39; columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
                 PCol:               (int) zero-indexed column number of P Coefficient
                 DCol:               (int) zero-indexed column number of D Coefficient
@@ -133,7 +133,7 @@ class GainScheduledPIDController(PIDController):
 <dd>
 <div class="desc"><h2 id="inputs">Inputs</h2>
 <p>gainTableFilePath:
-(string) Path to gain table text file ex: './test/test_GNC/constPIDCoeffs.txt'
+(string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
 nKeyColumns:
 (int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
 PCol:
@@ -152,7 +152,7 @@ initialError, maxIntegral</p></div>
     def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
         &#39;&#39;&#39;
             Inputs:
-                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./test/test_GNC/constPIDCoeffs.txt&#39;
+                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt&#39;
                 nKeyColumns:        (int) Number of &#39;key&#39; columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
                 PCol:               (int) zero-indexed column number of P Coefficient
                 DCol:               (int) zero-indexed column number of D Coefficient

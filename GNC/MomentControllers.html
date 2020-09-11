@@ -53,7 +53,7 @@ class GainScheduledPIDRocketMomentController(MomentController, GainScheduledPIDC
         &#39;&#39;&#39;
             Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
             Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
-            Sample gain file: test/test_GNC/testPIDCoeffs.txt
+            Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt
         &#39;&#39;&#39;
         self.keyFunctionList = [ AeroFunctions.stringToAeroFunctionMap[x] for x in keyColumnNames ]
         nKeyColumns = len(keyColumnNames)
@@ -106,7 +106,7 @@ class GainScheduledPIDRocketMomentController(MomentController, GainScheduledPIDC
 inheritance.</p>
 <p>Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
 Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
-Sample gain file: test/test_GNC/testPIDCoeffs.txt</p></div>
+Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -116,7 +116,7 @@ Sample gain file: test/test_GNC/testPIDCoeffs.txt</p></div>
         &#39;&#39;&#39;
             Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
             Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
-            Sample gain file: test/test_GNC/testPIDCoeffs.txt
+            Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt
         &#39;&#39;&#39;
         self.keyFunctionList = [ AeroFunctions.stringToAeroFunctionMap[x] for x in keyColumnNames ]
         nKeyColumns = len(keyColumnNames)
