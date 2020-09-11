@@ -8,17 +8,6 @@
 </p>
 
 <p align="center">
-  
-  ![Unit Tests](https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg)
-  ![Linting](https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg)
-  [![Documentation](https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg)](https://henrystoldt.github.io/MAPLEAF/)
-  [![codecov](https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg)](https://codecov.io/gh/henrystoldt/mapleaf)
-  ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
-  [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
-  
-</p>
-
-<p align="center">
 <a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Tests" src="https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg"></a>
   <a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Linting" src="https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg"></a>
   <a align="center" href="https://henrystoldt.github.io/MAPLEAF/"><img alt="Docs" src="https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg"></a>
