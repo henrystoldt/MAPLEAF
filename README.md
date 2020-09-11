@@ -1,22 +1,20 @@
 
 
-<div style="text-align:center; padding-bottom: 15px;">
+<p align="center">
   <img src="Diagrams/DraftLogo.png?raw=true" alt="Logo"
     title="MAPLEAF" height=75 style="padding-right: 10px;"/>
-  <h1>MAPLEAF - Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
-  6-DOF Rocket Flight Simulation Framework
-</div>
+  <h1 align="center">MAPLEAF - Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
+  <p align="center">6-DOF Rocket Flight Simulation Framework </p>
+</p>
 
-<div style="text-align:center">
-
+<p align="center">
   ![Unit Tests](https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg)
   ![Linting](https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg)
   [![Documentation](https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg)](https://henrystoldt.github.io/MAPLEAF/)
   [![codecov](https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg)](https://codecov.io/gh/henrystoldt/mapleaf)
   ![python](https://img.shields.io/badge/python-3.6+-brightgreen)
   [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
-
-</div>
+</p>
 
 ## Install:
 `pip install MAPLEAF`
