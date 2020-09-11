@@ -20,19 +20,19 @@
     - (Optional) - [create dedicated Python environment](#create-python-virtual-environment-with-virtualenvwrapper):  
 3. Install MAPLEAF: `$ pip install -e .` (needs to be run from the cloned repository)
     - Just like a normal pip install, but changes made to MAPLEAF's code will take effect without reinstalling
+4. (Optional) To be able to do a lot of the things described below, install the packages in requirements_Dev.txt:  
+    `$ pip install -r requirements_Dev.txt`
 
-### Running Unit Tests
+## Running Unit Tests
 **Note:** The Tests Github action runs these tests after every commit to master
 Unit Testing Framework Info:
 https://docs.python.org/3/library/unittest.html
+  
+To run all tests: `python3 -m unittest discover -v`   
+To run a single test module: `python3 -m unittest -v test.test_Vector`  
 
-Navigate to the project root directory in the command line (Where this readme is located).
-To run all tests: `python3 -m unittest discover -v`  
-To run a single test module: `python3 -m unittest -v test.[Test Module Name]`  
-Example: `python3 -m unittest -v test.test_Vector`  
-
-### Running Regression Testing / Validation Suite
-All regression tests are defined in test/regressionTesting/testDefinitions.mapleaf  
+## Running Regression Testing / V & V Suite
+All regression and V&V tests are defined in [test/regressionTesting/testDefinitions.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/regressionTesting/testDefinitions.mapleaf)  
 `python3 test/regressionTesting/runCases.py`
 
 ## Install virtualenvwrapper (Linux):
@@ -54,7 +54,19 @@ All regression tests are defined in test/regressionTesting/testDefinitions.maple
 5. To delete: `$ rmvirtualenv MAPLEAF`  
 More commands here: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html
 
-## To run linting (static error checking)
+## Profiling Performance
+1. To generate profile: `$ python3 -m cProfile -o testProfile.prof MAPLEAF/Main.py /path/to/SimDefinition.mapleaf`
+2. To view results: `$ python3 -m snakeviz testProfile.prof`
+
+## Recompiling Cython code
+Some of the files in MAPLEAF are .pyx/.pxd instead of .py.  
+These are [Cython](https://cython.org/) code files.  
+Cython is a superset of Python, meaning all Python code is valid Cython.  
+
+**Note:** Changes to the Cython code will not take effect without [re-compiling the Cython code](https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html). 
+To re-compile: `$ python3 setup.py build_ext --inplace`
+
+## Linting (static error checking)
 **Note:** The Linting Github action runs these checks after every commit to master
 1. `$ python3 -m flake8 --max-complexity 12`
 2. Search for "import" in results (Powershell): `$ python3 -m flake8 --max-complexity 12 | findstr "import"`
@@ -62,25 +74,13 @@ More commands here: https://virtualenvwrapper.readthedocs.io/en/latest/command_r
 4. Exact version GitHub auto-runs on commits to master (1 (check for show-stopper errors)): `python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics`
 5. Exact version GitHub auto-runs on commits to master (2 (check for all errors)): `python3 -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics`
 
-## To check unit test coverage
+## Checking test coverage
 **Note:** The Tests Github action runs this check after every commit to master
 1. `$ python3 -m coverage run --source=./MAPLEAF -m unittest discover -v`
 2. `$ python3 -m coverage html`
 3. open ./htmlcov/index.html with a web browser to see line-by-line coverage results
 
-## To profile performance
-1. To generate profile: `$ python3 -m cProfile -o testProfile.prof /path/to/Main.py /path/to/SimDefinition.txt`
-2. To view results: `$ python3 -m snakeviz testProfile.prof`
-
-## Recompile Cython code after editing
-Some of the files in MAPLEAF are .pyx/.pxd instead of .py.  
-These are [Cython](https://cython.org/) code files.  
-Cython is a superset of Python, meaning all Python code is valid Cython.  
-
-**Note:** Changes to the Cython code will not take effect without re-compiling the Cython code. 
-To re-compile: `$ python3 setup.py build_ext --inplace`
-
-## To generate documentation
+## Generating docs
 Project is currently set up to auto-generate documentation from module-, class-, function- and variable-level comments using [Pdoc3](https://pdoc3.github.io/pdoc/doc/pdoc/#gsc.tab=0 )  
 [Live documentation](https://henrystoldt.github.io/MAPLEAF/) is updated by a GitHub Action every time the master branch is updated.  
 
@@ -89,7 +89,7 @@ To run a local, live html documentation server (see changes to the documentation
 To generate static html docs  
 `$ pdoc --html --output-dir docs ./MAPLEAF`  
 
-## To generate class/package diagrams (Linux)
+## Generating class/package diagrams (Linux)
 1. `$ sudo apt install graphviz`
 2. (To generate .png files directly):`$ pyreverse -o png -p rocketSimulator ./rocketSimulator`
 3. (To generate editable .dot files): `$ pyreverse -p rocketSimulator ./rocketSimulator`

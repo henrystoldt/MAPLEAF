@@ -1,7 +1,7 @@
 
 
 <p align="center">
-  <img src="Diagrams/DraftLogo.png?raw=true" alt="Logo"
+  <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/DraftLogo.png" alt="Logo"
     title="MAPLEAF" height=125 style="padding-right: 10px;"/>
   <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
 </p>
@@ -18,9 +18,7 @@
 ## Install:
 `pip install MAPLEAF`
     
-## Usage:
-
-### Running a Simulation
+## Running a Simulation
 `mapleaf path/to/SimDefinitionFile.mapleaf`  
 
 Sample simulation definitions: [MAPLEAF/Examples/Simulations](https://github.com/henrystoldt/MAPLEAF/tree/master/MAPLEAF/Examples/Simulations)  
@@ -61,26 +59,24 @@ The rocket is defined by nested subdictionaries, where the first level of nestin
 Default values from the defaultConfigValues dictionary in [MAPLEAF/IO/SimDefinition.py](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/IO/SimDefinition.py) will fill in for omitted keys.
 Most defaults match the values in [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf).
 
-### Simulation Outputs
+## Simulation Outputs
 Depending on the options specified in the `SimControl` dictionary, MAPLEAF will output:
 - Detailed tabulated simulation position, component force, aerodynamic coefficient and control logs (see SimControl.loggingLevel):
 ![Sample section of log file](Diagrams/LogSample.PNG?raw=true)
 
 - Flight animations (see SimControl.plot)  
-<img src="Diagrams/FlightAnimation.gif?raw=true" alt="Flight Animation"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/FlightAnimation.gif?raw=true" alt="Flight Animation"
   title="MAPLEAF" height=225 style="padding-right: 10px;"/>
 
-- Flight path visualizations (see SimControl.plot)  
-<img src="Diagrams/EarthOrbit.png?raw=true" alt="Earth Orbit"
-  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
-<img src="Diagrams/FlightPaths.png?raw=true" alt="Flight Paths"
+- Flight path visualizations (see SimControl.plot - [Mayavi](https://github.com/enthought/mayavi) is required to render these ones showing the Earth)  
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/EarthOrbit.png?raw=true" alt="Earth Orbit"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 - Plots of any logged parameter (see SimControl.plot or --plotFromLog command line option)  
-<img src="Diagrams/PlottingFromLogs.png?raw=true" alt="Plotting from logs"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/PlottingFromLogs.png?raw=true" alt="Plotting from logs"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
-### Monte Carlo Simulations
+## Monte Carlo Simulations
 Monte Carlo simulations propagate uncertainties in simulation inputs through to simulation outputs.  
 Any scalar or vector parameter in simulation definition files can be made probabilistic by adding a second parameter with `_stdDev` appended to the name:
 
@@ -88,12 +84,10 @@ Any scalar or vector parameter in simulation definition files can be made probab
 
 To execute a batch run of this now-probabilistic simulation, create the top-level 'Monte Carlo' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/))
 
-From that, you can obtain distributions of outputs like flight paths or landing locations:
+Then, MAPLEAF can produce distributions of outputs like landing locations:  
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
+  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
-<img src="Diagrams/FlightPathsPlot.png?raw=true" alt="Flight Paths Plot"
-  title="MAPLEAF" height=350 style="padding-right: 10px;"/>
-<img src="Diagrams/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
-  title="MAPLEAF" height=350 style="padding-right: 10px;"/>
-
-### Developers
-To extend MAPLEAF, re-use its libraries or otherwise work with the code, have a look at [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md) the [code/api documentation website](https://henrystoldt.github.io/MAPLEAF/)
+## Developers
+Contributions are welcome.
+To learn about the code, have a look at [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md), and the [code/api documentation website](https://henrystoldt.github.io/MAPLEAF/)
