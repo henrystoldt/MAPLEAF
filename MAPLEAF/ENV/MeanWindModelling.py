@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rv_histogram
 
-from MAPLEAF.Interpolation import linInterp
+from MAPLEAF.Motion.Interpolation import linInterp
 from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector

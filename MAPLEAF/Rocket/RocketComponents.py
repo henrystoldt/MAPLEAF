@@ -17,7 +17,7 @@ from scipy.interpolate import LinearNDInterpolator
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import EnvironmentalConditions
-from MAPLEAF.Interpolation import linInterp
+from MAPLEAF.Motion.Interpolation import linInterp
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
@@ -322,7 +322,7 @@ class TabulatedAeroForce(AeroForce):
             # Create n-dimensional interpolation function for aero coefficients
             self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
         else:
-            # Save to use with MAPLEAF.Interpolation.linInterp
+            # Save to use with MAPLEAF.Motion.Interpolation.linInterp
             self.keys = [ key[0] for key in keys ]
             self.values = aeroCoefficients
 

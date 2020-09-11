@@ -8,7 +8,7 @@
 
 import unittest
 
-from MAPLEAF.Interpolation import linInterp, linInterpWeights, interpolateRigidBodyStates
+from MAPLEAF.Motion.Interpolation import linInterp, linInterpWeights, interpolateRigidBodyStates
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState_3DoF, RigidBodyState
 from test.testUtilities import assertIterablesAlmostEqual, assertQuaternionsAlmostEqual

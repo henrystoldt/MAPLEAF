@@ -3,7 +3,7 @@ from pathlib import Path
 
 from scipy.interpolate import interp1d
 
-from MAPLEAF.Interpolation import linInterp
+from MAPLEAF.Motion.Interpolation import linInterp
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Diagrams/DraftLogo.png?raw=true" alt="Logo"
+  <img src="Resources/DraftLogo.png?raw=true" alt="Logo"
     title="MAPLEAF" height=125 style="padding-right: 10px;"/>
   <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
 </p>
@@ -89,7 +89,7 @@ To run a local, live html documentation server (see changes to the documentation
 To generate static html docs  
 `$ pdoc --html --output-dir docs ./MAPLEAF`  
 
-## Generating class/package diagrams (Linux)
+## Generating class/package Resources (Linux)
 1. `$ sudo apt install graphviz`
 2. (To generate .png files directly):`$ pyreverse -o png -p rocketSimulator ./rocketSimulator`
 3. (To generate editable .dot files): `$ pyreverse -p rocketSimulator ./rocketSimulator`

@@ -1,15 +1,36 @@
 '''
-Source code for the rocket simulator.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png" alt="Logo"
+    title="MAPLEAF" height=125 style="padding-right: 10px;"/>
+</p>
+
+<p align="center">
+<a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Tests" src="https://github.com/henrystoldt/mapleaf/workflows/Tests/badge.svg"></a>
+  <a align="center" href="https://github.com/henrystoldt/mapleaf/actions"><img alt="Linting" src="https://github.com/henrystoldt/mapleaf/workflows/Linting/badge.svg"></a>
+  <a align="center" href="https://henrystoldt.github.io/MAPLEAF/"><img alt="Docs" src="https://github.com/henrystoldt/mapleaf/workflows/Docs/badge.svg"></a>
+  <a align="center" href="https://codecov.io/gh/henrystoldt/mapleaf"><img alt="Coverage" src="https://codecov.io/gh/henrystoldt/mapleaf/branch/master/graph/badge.svg"></a>
+  <img alt="Python3" src="https://img.shields.io/badge/python-3.6+-brightgreen">
+  <a align="center" href="https://lbesson.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+</p>
 
 The `MAPLEAF.Main` module is the entry point for running a simulation.  
 The `MAPLEAF.Rocket.Rocket` class is the main class responsible for coordinating the modelling of a Rocket.
 
-See ReadMe.md in the main project folder for detailed info about:  
+See [README.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README.md) for info about:  
 
-* Installation/setup
-* Running simulations  
+* Installation/setup  
+* Running simulations 
+
+See [SimulationDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf) for details about all available options
+
+See README_Dev.md for info about:  
+
 * Running unit tests  
-* Running regression/validation tests
+* Running regression/validation tests  
+* Recompiling Cython Code
 
-.. image:: https://upload.wikimedia.org/wikipedia/commons/3/30/BFR_in_flight_%28cropped%29-2018_version.png
 '''
+
+__pdoc__ = {
+    'Examples': False
+}

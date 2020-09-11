@@ -1,7 +1,7 @@
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/DraftLogo.png" alt="Logo"
+  <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png" alt="Logo"
     title="MAPLEAF" height=125 style="padding-right: 10px;"/>
   <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
 </p>
@@ -48,13 +48,13 @@ SimControl{
 
 [Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) is very helpful in maintaining a file overview:
 
-![Folded Sim Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/SimDefinitionFile_Folded.PNG?raw=true)
+![Folded Sim Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinitionFile_Folded.PNG?raw=true)
 
 The possible top level dictionaries are 'Monte Carlo', 'SimControl', 'Environment', and 'Rocket'.
 Of these, only the 'Rocket' dictionary is strictly required to run a simulation, and defines the rocket's initial position/velocity and the inertial/aerodynamic/control models used to simulate it.  
 The rocket is defined by nested subdictionaries, where the first level of nesting defines the rocket's stage(s) and the second level defines the component(s) in each stage:
 
-![Rocket Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/SimDefinitionFile_Rocket.PNG?raw=true)
+![Rocket Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinitionFile_Rocket.PNG?raw=true)
 
 Default values from the defaultConfigValues dictionary in [MAPLEAF/IO/SimDefinition.py](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/IO/SimDefinition.py) will fill in for omitted keys.
 Most defaults match the values in [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf).
@@ -62,30 +62,30 @@ Most defaults match the values in [SimDefinitionTemplate.mapleaf](https://github
 ## Simulation Outputs
 Depending on the options specified in the `SimControl` dictionary, MAPLEAF will output:
 - Detailed tabulated simulation position, component force, aerodynamic coefficient and control logs (see SimControl.loggingLevel):
-![Sample section of log file](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/LogSample.PNG?raw=true)
+![Sample section of log file](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/LogSample.PNG?raw=true)
 
 - Flight animations (see SimControl.plot)  
-<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/FlightAnimation.gif?raw=true" alt="Flight Animation"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/FlightAnimation.gif?raw=true" alt="Flight Animation"
   title="MAPLEAF" height=225 style="padding-right: 10px;"/>
 
 - Flight path visualizations (see SimControl.plot - [Mayavi](https://github.com/enthought/mayavi) is required to render these ones showing the Earth)  
-<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/EarthOrbit.png?raw=true" alt="Earth Orbit"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/EarthOrbit.png?raw=true" alt="Earth Orbit"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 - Plots of any logged parameter (see SimControl.plot or --plotFromLog command line option)  
-<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/PlottingFromLogs.png?raw=true" alt="Plotting from logs"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/PlottingFromLogs.png?raw=true" alt="Plotting from logs"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 ## Monte Carlo Simulations
 Monte Carlo simulations propagate uncertainties in simulation inputs through to simulation outputs.  
 Any scalar or vector parameter in simulation definition files can be made probabilistic by adding a second parameter with `_stdDev` appended to the name:
 
-![Monte Carlo Parameter](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/SimDefinition_MonteCarlo.png?raw=true)
+![Monte Carlo Parameter](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinition_MonteCarlo.png?raw=true)
 
 To execute a batch run of this now-probabilistic simulation, create the top-level 'Monte Carlo' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/))
 
 Then, MAPLEAF can produce distributions of outputs like landing locations:  
-<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Diagrams/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 ## Developers
