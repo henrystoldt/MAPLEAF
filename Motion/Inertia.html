@@ -38,9 +38,8 @@ class Inertia():
 
     def __init__(self, MOI, MOICentroidLocation, mass, CG=None, componentLocation=Vector(0,0,0)):
         &#34;&#34;&#34; 
-            MOIVector: Ixx, Iyy, Izz
-            MOICentroidLocation: The point about which Ixx, Iyy, and Izz were calculated. 
-                For the rocket simulator, this is assumed to be in the rocket frame
+            * MOIVector: Ixx, Iyy, Izz  
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
         &#34;&#34;&#34;
         self.MOI = MOI
         self.MOICentroidLocation = MOICentroidLocation + componentLocation
@@ -164,9 +163,11 @@ class Inertia():
 <span>(</span><span>MOI, MOICentroidLocation, mass, CG=None, componentLocation=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>MOIVector: Ixx, Iyy, Izz
-MOICentroidLocation: The point about which Ixx, Iyy, and Izz were calculated.
-For the rocket simulator, this is assumed to be in the rocket frame</p></div>
+<div class="desc"><ul>
+<li>MOIVector: Ixx, Iyy, Izz
+</li>
+<li>MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.</li>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -177,9 +178,8 @@ For the rocket simulator, this is assumed to be in the rocket frame</p></div>
 
     def __init__(self, MOI, MOICentroidLocation, mass, CG=None, componentLocation=Vector(0,0,0)):
         &#34;&#34;&#34; 
-            MOIVector: Ixx, Iyy, Izz
-            MOICentroidLocation: The point about which Ixx, Iyy, and Izz were calculated. 
-                For the rocket simulator, this is assumed to be in the rocket frame
+            * MOIVector: Ixx, Iyy, Izz  
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
         &#34;&#34;&#34;
         self.MOI = MOI
         self.MOICentroidLocation = MOICentroidLocation + componentLocation

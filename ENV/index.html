@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.ENV API documentation</title>
-<meta name="description" content="Modelling of the aircraft environment.
-Main class is `MAPLEAF.ENV.Environment.Environment`.
-Aircaft access atmospheric models, mean wind models, and …" />
+<meta name="description" content="Environmental modelling: main class is `MAPLEAF.ENV.Environment.Environment`.
+`MAPLEAF.ENV.Environment.Environment` wraps the atmospheric models, …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -24,18 +23,16 @@ Aircaft access atmospheric models, mean wind models, and …" />
 <h1 class="title">Module <code>MAPLEAF.ENV</code></h1>
 </header>
 <section id="section-intro">
-<p>Modelling of the aircraft environment.
-Main class is <code><a title="MAPLEAF.ENV.Environment.Environment" href="Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>.
-Aircaft access atmospheric models, mean wind models, and turbulence models through the Environment class.</p>
+<p>Environmental modelling: main class is <code><a title="MAPLEAF.ENV.Environment.Environment" href="Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>.
+<code><a title="MAPLEAF.ENV.Environment.Environment" href="Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code> wraps the atmospheric models, gravity models, mean wind models, and turbulence models.</p>
 <p><img alt="" src="https://www.goodfreephotos.com/albums/astrophotography/sunrise-over-the-earth.jpg"></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;
-Modelling of the aircraft environment.
-Main class is `MAPLEAF.ENV.Environment.Environment`.
-Aircaft access atmospheric models, mean wind models, and turbulence models through the Environment class.
+Environmental modelling: main class is `MAPLEAF.ENV.Environment.Environment`.
+`MAPLEAF.ENV.Environment.Environment` wraps the atmospheric models, gravity models, mean wind models, and turbulence models.
 
 .. image:: https://www.goodfreephotos.com/albums/astrophotography/sunrise-over-the-earth.jpg
 &#39;&#39;&#39;</code></pre>
@@ -46,27 +43,27 @@ Aircaft access atmospheric models, mean wind models, and turbulence models throu
 <dl>
 <dt><code class="name"><a title="MAPLEAF.ENV.AtmosphereModelling" href="AtmosphereModelling.html">MAPLEAF.ENV.AtmosphereModelling</a></code></dt>
 <dd>
-<div class="desc"><p>Atmospheric models used by <code><a title="MAPLEAF.ENV.Environment.Environment" href="Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code> defined and initialized here</p></div>
+<div class="desc"><p>These classes model the change of air properties (Pressure, Density, etc&hellip; with altitude)</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.ENV.EarthModelling" href="EarthModelling.html">MAPLEAF.ENV.EarthModelling</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>These classes model the earth's gravity and perform some coordinate transformations between the global inertial frame and the ENU/launch tower frame</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.ENV.Environment" href="Environment.html">MAPLEAF.ENV.Environment</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Main wrapper and data classes that tie together all of the environmental models and are queried by instances of <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code></p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.ENV.LaunchRail" href="LaunchRail.html">MAPLEAF.ENV.LaunchRail</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Modeling of the effects of a Launch Rail on rocket launches</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.ENV.MeanWindModelling" href="MeanWindModelling.html">MAPLEAF.ENV.MeanWindModelling</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Modeling of the mean / average component of wind velocity</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.ENV.TurbulenceModelling" href="TurbulenceModelling.html">MAPLEAF.ENV.TurbulenceModelling</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Modeling of turbulent, fluctuating component of wind velocity</p></div>
 </dd>
 </dl>
 </section>

@@ -37,6 +37,7 @@ from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
 
 
 class Bodytube(FixedMass, BodyComponent):
+    &#39;&#39;&#39; Represent a cylindrical body tube &#39;&#39;&#39;
     
     #### Init Functions ####
     def __init__(self, componentDictReader, rocket, stage):
@@ -172,13 +173,13 @@ class Bodytube(FixedMass, BodyComponent):
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all fixed-mass rocket components
-Implements functionality to read inertia and position info from sim definition file</p></div>
+<div class="desc"><p>Represent a cylindrical body tube</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Bodytube(FixedMass, BodyComponent):
+    &#39;&#39;&#39; Represent a cylindrical body tube &#39;&#39;&#39;
     
     #### Init Functions ####
     def __init__(self, componentDictReader, rocket, stage):

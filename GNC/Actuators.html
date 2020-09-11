@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.GNC.Actuators API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Modelling of actuators, which can control things like the position of rocket fin angles..." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,16 @@
 <h1 class="title">Module <code>MAPLEAF.GNC.Actuators</code></h1>
 </header>
 <section id="section-intro">
+<p>Modelling of actuators, which can control things like the position of rocket fin angles&hellip;</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import abc
+<pre><code class="python">&#39;&#39;&#39;
+Modelling of actuators, which can control things like the position of rocket fin angles...
+&#39;&#39;&#39;
+
+import abc
 from math import e
 
 import numpy as np
@@ -55,12 +60,19 @@ class FirstOrderSystem():
 
 
 class ActuatorController(abc.ABC):
+    &#39;&#39;&#39; 
+        Interface for actuator controllers.   
+        Actuator controllers are in charge of determining what actuator deflections are required to produce moments desired by the rocket&#39;s `MAPLEAF.GNC.ControlSystems.ControlSystem`
+    &#39;&#39;&#39;
     @abc.abstractmethod
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         &#39;&#39;&#39; Should return nothing, control the appropriate rocket system to generate the desired moments &#39;&#39;&#39;
         pass
 
 class TableInterpolatingActuatorController(ActuatorController):
+    &#39;&#39;&#39;
+        Controls actuators 
+    &#39;&#39;&#39;
     def __init__(self, deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList):
         self.actuatorList = actuatorList
         self.keyFunctionList = keyFunctionList
@@ -101,6 +113,11 @@ class TableInterpolatingActuatorController(ActuatorController):
 
 
 class Actuator(abc.ABC):
+    &#39;&#39;&#39; 
+        Interface for actuators.
+        Actuators model the movement of a physical actuator (ex. servo, hydraulics).
+        Target deflections are usually provided by the rocket&#39;s `MAPLEAF.GNC.ControlSystems.ControlSystem`, usually obtained from a `ActuatorController`
+    &#39;&#39;&#39;
     @abc.abstractmethod
     def setTargetDeflection(self, newTarget, time):
         &#39;&#39;&#39; Should return nothing, update setPoint for the actuator &#39;&#39;&#39;
@@ -166,13 +183,19 @@ class FirstOrderActuator(Actuator, FirstOrderSystem):
 <span>class <span class="ident">Actuator</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Interface for actuators.
+Actuators model the movement of a physical actuator (ex. servo, hydraulics).
+Target deflections are usually provided by the rocket's <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code>, usually obtained from a <code><a title="MAPLEAF.GNC.Actuators.ActuatorController" href="#MAPLEAF.GNC.Actuators.ActuatorController">ActuatorController</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Actuator(abc.ABC):
+    &#39;&#39;&#39; 
+        Interface for actuators.
+        Actuators model the movement of a physical actuator (ex. servo, hydraulics).
+        Target deflections are usually provided by the rocket&#39;s `MAPLEAF.GNC.ControlSystems.ControlSystem`, usually obtained from a `ActuatorController`
+    &#39;&#39;&#39;
     @abc.abstractmethod
     def setTargetDeflection(self, newTarget, time):
         &#39;&#39;&#39; Should return nothing, update setPoint for the actuator &#39;&#39;&#39;
@@ -249,13 +272,17 @@ def setTargetDeflection(self, newTarget, time):
 <span>class <span class="ident">ActuatorController</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Interface for actuator controllers. <br>
+Actuator controllers are in charge of determining what actuator deflections are required to produce moments desired by the rocket's <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ActuatorController(abc.ABC):
+    &#39;&#39;&#39; 
+        Interface for actuator controllers.   
+        Actuator controllers are in charge of determining what actuator deflections are required to produce moments desired by the rocket&#39;s `MAPLEAF.GNC.ControlSystems.ControlSystem`
+    &#39;&#39;&#39;
     @abc.abstractmethod
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         &#39;&#39;&#39; Should return nothing, control the appropriate rocket system to generate the desired moments &#39;&#39;&#39;
@@ -434,13 +461,15 @@ Motion does not need to be integrated</p>
 <span>(</span><span>deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Controls actuators</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TableInterpolatingActuatorController(ActuatorController):
+    &#39;&#39;&#39;
+        Controls actuators 
+    &#39;&#39;&#39;
     def __init__(self, deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList):
         self.actuatorList = actuatorList
         self.keyFunctionList = keyFunctionList

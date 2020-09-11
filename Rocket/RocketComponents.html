@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.Rocket.RocketComponents API documentation</title>
-<meta name="description" content="Created on Thu Jan
-3 13:09:32 2019 …" />
+<meta name="description" content="Contains interface definitions (`RocketComponent`/`BodyComponent`) and Base classes for all RocketComponents (`FixedMass`),
+as well as some simple …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,23 +23,16 @@
 <h1 class="title">Module <code>MAPLEAF.Rocket.RocketComponents</code></h1>
 </header>
 <section id="section-intro">
-<p>Created on Thu Jan
-3 13:09:32 2019</p>
-<p>@author: Declan Quinn, Henry Stoldt</p>
-<p>Contains interface definitions (RocketComponent/BodyComponent) and Base classes for all RocketComponents (FixedMass),<br>
-as well as some simple rocket component classes (FixedForce/AeroForce/AeroDamping)</p>
+<p>Contains interface definitions (<code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></code>/<code><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></code>) and Base classes for all RocketComponents (<code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></code>),<br>
+as well as some simple rocket component classes (<code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce">FixedForce</a></code>,<code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></code>,<code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping">AeroDamping</a></code> etc.)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">    # -*- coding: utf-8 -*-
 &#34;&#34;&#34;
-Created on Thu Jan  3 13:09:32 2019
-
-@author: Declan Quinn, Henry Stoldt
-
-Contains interface definitions (RocketComponent/BodyComponent) and Base classes for all RocketComponents (FixedMass),  
-as well as some simple rocket component classes (FixedForce/AeroForce/AeroDamping)
+Contains interface definitions (`RocketComponent`/`BodyComponent`) and Base classes for all RocketComponents (`FixedMass`),  
+as well as some simple rocket component classes (`FixedForce`,`AeroForce`,`AeroDamping` etc.)
 
 &#34;&#34;&#34;
 
@@ -61,7 +54,7 @@ from MAPLEAF.Rocket.AeroFunctions import logForceResult
 
 
 class RocketComponent(ABC):
-    &#39;&#39;&#39; Abstract Base Class to define interface required for rocket components &#39;&#39;&#39;
+    &#39;&#39;&#39; Interface definition for rocket components &#39;&#39;&#39;
     @abstractmethod
     def __init__(self, componentDictReader: SubDictReader, rocket, stage):
         return
@@ -76,9 +69,9 @@ class RocketComponent(ABC):
 
 class BodyComponent(ABC):
     &#39;&#39;&#39; 
-        Class that defines functionality for detecting adjacent body components &amp; defining interfaces with them 
-        Meant for axisymmetric body components.
-        Examples: Nosecone, Bodytube, Boattail, Stage
+        Class that defines interface for axisymmetric body components.
+        Contains logic for detecting adjacent body components &amp; defining interfaces with them 
+        Examples: `MAPLEAF.Rocket.Nosecone.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
     &#39;&#39;&#39;
     # Override these attributes in child classes to change whether they can connect to components above/below them
     canConnectToComponentAbove = True
@@ -118,9 +111,9 @@ class BodyComponent(ABC):
 class PlanarInterface():
     def __init__(self, location: Vector, component1: RocketComponent, component2: RocketComponent, planeNormal=Vector(0,0,-1)):
         &#39;&#39;&#39; 
-            Defines a planar interface between two components 
-            In the local frame, the normalVector is expected to point across the interface from component1 to component2  
-            In a rocket, this means that (with the default normalVector pointing in the -&#39;ve Z direction (towards the tail)), component1 is should be above component2  
+            Defines a planar interface between two components  
+            In the local frame, the normalVector is expected to point across the interface from component1 to component2   
+            In a rocket, this means that (with the default normalVector pointing in the -&#39;ve Z direction (towards the tail)), component1 is above component2   
         &#39;&#39;&#39;
         self.location = location
         self.component1 = component1
@@ -179,7 +172,7 @@ class PlanarInterface():
 class FixedMass(RocketComponent):
     &#39;&#39;&#39;
         Base class for all fixed-mass rocket components
-        Implements functionality to read inertia and position info from sim definition file
+        Implements functionality to read/store inertia and position info from sim definition file
     &#39;&#39;&#39;
     def __init__(self, componentDictReader, rocket, stage):
         self.rocket = rocket
@@ -216,6 +209,7 @@ class FixedMass(RocketComponent):
 
 class FixedForce(RocketComponent):
     def __init__(self, componentDictReader, rocket, stage):
+        &#39;&#39;&#39; A Zero-inertia component that applies a constant ForceMomentSystem to the rocket &#39;&#39;&#39;
         self.componentDictReader = componentDictReader
         self.rocket = rocket
         self.stage = stage
@@ -241,6 +235,7 @@ class FixedForce(RocketComponent):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
 
 class AeroForce(RocketComponent):
+    &#39;&#39;&#39; A zero-Inertia component with constant aerodynamic coefficients &#39;&#39;&#39;
     # Object is just a force, inertia is zero
     inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
 
@@ -271,6 +266,8 @@ class AeroForce(RocketComponent):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
 
 class AeroDamping(AeroForce):
+    &#39;&#39;&#39; A zero-inertia component with constant aerodynamic damping coefficients &#39;&#39;&#39;
+
     position = Vector(0,0,0)
 
     def __init__(self, componentDictReader, rocket, stage):
@@ -300,6 +297,8 @@ class AeroDamping(AeroForce):
         return ForceMomentSystem.fromAllCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)
 
 class TabulatedAeroForce(AeroForce):
+    &#39;&#39;&#39; A zero-inertia component with aerodynamic coefficients that are tabulated according to one or more parameters (ex. AOA) &#39;&#39;&#39;
+
     def __init__(self, componentDictReader, rocket, stage):
         self.componentDictReader = componentDictReader
         self.rocket = rocket
@@ -386,6 +385,7 @@ class TabulatedAeroForce(AeroForce):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
 
 class TabulatedInertia(RocketComponent):
+    &#39;&#39;&#39; A zero-force component with time-varying tabulated inertia &#39;&#39;&#39;
     def __init__(self, componentDictReader, rocket, stage):
         self.rocket = rocket
         self.stage = stage
@@ -416,6 +416,8 @@ class TabulatedInertia(RocketComponent):
         return self.zeroForce
 
 class FractionalJetDamping(RocketComponent):
+    &#39;&#39;&#39; A component to model Jet damping as per NASA&#39;s Two Stage to Orbit verification case &#39;&#39;&#39;
+
     # Object is just a force, inertia is zero
     inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
 
@@ -469,12 +471,14 @@ class FractionalJetDamping(RocketComponent):
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>A zero-inertia component with constant aerodynamic damping coefficients</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AeroDamping(AeroForce):
+    &#39;&#39;&#39; A zero-inertia component with constant aerodynamic damping coefficients &#39;&#39;&#39;
+
     position = Vector(0,0,0)
 
     def __init__(self, componentDictReader, rocket, stage):
@@ -544,12 +548,13 @@ class FractionalJetDamping(RocketComponent):
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>A zero-Inertia component with constant aerodynamic coefficients</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AeroForce(RocketComponent):
+    &#39;&#39;&#39; A zero-Inertia component with constant aerodynamic coefficients &#39;&#39;&#39;
     # Object is just a force, inertia is zero
     inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
 
@@ -649,18 +654,18 @@ class FractionalJetDamping(RocketComponent):
 <span>class <span class="ident">BodyComponent</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Class that defines functionality for detecting adjacent body components &amp; defining interfaces with them
-Meant for axisymmetric body components.
-Examples: Nosecone, Bodytube, Boattail, Stage</p></div>
+<div class="desc"><p>Class that defines interface for axisymmetric body components.
+Contains logic for detecting adjacent body components &amp; defining interfaces with them
+Examples: <code><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class BodyComponent(ABC):
     &#39;&#39;&#39; 
-        Class that defines functionality for detecting adjacent body components &amp; defining interfaces with them 
-        Meant for axisymmetric body components.
-        Examples: Nosecone, Bodytube, Boattail, Stage
+        Class that defines interface for axisymmetric body components.
+        Contains logic for detecting adjacent body components &amp; defining interfaces with them 
+        Examples: `MAPLEAF.Rocket.Nosecone.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
     &#39;&#39;&#39;
     # Override these attributes in child classes to change whether they can connect to components above/below them
     canConnectToComponentAbove = True
@@ -806,13 +811,15 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>Interface definition for rocket components </p>
+<p>A Zero-inertia component that applies a constant ForceMomentSystem to the rocket</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FixedForce(RocketComponent):
     def __init__(self, componentDictReader, rocket, stage):
+        &#39;&#39;&#39; A Zero-inertia component that applies a constant ForceMomentSystem to the rocket &#39;&#39;&#39;
         self.componentDictReader = componentDictReader
         self.rocket = rocket
         self.stage = stage
@@ -897,7 +904,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for all fixed-mass rocket components
-Implements functionality to read inertia and position info from sim definition file</p></div>
+Implements functionality to read/store inertia and position info from sim definition file</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -905,7 +912,7 @@ Implements functionality to read inertia and position info from sim definition f
 <pre><code class="python">class FixedMass(RocketComponent):
     &#39;&#39;&#39;
         Base class for all fixed-mass rocket components
-        Implements functionality to read inertia and position info from sim definition file
+        Implements functionality to read/store inertia and position info from sim definition file
     &#39;&#39;&#39;
     def __init__(self, componentDictReader, rocket, stage):
         self.rocket = rocket
@@ -1015,12 +1022,14 @@ Implements functionality to read inertia and position info from sim definition f
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>A component to model Jet damping as per NASA's Two Stage to Orbit verification case</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FractionalJetDamping(RocketComponent):
+    &#39;&#39;&#39; A component to model Jet damping as per NASA&#39;s Two Stage to Orbit verification case &#39;&#39;&#39;
+
     # Object is just a force, inertia is zero
     inertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
 
@@ -1125,9 +1134,9 @@ Implements functionality to read inertia and position info from sim definition f
 <span>(</span><span>location: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>, component1: <a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>, component2: <a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>, planeNormal=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines a planar interface between two components
-In the local frame, the normalVector is expected to point across the interface from component1 to component2<br>
-In a rocket, this means that (with the default normalVector pointing in the -'ve Z direction (towards the tail)), component1 is should be above component2</p></div>
+<div class="desc"><p>Defines a planar interface between two components<br>
+In the local frame, the normalVector is expected to point across the interface from component1 to component2 <br>
+In a rocket, this means that (with the default normalVector pointing in the -'ve Z direction (towards the tail)), component1 is above component2</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1135,9 +1144,9 @@ In a rocket, this means that (with the default normalVector pointing in the -'ve
 <pre><code class="python">class PlanarInterface():
     def __init__(self, location: Vector, component1: RocketComponent, component2: RocketComponent, planeNormal=Vector(0,0,-1)):
         &#39;&#39;&#39; 
-            Defines a planar interface between two components 
-            In the local frame, the normalVector is expected to point across the interface from component1 to component2  
-            In a rocket, this means that (with the default normalVector pointing in the -&#39;ve Z direction (towards the tail)), component1 is should be above component2  
+            Defines a planar interface between two components  
+            In the local frame, the normalVector is expected to point across the interface from component1 to component2   
+            In a rocket, this means that (with the default normalVector pointing in the -&#39;ve Z direction (towards the tail)), component1 is above component2   
         &#39;&#39;&#39;
         self.location = location
         self.component1 = component1
@@ -1274,13 +1283,13 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <span>(</span><span>componentDictReader: <a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a>, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>Interface definition for rocket components</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RocketComponent(ABC):
-    &#39;&#39;&#39; Abstract Base Class to define interface required for rocket components &#39;&#39;&#39;
+    &#39;&#39;&#39; Interface definition for rocket components &#39;&#39;&#39;
     @abstractmethod
     def __init__(self, componentDictReader: SubDictReader, rocket, stage):
         return
@@ -1343,12 +1352,14 @@ def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3D
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>A zero-inertia component with aerodynamic coefficients that are tabulated according to one or more parameters (ex. AOA)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TabulatedAeroForce(AeroForce):
+    &#39;&#39;&#39; A zero-inertia component with aerodynamic coefficients that are tabulated according to one or more parameters (ex. AOA) &#39;&#39;&#39;
+
     def __init__(self, componentDictReader, rocket, stage):
         self.componentDictReader = componentDictReader
         self.rocket = rocket
@@ -1481,12 +1492,13 @@ def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3D
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Abstract Base Class to define interface required for rocket components</p></div>
+<div class="desc"><p>A zero-force component with time-varying tabulated inertia</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TabulatedInertia(RocketComponent):
+    &#39;&#39;&#39; A zero-force component with time-varying tabulated inertia &#39;&#39;&#39;
     def __init__(self, componentDictReader, rocket, stage):
         self.rocket = rocket
         self.stage = stage

@@ -38,6 +38,7 @@ from MAPLEAF.Rocket.RocketComponents import BodyComponent, PlanarInterface
 
 
 class Stage(CompositeObject, BodyComponent):
+    &#39;&#39;&#39; Represents a single rocket stage &#39;&#39;&#39;
 
     def __init__(self, stageDictReader, rocket):
         #TODO: This should take a boolean parameter &#39;dropped&#39; which specified whether the stage being initialized is on the pad (full engine) or being dropped (empty engine)
@@ -202,19 +203,13 @@ class Stage(CompositeObject, BodyComponent):
 <span>(</span><span>stageDictReader, rocket)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Represents a collection of physical objects with masses.</p>
-<h2 id="expects">Expects</h2>
-<p>Components to have the following methods:
-.getAeroForce(state, time, environmentalConditions, rocketCG)
-.getInertia(time)
-.getMass(time) (optional as long as getInertia is implemented)
-Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed
-Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.</p></div>
+<div class="desc"><p>Represents a single rocket stage</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Stage(CompositeObject, BodyComponent):
+    &#39;&#39;&#39; Represents a single rocket stage &#39;&#39;&#39;
 
     def __init__(self, stageDictReader, rocket):
         #TODO: This should take a boolean parameter &#39;dropped&#39; which specified whether the stage being initialized is on the pad (full engine) or being dropped (empty engine)

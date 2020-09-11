@@ -120,14 +120,7 @@ Mach/Reynolds numbers, AOA, local frame air velocity etc …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket.CythonFinFunctions" href="CythonFinFunctions.html">MAPLEAF.Rocket.CythonFinFunctions</a></code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Rocket.ExternalAeroData" href="ExternalAeroData.html">MAPLEAF.Rocket.ExternalAeroData</a></code></dt>
-<dd>
-<div class="desc"><div class="admonition note">
-<p class="admonition-title">Note:&ensp;Not Implemented - Planning only</p>
-</div>
-<p>Objective: To make use of external aerodynamics data for a configuration, obtained from sources like CFD, …</p></div>
+<div class="desc"><p>Cython functions to speed up the <code><a title="MAPLEAF.Rocket.Fins.FinSet" href="Fins.html#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></code> aerodynamic model</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket.Fins" href="Fins.html">MAPLEAF.Rocket.Fins</a></code></dt>
 <dd>
@@ -147,16 +140,17 @@ Mach/Reynolds numbers, AOA, local frame air velocity etc …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket.Rocket" href="Rocket.html">MAPLEAF.Rocket.Rocket</a></code></dt>
 <dd>
-<div class="desc"><p>Created on Thu Jan 3, 2019 …</p></div>
+<div class="desc"><p><code><a title="MAPLEAF.Rocket.Rocket" href="Rocket.html">MAPLEAF.Rocket.Rocket</a> ties together the code in </code>MAPLEAF.GNC<code>, </code>MAPLEAF.Rocket<code>, </code>MAPLEAF.Motion<code>, and </code>MAPLEAF.ENV` to
+simulate the flight of a single rocket or …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket.RocketComponentFactory" href="RocketComponentFactory.html">MAPLEAF.Rocket.RocketComponentFactory</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>In charge of initializing rocket components. Add new components to <code>stringNameToClassMap</code> to make them instantiate themselves when included in a Rocket</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket.RocketComponents" href="RocketComponents.html">MAPLEAF.Rocket.RocketComponents</a></code></dt>
 <dd>
-<div class="desc"><p>Created on Thu Jan
-3 13:09:32 2019 …</p></div>
+<div class="desc"><p>Contains interface definitions (<code>RocketComponent</code>/<code>BodyComponent</code>) and Base classes for all RocketComponents (<code>FixedMass</code>),<br>
+as well as some simple …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket.SimEventDetector" href="SimEventDetector.html">MAPLEAF.Rocket.SimEventDetector</a></code></dt>
 <dd>
@@ -195,7 +189,6 @@ Used to trigger stage separations and recovery system deployments.</p></div>
 <li><code><a title="MAPLEAF.Rocket.BoatTail" href="BoatTail.html">MAPLEAF.Rocket.BoatTail</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Bodytube" href="Bodytube.html">MAPLEAF.Rocket.Bodytube</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.CythonFinFunctions" href="CythonFinFunctions.html">MAPLEAF.Rocket.CythonFinFunctions</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.ExternalAeroData" href="ExternalAeroData.html">MAPLEAF.Rocket.ExternalAeroData</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Fins" href="Fins.html">MAPLEAF.Rocket.Fins</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Motor" href="Motor.html">MAPLEAF.Rocket.Motor</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Nosecone" href="Nosecone.html">MAPLEAF.Rocket.Nosecone</a></code></li>

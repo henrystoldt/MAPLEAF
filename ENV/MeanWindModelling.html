@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.ENV.MeanWindModelling API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Modeling of the mean / average component of wind velocity" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,14 @@
 <h1 class="title">Module <code>MAPLEAF.ENV.MeanWindModelling</code></h1>
 </header>
 <section id="section-intro">
+<p>Modeling of the mean / average component of wind velocity</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import abc
+<pre><code class="python">&#39;&#39;&#39; Modeling of the mean / average component of wind velocity &#39;&#39;&#39;
+
+import abc
 import random
 from math import cos, radians, sin
 
@@ -39,34 +42,22 @@ from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 
-__pdoc__ = {
-    &#39;_meanWindModel_Constant&#39;:            True,
-    &#39;_meanWindModel_Hellman&#39;:             True,
-    &#39;_meanWindModel_InterpolatedProfile&#39;: True,
-    &#39;_windRoseDataSampler&#39;:               True,
-    &#39;_radioSondeDataSampler&#39;:             True,
-}
 
 # Mean Wind Model Abstract Base Class / Interface Definition
 class MeanWindModel(abc.ABC):
-    &#39;&#39;&#39; Defines the interface for Mean Wind Models instantiated by meanWindModelFactory.    &#39;&#39;&#39;
+    &#39;&#39;&#39; Defines the interface for Mean Wind Models &#39;&#39;&#39;
 
     @abc.abstractmethod
     def getMeanWind(self, AGLAltitude):
         pass 
 
 # Mean Wind Model Factory
-def meanWindModelFactory(simDefinition=None, silent=False):
-    &#39;&#39;&#39;
-        Arguments: 
-            simDefinition: A SimDefinition containing the simulation definition file for the present simulation
+def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
+    &#39;&#39;&#39; Instantiates a mean wind model &#39;&#39;&#39;
 
-        Returns:
-            meanWindModel, created based on the parameters provided in the SimDefinition passed in 
-    &#39;&#39;&#39;
     if simDefinition == None:
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
-        return _meanWindModel_Constant(constWind)
+        return Constant(constWind)
 
     envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
@@ -77,7 +68,7 @@ def meanWindModelFactory(simDefinition=None, silent=False):
         if not silent:
             print(&#34;Constant ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
 
-        meanWindModel = _meanWindModel_Constant(meanGroundWind)
+        meanWindModel = Constant(meanGroundWind)
 
     elif meanWindModelType in [ &#34;SampledGroundWindData&#34;, &#34;Hellman&#34; ]:
         def getLocationSampledGroundWindVel():
@@ -92,7 +83,7 @@ def meanWindModelFactory(simDefinition=None, silent=False):
             launchMonth = envReader.getString(&#34;SampledGroundWindData.launchMonth&#34;)
 
             # Sample wind rose(s)
-            sampler = _windRoseDataSampler(silent=silent)
+            sampler = WindRoseDataSampler(silent=silent)
             meanGroundWind = sampler.sampleWindRoses(locationsSampled, locationWeights, launchMonth)
 
             # Output choices parsed from input file and resulting wind
@@ -115,7 +106,7 @@ def meanWindModelFactory(simDefinition=None, silent=False):
             meanGroundWind = getLocationSampledGroundWindVel()
             if not silent:
                 print(&#34;Wind is not a function of altitude&#34;)
-            meanWindModel = _meanWindModel_Constant(meanGroundWind)
+            meanWindModel = Constant(meanGroundWind)
 
         elif meanWindModelType == &#34;Hellman&#34;:
             groundWindModel = envReader.getString(&#34;Hellman.groundWindModel&#34;)
@@ -134,11 +125,11 @@ def meanWindModelFactory(simDefinition=None, silent=False):
                 print(&#34;Wind vs. altitude governed by Hellman law: v2 = v1*(z2/10)^a where a = {}&#34;.format(HellmanAlphaCoeff))
                 print(&#34;Hellman law is taken to apply up to an altitude of {} m AGL&#34;.format(HellmanAltitudeLimit))
 
-            meanWindModel = _meanWindModel_Hellman(meanGroundWind, HellmanAltitudeLimit, HellmanAlphaCoeff)
+            meanWindModel = Hellman(meanGroundWind, HellmanAltitudeLimit, HellmanAlphaCoeff)
     
     elif meanWindModelType == &#34;CustomWindProfile&#34;:
         meanWindProfileFilePath = envReader.getString(&#34;CustomWindProfile.filePath&#34;)
-        meanWindModel = _meanWindModel_InterpolatedProfile(windFilePath=meanWindProfileFilePath)
+        meanWindModel = InterpolatedProfile(windFilePath=meanWindProfileFilePath)
 
     elif meanWindModelType == &#34;SampledRadioSondeData&#34;:
         # Get locations and location weights
@@ -158,18 +149,18 @@ def meanWindModelFactory(simDefinition=None, silent=False):
         radioSondeRandomSeed = envReader.tryGetString(&#34;SampledRadioSondeData.randomSeed&#34;)
 
         # Select and parse radio sonde profile
-        sampler = _radioSondeDataSampler(silent=silent)
+        sampler = RadioSondeDataSampler(silent=silent)
         altitudes, windVectors = sampler.getRadioSondeWindProfile(locations, weights, locationASLAltitudes, launchMonth, radioSondeRandomSeed)
         
-        meanWindModel = _meanWindModel_InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
+        meanWindModel = InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
 
     else:
         raise ValueError(&#34;Unknown MeanWindModel: {}. Please see SimDefinitionTemplate.txt for available options.&#34;.format(meanWindModelType))
 
     return meanWindModel
 
-# Actual Mean Wind Model classes - these are instantiated by meanWindModelFactory
-class _meanWindModel_Constant(MeanWindModel):
+#### Actual Mean Wind Model classes - these are instantiated by meanWindModelFactory ####
+class Constant(MeanWindModel):
     &#39;&#39;&#39; Defines a constant wind speed at all altitudes  &#39;&#39;&#39;
     
     def __init__(self, wind):
@@ -178,7 +169,7 @@ class _meanWindModel_Constant(MeanWindModel):
     def getMeanWind(self, AGLAltitude):
         return self.wind
 
-class _meanWindModel_Hellman(MeanWindModel):
+class Hellman(MeanWindModel):
     &#39;&#39;&#39;
         Uses the Hellman law to scale a ground velocity using a power law as the atmospheric boundary layer is exited.
         Low-altitude only. https://en.wikipedia.org/wiki/Wind_gradient -&gt; Engineering Section.
@@ -201,7 +192,7 @@ class _meanWindModel_Hellman(MeanWindModel):
         # Assume initial winds come from a height of 10m
         return self.groundMeanWind * (HellmanAltitude/10)**self.hellmanAlphaCoeff
 
-class _meanWindModel_InterpolatedProfile(MeanWindModel):
+class InterpolatedProfile(MeanWindModel):
     def __init__(self, windAltitudes=[], winds=[], windFilePath=None):
         &#39;&#39;&#39;
             Arguments:
@@ -235,7 +226,7 @@ class _meanWindModel_InterpolatedProfile(MeanWindModel):
         return Vector(*linInterp(self.windAltitudes, self.winds, AGLAltitude))
 
 # Wind Data readers/samplers
-class _windRoseDataSampler():
+class WindRoseDataSampler():
     &#39;&#39;&#39; 
         Parses wind rose data files from Iowa State University&#39;s Environmental Mesonet.
     &#39;&#39;&#39;
@@ -367,7 +358,7 @@ class _windRoseDataSampler():
         #TODO: Need to de-rotate these headings by 5 degrees?
         return rv_histogram((likelyhoodByHeading, headings))
 
-class _radioSondeDataSampler():
+class RadioSondeDataSampler():
     &#39;&#39;&#39; 
         Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
         IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
@@ -546,28 +537,20 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.MeanWindModelling.meanWindModelFactory"><code class="name flex">
-<span>def <span class="ident">meanWindModelFactory</span></span>(<span>simDefinition=None, silent=False)</span>
+<span>def <span class="ident">meanWindModelFactory</span></span>(<span>simDefinition=None, silent=False) ‑> <a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Arguments:
-simDefinition: A SimDefinition containing the simulation definition file for the present simulation</p>
-<h2 id="returns">Returns</h2>
-<p>meanWindModel, created based on the parameters provided in the SimDefinition passed in</p></div>
+<div class="desc"><p>Instantiates a mean wind model</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def meanWindModelFactory(simDefinition=None, silent=False):
-    &#39;&#39;&#39;
-        Arguments: 
-            simDefinition: A SimDefinition containing the simulation definition file for the present simulation
+<pre><code class="python">def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
+    &#39;&#39;&#39; Instantiates a mean wind model &#39;&#39;&#39;
 
-        Returns:
-            meanWindModel, created based on the parameters provided in the SimDefinition passed in 
-    &#39;&#39;&#39;
     if simDefinition == None:
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
-        return _meanWindModel_Constant(constWind)
+        return Constant(constWind)
 
     envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
@@ -578,7 +561,7 @@ simDefinition: A SimDefinition containing the simulation definition file for the
         if not silent:
             print(&#34;Constant ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
 
-        meanWindModel = _meanWindModel_Constant(meanGroundWind)
+        meanWindModel = Constant(meanGroundWind)
 
     elif meanWindModelType in [ &#34;SampledGroundWindData&#34;, &#34;Hellman&#34; ]:
         def getLocationSampledGroundWindVel():
@@ -593,7 +576,7 @@ simDefinition: A SimDefinition containing the simulation definition file for the
             launchMonth = envReader.getString(&#34;SampledGroundWindData.launchMonth&#34;)
 
             # Sample wind rose(s)
-            sampler = _windRoseDataSampler(silent=silent)
+            sampler = WindRoseDataSampler(silent=silent)
             meanGroundWind = sampler.sampleWindRoses(locationsSampled, locationWeights, launchMonth)
 
             # Output choices parsed from input file and resulting wind
@@ -616,7 +599,7 @@ simDefinition: A SimDefinition containing the simulation definition file for the
             meanGroundWind = getLocationSampledGroundWindVel()
             if not silent:
                 print(&#34;Wind is not a function of altitude&#34;)
-            meanWindModel = _meanWindModel_Constant(meanGroundWind)
+            meanWindModel = Constant(meanGroundWind)
 
         elif meanWindModelType == &#34;Hellman&#34;:
             groundWindModel = envReader.getString(&#34;Hellman.groundWindModel&#34;)
@@ -635,11 +618,11 @@ simDefinition: A SimDefinition containing the simulation definition file for the
                 print(&#34;Wind vs. altitude governed by Hellman law: v2 = v1*(z2/10)^a where a = {}&#34;.format(HellmanAlphaCoeff))
                 print(&#34;Hellman law is taken to apply up to an altitude of {} m AGL&#34;.format(HellmanAltitudeLimit))
 
-            meanWindModel = _meanWindModel_Hellman(meanGroundWind, HellmanAltitudeLimit, HellmanAlphaCoeff)
+            meanWindModel = Hellman(meanGroundWind, HellmanAltitudeLimit, HellmanAlphaCoeff)
     
     elif meanWindModelType == &#34;CustomWindProfile&#34;:
         meanWindProfileFilePath = envReader.getString(&#34;CustomWindProfile.filePath&#34;)
-        meanWindModel = _meanWindModel_InterpolatedProfile(windFilePath=meanWindProfileFilePath)
+        meanWindModel = InterpolatedProfile(windFilePath=meanWindProfileFilePath)
 
     elif meanWindModelType == &#34;SampledRadioSondeData&#34;:
         # Get locations and location weights
@@ -659,10 +642,10 @@ simDefinition: A SimDefinition containing the simulation definition file for the
         radioSondeRandomSeed = envReader.tryGetString(&#34;SampledRadioSondeData.randomSeed&#34;)
 
         # Select and parse radio sonde profile
-        sampler = _radioSondeDataSampler(silent=silent)
+        sampler = RadioSondeDataSampler(silent=silent)
         altitudes, windVectors = sampler.getRadioSondeWindProfile(locations, weights, locationASLAltitudes, launchMonth, radioSondeRandomSeed)
         
-        meanWindModel = _meanWindModel_InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
+        meanWindModel = InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
 
     else:
         raise ValueError(&#34;Unknown MeanWindModel: {}. Please see SimDefinitionTemplate.txt for available options.&#34;.format(meanWindModelType))
@@ -675,52 +658,8 @@ simDefinition: A SimDefinition containing the simulation definition file for the
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.MeanWindModel"><code class="flex name class">
-<span>class <span class="ident">MeanWindModel</span></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Defines the interface for Mean Wind Models instantiated by meanWindModelFactory.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class MeanWindModel(abc.ABC):
-    &#39;&#39;&#39; Defines the interface for Mean Wind Models instantiated by meanWindModelFactory.    &#39;&#39;&#39;
-
-    @abc.abstractmethod
-    def getMeanWind(self, AGLAltitude):
-        pass </code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant">_meanWindModel_Constant</a></li>
-<li><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman">_meanWindModel_Hellman</a></li>
-<li><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile">_meanWindModel_InterpolatedProfile</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind"><code class="name flex">
-<span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abc.abstractmethod
-def getMeanWind(self, AGLAltitude):
-    pass </code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant"><code class="flex name class">
-<span>class <span class="ident">_meanWindModel_Constant</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.Constant"><code class="flex name class">
+<span>class <span class="ident">Constant</span></span>
 <span>(</span><span>wind)</span>
 </code></dt>
 <dd>
@@ -729,7 +668,7 @@ def getMeanWind(self, AGLAltitude):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class _meanWindModel_Constant(MeanWindModel):
+<pre><code class="python">class Constant(MeanWindModel):
     &#39;&#39;&#39; Defines a constant wind speed at all altitudes  &#39;&#39;&#39;
     
     def __init__(self, wind):
@@ -745,7 +684,7 @@ def getMeanWind(self, AGLAltitude):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant.getMeanWind"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.Constant.getMeanWind"><code class="name flex">
 <span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
 </code></dt>
 <dd>
@@ -760,8 +699,8 @@ def getMeanWind(self, AGLAltitude):
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman"><code class="flex name class">
-<span>class <span class="ident">_meanWindModel_Hellman</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.Hellman"><code class="flex name class">
+<span>class <span class="ident">Hellman</span></span>
 <span>(</span><span>groundMeanWind=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, altitudeLimit=1500, hellmanAlphaCoeff=0.14)</span>
 </code></dt>
 <dd>
@@ -775,7 +714,7 @@ hellmanAlphaCoeff: Alpha in the Hellman model (1/7 is a common first guess, but 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class _meanWindModel_Hellman(MeanWindModel):
+<pre><code class="python">class Hellman(MeanWindModel):
     &#39;&#39;&#39;
         Uses the Hellman law to scale a ground velocity using a power law as the atmospheric boundary layer is exited.
         Low-altitude only. https://en.wikipedia.org/wiki/Wind_gradient -&gt; Engineering Section.
@@ -805,7 +744,7 @@ hellmanAlphaCoeff: Alpha in the Hellman model (1/7 is a common first guess, but 
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman.getMeanWind"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.Hellman.getMeanWind"><code class="name flex">
 <span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
 </code></dt>
 <dd>
@@ -823,13 +762,12 @@ hellmanAlphaCoeff: Alpha in the Hellman model (1/7 is a common first guess, but 
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile"><code class="flex name class">
-<span>class <span class="ident">_meanWindModel_InterpolatedProfile</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile"><code class="flex name class">
+<span>class <span class="ident">InterpolatedProfile</span></span>
 <span>(</span><span>windAltitudes=[], winds=[], windFilePath=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the interface for Mean Wind Models instantiated by meanWindModelFactory.
-</p>
+<div class="desc"><p>Defines the interface for Mean Wind Models </p>
 <h2 id="arguments">Arguments</h2>
 <p>windAltitudes: list of altitudes at which wind vectors will be provided (m AGL)
 winds: list of wind vectors, matching the ordering of windAltitudes (m/s)</p>
@@ -849,7 +787,7 @@ wz2</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class _meanWindModel_InterpolatedProfile(MeanWindModel):
+<pre><code class="python">class InterpolatedProfile(MeanWindModel):
     def __init__(self, windAltitudes=[], winds=[], windFilePath=None):
         &#39;&#39;&#39;
             Arguments:
@@ -889,7 +827,7 @@ wz2</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile.getMeanWind"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile.getMeanWind"><code class="name flex">
 <span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
 </code></dt>
 <dd>
@@ -904,8 +842,52 @@ wz2</p>
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling._radioSondeDataSampler"><code class="flex name class">
-<span>class <span class="ident">_radioSondeDataSampler</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.MeanWindModel"><code class="flex name class">
+<span>class <span class="ident">MeanWindModel</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the interface for Mean Wind Models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MeanWindModel(abc.ABC):
+    &#39;&#39;&#39; Defines the interface for Mean Wind Models &#39;&#39;&#39;
+
+    @abc.abstractmethod
+    def getMeanWind(self, AGLAltitude):
+        pass </code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.ENV.MeanWindModelling.Constant" href="#MAPLEAF.ENV.MeanWindModelling.Constant">Constant</a></li>
+<li><a title="MAPLEAF.ENV.MeanWindModelling.Hellman" href="#MAPLEAF.ENV.MeanWindModelling.Hellman">Hellman</a></li>
+<li><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile">InterpolatedProfile</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind"><code class="name flex">
+<span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getMeanWind(self, AGLAltitude):
+    pass </code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler"><code class="flex name class">
+<span>class <span class="ident">RadioSondeDataSampler</span></span>
 <span>(</span><span>silent=False, monteCarloDataLogger=None)</span>
 </code></dt>
 <dd>
@@ -915,7 +897,7 @@ IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class _radioSondeDataSampler():
+<pre><code class="python">class RadioSondeDataSampler():
     &#39;&#39;&#39; 
         Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
         IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
@@ -1073,7 +1055,7 @@ IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling._radioSondeDataSampler.getRadioSondeWindProfile"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler.getRadioSondeWindProfile"><code class="name flex">
 <span>def <span class="ident">getRadioSondeWindProfile</span></span>(<span>self, locations=['Edmonton', 'Glasgow'], locationWeights=[0.48, 0.52], locationASLAltitudes=[710, 638], launchMonth=None, randomSeed=None)</span>
 </code></dt>
 <dd>
@@ -1157,8 +1139,8 @@ Pass in the same random seed to pick the same radio sonde profile</p>
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling._windRoseDataSampler"><code class="flex name class">
-<span>class <span class="ident">_windRoseDataSampler</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler"><code class="flex name class">
+<span>class <span class="ident">WindRoseDataSampler</span></span>
 <span>(</span><span>silent=False)</span>
 </code></dt>
 <dd>
@@ -1167,7 +1149,7 @@ Pass in the same random seed to pick the same radio sonde profile</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class _windRoseDataSampler():
+<pre><code class="python">class WindRoseDataSampler():
     &#39;&#39;&#39; 
         Parses wind rose data files from Iowa State University&#39;s Environmental Mesonet.
     &#39;&#39;&#39;
@@ -1301,7 +1283,7 @@ Pass in the same random seed to pick the same radio sonde profile</p>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling._windRoseDataSampler.sampleWindRoses"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler.sampleWindRoses"><code class="name flex">
 <span>def <span class="ident">sampleWindRoses</span></span>(<span>self, locationsSampled, locationWeights, launchMonth)</span>
 </code></dt>
 <dd>
@@ -1351,39 +1333,39 @@ Pass in the same random seed to pick the same radio sonde profile</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.Constant" href="#MAPLEAF.ENV.MeanWindModelling.Constant">Constant</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.Constant.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.Constant.getMeanWind">getMeanWind</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.Hellman" href="#MAPLEAF.ENV.MeanWindModelling.Hellman">Hellman</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.Hellman.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.Hellman.getMeanWind">getMeanWind</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile">InterpolatedProfile</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile.getMeanWind">getMeanWind</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind">getMeanWind</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant">_meanWindModel_Constant</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler" href="#MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler">RadioSondeDataSampler</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_Constant.getMeanWind">getMeanWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler.getRadioSondeWindProfile" href="#MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler.getRadioSondeWindProfile">getRadioSondeWindProfile</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman">_meanWindModel_Hellman</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler" href="#MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler">WindRoseDataSampler</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_Hellman.getMeanWind">getMeanWind</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile">_meanWindModel_InterpolatedProfile</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling._meanWindModel_InterpolatedProfile.getMeanWind">getMeanWind</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling._radioSondeDataSampler" href="#MAPLEAF.ENV.MeanWindModelling._radioSondeDataSampler">_radioSondeDataSampler</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling._radioSondeDataSampler.getRadioSondeWindProfile" href="#MAPLEAF.ENV.MeanWindModelling._radioSondeDataSampler.getRadioSondeWindProfile">getRadioSondeWindProfile</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling._windRoseDataSampler" href="#MAPLEAF.ENV.MeanWindModelling._windRoseDataSampler">_windRoseDataSampler</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling._windRoseDataSampler.sampleWindRoses" href="#MAPLEAF.ENV.MeanWindModelling._windRoseDataSampler.sampleWindRoses">sampleWindRoses</a></code></li>
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler.sampleWindRoses" href="#MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler.sampleWindRoses">sampleWindRoses</a></code></li>
 </ul>
 </li>
 </ul>

@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.GNC.ActuatedSystem API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="The actuated system class initializes actuators, which are controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem`
+Rocket component classes need …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +23,18 @@
 <h1 class="title">Module <code>MAPLEAF.GNC.ActuatedSystem</code></h1>
 </header>
 <section id="section-intro">
+<p>The actuated system class initializes actuators, which are controlled by a <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code>
+Rocket component classes need to inherit from this class to become controllable (see <code><a title="MAPLEAF.Rocket.Fins.FinSet" href="../Rocket/Fins.html#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></code>)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import abc
+<pre><code class="python">&#39;&#39;&#39; 
+The actuated system class initializes actuators, which are controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` 
+Rocket component classes need to inherit from this class to become controllable (see `MAPLEAF.Rocket.Fins.FinSet`)
+&#39;&#39;&#39;
+
+import abc
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.GNC.Actuators import (FirstOrderActuator,
@@ -35,17 +43,16 @@ from MAPLEAF.GNC.Actuators import (FirstOrderActuator,
 
 class ActuatedSystem(abc.ABC):
     &#39;&#39;&#39;
-        Mixin-type class
-            Inherit from this class to add its functionality to a class
-                __init__ method initializes actuators defined in the component&#39;s &#39;Actuator&#39; subdictionary
-                These actuators are then stored in self.actuatorList
-            
-            Child classes must call ActuatedSystem.__init__() to actually instantiate the actuators
-                Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
-                Expects that child classes have a self.rocket attribute
+            **Mixin-type class**  
+            Inherit from this class to add its functionality to a class  
+                
+            * ActuatedSystem.\_\_init\_\_ initializes actuators defined in the component&#39;s &#39;Actuator&#39; subdictionary  
+            * These actuators are then stored in self.actuatorList  
+            * Child classes must call ActuatedSystem.\_\_init\_\_() to actually instantiate the actuators
+            * Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
+            * Expects that child classes have a self.rocket attribute
     &#39;&#39;&#39;
     def __init__(self, nActuators):
-        &#39;&#39;&#39;  This is a conrete, implemented method, intended to be called by child classes &#39;&#39;&#39;
 
         # Initialize Actuator Models
         actuatorList = []
@@ -89,9 +96,7 @@ class ActuatedSystem(abc.ABC):
 
     @abc.abstractmethod
     def initializeActuators(self, controlSystem):
-        &#39;&#39;&#39; 
-            Function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators
-        &#39;&#39;&#39;        
+        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
         pass</code></pre>
 </details>
 </section>
@@ -109,32 +114,34 @@ class ActuatedSystem(abc.ABC):
 <span>(</span><span>nActuators)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Mixin-type class
+<div class="desc"><p><strong>Mixin-type class</strong><br>
 Inherit from this class to add its functionality to a class
-<strong>init</strong> method initializes actuators defined in the component's 'Actuator' subdictionary
-These actuators are then stored in self.actuatorList</p>
-<pre><code>Child classes must call ActuatedSystem.__init__() to actually instantiate the actuators
-    Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
-    Expects that child classes have a self.rocket attribute
-</code></pre>
-<p>This is a conrete, implemented method, intended to be called by child classes</p></div>
+</p>
+<ul>
+<li>ActuatedSystem.__init__ initializes actuators defined in the component's 'Actuator' subdictionary
+</li>
+<li>These actuators are then stored in self.actuatorList
+</li>
+<li>Child classes must call ActuatedSystem.__init__() to actually instantiate the actuators</li>
+<li>Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality</li>
+<li>Expects that child classes have a self.rocket attribute</li>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ActuatedSystem(abc.ABC):
     &#39;&#39;&#39;
-        Mixin-type class
-            Inherit from this class to add its functionality to a class
-                __init__ method initializes actuators defined in the component&#39;s &#39;Actuator&#39; subdictionary
-                These actuators are then stored in self.actuatorList
-            
-            Child classes must call ActuatedSystem.__init__() to actually instantiate the actuators
-                Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
-                Expects that child classes have a self.rocket attribute
+            **Mixin-type class**  
+            Inherit from this class to add its functionality to a class  
+                
+            * ActuatedSystem.\_\_init\_\_ initializes actuators defined in the component&#39;s &#39;Actuator&#39; subdictionary  
+            * These actuators are then stored in self.actuatorList  
+            * Child classes must call ActuatedSystem.\_\_init\_\_() to actually instantiate the actuators
+            * Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
+            * Expects that child classes have a self.rocket attribute
     &#39;&#39;&#39;
     def __init__(self, nActuators):
-        &#39;&#39;&#39;  This is a conrete, implemented method, intended to be called by child classes &#39;&#39;&#39;
 
         # Initialize Actuator Models
         actuatorList = []
@@ -178,9 +185,7 @@ These actuators are then stored in self.actuatorList</p>
 
     @abc.abstractmethod
     def initializeActuators(self, controlSystem):
-        &#39;&#39;&#39; 
-            Function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators
-        &#39;&#39;&#39;        
+        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
         pass</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -197,16 +202,14 @@ These actuators are then stored in self.actuatorList</p>
 <span>def <span class="ident">initializeActuators</span></span>(<span>self, controlSystem)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Function should call ActuatedSystem.<strong>init</strong>(self, nActuators) - function needs to determine and pass in nActuators</p></div>
+<div class="desc"><p>Concrete implementations of this function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def initializeActuators(self, controlSystem):
-    &#39;&#39;&#39; 
-        Function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators
-    &#39;&#39;&#39;        
+    &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
     pass</code></pre>
 </details>
 </dd>

@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.Rocket.Rocket API documentation</title>
-<meta name="description" content="Created on Thu Jan 3, 2019 …" />
+<meta name="description" content="`Rocket ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to
+simulate the flight of a single rocket or …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,22 +23,18 @@
 <h1 class="title">Module <code>MAPLEAF.Rocket.Rocket</code></h1>
 </header>
 <section id="section-intro">
-<p>Created on Thu Jan 3, 2019</p>
-<p>@author: Henry Stoldt, Declan Quinn</p>
-<p>Defines the Rocket class, which ties together the code in <code><a title="MAPLEAF.GNC" href="../GNC/index.html">MAPLEAF.GNC</a></code>, <code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code>, <code><a title="MAPLEAF.Motion" href="../Motion/index.html">MAPLEAF.Motion</a></code>, and <code><a title="MAPLEAF.ENV" href="../ENV/index.html">MAPLEAF.ENV</a></code> to
-simulate the flight of a single rocket or dropped rocket stage (always only represents one rigid body at a time).</p>
+<p><code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a> ties together the code in </code>MAPLEAF.GNC<code>, </code>MAPLEAF.Rocket<code>, </code>MAPLEAF.Motion<code>, and </code>MAPLEAF.ENV` to
+simulate the flight of a single rocket or dropped rocket stage (<code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> always only represents a single rigid body at a time).
+New instances of <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> are created by <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code> to represent dropped stages.</p>
 <p><img alt="" src="https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG"></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
-Created on Thu Jan 3, 2019
-
-@author: Henry Stoldt, Declan Quinn
-
-Defines the Rocket class, which ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to 
-simulate the flight of a single rocket or dropped rocket stage (always only represents one rigid body at a time).
+`Rocket ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to 
+simulate the flight of a single rocket or dropped rocket stage (`Rocket` always only represents a single rigid body at a time).
+New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.SingleSimRunner` to represent dropped stages.
 
 .. image:: https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG
 &#34;&#34;&#34;

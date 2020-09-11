@@ -38,6 +38,8 @@ __pdoc__ = {
 }
 
 class RecoverySystem(FixedMass):
+    &#39;&#39;&#39; Represents a recovery system with an arbitrary number of stages &#39;&#39;&#39;
+
     #### Init Functions ####
     def __init__(self, componentDictReader, rocket, stage):
         FixedMass.__init__(self, componentDictReader, rocket, stage)
@@ -143,13 +145,14 @@ class RecoverySystem(FixedMass):
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all fixed-mass rocket components
-Implements functionality to read inertia and position info from sim definition file</p></div>
+<div class="desc"><p>Represents a recovery system with an arbitrary number of stages</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RecoverySystem(FixedMass):
+    &#39;&#39;&#39; Represents a recovery system with an arbitrary number of stages &#39;&#39;&#39;
+
     #### Init Functions ####
     def __init__(self, componentDictReader, rocket, stage):
         FixedMass.__init__(self, componentDictReader, rocket, stage)

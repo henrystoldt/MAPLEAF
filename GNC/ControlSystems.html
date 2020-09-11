@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.GNC.ControlSystems API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Classes that implement air vehicle control systems by tying together a`MAPLEAF.GNC.Navigation.Navigator`, a …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,18 @@
 <h1 class="title">Module <code>MAPLEAF.GNC.ControlSystems</code></h1>
 </header>
 <section id="section-intro">
+<p>Classes that implement air vehicle control systems by tying together a<code><a title="MAPLEAF.GNC.Navigation.Navigator" href="Navigation.html#MAPLEAF.GNC.Navigation.Navigator">Navigator</a></code>, a <code><a title="MAPLEAF.GNC.MomentControllers.MomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.MomentController">MomentController</a></code>, and an <code><a title="MAPLEAF.GNC.Actuators.ActuatorController" href="Actuators.html#MAPLEAF.GNC.Actuators.ActuatorController">ActuatorController</a></code>.<br>
+Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the <code><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></code> they control.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import abc
+<pre><code class="python">&#39;&#39;&#39; 
+Classes that implement air vehicle control systems by tying together a`MAPLEAF.GNC.Navigation.Navigator`, a `MAPLEAF.GNC.MomentControllers.MomentController`, and an `MAPLEAF.GNC.Actuators.ActuatorController`.  
+Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the `MAPLEAF.GNC.ActuatedSystem.ActuatedSystem` they control.
+&#39;&#39;&#39;
+
+import abc
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
@@ -36,6 +43,8 @@ from MAPLEAF.IO.SubDictReader import SubDictReader
 
 
 class ControlSystem(abc.ABC):
+    &#39;&#39;&#39; Interface for control systems &#39;&#39;&#39;
+
     @abc.abstractmethod
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         &#39;&#39;&#39; 
@@ -53,11 +62,11 @@ class ControlSystem(abc.ABC):
 
     @abc.abstractmethod
     def getLogHeader(self):
-        &#39;&#39;&#39;
-            Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired
-        &#39;&#39;&#39;
+        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;
 
 class RocketControlSystem(ControlSystem, SubDictReader):
+    &#39;&#39;&#39; Simplest possible control system for a rocket &#39;&#39;&#39;
+
     def __init__(self, controlSystemDictReader, rocket, initTime=0):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader
@@ -183,13 +192,14 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 <span>class <span class="ident">ControlSystem</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Interface for control systems</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ControlSystem(abc.ABC):
+    &#39;&#39;&#39; Interface for control systems &#39;&#39;&#39;
+
     @abc.abstractmethod
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         &#39;&#39;&#39; 
@@ -207,9 +217,7 @@ inheritance.</p></div>
 
     @abc.abstractmethod
     def getLogHeader(self):
-        &#39;&#39;&#39;
-            Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired
-        &#39;&#39;&#39;</code></pre>
+        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -232,9 +240,7 @@ inheritance.</p></div>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def getLogHeader(self):
-    &#39;&#39;&#39;
-        Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired
-    &#39;&#39;&#39;</code></pre>
+    &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired"><code class="name flex">
@@ -276,13 +282,14 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 <span>(</span><span>controlSystemDictReader, rocket, initTime=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></div>
+<div class="desc"><p>Simplest possible control system for a rocket</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RocketControlSystem(ControlSystem, SubDictReader):
+    &#39;&#39;&#39; Simplest possible control system for a rocket &#39;&#39;&#39;
+
     def __init__(self, controlSystemDictReader, rocket, initTime=0):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader

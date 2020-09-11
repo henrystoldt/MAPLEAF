@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.ENV.TurbulenceModelling API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Modeling of turbulent, fluctuating component of wind velocity" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +22,14 @@
 <h1 class="title">Module <code>MAPLEAF.ENV.TurbulenceModelling</code></h1>
 </header>
 <section id="section-intro">
+<p>Modeling of turbulent, fluctuating component of wind velocity</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import abc
+<pre><code class="python">&#39;&#39;&#39; Modeling of turbulent, fluctuating component of wind velocity &#39;&#39;&#39;
+
+import abc
 import random
 from math import cos, pi
 
@@ -35,7 +38,8 @@ from MAPLEAF.IO.SubDictReader import SubDictReader
 
 #TODO: Implement vonKarman or Dryden model with std deviation / length scale that varies with altitude as per NASA HDBK-1001
 
-class _TurbulenceModel(abc.ABC):
+class TurbulenceModel(abc.ABC):
+    &#39;&#39;&#39; Interface for all turbulence models &#39;&#39;&#39;
     @abc.abstractmethod
     def getTurbVelocity(self, altitude, meanWindVelocity, time):
         pass
@@ -50,7 +54,7 @@ def turbulenceModelFactory(simDefinition, silent=False):
         print(&#34;Turbulence/Gust Model: {}&#34;.format(turbModelType))
 
     if turbModelType== &#34;None&#34;:
-        turbulenceModel = _turbModel_None()
+        turbulenceModel = NoTurb()
         
     elif &#34;PinkNoise&#34; in turbModelType:
         def tryGetValue(key):
@@ -74,18 +78,18 @@ def turbulenceModelFactory(simDefinition, silent=False):
         pinkNoiseRandomSeed3 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed3&#34;)
             
         if turbModelType == &#34;PinkNoise1D&#34;:
-            turbulenceModel = _turbModel_PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
+            turbulenceModel = PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
             if not silent:
                 print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
 
         elif turbModelType == &#34;PinkNoise2D&#34;:
-            turbulenceModel = _turbModel_PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
+            turbulenceModel = PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
             if not silent:
                 print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
                 print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
 
         elif turbModelType == &#34;PinkNoise3D&#34;:
-            turbulenceModel = _turbModel_PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
+            turbulenceModel = PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
             if not silent:
                 print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
                 print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
@@ -98,7 +102,7 @@ def turbulenceModelFactory(simDefinition, silent=False):
         GustLayerThickness = envReader.getFloat(&#34;CustomSineGust.thickness&#34;)
         GustDirection = envReader.getVector(&#34;CustomSineGust.direction&#34;).normalize()
 
-        turbulenceModel = _turbModel_customSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
+        turbulenceModel = CustomSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
 
         if not silent:
             print(&#34;Gust Altitude: {}&#34;.format(GustStartAltitude))
@@ -109,11 +113,11 @@ def turbulenceModelFactory(simDefinition, silent=False):
 
     return turbulenceModel
 
-class _turbModel_None(_TurbulenceModel):
+class NoTurb(TurbulenceModel):
     def getTurbVelocity(self, _, __, ___):
         return Vector(0,0,0)
 
-class _PinkNoiseModel(_TurbulenceModel):
+class _PinkNoiseTurbModel(TurbulenceModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
         self.velStdDev = velocityStdDev
         self.turbulenceIntensity = turbulenceIntensity
@@ -129,7 +133,7 @@ class _PinkNoiseModel(_TurbulenceModel):
         else:
             return self.velStdDev
 
-class _turbModel_PinkNoise1D(_PinkNoiseModel):
+class PinkNoise1D(_PinkNoiseTurbModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
 
@@ -138,7 +142,7 @@ class _turbModel_PinkNoise1D(_PinkNoiseModel):
         newTurbMagnitude = self.png1.getValue(time) * self.velStdDev
         return meanWindVelocity.normalize() * newTurbMagnitude
 
-class _turbModel_PinkNoise2D(_PinkNoiseModel):
+class PinkNoise2D(_PinkNoiseTurbModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
         self.png2 = PinkNoiseGenerator(seed=randomSeed2)
@@ -149,7 +153,7 @@ class _turbModel_PinkNoise2D(_PinkNoiseModel):
         yTurbVel = self.png2.getValue(time) * velStdDev
         return Vector(xTurbVel, yTurbVel, 0)
 
-class _turbModel_PinkNoise3D(_TurbulenceModel):
+class PinkNoise3D(TurbulenceModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
         self.png2 = PinkNoiseGenerator(seed=randomSeed2)
@@ -162,7 +166,7 @@ class _turbModel_PinkNoise3D(_TurbulenceModel):
         newZTurbVel = self.png2.getValue(time) * velStdDev
         return Vector(newXTurbVel, newYTurbVel, newZTurbVel)
 
-class _turbModel_customSineGust(_TurbulenceModel):
+class CustomSineGust(TurbulenceModel):
     def __init__(self, GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection):
         self.GustStartAltitude = GustStartAltitude
         self.GustSineBlendDistance = GustSineBlendDistance
@@ -200,20 +204,22 @@ class _turbModel_customSineGust(_TurbulenceModel):
 class PinkNoiseGenerator():
     &#39;&#39;&#39;
         Inputs:
-            alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
-                default value of 5/3 matches power spectrum slope of turbulent integral scales
-            seed - pink noise generated based on applying a filter to gaussian white noise specifying
-                the seed for the input random noise allows for repeatable sequences of values
-            nPoles - more poles include more low frequency content in the spectrum
-                parameter could be interpreted as similar to the turbulence length scale
-                can be varied in more sophisticated models
-            simulatedSamplingFreqHz - controls &#34;sampling frequency&#34; that the pink noise is interpreted as
-                also modulated the effective length scale of turbulence, together with nPoles
+            
+            * alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.  
+                default value of 5/3 matches power spectrum slope of turbulent integral scales  
+            * seed - pink noise generated based on applying a filter to gaussian white noise specifying  
+                the seed for the input random noise allows for repeatable sequences of values  
+            * nPoles - more poles include more low frequency content in the spectrum  
+                parameter could be interpreted as similar to the turbulence length scale  
+                can be varied in more sophisticated models  
+            * simulatedSamplingFreqHz - controls &#34;sampling frequency&#34; that the pink noise is interpreted as  
+                also modulated the effective length scale of turbulence, together with nPoles  
         Methods:
-            .getValue(time)
-                If the value is requested at time values that fall between sampling intervals, linearly
-                interpolated values (from adjacent samples) are returned
-                If no time is provided, the sampling frequency is ignored and a new value is computed
+            
+            * .getValue(time)  
+                If the value is requested at time values that fall between sampling intervals, linearly 
+                interpolated values (from adjacent samples) are returned.
+                If no time is provided, the sampling frequency is ignored and a new value is computed  
     &#39;&#39;&#39;
 
     def __init__(self, alpha=5/3, seed=None, nPoles=2, simulatedSamplingFreqHz=20):
@@ -303,7 +309,7 @@ class PinkNoiseGenerator():
         print(&#34;Turbulence/Gust Model: {}&#34;.format(turbModelType))
 
     if turbModelType== &#34;None&#34;:
-        turbulenceModel = _turbModel_None()
+        turbulenceModel = NoTurb()
         
     elif &#34;PinkNoise&#34; in turbModelType:
         def tryGetValue(key):
@@ -327,18 +333,18 @@ class PinkNoiseGenerator():
         pinkNoiseRandomSeed3 = envReader.tryGetInt(&#34;PinkNoiseModel.randomSeed3&#34;)
             
         if turbModelType == &#34;PinkNoise1D&#34;:
-            turbulenceModel = _turbModel_PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
+            turbulenceModel = PinkNoise1D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1)
             if not silent:
                 print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
 
         elif turbModelType == &#34;PinkNoise2D&#34;:
-            turbulenceModel = _turbModel_PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
+            turbulenceModel = PinkNoise2D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2)
             if not silent:
                 print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
                 print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
 
         elif turbModelType == &#34;PinkNoise3D&#34;:
-            turbulenceModel = _turbModel_PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
+            turbulenceModel = PinkNoise3D(turbulenceIntensity, velocityStDev, pinkNoiseRandomSeed1, pinkNoiseRandomSeed2, pinkNoiseRandomSeed3)
             if not silent:
                 print(&#34;Random seed 1: {}&#34;.format(turbulenceModel.png1.seed))
                 print(&#34;Random seed 2: {}&#34;.format(turbulenceModel.png2.seed))
@@ -351,7 +357,7 @@ class PinkNoiseGenerator():
         GustLayerThickness = envReader.getFloat(&#34;CustomSineGust.thickness&#34;)
         GustDirection = envReader.getVector(&#34;CustomSineGust.direction&#34;).normalize()
 
-        turbulenceModel = _turbModel_customSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
+        turbulenceModel = CustomSineGust(GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)
 
         if not silent:
             print(&#34;Gust Altitude: {}&#34;.format(GustStartAltitude))
@@ -368,26 +374,294 @@ class PinkNoiseGenerator():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.CustomSineGust"><code class="flex name class">
+<span>class <span class="ident">CustomSineGust</span></span>
+<span>(</span><span>GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for all turbulence models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CustomSineGust(TurbulenceModel):
+    def __init__(self, GustStartAltitude, GustSineBlendDistance, GustLayerThickness, GustMagnitude, GustDirection):
+        self.GustStartAltitude = GustStartAltitude
+        self.GustSineBlendDistance = GustSineBlendDistance
+        self.GustMagnitude = GustMagnitude
+        self.GustDirection = GustDirection
+        
+        self.GustZoneBoundaries = [
+            GustStartAltitude,
+            GustStartAltitude + GustSineBlendDistance, # End of lower blend zone
+            GustStartAltitude + GustSineBlendDistance + GustLayerThickness, # Start of upper blending zone
+            GustStartAltitude + GustSineBlendDistance + GustLayerThickness + GustSineBlendDistance # End of upper blending zone
+        ]
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        &#39;&#39;&#39; # From NASA HDBK-1001, pg. 2-84, equation 2.69 &#39;&#39;&#39;
+        # Determine whether the current altitude is in the blending region or plateau region
+        if altitude &gt; self.GustStartAltitude:
+            if altitude &lt; self.GustZoneBoundaries[1]:
+                # In the lower blending region
+                gustVel = self.GustMagnitude/2 * ( 1 - cos(pi*(altitude - self.GustStartAltitude)/self.GustSineBlendDistance))
+            elif altitude &lt; self.GustZoneBoundaries[2]:
+                # In the plateau (gust) region
+                gustVel = self.GustMagnitude
+            elif altitude &lt; self.GustZoneBoundaries[3]:
+                # In the upper blending region
+                gustThickness = self.GustZoneBoundaries[-1] - self.GustZoneBoundaries[0]
+                gustVel = self.GustMagnitude/2 * ( 1 - cos(pi*(altitude - self.GustStartAltitude - gustThickness)/self.GustSineBlendDistance))
+            else:
+                return Vector(0,0,0)
+
+            return self.GustDirection * gustVel
+        else:
+            return Vector(0,0,0)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel">TurbulenceModel</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.CustomSineGust.getTurbVelocity"><code class="name flex">
+<span>def <span class="ident">getTurbVelocity</span></span>(<span>self, altitude, meanWindVelocity, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><h1 id="from-nasa-hdbk-1001-pg-2-84-equation-269">From NASA HDBK-1001, pg. 2-84, equation 2.69</h1></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTurbVelocity(self, altitude, meanWindVelocity, time):
+    &#39;&#39;&#39; # From NASA HDBK-1001, pg. 2-84, equation 2.69 &#39;&#39;&#39;
+    # Determine whether the current altitude is in the blending region or plateau region
+    if altitude &gt; self.GustStartAltitude:
+        if altitude &lt; self.GustZoneBoundaries[1]:
+            # In the lower blending region
+            gustVel = self.GustMagnitude/2 * ( 1 - cos(pi*(altitude - self.GustStartAltitude)/self.GustSineBlendDistance))
+        elif altitude &lt; self.GustZoneBoundaries[2]:
+            # In the plateau (gust) region
+            gustVel = self.GustMagnitude
+        elif altitude &lt; self.GustZoneBoundaries[3]:
+            # In the upper blending region
+            gustThickness = self.GustZoneBoundaries[-1] - self.GustZoneBoundaries[0]
+            gustVel = self.GustMagnitude/2 * ( 1 - cos(pi*(altitude - self.GustStartAltitude - gustThickness)/self.GustSineBlendDistance))
+        else:
+            return Vector(0,0,0)
+
+        return self.GustDirection * gustVel
+    else:
+        return Vector(0,0,0)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.NoTurb"><code class="flex name class">
+<span>class <span class="ident">NoTurb</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for all turbulence models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NoTurb(TurbulenceModel):
+    def getTurbVelocity(self, _, __, ___):
+        return Vector(0,0,0)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel">TurbulenceModel</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.NoTurb.getTurbVelocity"><code class="name flex">
+<span>def <span class="ident">getTurbVelocity</span></span>(<span>self, _, __, ___)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTurbVelocity(self, _, __, ___):
+    return Vector(0,0,0)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoise1D"><code class="flex name class">
+<span>class <span class="ident">PinkNoise1D</span></span>
+<span>(</span><span>turbulenceIntensity, velocityStdDev, randomSeed)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for all turbulence models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PinkNoise1D(_PinkNoiseTurbModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed):
+        super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        self.velStdDev = super()._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)
+        newTurbMagnitude = self.png1.getValue(time) * self.velStdDev
+        return meanWindVelocity.normalize() * newTurbMagnitude</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>MAPLEAF.ENV.TurbulenceModelling._PinkNoiseTurbModel</li>
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel">TurbulenceModel</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoise1D.getTurbVelocity"><code class="name flex">
+<span>def <span class="ident">getTurbVelocity</span></span>(<span>self, altitude, meanWindVelocity, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTurbVelocity(self, altitude, meanWindVelocity, time):
+    self.velStdDev = super()._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)
+    newTurbMagnitude = self.png1.getValue(time) * self.velStdDev
+    return meanWindVelocity.normalize() * newTurbMagnitude</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoise2D"><code class="flex name class">
+<span>class <span class="ident">PinkNoise2D</span></span>
+<span>(</span><span>turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for all turbulence models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PinkNoise2D(_PinkNoiseTurbModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2):
+        super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
+        self.png2 = PinkNoiseGenerator(seed=randomSeed2)
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        velStdDev = self._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)
+        xTurbVel = self.png1.getValue(time) * velStdDev
+        yTurbVel = self.png2.getValue(time) * velStdDev
+        return Vector(xTurbVel, yTurbVel, 0)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>MAPLEAF.ENV.TurbulenceModelling._PinkNoiseTurbModel</li>
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel">TurbulenceModel</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoise2D.getTurbVelocity"><code class="name flex">
+<span>def <span class="ident">getTurbVelocity</span></span>(<span>self, altitude, meanWindVelocity, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTurbVelocity(self, altitude, meanWindVelocity, time):
+    velStdDev = self._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)
+    xTurbVel = self.png1.getValue(time) * velStdDev
+    yTurbVel = self.png2.getValue(time) * velStdDev
+    return Vector(xTurbVel, yTurbVel, 0)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D"><code class="flex name class">
+<span>class <span class="ident">PinkNoise3D</span></span>
+<span>(</span><span>turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for all turbulence models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PinkNoise3D(TurbulenceModel):
+    def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3):
+        super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
+        self.png2 = PinkNoiseGenerator(seed=randomSeed2)
+        self.png3 = PinkNoiseGenerator(seed=randomSeed3)
+
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        velStdDev = self._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)      
+        newXTurbVel = self.png1.getValue(time) * velStdDev
+        newYTurbVel = self.png2.getValue(time) * velStdDev
+        newZTurbVel = self.png2.getValue(time) * velStdDev
+        return Vector(newXTurbVel, newYTurbVel, newZTurbVel)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel">TurbulenceModel</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D.getTurbVelocity"><code class="name flex">
+<span>def <span class="ident">getTurbVelocity</span></span>(<span>self, altitude, meanWindVelocity, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTurbVelocity(self, altitude, meanWindVelocity, time):
+    velStdDev = self._getDesiredTurbulenceStdDev(altitude, meanWindVelocity)      
+    newXTurbVel = self.png1.getValue(time) * velStdDev
+    newYTurbVel = self.png2.getValue(time) * velStdDev
+    newZTurbVel = self.png2.getValue(time) * velStdDev
+    return Vector(newXTurbVel, newYTurbVel, newZTurbVel)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator"><code class="flex name class">
 <span>class <span class="ident">PinkNoiseGenerator</span></span>
 <span>(</span><span>alpha=1.6666666666666667, seed=None, nPoles=2, simulatedSamplingFreqHz=20)</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="inputs">Inputs</h2>
-<p>alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
+<ul>
+<li>alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.<br>
 default value of 5/3 matches power spectrum slope of turbulent integral scales
-seed - pink noise generated based on applying a filter to gaussian white noise specifying
+</li>
+<li>seed - pink noise generated based on applying a filter to gaussian white noise specifying<br>
 the seed for the input random noise allows for repeatable sequences of values
-nPoles - more poles include more low frequency content in the spectrum
-parameter could be interpreted as similar to the turbulence length scale
+</li>
+<li>nPoles - more poles include more low frequency content in the spectrum<br>
+parameter could be interpreted as similar to the turbulence length scale<br>
 can be varied in more sophisticated models
-simulatedSamplingFreqHz - controls "sampling frequency" that the pink noise is interpreted as
-also modulated the effective length scale of turbulence, together with nPoles</p>
+</li>
+<li>simulatedSamplingFreqHz - controls "sampling frequency" that the pink noise is interpreted as<br>
+also modulated the effective length scale of turbulence, together with nPoles
+</li>
+</ul>
 <h2 id="methods">Methods</h2>
-<p>.getValue(time)
+<ul>
+<li>.getValue(time)<br>
 If the value is requested at time values that fall between sampling intervals, linearly
-interpolated values (from adjacent samples) are returned
-If no time is provided, the sampling frequency is ignored and a new value is computed</p></div>
+interpolated values (from adjacent samples) are returned.
+If no time is provided, the sampling frequency is ignored and a new value is computed</li>
+</ul></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -395,20 +669,22 @@ If no time is provided, the sampling frequency is ignored and a new value is com
 <pre><code class="python">class PinkNoiseGenerator():
     &#39;&#39;&#39;
         Inputs:
-            alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.
-                default value of 5/3 matches power spectrum slope of turbulent integral scales
-            seed - pink noise generated based on applying a filter to gaussian white noise specifying
-                the seed for the input random noise allows for repeatable sequences of values
-            nPoles - more poles include more low frequency content in the spectrum
-                parameter could be interpreted as similar to the turbulence length scale
-                can be varied in more sophisticated models
-            simulatedSamplingFreqHz - controls &#34;sampling frequency&#34; that the pink noise is interpreted as
-                also modulated the effective length scale of turbulence, together with nPoles
+            
+            * alpha - pink noise generated has a power spectrum which has a log-log slope of -alpha.  
+                default value of 5/3 matches power spectrum slope of turbulent integral scales  
+            * seed - pink noise generated based on applying a filter to gaussian white noise specifying  
+                the seed for the input random noise allows for repeatable sequences of values  
+            * nPoles - more poles include more low frequency content in the spectrum  
+                parameter could be interpreted as similar to the turbulence length scale  
+                can be varied in more sophisticated models  
+            * simulatedSamplingFreqHz - controls &#34;sampling frequency&#34; that the pink noise is interpreted as  
+                also modulated the effective length scale of turbulence, together with nPoles  
         Methods:
-            .getValue(time)
-                If the value is requested at time values that fall between sampling intervals, linearly
-                interpolated values (from adjacent samples) are returned
-                If no time is provided, the sampling frequency is ignored and a new value is computed
+            
+            * .getValue(time)  
+                If the value is requested at time values that fall between sampling intervals, linearly 
+                interpolated values (from adjacent samples) are returned.
+                If no time is provided, the sampling frequency is ignored and a new value is computed  
     &#39;&#39;&#39;
 
     def __init__(self, alpha=5/3, seed=None, nPoles=2, simulatedSamplingFreqHz=20):
@@ -517,6 +793,50 @@ Based on method from Kasdin (1995) "Discrete Simulation of Colored Noise and Sto
 </dd>
 </dl>
 </dd>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel"><code class="flex name class">
+<span>class <span class="ident">TurbulenceModel</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for all turbulence models</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TurbulenceModel(abc.ABC):
+    &#39;&#39;&#39; Interface for all turbulence models &#39;&#39;&#39;
+    @abc.abstractmethod
+    def getTurbVelocity(self, altitude, meanWindVelocity, time):
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.CustomSineGust" href="#MAPLEAF.ENV.TurbulenceModelling.CustomSineGust">CustomSineGust</a></li>
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.NoTurb" href="#MAPLEAF.ENV.TurbulenceModelling.NoTurb">NoTurb</a></li>
+<li><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D">PinkNoise3D</a></li>
+<li>MAPLEAF.ENV.TurbulenceModelling._PinkNoiseTurbModel</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel.getTurbVelocity"><code class="name flex">
+<span>def <span class="ident">getTurbVelocity</span></span>(<span>self, altitude, meanWindVelocity, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getTurbVelocity(self, altitude, meanWindVelocity, time):
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -539,9 +859,45 @@ Based on method from Kasdin (1995) "Discrete Simulation of Colored Noise and Sto
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.CustomSineGust" href="#MAPLEAF.ENV.TurbulenceModelling.CustomSineGust">CustomSineGust</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.CustomSineGust.getTurbVelocity" href="#MAPLEAF.ENV.TurbulenceModelling.CustomSineGust.getTurbVelocity">getTurbVelocity</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.NoTurb" href="#MAPLEAF.ENV.TurbulenceModelling.NoTurb">NoTurb</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.NoTurb.getTurbVelocity" href="#MAPLEAF.ENV.TurbulenceModelling.NoTurb.getTurbVelocity">getTurbVelocity</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise1D" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise1D">PinkNoise1D</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise1D.getTurbVelocity" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise1D.getTurbVelocity">getTurbVelocity</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise2D" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise2D">PinkNoise2D</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise2D.getTurbVelocity" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise2D.getTurbVelocity">getTurbVelocity</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D">PinkNoise3D</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D.getTurbVelocity" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoise3D.getTurbVelocity">getTurbVelocity</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator">PinkNoiseGenerator</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator.getValue" href="#MAPLEAF.ENV.TurbulenceModelling.PinkNoiseGenerator.getValue">getValue</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel">TurbulenceModel</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel.getTurbVelocity" href="#MAPLEAF.ENV.TurbulenceModelling.TurbulenceModel.getTurbVelocity">getTurbVelocity</a></code></li>
 </ul>
 </li>
 </ul>

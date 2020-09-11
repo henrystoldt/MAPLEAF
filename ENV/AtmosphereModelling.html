@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.ENV.AtmosphereModelling API documentation</title>
-<meta name="description" content="Atmospheric models used by `MAPLEAF.ENV.Environment.Environment` defined and initialized here" />
+<meta name="description" content="These classes model the change of air properties (Pressure, Density, etc... with altitude)" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,12 +22,12 @@
 <h1 class="title">Module <code>MAPLEAF.ENV.AtmosphereModelling</code></h1>
 </header>
 <section id="section-intro">
-<p>Atmospheric models used by <code><a title="MAPLEAF.ENV.Environment.Environment" href="Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code> defined and initialized here</p>
+<p>These classes model the change of air properties (Pressure, Density, etc&hellip; with altitude)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39; Atmospheric models used by `MAPLEAF.ENV.Environment.Environment` defined and initialized here &#39;&#39;&#39;
+<pre><code class="python">&#39;&#39;&#39; These classes model the change of air properties (Pressure, Density, etc... with altitude) &#39;&#39;&#39;
 
 import abc
 from bisect import bisect
@@ -41,7 +41,7 @@ from MAPLEAF.IO.SimDefinition import defaultConfigValues
 
 
 class AtmosphericModel(abc.ABC):
-    &#39;&#39;&#39; Defines the interface of atmospheric models returned by atmosphericModelFactory &#39;&#39;&#39;
+    &#39;&#39;&#39; Interface for all atmosphere models &#39;&#39;&#39;
     
     @abc.abstractmethod
     def getAirProperties(self, ASLElevation: float, time: float) -&gt; Sequence[float]:
@@ -55,7 +55,7 @@ class AtmosphericModel(abc.ABC):
         &#39;&#39;&#39;
         return
 
-def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
+def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; AtmosphericModel:
     &#39;&#39;&#39; 
         Provide either an atmosphericModel name (&#39;USStandardAtmosphere&#39; is only option right now that doesn&#39;t require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`)
@@ -78,7 +78,7 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
         # Return to reading from Environment for any subsequent parsing
         envDictReader.simDefDictPathToReadFrom = &#34;Environment&#34;
 
-        return ConstantAtmosphericProperties(constTemp, constPressure, constDensity, constViscosity)
+        return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
     elif atmosphericModel == &#34;TabulatedAtmosphere&#34;:
         try:
@@ -93,7 +93,7 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
     else:
         raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(atmosphericModel))
         
-class ConstantAtmosphericProperties(AtmosphericModel):
+class ConstantAtmosphere(AtmosphericModel):
     def __init__(self, temp, pressure, density, viscosity):
         self.airProperties = [ temp, pressure, density, viscosity ]
 
@@ -214,7 +214,7 @@ class USStandardAtmosphere(AtmosphericModel):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.AtmosphereModelling.atmosphericModelFactory"><code class="name flex">
-<span>def <span class="ident">atmosphericModelFactory</span></span>(<span>atmosphericModel=None, envDictReader=None)</span>
+<span>def <span class="ident">atmosphericModelFactory</span></span>(<span>atmosphericModel=None, envDictReader=None) ‑> <a title="MAPLEAF.ENV.AtmosphereModelling.AtmosphericModel" href="#MAPLEAF.ENV.AtmosphereModelling.AtmosphericModel">AtmosphericModel</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Provide either an atmosphericModel name ('USStandardAtmosphere' is only option right now that doesn't require additional info,
@@ -223,7 +223,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader.SubDictRea
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def atmosphericModelFactory(atmosphericModel=None, envDictReader=None):
+<pre><code class="python">def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; AtmosphericModel:
     &#39;&#39;&#39; 
         Provide either an atmosphericModel name (&#39;USStandardAtmosphere&#39; is only option right now that doesn&#39;t require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`)
@@ -246,7 +246,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader.SubDictRea
         # Return to reading from Environment for any subsequent parsing
         envDictReader.simDefDictPathToReadFrom = &#34;Environment&#34;
 
-        return ConstantAtmosphericProperties(constTemp, constPressure, constDensity, constViscosity)
+        return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
     elif atmosphericModel == &#34;TabulatedAtmosphere&#34;:
         try:
@@ -271,13 +271,13 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader.SubDictRea
 <span>class <span class="ident">AtmosphericModel</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the interface of atmospheric models returned by atmosphericModelFactory</p></div>
+<div class="desc"><p>Interface for all atmosphere models</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AtmosphericModel(abc.ABC):
-    &#39;&#39;&#39; Defines the interface of atmospheric models returned by atmosphericModelFactory &#39;&#39;&#39;
+    &#39;&#39;&#39; Interface for all atmosphere models &#39;&#39;&#39;
     
     @abc.abstractmethod
     def getAirProperties(self, ASLElevation: float, time: float) -&gt; Sequence[float]:
@@ -297,7 +297,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader.SubDictRea
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphericProperties" href="#MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphericProperties">ConstantAtmosphericProperties</a></li>
+<li><a title="MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphere" href="#MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphere">ConstantAtmosphere</a></li>
 <li><a title="MAPLEAF.ENV.AtmosphereModelling.TabulatedAtmosphere" href="#MAPLEAF.ENV.AtmosphereModelling.TabulatedAtmosphere">TabulatedAtmosphere</a></li>
 <li><a title="MAPLEAF.ENV.AtmosphereModelling.USStandardAtmosphere" href="#MAPLEAF.ENV.AtmosphereModelling.USStandardAtmosphere">USStandardAtmosphere</a></li>
 </ul>
@@ -332,17 +332,17 @@ def getAirProperties(self, ASLElevation: float, time: float) -&gt; Sequence[floa
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphericProperties"><code class="flex name class">
-<span>class <span class="ident">ConstantAtmosphericProperties</span></span>
+<dt id="MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphere"><code class="flex name class">
+<span>class <span class="ident">ConstantAtmosphere</span></span>
 <span>(</span><span>temp, pressure, density, viscosity)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Defines the interface of atmospheric models returned by atmosphericModelFactory</p></div>
+<div class="desc"><p>Interface for all atmosphere models</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class ConstantAtmosphericProperties(AtmosphericModel):
+<pre><code class="python">class ConstantAtmosphere(AtmosphericModel):
     def __init__(self, temp, pressure, density, viscosity):
         self.airProperties = [ temp, pressure, density, viscosity ]
 
@@ -593,7 +593,7 @@ mu(10^-5 Pa*s)</p></div>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphericProperties" href="#MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphericProperties">ConstantAtmosphericProperties</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphere" href="#MAPLEAF.ENV.AtmosphereModelling.ConstantAtmosphere">ConstantAtmosphere</a></code></h4>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.ENV.AtmosphereModelling.TabulatedAtmosphere" href="#MAPLEAF.ENV.AtmosphereModelling.TabulatedAtmosphere">TabulatedAtmosphere</a></code></h4>

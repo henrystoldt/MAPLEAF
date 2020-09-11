@@ -87,6 +87,8 @@ def computeTransonicPolyCoeffs(coneHalfAngle):
     return Interpolation.calculateCubicInterpCoefficients(1.0, 1.3, Cd_M1, Cd_M13, dCd_dMa_M1, dCd_dMa_M13)
 
 class Nosecone(FixedMass, BodyComponent):
+    &#39;&#39;&#39; Represent a Tangent Ogive Nosecone &#39;&#39;&#39;
+
     canConnectToComponentAbove = False # Overrides attribute from BodyComponent -&gt; Nosecone must be at top of rocket
 
     #### Initialization Functions ####
@@ -175,8 +177,7 @@ class Nosecone(FixedMass, BodyComponent):
     def _getWettedArea(self):
 
         if self.shape == &#34;tangentOgive&#34;:
-            #TODO Find an analytical solution if it exists - implement the one below
-                # Analytical solution in here: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            #TODO Analytical Solution: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
             baseRadius = self.baseDiameter / 2
             length = self.baseDiameter * self.aspectRatio
 
@@ -424,13 +425,14 @@ Pass in half angle in radians</p></div>
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all fixed-mass rocket components
-Implements functionality to read inertia and position info from sim definition file</p></div>
+<div class="desc"><p>Represent a Tangent Ogive Nosecone</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Nosecone(FixedMass, BodyComponent):
+    &#39;&#39;&#39; Represent a Tangent Ogive Nosecone &#39;&#39;&#39;
+
     canConnectToComponentAbove = False # Overrides attribute from BodyComponent -&gt; Nosecone must be at top of rocket
 
     #### Initialization Functions ####
@@ -519,8 +521,7 @@ Implements functionality to read inertia and position info from sim definition f
     def _getWettedArea(self):
 
         if self.shape == &#34;tangentOgive&#34;:
-            #TODO Find an analytical solution if it exists - implement the one below
-                # Analytical solution in here: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
+            #TODO Analytical Solution: https://www.rocketryforum.com/attachments/nosecone_eqn2-pdf.336812/
             baseRadius = self.baseDiameter / 2
             length = self.baseDiameter * self.aspectRatio
 

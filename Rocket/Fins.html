@@ -73,6 +73,7 @@ def getBusemannCoefficients(Mach, beta, gamma=1.4):
     return K1, K2, K3
 
 class FinSet(FixedMass, ActuatedSystem):
+    &#39;&#39;&#39; Class represents a set of n identical fins, all at the same longitudinal location, arranged axisymmetrically. Fin orientations can be controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` &#39;&#39;&#39;
 
     #### Initialization Functions ####
     def __init__(self, componentDictReader, rocket, stage):
@@ -458,6 +459,7 @@ class FinSet(FixedMass, ActuatedSystem):
             plt.plot (Xvals, Yvals, color = &#39;k&#39;)
 
 class Fin(FixedMass):
+    &#39;&#39;&#39; Represents a single fin in a FinSet &#39;&#39;&#39;
 
     def __init__(self, componentDictReader, parentFinSet, spanwiseDirection, rocket, stage):
 
@@ -584,13 +586,13 @@ class Fin(FixedMass):
 <span>(</span><span>componentDictReader, parentFinSet, spanwiseDirection, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all fixed-mass rocket components
-Implements functionality to read inertia and position info from sim definition file</p></div>
+<div class="desc"><p>Represents a single fin in a FinSet</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Fin(FixedMass):
+    &#39;&#39;&#39; Represents a single fin in a FinSet &#39;&#39;&#39;
 
     def __init__(self, componentDictReader, parentFinSet, spanwiseDirection, rocket, stage):
 
@@ -738,14 +740,13 @@ Implements functionality to read inertia and position info from sim definition f
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base class for all fixed-mass rocket components
-Implements functionality to read inertia and position info from sim definition file</p>
-<p>This is a conrete, implemented method, intended to be called by child classes</p></div>
+<div class="desc"><p>Class represents a set of n identical fins, all at the same longitudinal location, arranged axisymmetrically. Fin orientations can be controlled by a <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FinSet(FixedMass, ActuatedSystem):
+    &#39;&#39;&#39; Class represents a set of n identical fins, all at the same longitudinal location, arranged axisymmetrically. Fin orientations can be controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` &#39;&#39;&#39;
 
     #### Initialization Functions ####
     def __init__(self, componentDictReader, rocket, stage):

@@ -28,11 +28,11 @@ Fundamental data types used …" />
 Main class (6Dof) is <code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code>.<br>
 Fundamental data types used throughout the simulator defined in:</p>
 <ul>
-<li><code>Vector</code></li>
-<li><code>Quaternion</code> - represents orientation</li>
-<li><code>AngularVelocity</code> </li>
-<li><code><a title="MAPLEAF.Motion.Inertia" href="Inertia.html">MAPLEAF.Motion.Inertia</a></code> - stores component masses and moments of inertias</li>
-<li><code><a title="MAPLEAF.Motion.ForceMomentSystem" href="ForceMomentSystem.html">MAPLEAF.Motion.ForceMomentSystem</a></code>
+<li><code><a title="MAPLEAF.Motion.CythonVector.Vector" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></code></li>
+<li><code><a title="MAPLEAF.Motion.CythonQuaternion.Quaternion" href="CythonQuaternion.html#MAPLEAF.Motion.CythonQuaternion.Quaternion">Quaternion</a></code> - represents orientation</li>
+<li><code><a title="MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity" href="CythonAngularVelocity.html#MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity">AngularVelocity</a></code> </li>
+<li><code><a title="MAPLEAF.Motion.Inertia.Inertia" href="Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code> - stores component masses and moments of inertias</li>
+<li><code><a title="MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem" href="ForceMomentSystem.html#MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></code>
 - stores a repositionable force-moment system</li>
 </ul>
 <p>3Dof and 6DoF Rigid body states are composed of these fundamental data types and defined in <code><a title="MAPLEAF.Motion.RigidBodyStates" href="RigidBodyStates.html">MAPLEAF.Motion.RigidBodyStates</a></code></p>
@@ -47,11 +47,11 @@ Generalized Rigid body motion integration functionality.
 Main class (6Dof) is `MAPLEAF.Motion.RigidBody.RigidBody`.  
 Fundamental data types used throughout the simulator defined in:
 
-* `Vector`
-* `Quaternion` - represents orientation
-* `AngularVelocity` 
-* `Inertia` - stores component masses and moments of inertias
-* `ForceMomentSystem`  - stores a repositionable force-moment system
+* `CythonVector.Vector`
+* `CythonQuaternion.Quaternion` - represents orientation
+* `CythonAngularVelocity.AngularVelocity` 
+* `Inertia.Inertia` - stores component masses and moments of inertias
+* `ForceMomentSystem.ForceMomentSystem`  - stores a repositionable force-moment system
 
 3Dof and 6DoF Rigid body states are composed of these fundamental data types and defined in `RigidBodyStates`
 
@@ -66,7 +66,8 @@ Generalized constant and adaptive time stepping integrators are defined in `Inte
 <dl>
 <dt><code class="name"><a title="MAPLEAF.Motion.CompositeObject" href="CompositeObject.html">MAPLEAF.Motion.CompositeObject</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Both <code><a title="MAPLEAF.Rocket.Stage.Stage" href="../Rocket/Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> and <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> objects inherit from <code><a title="MAPLEAF.Motion.CompositeObject" href="CompositeObject.html">MAPLEAF.Motion.CompositeObject</a></code>.
+It implements functionality to add forces …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.CythonAngularVelocity" href="CythonAngularVelocity.html">MAPLEAF.Motion.CythonAngularVelocity</a></code></dt>
 <dd>
@@ -94,15 +95,19 @@ Generalized constant and adaptive time stepping integrators are defined in `Inte
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.Interpolation" href="Interpolation.html">MAPLEAF.Motion.Interpolation</a></code></dt>
 <dd>
-<div class="desc"><p>Linear interpolation on sorted lists of values and rigid body states</p></div>
+<div class="desc"><p>Interpolation rigid body states and scalar values.
+State interpolation used in flight animations.
+Scalar interpolation used for interpolation of …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.RigidBody" href="RigidBody.html">MAPLEAF.Motion.RigidBody</a></code></dt>
 <dd>
-<div class="desc"><p>Created Jan 7 2019 …</p></div>
+<div class="desc"><p>Classes that represent 3- and 6-DoF rigid bodies.
+Rigid body classes contain the logic for calculating rigid body state derivatives, given current …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.RigidBodyStates" href="RigidBodyStates.html">MAPLEAF.Motion.RigidBodyStates</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Define standard and time-derivative rigid body states.<br>
+These are defined in such a way that, for the purposes of Runge-Kutta motion integration, …</p></div>
 </dd>
 </dl>
 </section>

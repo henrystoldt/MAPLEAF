@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.Motion.CompositeObject API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inherit from `CompositeObject`.
+It implements functionality to add forces …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,11 +23,18 @@
 <h1 class="title">Module <code>MAPLEAF.Motion.CompositeObject</code></h1>
 </header>
 <section id="section-intro">
+<p>Both <code><a title="MAPLEAF.Rocket.Stage.Stage" href="../Rocket/Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> and <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> objects inherit from <code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></code>.
+It implements functionality to add forces and inertias from an arbitrary number of subcomponents.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
+<pre><code class="python">&#39;&#39;&#39;
+Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inherit from `CompositeObject`.
+It implements functionality to add forces and inertias from an arbitrary number of subcomponents.
+&#39;&#39;&#39;
+
+from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Rocket.RocketComponents import FixedMass
