@@ -379,7 +379,11 @@ def _get3DPlotSize(Positions, sizeMultiple=1.1):
     yRange = max(Positions[1]) - min(Positions[1])
     zRange = max(Positions[2]) - min(Positions[2])
 
-    axisDimensions = max([xRange, yRange, zRange]) * sizeMultiple
+    if max(xRange, yRange, zRange) == 0:
+        # For cases where the object does not move
+        axisDimensions = 1.0
+    else:
+        axisDimensions = max([xRange, yRange, zRange]) * sizeMultiple
     
     return axisDimensions, centerOfPlot
 
