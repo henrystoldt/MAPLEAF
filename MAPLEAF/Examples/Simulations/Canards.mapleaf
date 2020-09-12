@@ -2,11 +2,8 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK45Adaptive
-    timeStep 0.02 #sec
-
-    # Position, Velocity, AngularVelocity, FlightAnimation, None, CanardDeflections
+    timeStep 0.02 #sec, CanardDeflections
     plot Position Velocity AngularVelocity Deflection&canardsFin FlightAnimation
     loggingLevel 2
 

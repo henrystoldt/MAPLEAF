@@ -321,48 +321,48 @@ def _keepNTimeSteps(flights, nFramesToKeep=600):
         flights = [ flights ]
 
     maxLength = len(flights[0].times)
-    if maxLength > nFramesToKeep:
-        # Find the max flight time of any stage
-        maxTime = 0
-        for flight in flights:
-            if flight.times[-1] > maxTime:
-                maxTime = flight.times[-1]
+    
+    # Find the max flight time of any stage
+    maxTime = 0
+    for flight in flights:
+        if flight.times[-1] > maxTime:
+            maxTime = flight.times[-1]
 
-        newTimes = np.linspace(0, maxTime, num=nFramesToKeep)
+    newTimes = np.linspace(0, maxTime, num=nFramesToKeep)
 
-        for flight in flights:
-            # Interpolate flights to the times in newTimes
-            interpStates = []
+    for flight in flights:
+        # Interpolate flights to the times in newTimes
+        interpStates = []
 
-            interpCanardDefls = None
+        interpCanardDefls = None
+        if flight.actuatorDefls != None:
+            nCanards = len(flight.actuatorDefls)
+            interpCanardDefls = [ [] for i in range(nCanards) ]
+
+        for time in newTimes:
+            # SmallYIndex, SmallYWeight, largeYIndex, largeYWeight (for linear interpolation)
+            smY, smYW, lgY, lgYW = linInterpWeights(flight.times, time)
+
+            # Interpolate rigid body state
+            if type(flight.rigidBodyStates[smY]) == type(flight.rigidBodyStates[lgY]):
+                interpolatedState = interpolateRigidBodyStates(flight.rigidBodyStates[smY], flight.rigidBodyStates[lgY], smYW)
+            else:
+                # Handles the switch from 6DoF to 3DoF, where two adjacent states will be of different types
+                interpolatedState = flight.rigidBodyStates[lgY] if lgYW > smYW else flight.rigidBodyStates[smY]
+
+            interpStates.append(interpolatedState)
+
+            # Interpolate canard deflections
             if flight.actuatorDefls != None:
-                nCanards = len(flight.actuatorDefls)
-                interpCanardDefls = [ [] for i in range(nCanards) ]
-
-            for time in newTimes:
-                # SmallYIndex, SmallYWeight, largeYIndex, largeYWeight (for linear interpolation)
-                smY, smYW, lgY, lgYW = linInterpWeights(flight.times, time)
-
-                # Interpolate rigid body state
-                if type(flight.rigidBodyStates[smY]) == type(flight.rigidBodyStates[lgY]):
-                    interpolatedState = interpolateRigidBodyStates(flight.rigidBodyStates[smY], flight.rigidBodyStates[lgY], smYW)
-                else:
-                    # Handles the switch from 6DoF to 3DoF, where two adjacent states will be of different types
-                    interpolatedState = flight.rigidBodyStates[lgY] if lgYW > smYW else flight.rigidBodyStates[smY]
-
-                interpStates.append(interpolatedState)
-
-                # Interpolate canard deflections
-                if flight.actuatorDefls != None:
-                    for i in range(nCanards):
-                        # Interpolate the deflection of each canard
-                        interpolatedDeflection = flight.actuatorDefls[i][smY]*smYW + flight.actuatorDefls[i][lgY]*lgYW
-                        interpCanardDefls[i].append(interpolatedDeflection)
-            
-            flight.times = newTimes
-            flight.rigidBodyStates = interpStates
-            if flight.actuatorDefls != None:
-                flight.actuatorDefls = interpCanardDefls
+                for i in range(nCanards):
+                    # Interpolate the deflection of each canard
+                    interpolatedDeflection = flight.actuatorDefls[i][smY]*smYW + flight.actuatorDefls[i][lgY]*lgYW
+                    interpCanardDefls[i].append(interpolatedDeflection)
+        
+        flight.times = newTimes
+        flight.rigidBodyStates = interpStates
+        if flight.actuatorDefls != None:
+            flight.actuatorDefls = interpCanardDefls
 
     if unpackResult:
         return flights[0]

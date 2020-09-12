@@ -4,8 +4,6 @@
 SimControl{
     EndCondition Altitude
     EndConditionValue 0
-
-    # Position, Velocity, AngularVelocity, FlightAnimation, None
     plot FlightAnimation VelocityZ&NoseconeFZ
     
     # None, 1, 2

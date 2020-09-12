@@ -1240,7 +1240,7 @@ ParametricFinCase10{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
 		Rocket.Sustainer.TailFins.rootChord			0.1524
 		Rocket.Sustainer.TailFins.tipChord			0.0762
-		Rocket.Sustainer.TailFins.span				0.0381
+		Rocket.Sustainer.TailFins.span					0.0381
 		Rocket.Sustainer.TailFins.sweepAngle		63.435
 		Rocket.Sustainer.TailFins.thickness			0.0023622
 	}

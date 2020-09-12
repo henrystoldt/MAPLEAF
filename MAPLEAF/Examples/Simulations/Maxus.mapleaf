@@ -1,9 +1,9 @@
 # MAPLEAF
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
+#TODO: Complete this case
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
@@ -13,37 +13,23 @@ SimControl{
     loggingLevel    2
     RocketPlot      On
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
     plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
-    logResults True
 }
 
 Environment{
     LaunchSite.elevation 1 #m, ASL
 
-    AtmosphericPropertiesModel          USStandardAtmosphere
-
-    MeanWindModel                       Constant
-
     ConstantMeanWind{
         velocity                    ( 2 0 0 ) #m/s
     }
-
-    TurbulenceModel None
 }
 
 Rocket{
     class               Rocket
     position            (0 0 0) # m
-    initialDirection    (0 0 1)
-    velocity            (0 0 0) #m/s
-    angularVelocity     (0 0 0) #rad/s
 
     Sustainer{
-        position            (0 0 0) #m
-         
         class           Stage
-        stageNumber      0 #First and only stage
 
         Nosecone{
             class           Nosecone

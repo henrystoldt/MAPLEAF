@@ -4,7 +4,6 @@
 # WIND TUNNEL CASE
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
@@ -13,9 +12,7 @@ SimControl{
     loggingLevel    2
     RocketPlot      On
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
     plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
-    logResults True
 }
 
 Environment{

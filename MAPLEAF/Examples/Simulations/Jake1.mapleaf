@@ -4,7 +4,6 @@
 # This file is the base case for the OpenRocket 'SimpleRocket' validation cases
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
@@ -13,7 +12,6 @@ SimControl{
     loggingLevel    2
     RocketPlot      On
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
     plot    FlightAnimation Thrust AngularVelocityZ
 }
 

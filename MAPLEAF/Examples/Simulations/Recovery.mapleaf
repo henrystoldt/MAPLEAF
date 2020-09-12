@@ -3,14 +3,12 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
-    timeDiscretization RK4
+    timeDiscretization RK45Adaptive
     timeStep 0.05 #sec
 
     EndCondition Altitude
     EndConditionValue 0
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
     plot FlightAnimation
     loggingLevel 0
 }
@@ -20,11 +18,9 @@ Rocket{
     position            (0 0 15) # m
     initialDirection    (0.2 0.2 1)
     velocity            (0 0 50) #m/s
-    angularVelocity     (0 0 0) #rad/s
 
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
 
         # Constant mass properties - remove to use component-buildup mass/cg/MOI
         constCG             (0 0 -2.65) #m

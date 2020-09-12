@@ -3,11 +3,9 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
     plot Position Velocity AngularVelocity FlightAnimation
     logResults False
 }

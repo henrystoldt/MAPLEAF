@@ -3,7 +3,6 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK45Adaptive
     timeStep 0.04133 #sec
 
@@ -14,8 +13,6 @@ SimControl{
 
     EndCondition Time
     EndConditionValue 100
-
-    # Position, Velocity, AngularVelocity, FlightAnimation, None
     plot FlightAnimation AngularVelocity Orientation
     loggingLevel 2
 }

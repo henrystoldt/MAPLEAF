@@ -3,7 +3,6 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK45Adaptive
     timeStep 0.05 #sec
 

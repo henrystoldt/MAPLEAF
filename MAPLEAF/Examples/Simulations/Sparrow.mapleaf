@@ -3,19 +3,15 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
     EndCondition Apogee
-    EndConditionValue 6
 
     loggingLevel    2
     RocketPlot      On
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
-    plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
-    logResults True
+    plot Position Velocity AngularVelocity FlightAnimation
 }
 
 Environment{
@@ -32,13 +28,9 @@ Rocket{
     class               Rocket
     position            (0 0 0) # m
     initialDirection    (1 0 0)
-    velocity            (0 0 0) #m/s
-    angularVelocity     (0 0 0) #rad/s
 
     Sustainer{
         class           Stage
-        position        (0 0 0) #m
-        stageNumber      0 #First and only stage
 
         Nosecone{
             class           Nosecone

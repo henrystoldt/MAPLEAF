@@ -5,10 +5,6 @@ SimControl{
     timeDiscretization      RK4
     timeStep                0.1
 
-    TimeStepAdaptation{
-        controller  Constant
-    }
-
     EndCondition Time
     EndConditionValue 30 # sec
 

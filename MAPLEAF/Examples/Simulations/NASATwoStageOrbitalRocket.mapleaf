@@ -22,8 +22,6 @@ SimControl{
 
 Environment{
     EarthModel          WGS84 # Rotating ellipsoidal earth, J2 Gravity model
-
-    AtmosphericPropertiesModel  USStandardAtmosphere
 }
 
 Rocket{

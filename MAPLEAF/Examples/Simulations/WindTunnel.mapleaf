@@ -2,48 +2,33 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
     EndCondition Time
     EndConditionValue 0.05
 
-    log     ComponentForceEvaluations
     RocketPlot      On
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
-    plot None
-    logResults True
+    plot FlightAnimation
 }
 
 Environment{
     LaunchSite.elevation 10 #m, ASL
 
     AtmosphericPropertiesModel          Constant
-
-    MeanWindModel                       Constant
-
-    ConstantMeanWind{
-        velocity                    (0 0 0) #m/s
-    }
-
-    TurbulenceModel None
 }
 
 Rocket{             
     class               Rocket
     position            (0 0 1) # m
-    initialDirection    (0 0 1)
     velocity            (0 0 408.24) #m/s
-    angularVelocity     (0 0 0) #rad/s
 
     Aero{
         surfaceRoughness 0.0000005
     }
 
     Sustainer{
-        position            (0 0 0) #m
         constCG             (0 0 -0.90170)
          
         class           Stage

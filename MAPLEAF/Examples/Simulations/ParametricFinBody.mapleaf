@@ -1,5 +1,4 @@
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization RK4
     timeStep 0.01 #sec
 
@@ -9,9 +8,7 @@ SimControl{
     loggingLevel    2
     RocketPlot      On
 
-    # Position, Velocity, AngularVelocity, FlightAnimation
     plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
-    logResults True
 }
 
 Environment{
@@ -28,18 +25,15 @@ Rocket{
     class               Rocket
     position            (0 0 0) # m
     initialDirection    (1 0 0)
-    velocity            (0 0 0) #m/s
-    angularVelocity     (0 0 0) #rad/s
     
     Aero{
       addZeroLengthBoatTailsToAccountForBaseDrag false
+      surfaceRoughness      2e-6
     }
 
-    Sustainer{
-        position            (0 0 0) #m
-         
+    Sustainer{         
         class               Stage
-        stageNumber         0 #First and only stage
+
         constCG             (0 0 -0.5334) #m
 
         Nosecone{
@@ -51,8 +45,6 @@ Rocket{
             baseDiameter    0.0762
             aspectRatio     3  #length over diameter
             shape           tangentOgive
-
-            surfaceRoughness    2e-06
         }
 
         UpperBodyTube{
@@ -63,8 +55,6 @@ Rocket{
             MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
             outerDiameter   0.0762
             length          0.6858
-
-            surfaceRoughness    2e-06
         }
 
         Motor{
@@ -75,17 +65,17 @@ Rocket{
         TailFins{
             class           FinSet 
             mass            0.00245 # kg
-            position        (0 0 -14.66666) # Root chord ending, closest to nose cone
+            position        (0 0 -0.59436) # Root chord ending, closest to nose cone
             cg              (0 0 -0.024579) #
-            numFins         2
             MOI             (4.1639e-07 4.1639e-07 2.151e-06)
+
+            numFins         2
             firstFinAngle   90 # deg (defines the angle from the x-axis of the first fin in the set)
             sweepAngle      33.69 # measured from the normal line of the body tube
-            rootChord       1.3333 # m --> contact length between fin and body tube
-            tipChord        0.66666 # m
-            span            1 # m --> root chord to tip chord
+            rootChord       0.1524 # m --> contact length between fin and body tube
+            tipChord        0.0762 # m
+            span            0.11 # m --> root chord to tip chord
             thickness       0.002546 # m --> maximum thickness
-            surfaceRoughness    2e-06
         }
     }
 }

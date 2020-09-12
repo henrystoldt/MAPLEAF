@@ -3,21 +3,13 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization Euler
-    timeStep 0.01 #sec
-
-    # Position, Velocity, AngularVelocity, FlightAnimation, None, CanardDeflections
-    plot Position Velocity AngularVelocity FlightAnimation CanardDeflections
+    timeStep 0.01 # sec
+    
+    plot FlightAnimation
     loggingLevel 0
 
     EndCondition Apogee
-    EndConditionValue 2900
-}
-
-Environment{
-    initAltitude 0 #m, ASL
-    windSpeed ( 0 0 0 ) #m/s
 }
 
 Rocket{
@@ -25,24 +17,11 @@ Rocket{
     
     # Initial state
     position            (0 0 10) # m
-    initialDirection    (0 0 1)
     velocity            (0 0 40) #m/s
     angularVelocity     (0 0 1) #rad/s
 
-    # HIL{
-    #   quatUpdateRate  100
-    #   posUpdateRate   20
-    #   velUpdateRate   20
-    #   teensyComPort   COM20
-    #   imuComPort      COM15
-    #   teensyBaudrate  9600
-    #   imuBaudrate     57600
-    # }
-
-
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
 
         Nosecone{
             class           Nosecone
@@ -101,7 +80,6 @@ Rocket{
             cg              (0 0 -4.2762)
             
             numFins         4
-            firstFinAngle   0 # deg (defines the angle from the x-axis of the first fin in the set)
             sweepAngle      28.61 # deg
             rootChord       0.3048 # m
             tipChord        0.1524 # m
