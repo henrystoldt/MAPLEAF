@@ -9,7 +9,7 @@ SimControl{
 
     TimeStepAdaptation{
         controller PID
-        targetError         0.005
+        targetError         0.0005
     }
 
     EndCondition Time
@@ -25,8 +25,6 @@ Environment{
 
     EarthModel          None
 
-    #### Atmospheric Properties ####
-    #USStandardAtmosphere or Constant
     AtmosphericPropertiesModel          Constant
     ConstantAtmosphere{
         temp                            15 #Celsius
@@ -39,22 +37,17 @@ Environment{
 Rocket{
     class               Rocket
     position            (0 0 0) # m
-    initialDirection    (0 0 1)
-    velocity            (0 0 0) #m/s
     angularVelocity     (0 0.01 1) #rad/s
 
     Stage1{
-        
-         
-        class           Stage  
-        stageNumber      0 #First and only stage
+        class           Stage
 
         Mass{
             class           Mass
             mass            1
             position        (0 0 0)
             cg              (0 0 0)
-            MOI     (2 8 4)
+            MOI             (2 8 4)
         }
     }
 }

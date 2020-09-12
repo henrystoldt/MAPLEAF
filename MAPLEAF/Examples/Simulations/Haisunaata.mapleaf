@@ -10,8 +10,7 @@ SimControl{
     loggingLevel    2
     RocketPlot      On
 
-    plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
-    logResults True
+    plot Position Velocity AngularVelocity FlightAnimation TailFinsM TailFinsF
 }
 
 Environment{
@@ -31,15 +30,10 @@ Environment{
 Rocket{         
     class               Rocket
 
-    # Initial kinematic state
     position            (0 0 0) # m
-    initialDirection    (0 0 1)
-    velocity            (0 0 0) #m/s
-    angularVelocity     (0 0 0) #rad/s
 
     Sustainer{
         class           Stage
-        stageNumber     2 #Second stage
 
         Nosecone{            
             class           Nosecone
@@ -83,6 +77,7 @@ Rocket{
             mass            0.107 # kg
             position        (0 0 -1.605)
             cg              (0 0 -0.165)
+
             numFins         3
             sweepAngle      58.5704 # deg
             rootChord       0.285 # m

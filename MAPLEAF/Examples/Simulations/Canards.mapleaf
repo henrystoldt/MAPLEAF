@@ -25,7 +25,6 @@ Rocket{
     position            (0 0 10) # m
     initialDirection    (0 0.1 1)
     velocity            (0 0 10) #m/s
-    angularVelocity     (0 0 0) #rad/s
 
 
     ControlSystem{

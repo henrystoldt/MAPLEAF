@@ -145,17 +145,17 @@ SimControl{
 Environment{
 
     LaunchSite{
-        elevation           0 #m, Relative to sea level - Impacts the acceleration of gravity at launch        
+        elevation               0 #m, Relative to sea level - Impacts the acceleration of gravity at launch        
 
         # Lat / Lon only influence simulations using the 'Round' or 'WGS84' earth models
-        latitude            0 # Degrees, 90 = North Pole, -90 = South Pole, 0 = Equator
-        longitude           0 # Degrees, 0 = Prime Meridian (Greenwich, England), +'ve is East, -'ve is West
+        latitude                0 # Degrees, 90 = North Pole, -90 = South Pole, 0 = Equator
+        longitude               0 # Degrees, 0 = Prime Meridian (Greenwich, England), +'ve is East, -'ve is West
 
         # A launch rail will prevent the rocket from deviating from the direction specified by Rocket.initialDirection
             # Until it has travelled the length of the launch rail from its starting location
             # The launch rail will also prevent downwards motion
             # A length of 0 = no launch rail
-        railLength        5 #m
+        railLength              5 #m
     }
 
     # Defines how the earth is modelled
@@ -169,64 +169,64 @@ Environment{
                                     # Tides neglected
                                     # Earth is treated as an inertial frame, accelerations due to rotation about the sun/galaxy/etc... are neglected
                                     # Solar radiation pressure neglected
-    EarthModel              Flat
+    EarthModel                  Flat
 
     #### Atmospheric Properties ####
     # USStandardAtmosphere or Constant or TabulatedAtmosphere
         # USStandardAtmosphere computes the exact US Standard Atmosphere
-    AtmosphericPropertiesModel          USStandardAtmosphere
+    AtmosphericPropertiesModel  USStandardAtmosphere
 
     TabulatedAtmosphere{
         # Tabulated atmospheres are expected to match the format of US_Standard_Atmosphere.txt
             # Should have the following columns h(m ASL) T(K) P(Pa) rho(kg/m^3) mu(10^-5 Pa*s)
-        filePath                        MAPLEAF/ENV/US_Standard_Atmosphere.txt
+        filePath                MAPLEAF/ENV/US_Standard_Atmosphere.txt
     }
 
     ConstantAtmosphere{
-        temp                            15 #Celsius
-        pressure                        101325 #Pa
-        density                         1.225 #kg/m3
-        viscosity                       1.789e-5 #Pa*s
+        temp                    15 #Celsius
+        pressure                101325 #Pa
+        density                 1.225 #kg/m3
+        viscosity               1.789e-5 #Pa*s
     }
 
     #### Mean Wind Modelling ####
     # Constant, SampledGroundWindData, SampledRadioSondeData,  Hellman, CustomWindProfile
-    MeanWindModel                       SampledRadioSondeData
+    MeanWindModel               Constant
 
     ConstantMeanWind{
-        velocity                    ( -10 0 0 ) # m/s
+        velocity                ( -10 0 0 ) # m/s
     }
 
     SampledGroundWindData{
-        launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
+        launchMonth             Mar # Three letter month code - uses yearly avg data if absent
         # Place1 name, weighting coefficient1, Place2 name, weighting coefficient2, ... - Corresponding wind rose data files must be in MAPLEAF/Examples/Wind
-        locationsToSample               Suffield 0.52 MedecineHat 0.30 Schuler 0.18
+        locationsToSample       Suffield 0.52 MedecineHat 0.30 Schuler 0.18
         #TODO: randomSeed
     }
 
     SampledRadioSondeData{
-        launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
+        launchMonth             Mar # Three letter month code - uses yearly avg data if absent
         # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in MAPLEAF/Examples/Wind
-        locationsToSample               Edmonton 0.48 Glasgow 0.52 
-        locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
-        randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
+        locationsToSample       Edmonton 0.48 Glasgow 0.52 
+        locationASLAltitudes    710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
+        randomSeed              228010 # Set to remove randomization from sampling, have a repeatable simulation
     }
 
     Hellman{
         # Constant, or SampledGroundWindData - will retrieve ground wind info from those dictionaries above
-        groundWindModel                 Constant
+        groundWindModel         Constant
 
-        alphaCoeff                      0.1429
-        altitudeLimit                   1000 # m, constant wind velocity above this altitude
+        alphaCoeff              0.1429
+        altitudeLimit           1000 # m, constant wind velocity above this altitude
     }
 
     CustomWindProfile{
-        filePath                        MAPLEAF/Examples/Wind/testWindProfile.txt # Example file here
+        filePath                MAPLEAF/Examples/Wind/testWindProfile.txt # Example file here
     }
 
     #### Turbulence / Gust Modelling ####
     # None, PinkNoise1D (Amplitude modulation only), PinkNoise2D (x-y plane), PinkNoise3D, customSineGust
-    TurbulenceModel PinkNoise2D
+    TurbulenceModel             None
     turbulenceOffWhenUnderChute True # Increases time step we can take while descending
 
     PinkNoiseModel{
@@ -273,15 +273,15 @@ Rocket{
     class               Rocket
 
     # Initial kinematic state
-    position            (0 0 15) # m - initial position above ground level of the rocket tip at the launch location. Set launch site elevation using Environment.LaunchSite.elevation
-    velocity            (0 0 50) #m/s - initial velocity
-    angularVelocity     (0 0 0) #rad/s - initial angular velocity - defined in the rocket's LOCAL frame
+    position            (0 0 10) # m - initial position above ground level (AGL) of the rocket's CG. Set launch site elevation using Environment.LaunchSite.elevation
+    velocity            (0 0 0) # m/s - initial velocity
+    angularVelocity     (0 0 0) # rad/s - initial angular velocity - defined in the rocket's LOCAL frame
     
-    # Initial Orientation    
+    ## Initial Orientation ##   
     # Specify EITHER an initial direction (in which local Z-axis will point, relative to the Launch Tower Frame
     initialDirection    (0 0 1) # (non-dimensional) - rocket/launch tower will initially point in this direction, where Z is up, X is east, and Y is North
     # OR an rotationAxis and a rotationAngle, which will rotate the vehicle relative to the Launch Tower Frame
-    rotationAxis        (1 1 0) # Any Vector
+    rotationAxis        (1 1 0) # Any Vector, defined in launch tower ENU frame
     rotationAngle       180 # degrees
     
     Aero{

@@ -669,8 +669,7 @@ class SimDefinition():
                     defaultValue = self.defaultDict[classBasedDefaultKey]
 
                     # Track that we've used a default value
-                    if classBasedDefaultKey not in self.defaultValuesUsed:
-                        self.defaultValuesUsed.add(classBasedDefaultKey)
+                    self.defaultValuesUsed.add(classBasedDefaultKey)
                     
                     # if the classKey was useful, count it as 'used'
                     if classKey in self.unaccessedFields: 
