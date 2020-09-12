@@ -23,12 +23,34 @@ Environment{
     # Constant, SampledGroundWindData, SampledRadioSondeData,  Hellman, CustomWindProfile
     MeanWindModel                       SampledRadioSondeData
 
+    ConstantMeanWind{
+        velocity                    ( -10 0 0 ) #m/s
+    }
+
+    SampledGroundWindData{
+        launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
+        # Place1 name, weighting coefficient1, Place2 name, weighting coefficient2, ... - Corresponding wind rose data files must be in MAPLEAF/Examples/Wind
+        locationsToSample               Suffield 0.52 MedecineHat 0.30 Schuler 0.18
+    }
+
     SampledRadioSondeData{
         launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
         # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in MAPLEAF/Examples/Wind
         locationsToSample               Edmonton 0.48 Glasgow 0.52 
         locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
         randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
+    }
+
+    Hellman{
+        # Constant, or SampledGroundWindData - will retrieve ground wind info from those dictionaries
+        groundWindModel                 Constant
+
+        alphaCoeff                      0.1429
+        altitudeLimit                   1000 #m, constant wind velocity above this altitude
+    }
+
+    CustomWindProfile{
+        filePath                        MAPLEAF/Examples/Wind/testWindProfile.txt # Example file here
     }
 
 
@@ -48,6 +70,14 @@ Environment{
         randomSeed1             63583 # Integer
         randomSeed2             63583 # Integer
         randomSeed3             63583 # Integer
+    }
+
+    CustomSineGust{
+        startAltitude           2000 #m Altitude AGL of base of gust layer
+        magnitude               9 #m/s - 6m/s for < 300m, 9m/s for > 1000m, as per NASA handbook
+        sineBlendDistance       30 #m - gust velocity blended into velocity profile by sine curve over this vertical distance (start and end)
+        thickness               200 #m - Vertical size of gust (~0-200m)
+        direction               (0 1 0 ) # Gust will align with current wind velocity if not given
     }
 }
 

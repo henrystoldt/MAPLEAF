@@ -10,8 +10,6 @@
 SimControl{
     timeDiscretization  RK45Adaptive
     timeStep            0.05 #sec
-    
-    RocketPlot          On
 
     TimeStepAdaptation{
         controller PID
