@@ -27,17 +27,6 @@ Rocket{
     velocity            (0 0 10) #m/s
     angularVelocity     (0 0 0) #rad/s
 
-    
-    # Hardware in the Loop Controller
-    # HIL{
-    #     quatUpdateRate  100
-    #     posUpdateRate   20
-    #     velUpdateRate   20
-    #     teensyComPort   COM20
-    #     imuComPort      COM15
-    #     teensyBaudrate  9600
-    #     imuBaudrate     57600
-    # }
 
     ControlSystem{
         desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
@@ -100,8 +89,6 @@ Rocket{
             cg              (0 0 -0.8636)
 
             numFins         4
-            firstFinAngle   0 # deg (Must be between 0 and 90)
-
             sweepAngle      30 # deg
             rootChord       0.1524 # m
             tipChord        0.0762 # m
@@ -109,8 +96,6 @@ Rocket{
  
             thickness       0.0047625 # m
             surfaceRoughness    0.000050
-
-            finCantAngle    0
 
             Actuators{
                 class                   Actuator
@@ -149,16 +134,12 @@ Rocket{
             cg              (0 0 -4.2762)
             
             numFins         4
-            firstFinAngle   0 # deg (defines the angle from the x-axis of the first fin in the set)
             sweepAngle      28.61 # deg
             rootChord       0.3048 # m
             tipChord        0.1524 # m
             span            0.1397 # m
             thickness       0.0047625 # m
             surfaceRoughness    0.000050
- 
-            finCantAngle    0 # Initial fin angle for all fins in set, defined using the RHR - line radially out from rocket's longnitudinal axis       
-
         }
 
         RecoverySystem{

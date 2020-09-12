@@ -3,11 +3,9 @@
 
 
 SimControl{
-    # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
     timeDiscretization Euler
     timeStep 0.002 #sec
 
-    # Position, Velocity, AngularVelocity, FlightAnimation, None, CanardDeflections
     plot None
     loggingLevel 0
 }
@@ -21,10 +19,6 @@ Rocket{
     velocity            (0 0 0) #m/s
     angularVelocity     (0 0 1) #rad/s
 
-    # Constant mass properties - remove to use component-buildup mass/cg/MOI
-    constCG             (0 0 -2.05) #m
-    constMass           50 # kg
-    constMOI            (85 85 0.5) # kg*m^2
 
     Aero{
         surfaceRoughness    0.000050
@@ -32,7 +26,11 @@ Rocket{
 
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
+
+        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.05) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
 
         Nosecone{
             class           Nosecone

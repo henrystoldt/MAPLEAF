@@ -102,6 +102,8 @@ defaultConfigValues = {
     "FinSet.TrailingEdge.shape":                        "Tapered",
     "FinSet.numFinSpanSlicesForIntegration":            "10",
 
+    "Nosecone.shape":                                   "tangentOgive",
+
     "BoatTail.shape":                                   "cone",
 
     "Mass.cg":                                          "(0 0 0)",

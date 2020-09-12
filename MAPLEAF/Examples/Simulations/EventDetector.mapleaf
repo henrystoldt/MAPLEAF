@@ -31,14 +31,13 @@ Rocket{
     velocity            (0 0 50) #m/s
     angularVelocity     (0 0 0) #rad/s
 
-    # Constant mass properties - remove to use component-buildup mass/cg/MOI
-    constCG             (0 0 -2.65) #m
-    constMass           50 # kg
-    constMOI            (85 85 0.5) # kg*m^2
-
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
+
+        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.65) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
 
         Nosecone{
             class           Nosecone
@@ -82,8 +81,8 @@ Rocket{
             mass            1 # kg
             position        (0 0 -4.011)
             cg              (0 0 0)
+            
             numFins         4
-            firstFinAngle   0 # deg (defines the angle from the x-axis of the first fin in the set)
             sweepAngle      28.61 # deg
             rootChord       0.3048 # m
             tipChord        0.1524 # m

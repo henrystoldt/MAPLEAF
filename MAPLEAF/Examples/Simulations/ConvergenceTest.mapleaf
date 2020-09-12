@@ -1,6 +1,7 @@
 # MAPLEAF
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
+# Very short sim, used to check convergenceSimRunners are working
 
 SimControl{
     timeDiscretization RK4
@@ -9,7 +10,7 @@ SimControl{
     EndCondition Time
     EndConditionValue 5
 
-    plot None
+    plot FlightAnimation
     loggingLevel 1
 
     TimeStepAdaptation{
@@ -17,7 +18,6 @@ SimControl{
         targetError         1.39406981820795E-6 # Controls adaptive time step methods - Combined metric of position, velocity, orientation, angular velocity error
         minFactor           0.3 # Min time step adaptation factor
         maxFactor           1.5 # Max time step adaptation factor
-        Elementary.safetyFactor        0.9 # Safety factor applied to time step adaptation factor - used by elementary controller
         minTimeStep         0.0001
         maxTimeStep         5
         PID.coefficients    -0.002 0 -0.02 # P I D
@@ -26,9 +26,7 @@ SimControl{
     RocketPlot On
 }
 
-Environment{
-    LaunchSite.elevation 755 #m, ASL
-}
+Environment.LaunchSite.elevation 755 #m, ASL
 
 Rocket{
     class               Rocket
@@ -37,14 +35,13 @@ Rocket{
     velocity            (0 0 50) #m/s
     angularVelocity     (0 0 0) #rad/s
 
-    # Constant mass properties - remove to use component-buildup mass/cg/MOI
-    constCG             (0 0 -2.65) #m
-    constMass           50 # kg
-    constMOI            (85 85 0.5) # kg*m^2
-
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
+
+        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.65) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
 
         Nosecone{
             class           Nosecone

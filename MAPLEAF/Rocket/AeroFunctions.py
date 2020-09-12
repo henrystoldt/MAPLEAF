@@ -341,11 +341,15 @@ def getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(state, environ
     airVel = getLocalFrameAirVel(state, environment).length()
     # Use total velocity to redimensionalize coefficient
     totalVelSquared = airVel**2 + rollingSurfaceVel**2
-    totalSurfaceForce = skinFrictionDragCoefficient * 0.5 * totalVelSquared * environment.Density * Aref
-    # Calculate roll damping component of total friction force using similar triangles
-    rollDampingForce = totalSurfaceForce * (rollingSurfaceVel/math.sqrt(totalVelSquared))
-    # Calculate resulting moment
-    rollDampingMoment = Vector(0,0, -rollDampingForce*avgRadius)
+
+    if totalVelSquared == 0:
+        return skinFrictionDragCoefficient, Vector(0,0,0)
+    else:
+        totalSurfaceForce = skinFrictionDragCoefficient * 0.5 * totalVelSquared * environment.Density * Aref
+        # Calculate roll damping component of total friction force using similar triangles
+        rollDampingForce = totalSurfaceForce * (rollingSurfaceVel/math.sqrt(totalVelSquared))
+        # Calculate resulting moment
+        rollDampingMoment = Vector(0,0, -rollDampingForce*avgRadius)
     
     return skinFrictionDragCoefficient, rollDampingMoment
 

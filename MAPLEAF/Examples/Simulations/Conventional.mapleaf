@@ -1,7 +1,7 @@
 # MAPLEAF
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
-# This file used for aerodynamics validation
+# WIND TUNNEL CASE
 
 SimControl{
     # Euler, RK2Midpoint, RK2Heun, RK4 - Implemented in Integrator class in rigidBody.py
@@ -36,9 +36,8 @@ Rocket{
     angularVelocity     (0 0 0) #rad/s
 
     Sustainer{
-        position            (0 0 0) #m
-
         class               Stage
+
         constCG             (0 0 -8) #m
 
         Nosecone{
@@ -71,8 +70,9 @@ Rocket{
             mass            0.00245 # kg
             position        (0 0 -14.66666) # Root chord ending, closest to nose cone
             cg              (0 0 -0.024579) #
-            numFins         4
             MOI             (4.1639e-07 4.1639e-07 2.151e-06)
+
+            numFins         4
             sweepAngle      33.69 # measured from the normal line of the body tube
             rootChord       1.3333 # m --> contact length between fin and body tube
             tipChord        0.66666 # m
