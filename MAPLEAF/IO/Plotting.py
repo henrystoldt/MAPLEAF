@@ -420,9 +420,9 @@ def _createAnimationFigure(axisDimensions, centerOfPlot):
     ax.set_xlim3d([centerOfPlot[0] - halfDim, centerOfPlot[0] + halfDim])
     ax.set_ylim3d([centerOfPlot[1] - halfDim, centerOfPlot[1] + halfDim])
     ax.set_zlim3d([centerOfPlot[2] - halfDim, centerOfPlot[2] + halfDim])
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
+    ax.set_xlabel('X (m)')
+    ax.set_ylabel('Y (m)')
+    ax.set_zlabel('Z (m)')
 
     return fig, ax
 
