@@ -1,8 +1,7 @@
 # MAPLEAF
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
-RocketName{
-    class               Rocket
+Rocket{
     velocity            (10 0 50) #m/s
 
     Sustainer{

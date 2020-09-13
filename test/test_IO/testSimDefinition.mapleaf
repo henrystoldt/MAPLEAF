@@ -17,7 +17,6 @@ Environment{
 
 Rocket{         
     name                airlab
-    class               Rocket
     position            (0 0 10) #m, AGL
     initialDirection    (0 0.4 1)
     velocity            (0 0 0) #m/s

@@ -22,7 +22,6 @@ Environment{
 }
 
 Rocket{
-    class               Rocket
     position            (0 0 0) # m
 
     Sustainer{

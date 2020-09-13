@@ -3,7 +3,6 @@
 
 
 Rocket{
-    class               Rocket
     position            (0 0 10) # m
     initialDirection    (0 0.25 1)
     velocity            (0 0 0) #m/s

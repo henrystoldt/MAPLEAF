@@ -16,7 +16,6 @@ SimControl{
 }
 
 Rocket{             
-    class               Rocket
     
     # Initial state
     position            (0 0 10) # m

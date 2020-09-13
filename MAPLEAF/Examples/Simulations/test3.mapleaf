@@ -2,7 +2,6 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Rocket{
-    class               Rocket
     position            (0 0 4) # m
     velocity            (1 0 200) #m/s
     angularVelocity     (0 0 1) #rad/s

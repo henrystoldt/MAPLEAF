@@ -270,7 +270,6 @@ Environment{
 
 Rocket{   
     name                VeryComplicatedRocket_UsingEveryPossibleOption      
-    class               Rocket
 
     # Initial kinematic state
     position            (0 0 10) # m - initial position above ground level (AGL) of the rocket's CG. Set launch site elevation using Environment.LaunchSite.elevation

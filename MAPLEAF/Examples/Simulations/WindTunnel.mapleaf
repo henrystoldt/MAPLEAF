@@ -20,7 +20,6 @@ Environment{
 }
 
 Rocket{             
-    class               Rocket
     position            (0 0 1) # m
     velocity            (0 0 408.24) #m/s
 

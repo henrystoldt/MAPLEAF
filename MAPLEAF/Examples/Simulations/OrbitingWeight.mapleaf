@@ -23,7 +23,6 @@ Environment{
 }
 
 Rocket{
-    class               Rocket
     position            (0 0 0) # meters
     initialDirection    (1 0 0) # Orbit around equator
     velocity            (7701 0 0) # m/s Orbit around equator (heading east)
