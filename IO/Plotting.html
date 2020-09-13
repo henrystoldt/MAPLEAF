@@ -354,48 +354,48 @@ def _keepNTimeSteps(flights, nFramesToKeep=600):
         flights = [ flights ]
 
     maxLength = len(flights[0].times)
-    if maxLength &gt; nFramesToKeep:
-        # Find the max flight time of any stage
-        maxTime = 0
-        for flight in flights:
-            if flight.times[-1] &gt; maxTime:
-                maxTime = flight.times[-1]
+    
+    # Find the max flight time of any stage
+    maxTime = 0
+    for flight in flights:
+        if flight.times[-1] &gt; maxTime:
+            maxTime = flight.times[-1]
 
-        newTimes = np.linspace(0, maxTime, num=nFramesToKeep)
+    newTimes = np.linspace(0, maxTime, num=nFramesToKeep)
 
-        for flight in flights:
-            # Interpolate flights to the times in newTimes
-            interpStates = []
+    for flight in flights:
+        # Interpolate flights to the times in newTimes
+        interpStates = []
 
-            interpCanardDefls = None
+        interpCanardDefls = None
+        if flight.actuatorDefls != None:
+            nCanards = len(flight.actuatorDefls)
+            interpCanardDefls = [ [] for i in range(nCanards) ]
+
+        for time in newTimes:
+            # SmallYIndex, SmallYWeight, largeYIndex, largeYWeight (for linear interpolation)
+            smY, smYW, lgY, lgYW = linInterpWeights(flight.times, time)
+
+            # Interpolate rigid body state
+            if type(flight.rigidBodyStates[smY]) == type(flight.rigidBodyStates[lgY]):
+                interpolatedState = interpolateRigidBodyStates(flight.rigidBodyStates[smY], flight.rigidBodyStates[lgY], smYW)
+            else:
+                # Handles the switch from 6DoF to 3DoF, where two adjacent states will be of different types
+                interpolatedState = flight.rigidBodyStates[lgY] if lgYW &gt; smYW else flight.rigidBodyStates[smY]
+
+            interpStates.append(interpolatedState)
+
+            # Interpolate canard deflections
             if flight.actuatorDefls != None:
-                nCanards = len(flight.actuatorDefls)
-                interpCanardDefls = [ [] for i in range(nCanards) ]
-
-            for time in newTimes:
-                # SmallYIndex, SmallYWeight, largeYIndex, largeYWeight (for linear interpolation)
-                smY, smYW, lgY, lgYW = linInterpWeights(flight.times, time)
-
-                # Interpolate rigid body state
-                if type(flight.rigidBodyStates[smY]) == type(flight.rigidBodyStates[lgY]):
-                    interpolatedState = interpolateRigidBodyStates(flight.rigidBodyStates[smY], flight.rigidBodyStates[lgY], smYW)
-                else:
-                    # Handles the switch from 6DoF to 3DoF, where two adjacent states will be of different types
-                    interpolatedState = flight.rigidBodyStates[lgY] if lgYW &gt; smYW else flight.rigidBodyStates[smY]
-
-                interpStates.append(interpolatedState)
-
-                # Interpolate canard deflections
-                if flight.actuatorDefls != None:
-                    for i in range(nCanards):
-                        # Interpolate the deflection of each canard
-                        interpolatedDeflection = flight.actuatorDefls[i][smY]*smYW + flight.actuatorDefls[i][lgY]*lgYW
-                        interpCanardDefls[i].append(interpolatedDeflection)
-            
-            flight.times = newTimes
-            flight.rigidBodyStates = interpStates
-            if flight.actuatorDefls != None:
-                flight.actuatorDefls = interpCanardDefls
+                for i in range(nCanards):
+                    # Interpolate the deflection of each canard
+                    interpolatedDeflection = flight.actuatorDefls[i][smY]*smYW + flight.actuatorDefls[i][lgY]*lgYW
+                    interpCanardDefls[i].append(interpolatedDeflection)
+        
+        flight.times = newTimes
+        flight.rigidBodyStates = interpStates
+        if flight.actuatorDefls != None:
+            flight.actuatorDefls = interpCanardDefls
 
     if unpackResult:
         return flights[0]
@@ -412,7 +412,11 @@ def _get3DPlotSize(Positions, sizeMultiple=1.1):
     yRange = max(Positions[1]) - min(Positions[1])
     zRange = max(Positions[2]) - min(Positions[2])
 
-    axisDimensions = max([xRange, yRange, zRange]) * sizeMultiple
+    if max(xRange, yRange, zRange) == 0:
+        # For cases where the object does not move
+        axisDimensions = 1.0
+    else:
+        axisDimensions = max([xRange, yRange, zRange]) * sizeMultiple
     
     return axisDimensions, centerOfPlot
 
@@ -453,9 +457,9 @@ def _createAnimationFigure(axisDimensions, centerOfPlot):
     ax.set_xlim3d([centerOfPlot[0] - halfDim, centerOfPlot[0] + halfDim])
     ax.set_ylim3d([centerOfPlot[1] - halfDim, centerOfPlot[1] + halfDim])
     ax.set_zlim3d([centerOfPlot[2] - halfDim, centerOfPlot[2] + halfDim])
-    ax.set_xlabel(&#39;X&#39;)
-    ax.set_ylabel(&#39;Y&#39;)
-    ax.set_zlabel(&#39;Z&#39;)
+    ax.set_xlabel(&#39;X (m)&#39;)
+    ax.set_ylabel(&#39;Y (m)&#39;)
+    ax.set_zlabel(&#39;Z (m)&#39;)
 
     return fig, ax
 

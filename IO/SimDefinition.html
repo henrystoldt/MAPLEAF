@@ -137,6 +137,8 @@ defaultConfigValues = {
     &#34;FinSet.TrailingEdge.shape&#34;:                        &#34;Tapered&#34;,
     &#34;FinSet.numFinSpanSlicesForIntegration&#34;:            &#34;10&#34;,
 
+    &#34;Nosecone.shape&#34;:                                   &#34;tangentOgive&#34;,
+
     &#34;BoatTail.shape&#34;:                                   &#34;cone&#34;,
 
     &#34;Mass.cg&#34;:                                          &#34;(0 0 0)&#34;,
@@ -702,8 +704,7 @@ class SimDefinition():
                     defaultValue = self.defaultDict[classBasedDefaultKey]
 
                     # Track that we&#39;ve used a default value
-                    if classBasedDefaultKey not in self.defaultValuesUsed:
-                        self.defaultValuesUsed.add(classBasedDefaultKey)
+                    self.defaultValuesUsed.add(classBasedDefaultKey)
                     
                     # if the classKey was useful, count it as &#39;used&#39;
                     if classKey in self.unaccessedFields: 
@@ -1610,8 +1611,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
                     defaultValue = self.defaultDict[classBasedDefaultKey]
 
                     # Track that we&#39;ve used a default value
-                    if classBasedDefaultKey not in self.defaultValuesUsed:
-                        self.defaultValuesUsed.add(classBasedDefaultKey)
+                    self.defaultValuesUsed.add(classBasedDefaultKey)
                     
                     # if the classKey was useful, count it as &#39;used&#39;
                     if classKey in self.unaccessedFields: 
