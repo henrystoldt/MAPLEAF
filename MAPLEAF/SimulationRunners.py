@@ -13,6 +13,7 @@ import sys
 from copy import deepcopy
 from distutils.util import strtobool
 from math import pi
+from typing import List
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -37,7 +38,6 @@ class SingleSimRunner():
                 * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that's already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         '''
-
         self.simDefinition = None
         ''' Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation '''
 
@@ -695,6 +695,28 @@ def runParallelMonteCarloSim(simDefinition):
 
     print("1: {}".format(results))
     print("2: {}".format(results2))
+
+class RocketOptimizer():
+    ''' 
+        Reads SimDefinition file and Optimization dictionary, instantiates child sim runner to run simulation.
+        Computes optimization metrics
+        Creates an optimization log file unless SimControl.loggingLevel = 0
+    '''
+
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        ''' Reads optimization dict, intializes variable vectors, constraints etc. '''
+        pass
+
+    def evaluateMetric(variableValues: List[float]) -> float:
+        ''' 
+
+            1. Creates modified simulation definition from variableVector, checks constraints, ajusts dependent variables
+            2. Instantiates (Single or Monte Carlo) simulation runner + runs sim
+            3. Computes + returns metric
+
+            References to this function can be passed to an external optimizer.
+        '''
+        pass
 
 class ConvergenceSimRunner(SingleSimRunner):
     '''

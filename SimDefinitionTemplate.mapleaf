@@ -64,6 +64,26 @@
 
 #### All possible options to define simulations ####
 
+Optimization{
+    # Lambda function, with a selection of common variables available
+    metric                                      Apogee*12/dryWeight
+    # Custom function, gets passed log file paths
+    metric                                      MAPLEAF.Optimization.Metrics:CustomFunctionName
+    
+    IndependentVariables{
+        bodyLength                              Rocket.SecondStage.BodyTube.length
+    }
+    
+    DependentVariables{
+        Rocket.SecondStage.BoatTail.position    (0 0 -2.75+(bodyLength-3.5538))
+    }
+
+    Constraints{
+        bodyLength                              <10
+    }
+
+}
+
 MonteCarlo{
     randomSeed      458623 # (optional) for repeatability
     numberRuns      10
