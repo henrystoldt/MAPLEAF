@@ -6,7 +6,7 @@ It implements functionality to add forces and inertias from an arbitrary number 
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Rocket.RocketComponents import FixedMass
+from MAPLEAF.Rocket import FixedMass
 from MAPLEAF.Motion.CythonVector import Vector
 
 class CompositeObject():

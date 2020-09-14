@@ -9,21 +9,20 @@
 
 import math
 import unittest
-from test.testUtilities import assertForceMomentSystemsAlmostEqual, assertIterablesAlmostEqual
+from test.testUtilities import (assertForceMomentSystemsAlmostEqual,
+                                assertIterablesAlmostEqual)
 
-from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.Main import SingleSimRunner
+from MAPLEAF.Motion.CythonQuaternion import Quaternion
+from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
-from MAPLEAF.Rocket.Bodytube import Bodytube
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.Rocket import Rocket
-from MAPLEAF.Rocket.RocketComponents import FixedMass, FixedForce, TabulatedAeroForce
+from MAPLEAF.Rocket import (BodyTube, FixedForce, FixedMass, NoseCone, Rocket,
+                            TabulatedAeroForce)
 
 
 class TestRocketComponents(unittest.TestCase):
@@ -32,8 +31,8 @@ class TestRocketComponents(unittest.TestCase):
         rocketDictReader = SubDictReader("Rocket", simDef)
         self.rocket = Rocket(rocketDictReader, silent=True)
 
-        self.nosecone = self.rocket.stages[0].getComponentsOfType(Nosecone)[0]
-        self.bodytube = self.rocket.stages[0].getComponentsOfType(Bodytube)[0]
+        self.nosecone = self.rocket.stages[0].getComponentsOfType(NoseCone)[0]
+        self.bodytube = self.rocket.stages[0].getComponentsOfType(BodyTube)[0]
         
         # Find the Fixed Mass component that's actually just a Fixed Mass, not a child class (Nosecone, Bodytube)
         fixedMassComponents = self.rocket.stages[0].getComponentsOfType(FixedMass)

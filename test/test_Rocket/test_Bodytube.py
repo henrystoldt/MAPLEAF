@@ -22,8 +22,7 @@ from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.RigidBody import RigidBodyState
-from MAPLEAF.Rocket.Bodytube import Bodytube
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import BodyTube, Rocket
 from MAPLEAF.SimulationRunners import SingleSimRunner
 
 
@@ -94,7 +93,7 @@ class TestBodyTube(unittest.TestCase):
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocket = simRunner.prepRocketForSingleSimulation()
 
-        bodyTube = rocket.stages[0].getComponentsOfType(Bodytube)[0]
+        bodyTube = rocket.stages[0].getComponentsOfType(BodyTube)[0]
 
         # Create a rigid body state rotating at 2 rad/s about the x-axis
         pos = Vector(0,0,0)

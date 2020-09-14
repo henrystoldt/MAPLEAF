@@ -19,7 +19,9 @@ from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,
                                            getFinSliceForce_Supersonic,
                                            getSubsonicFinNormalForce,
                                            getSupersonicFinNormalForce)
-from MAPLEAF.Rocket.RocketComponents import FixedMass
+from MAPLEAF.Rocket import FixedMass
+
+__all__ = [ "FinSet", "Fin" ]
 
 # This named tuple is used to pass data between a FinSet and its child Fins.
     # All the data in this tuple is used by all Fins in a FinSet to complete an aero calculation.

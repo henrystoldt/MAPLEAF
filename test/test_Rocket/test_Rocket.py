@@ -12,19 +12,18 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 import numpy as np
 
-from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.Integration import Integrator
 from MAPLEAF.Motion.RigidBody import RigidBodyState
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
-from MAPLEAF.Rocket.RecoverySystem import RecoverySystem
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import RecoverySystem, Rocket
 
 
 class TestRocket(unittest.TestCase):

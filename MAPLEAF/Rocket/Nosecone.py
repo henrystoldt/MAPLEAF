@@ -8,7 +8,9 @@ import MAPLEAF.Motion.Interpolation as Interpolation
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
+from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
+
+__all__ = [ "NoseCone" ]
 
 #TODO: Implement Barrowman's second-order shock expansion method for pressure drag at high mach numbers
 
@@ -58,7 +60,7 @@ def computeTransonicPolyCoeffs(coneHalfAngle):
 
     return Interpolation.calculateCubicInterpCoefficients(1.0, 1.3, Cd_M1, Cd_M13, dCd_dMa_M1, dCd_dMa_M13)
 
-class Nosecone(FixedMass, BodyComponent):
+class NoseCone(FixedMass, BodyComponent):
     ''' Represent a Tangent Ogive Nosecone '''
 
     canConnectToComponentAbove = False # Overrides attribute from BodyComponent -> Nosecone must be at top of rocket

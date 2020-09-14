@@ -21,8 +21,8 @@ from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBody import RigidBodyState
 from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import NoseCone
+from MAPLEAF.Rocket import Rocket
 
 
 class TestNosecone(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestNosecone(unittest.TestCase):
         self.rocketState8 = RigidBodyState(Vector(0, 0, 200), Vector(20.04, -0.12, -52.78), Quaternion(Vector(0, 1, 0), math.radians(90)), AngularVelocity(rotationVector=Vector(0, 0, 0)))
 
     def test_noseconeGetPlanformArea(self):
-        nosecone = self.rocket.stages[0].getComponentsOfType(Nosecone)[0]
+        nosecone = self.rocket.stages[0].getComponentsOfType(NoseCone)[0]
         self.assertAlmostEqual(nosecone._getPlanformArea(),0.077573818,3) #From solidworks
     
     # def test_noseconeOpenRocketAeroCoefficients(self):

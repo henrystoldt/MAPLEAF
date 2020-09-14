@@ -8,7 +8,7 @@ from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
 from MAPLEAF.GNC.Navigation import Stabilizer
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import Rocket
 from MAPLEAF.Motion.CythonVector import Vector
 
 

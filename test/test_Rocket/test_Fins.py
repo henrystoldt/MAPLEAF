@@ -8,8 +8,8 @@
 #Add [-v] for verbose output (displays names of all test functions)
 
 import math
-from math import radians
 import unittest
+from math import radians
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment
@@ -17,11 +17,10 @@ from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBody import RigidBodyState
 from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Rocket.Fins import FinSet
+from MAPLEAF.Motion.RigidBody import RigidBodyState
+from MAPLEAF.Rocket import FinSet, Rocket
 from MAPLEAF.Rocket.CythonFinFunctions import getFinSliceAngleOfAttack
-from MAPLEAF.Rocket.Rocket import Rocket
 
 
 class TestFinSet(unittest.TestCase):

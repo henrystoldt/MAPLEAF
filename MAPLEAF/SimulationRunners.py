@@ -24,7 +24,7 @@ from MAPLEAF.IO.RocketFlight import RocketFlight
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import Rocket
 
 
 class SingleSimRunner():

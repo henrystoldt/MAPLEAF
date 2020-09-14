@@ -8,10 +8,11 @@ from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Rocket.RocketComponents import RocketComponent
+from MAPLEAF.Rocket import RocketComponent
 
+__all__ = [ "TabulatedMotor" ]
 
-class Motor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent, SubDictReader):
     '''
     Interface:
         Initialization:

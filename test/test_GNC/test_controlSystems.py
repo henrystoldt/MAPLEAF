@@ -9,7 +9,7 @@ from MAPLEAF.GNC.ControlSystems import RocketControlSystem
 from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBody import RigidBodyState
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import Rocket
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonVector import Vector
 

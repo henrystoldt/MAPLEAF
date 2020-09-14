@@ -13,10 +13,10 @@ from test.testUtilities import assertVectorsAlmostEqual
 import numpy as np
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
@@ -24,8 +24,8 @@ from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Integration import Integrator
 from MAPLEAF.Motion.RigidBody import RigidBodyState
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import NoseCone, Rocket
+
 
 def createStateWithRe(reynoldsNumber, env, length=1):
     velocity = reynoldsNumber * env.DynamicViscosity / (env.Density * length)
@@ -198,7 +198,7 @@ class TestAeroFunctions(unittest.TestCase):
         # Check that for a tangent ogive nosecone, XCP = 0.466 Length
         SimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocket = SimRunner.prepRocketForSingleSimulation()
-        rocketNosecone = rocket.stages[0].getComponentsOfType(Nosecone)[0]
+        rocketNosecone = rocket.stages[0].getComponentsOfType(NoseCone)[0]
         noseconeLength = rocketNosecone.length
         expectedCp = rocketNosecone.position + Vector(0,0,-0.46666*noseconeLength)
         actualCp = rocketNosecone.CPLocation

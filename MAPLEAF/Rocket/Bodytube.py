@@ -6,10 +6,11 @@ import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
+from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 
+__all__ = [ "BodyTube" ]
 
-class Bodytube(FixedMass, BodyComponent):
+class BodyTube(FixedMass, BodyComponent):
     ''' Represent a cylindrical body tube '''
     
     #### Init Functions ####

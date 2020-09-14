@@ -5,8 +5,10 @@ import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
-from MAPLEAF.Rocket.Nosecone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
+from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
+from MAPLEAF.Rocket.noseCone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
+
+__all__ = [ "Transition", "BoatTail" ]
 
 class Transition(FixedMass, BodyComponent):
     ''' Models a conical diameter transition (growing or shrinking) '''

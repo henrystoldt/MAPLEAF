@@ -21,6 +21,7 @@ from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 
+__all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
 
 class RocketComponent(ABC):
     ''' Interface definition for rocket components '''
@@ -40,7 +41,7 @@ class BodyComponent(ABC):
     ''' 
         Class that defines interface for axisymmetric body components.
         Contains logic for detecting adjacent body components & defining interfaces with them 
-        Examples: `MAPLEAF.Rocket.Nosecone.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
+        Examples: `MAPLEAF.Rocket.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
     '''
     # Override these attributes in child classes to change whether they can connect to components above/below them
     canConnectToComponentAbove = True

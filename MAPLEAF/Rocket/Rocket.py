@@ -19,23 +19,19 @@ from MAPLEAF.GNC.ControlSystems import RocketControlSystem
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CompositeObject import CompositeObject
+from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.RigidBody import RigidBody, RigidBody_3DoF
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
-from MAPLEAF.Rocket.BoatTail import BoatTail
-from MAPLEAF.Rocket.Bodytube import Bodytube
-from MAPLEAF.Rocket.Fins import FinSet
-from MAPLEAF.Rocket.Motor import Motor
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, PlanarInterface
-from MAPLEAF.Rocket.SimEventDetector import SimEventDetector
-from MAPLEAF.Rocket.Stage import Stage
+from MAPLEAF.Rocket import (
+    BoatTail, BodyComponent, BodyTube, FinSet, NoseCone, PlanarInterface,
+    SimEventDetector, Stage, TabulatedMotor)
 
+__all__ = [ "Rocket" ]
 
 class Rocket(CompositeObject):
     '''
@@ -88,7 +84,7 @@ class Rocket(CompositeObject):
         self.recoverySystem = None
         '''
             Reference to the current Rocket's (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.  
-            Set in `MAPLEAF.Rocket.RecoverySystem.RecoverySystem.__init__`
+            Set in `MAPLEAF.Rocket.RecoverySystem.__init__`
         '''
 
         self.rigidBody = None            
@@ -98,13 +94,13 @@ class Rocket(CompositeObject):
         '''
 
         self.isUnderChute = False
-        ''' (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()` '''
+        ''' (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem._deployNextStage()` '''
 
         self.mainChuteDeployTime = None
-        ''' (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()`  '''
+        ''' (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem._deployNextStage()`  '''
         
         self.engineShutOffTime = None
-        ''' (float) Filled in by `MAPLEAF.Rocket.Motor.Motor.__init__()` upon initialization '''
+        ''' (float) Filled in by `MAPLEAF.Rocket.Motor.__init__()` upon initialization '''
 
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool("Environment.turbulenceOffWhenUnderChute")
         ''' (bool) '''

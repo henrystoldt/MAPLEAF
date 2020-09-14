@@ -4,8 +4,8 @@
 import unittest
 
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Rocket.SimEventDetector import EventTypes, SimEventDetector
 from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Rocket import EventTypes, SimEventDetector
 
 
 class TestSimEventDetector(unittest.TestCase):

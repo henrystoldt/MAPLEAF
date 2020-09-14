@@ -4,10 +4,10 @@ from typing import List, Union
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CompositeObject import CompositeObject
 from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Rocket.RocketComponentFactory import (rocketComponentFactory,
-                                                   stringNameToClassMap)
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, PlanarInterface
+from MAPLEAF.Rocket import (BodyComponent, PlanarInterface,
+                            rocketComponentFactory, stringNameToClassMap)
 
+__all__ = [ "Stage" ]
 
 class Stage(CompositeObject, BodyComponent):
     ''' Represents a single rocket stage '''

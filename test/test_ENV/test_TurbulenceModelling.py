@@ -15,7 +15,7 @@ from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Rocket import Rocket
 from MAPLEAF.ENV.TurbulenceModelling import PinkNoiseGenerator, turbulenceModelFactory
 from MAPLEAF.Motion.CythonVector import Vector
 

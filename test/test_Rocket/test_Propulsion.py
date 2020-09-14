@@ -14,10 +14,9 @@ from test.testUtilities import (assertInertiasAlmostEqual,
 
 from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Rocket.Motor import Motor
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.Motion.Inertia import Inertia
+from MAPLEAF.Rocket import Rocket, TabulatedMotor
 
 
 class TestMotor(unittest.TestCase):
@@ -27,7 +26,7 @@ class TestMotor(unittest.TestCase):
         self.motorRocket = Rocket(rocketDictReader)
     
     def test_MotorInitialization(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
         self.assertEqual(motor.initOxCG_Z, 2)
         self.assertEqual(motor.finalOxCG_Z, 2.5)
         self.assertEqual(motor.initFuelCG_Z, 3)
@@ -39,7 +38,7 @@ class TestMotor(unittest.TestCase):
         self.assertAlmostEqual(motor.initialFuelWeight, 1.4985)
 
     def test_MotorThrust(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         def getThrust(time):
             return motor.getAeroForce('fakeState', time, 'fakeEnv', 'fakeCG').force.Z
@@ -50,7 +49,7 @@ class TestMotor(unittest.TestCase):
         self.assertEqual(getThrust(2), 4000)
 
     def test_MotorOxWeight(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         def getOxWeight(time):
             return motor._getOxInertia(time).mass
@@ -61,7 +60,7 @@ class TestMotor(unittest.TestCase):
         self.assertEqual(getOxWeight(0.02), 9.96)
 
     def test_MotorFuelWeight(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         def getFuelWeight(time):
             return motor._getFuelInertia(time).mass
@@ -72,20 +71,20 @@ class TestMotor(unittest.TestCase):
         self.assertAlmostEqual(getFuelWeight(0.02), 1.494)
 
     def test_MotorGetOxInertia(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
         
         assertInertiasAlmostEqual(self, motor._getOxInertia(0), Inertia(Vector(1,1,0.1), Vector(0,0,2), 9.99))
         assertInertiasAlmostEqual(self, motor._getOxInertia(5), Inertia(Vector(0,0,0), Vector(0,0,2.5), 0.0))
 
     def test_MotorGetFuelInertia(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
         
         assertInertiasAlmostEqual(self, motor._getFuelInertia(0), Inertia(Vector(0.15,0.15,0.02), Vector(0,0,3), 1.4985000000000002))
         assertInertiasAlmostEqual(self, motor._getFuelInertia(5), Inertia(Vector(0,0,0), Vector(0,0,3), 0))
 
     def test_MotorInertia(self):
         motorRocket = self.motorRocket
-        motor = motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
         
         beginningInertia = Inertia(Vector(0.15,0.15,0.02), Vector(0,0,3), 1.4985000000000002) + Inertia(Vector(1,1,0.1), Vector(0,0,2), 9.99)
         finalInertia = Inertia(Vector(0,0,0), Vector(0,0,3), 0) + Inertia(Vector(0,0,0), Vector(0,0,0), 0.0)
@@ -95,7 +94,7 @@ class TestMotor(unittest.TestCase):
     
     def test_MotorMOI(self):
         motorRocket = self.motorRocket
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         ### Oxidizer MOI Tests ###
         def getOxMOI(time):
@@ -147,7 +146,7 @@ class TestMotor(unittest.TestCase):
         assertInertiasAlmostEqual(self, motorInertia, expectedInertiaAfterBurnout)
 
     def test_getTotalImpulse(self):
-        motor = self.motorRocket.stages[0].getComponentsOfType(Motor)[0]
+        motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
         impulse = motor.getTotalImpulse()
         expectedImpulse = 19980 # Ns
         self.assertAlmostEqual(expectedImpulse, impulse)
@@ -158,7 +157,7 @@ class TestMotor(unittest.TestCase):
         # Create normal motor
         rocketDictReader1 = SubDictReader("Rocket", simDef)
         motorRocket1 = Rocket(rocketDictReader1)
-        motor1 = motorRocket1.stages[0].getComponentsOfType(Motor)[0]
+        motor1 = motorRocket1.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         impulseAdjustFactor = "1.14"
 
@@ -166,7 +165,7 @@ class TestMotor(unittest.TestCase):
         simDef.setValue("Rocket.Sustainer.Motor.impulseAdjustFactor", impulseAdjustFactor)
         rocketDictReader2 = SubDictReader("Rocket", simDef)
         motorRocket2 = Rocket(rocketDictReader2)
-        motor2 = motorRocket2.stages[0].getComponentsOfType(Motor)[0]
+        motor2 = motorRocket2.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         # Check that total impulse has changed
         impulse1 = motor1.getTotalImpulse()
@@ -184,7 +183,7 @@ class TestMotor(unittest.TestCase):
         # Create normal motor
         rocketDictReader1 = SubDictReader("Rocket", simDef)
         motorRocket1 = Rocket(rocketDictReader1)
-        motor1 = motorRocket1.stages[0].getComponentsOfType(Motor)[0]
+        motor1 = motorRocket1.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         burnTimeAdjustFactor = "1.11"
 
@@ -192,7 +191,7 @@ class TestMotor(unittest.TestCase):
         simDef.setValue("Rocket.Sustainer.Motor.burnTimeAdjustFactor", burnTimeAdjustFactor)
         rocketDictReader2 = SubDictReader("Rocket", simDef)
         motorRocket2 = Rocket(rocketDictReader2)
-        motor2 = motorRocket2.stages[0].getComponentsOfType(Motor)[0]
+        motor2 = motorRocket2.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         # Check that total impulse hasn't changed
         impulse1 = motor1.getTotalImpulse()

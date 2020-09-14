@@ -9,6 +9,8 @@ Used to trigger stage separations and recovery system deployments.
 from enum import Enum
 from typing import Tuple
 
+__all__ = [ "EventTypes", "SimEventDetector" ]
+
 class EventTypes(Enum):
     Apogee = "apogee"
     AscendingThroughAltitude = "ascendingThroughAltitude"

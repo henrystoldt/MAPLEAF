@@ -1,6 +1,6 @@
 ''' 
 The actuated system class initializes actuators, which are controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` 
-Rocket component classes need to inherit from this class to become controllable (see `MAPLEAF.Rocket.Fins.FinSet`)
+Rocket component classes need to inherit from this class to become controllable (see `MAPLEAF.Rocket.FinSet`)
 '''
 
 import abc

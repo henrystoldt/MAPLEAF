@@ -3,27 +3,24 @@ In charge of initializing rocket components. Add new components to `stringNameTo
 '''
 
 from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Rocket.BoatTail import BoatTail, Transition
-from MAPLEAF.Rocket.Bodytube import Bodytube
-from MAPLEAF.Rocket.Fins import FinSet
-from MAPLEAF.Rocket.Motor import Motor
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.RecoverySystem import RecoverySystem
-from MAPLEAF.Rocket.RocketComponents import (AeroDamping, AeroForce, FixedForce,
-                                         FixedMass, FractionalJetDamping,
-                                         TabulatedAeroForce, TabulatedInertia)
-    
+from MAPLEAF.Rocket import (
+    AeroDamping, AeroForce, BoatTail, BodyTube, FinSet, FixedForce, FixedMass,
+    FractionalJetDamping, NoseCone, RecoverySystem, TabulatedAeroForce,
+    TabulatedInertia, TabulatedMotor, Transition)
+
+__all__ = [ "stringNameToClassMap", "rocketComponentFactory" ]
+
 stringNameToClassMap = {
     "AeroDamping":          AeroDamping,
     "AeroForce":            AeroForce,
     "BoatTail":             BoatTail,
-    "Bodytube":             Bodytube,
+    "Bodytube":             BodyTube,
     "FinSet":               FinSet,
     "Force":                FixedForce,
     "FractionalJetDamping": FractionalJetDamping,
     "Mass":                 FixedMass,
-    "Motor":                Motor,
-    "Nosecone":             Nosecone,
+    "Motor":                TabulatedMotor,
+    "Nosecone":             NoseCone,
     "RecoverySystem":       RecoverySystem,
     "TabulatedAeroForce":   TabulatedAeroForce,
     "TabulatedInertia":     TabulatedInertia,
