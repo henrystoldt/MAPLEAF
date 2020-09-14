@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from MAPLEAF.Motion.Interpolation import interpolateRigidBodyStates, linInterpWeights
-from MAPLEAF.IO.RocketFlight import RocketFlight
+from MAPLEAF.IO import RocketFlight
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
 

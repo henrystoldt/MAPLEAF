@@ -7,6 +7,8 @@ from math import sqrt
 
 from MAPLEAF.Motion.CythonVector import Vector
 
+__all__ = [ "RocketFlight" ]
+
 class RocketFlight():
     ''' Holds simulation results '''
 

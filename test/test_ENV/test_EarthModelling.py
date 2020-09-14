@@ -9,7 +9,7 @@ from MAPLEAF.ENV.EarthModelling import (FlatEarth, NoEarth, SphericalEarth,
                                     WGS84Earth)
 from MAPLEAF.Motion.CythonVector import Vector
 from test.testUtilities import assertVectorsAlmostEqual
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.SimulationRunners import SingleSimRunner
 from test.testUtilities import assertVectorsAlmostEqual
 

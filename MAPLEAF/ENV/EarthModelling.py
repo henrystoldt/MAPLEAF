@@ -10,7 +10,7 @@ from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
-from MAPLEAF.IO.SimDefinition import getAbsoluteFilePath
+from MAPLEAF.IO import getAbsoluteFilePath
 
 class EarthModel(ABC):
     ''' Interface for all earth models '''

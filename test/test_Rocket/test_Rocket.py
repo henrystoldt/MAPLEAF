@@ -14,8 +14,8 @@ import numpy as np
 
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.Logging import removeLogger
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion

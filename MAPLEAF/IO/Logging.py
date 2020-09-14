@@ -154,7 +154,7 @@ def getSimDefinitionAndDefaultValueDictsForOutput(simDefinition, printToConsole=
     
     # Add default value dict
     from pprint import pformat
-    from MAPLEAF.IO.SimDefinition import defaultConfigValues
+    from MAPLEAF.IO import defaultConfigValues
     
     stringResultArray.append("\n---- Start Default Value Dictionary ----\n")
     stringResultArray.append(pformat(defaultConfigValues))

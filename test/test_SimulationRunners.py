@@ -12,7 +12,7 @@ import os
 import matplotlib.pyplot as plt
 
 from MAPLEAF.SimulationRunners import SingleSimRunner, MonteCarloSimRunner, ConvergenceSimRunner, isMonteCarloSimulation
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 import test.testUtilities
 
 class TestSimRunners(unittest.TestCase):

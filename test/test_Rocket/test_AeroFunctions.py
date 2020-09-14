@@ -15,7 +15,7 @@ import numpy as np
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.Logging import removeLogger
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion

@@ -1,6 +1,6 @@
 import unittest
 
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator, integratorFactory
 
 

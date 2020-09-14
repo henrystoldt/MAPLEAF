@@ -13,8 +13,8 @@ from test.testUtilities import assertForceMomentSystemsAlmostEqual
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia

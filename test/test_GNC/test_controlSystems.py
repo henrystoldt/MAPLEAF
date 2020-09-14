@@ -4,7 +4,7 @@ from math import pi
 import numpy as np
 
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.GNC.ControlSystems import RocketControlSystem
 from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator
 from MAPLEAF.Motion.CythonQuaternion import Quaternion

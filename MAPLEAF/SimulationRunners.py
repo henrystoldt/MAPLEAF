@@ -20,9 +20,9 @@ from tqdm import tqdm
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO.RocketFlight import RocketFlight
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import RocketFlight
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Rocket import Rocket
 

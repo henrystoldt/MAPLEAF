@@ -12,8 +12,8 @@ from test.testUtilities import assertVectorsAlmostEqual
 import numpy as np
 
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
 from MAPLEAF.Rocket import Rocket
 from MAPLEAF.ENV.TurbulenceModelling import PinkNoiseGenerator, turbulenceModelFactory

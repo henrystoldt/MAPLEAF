@@ -14,7 +14,7 @@ from scipy.interpolate import LinearNDInterpolator
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import EnvironmentalConditions
 from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia

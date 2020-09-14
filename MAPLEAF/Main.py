@@ -11,7 +11,7 @@ from typing import List
 
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.IO.SimDefinition import SimDefinition, getAbsoluteFilePath
+from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
                                    SingleSimRunner, isMonteCarloSimulation)
 

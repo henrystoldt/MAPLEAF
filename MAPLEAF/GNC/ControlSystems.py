@@ -9,7 +9,7 @@ import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
 from MAPLEAF.GNC.Navigation import Stabilizer
 from MAPLEAF.Motion.Integration import integratorFactory
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SubDictReader
 
 
 class ControlSystem(abc.ABC):

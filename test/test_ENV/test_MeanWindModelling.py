@@ -15,7 +15,7 @@ from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.ENV.MeanWindModelling import (
     Constant, InterpolatedProfile, RadioSondeDataSampler,
     _convertWindHeadingToXYPlaneWindDirection, meanWindModelFactory)
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion.CythonVector import Vector
 
 

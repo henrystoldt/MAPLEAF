@@ -7,6 +7,7 @@ from typing import List, Any, Union
 
 from MAPLEAF.Motion.CythonVector import Vector
 
+__all__ = [ "SubDictReader" ]
 
 class SubDictReader():
 

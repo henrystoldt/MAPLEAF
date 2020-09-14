@@ -16,9 +16,8 @@ import numpy
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
 from MAPLEAF.GNC.ControlSystems import RocketControlSystem
+from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
 from MAPLEAF.Motion.CompositeObject import CompositeObject
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion

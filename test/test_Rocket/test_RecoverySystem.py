@@ -9,8 +9,8 @@
 import unittest
 
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF

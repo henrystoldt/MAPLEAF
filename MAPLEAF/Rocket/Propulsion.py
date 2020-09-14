@@ -4,7 +4,7 @@ from pathlib import Path
 from scipy.interpolate import interp1d
 
 from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia

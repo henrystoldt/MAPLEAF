@@ -8,7 +8,7 @@ from typing import Sequence
 import numpy as np
 
 from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
+from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
 
 
 class AtmosphericModel(abc.ABC):

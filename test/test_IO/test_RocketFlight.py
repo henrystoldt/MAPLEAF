@@ -9,7 +9,7 @@
 import unittest
 
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState_3DoF
-from MAPLEAF.IO.RocketFlight import RocketFlight
+from MAPLEAF.IO import RocketFlight
 from MAPLEAF.Motion.CythonVector import Vector
 
 class TestRocketFlight(unittest.TestCase):

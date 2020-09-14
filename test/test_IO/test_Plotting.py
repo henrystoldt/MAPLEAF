@@ -14,10 +14,10 @@ import matplotlib.pyplot as plt
 
 import MAPLEAF.IO.Plotting as Plotting
 import MAPLEAF.Main as Main
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.RigidBodyStates import RigidBodyState_3DoF, RigidBodyState
-from MAPLEAF.IO.RocketFlight import RocketFlight
+from MAPLEAF.IO import RocketFlight
 from MAPLEAF.Motion.CythonVector import Vector
 
 class TestPlotting(unittest.TestCase):

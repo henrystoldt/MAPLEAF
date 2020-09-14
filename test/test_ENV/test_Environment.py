@@ -5,7 +5,7 @@ import unittest
 from test.testUtilities import assertIterablesAlmostEqual
 
 from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion.CythonVector import Vector
 
 

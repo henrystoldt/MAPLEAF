@@ -10,8 +10,8 @@ import re
 import unittest
 from test.testUtilities import assertVectorsAlmostEqual
 
-from MAPLEAF.IO.SimDefinition import (SimDefinition, defaultConfigValues,  # class
-                                  getImmediateSubKey, getKeyLevel, isSubKey)
+from MAPLEAF.IO import SimDefinition, defaultConfigValues 
+from MAPLEAF.IO.simDefinition import getImmediateSubKey, getKeyLevel, isSubKey
 from MAPLEAF.Motion.CythonVector import Vector
 
 

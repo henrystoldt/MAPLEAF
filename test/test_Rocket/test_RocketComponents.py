@@ -13,8 +13,8 @@ from test.testUtilities import (assertForceMomentSystemsAlmostEqual,
                                 assertIterablesAlmostEqual)
 
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector

@@ -20,8 +20,8 @@ sys.path.append(mainDirectoryPath)
 import MAPLEAF.IO.gridConvergenceFunctions as gridConvergenceFunctions
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 from MAPLEAF.SimulationRunners import SingleSimRunner, WindTunnelRunner
 

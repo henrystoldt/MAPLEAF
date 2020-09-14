@@ -11,8 +11,8 @@ from MAPLEAF.ENV.EarthModelling import earthModelFactory
 from MAPLEAF.ENV.LaunchRail import LaunchRail
 from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
 from MAPLEAF.ENV.TurbulenceModelling import turbulenceModelFactory
-from MAPLEAF.IO.SimDefinition import defaultConfigValues
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import defaultConfigValues
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector

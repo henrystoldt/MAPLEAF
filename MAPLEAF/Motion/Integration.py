@@ -3,7 +3,7 @@
 import math
 
 from MAPLEAF.GNC.PID import PIDController
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import SubDictReader
 
 def checkButcherTableau(tableau):
     ''' 

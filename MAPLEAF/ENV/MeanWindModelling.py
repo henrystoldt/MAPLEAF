@@ -9,8 +9,8 @@ import pandas as pd
 from scipy.stats import rv_histogram
 
 from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CythonVector import Vector
 
 

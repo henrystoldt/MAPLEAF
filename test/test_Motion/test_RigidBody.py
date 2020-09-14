@@ -11,7 +11,7 @@ import unittest
 from math import cos, pi, sin
 
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Motion.Inertia import Inertia
 from MAPLEAF.Motion.CythonQuaternion import Quaternion

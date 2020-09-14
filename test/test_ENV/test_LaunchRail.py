@@ -4,7 +4,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.ENV.LaunchRail import LaunchRail
-from MAPLEAF.IO.SimDefinition import SimDefinition
+from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
 from MAPLEAF.Motion.CythonQuaternion import Quaternion
 from MAPLEAF.Motion.CythonVector import Vector
