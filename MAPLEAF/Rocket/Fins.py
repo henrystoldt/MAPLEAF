@@ -7,7 +7,7 @@ import numpy as np
 
 import MAPLEAF.Motion as Interpolation
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.GNC.ActuatedSystem import ActuatedSystem
+from MAPLEAF.GNC import ActuatedSystem
 from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector

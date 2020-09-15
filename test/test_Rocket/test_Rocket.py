@@ -13,16 +13,11 @@ from test.testUtilities import assertVectorsAlmostEqual
 import numpy as np
 
 from MAPLEAF.ENV import Environment
+from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.IO.Logging import removeLogger
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Motion.Integration import Integrator
-from MAPLEAF.Motion import RigidBodyState
-from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import RecoverySystem, Rocket
 
 

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
-from MAPLEAF.GNC.ControlSystems import RocketControlSystem
+from MAPLEAF.GNC import RocketControlSystem
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AngularVelocity, Inertia, Quaternion, RigidBody,

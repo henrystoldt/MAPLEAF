@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.GNC.Actuators import (FirstOrderActuator, FirstOrderSystem,
+from MAPLEAF.GNC import (FirstOrderActuator, FirstOrderSystem,
                            TableInterpolatingActuatorController)
 
 

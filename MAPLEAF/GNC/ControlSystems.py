@@ -5,11 +5,11 @@ Control systems run a simulated control loops between simulation time steps, and
 
 import abc
 
-from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
-from MAPLEAF.GNC.Navigation import Stabilizer
-from MAPLEAF.Motion.Integration import integratorFactory
+from MAPLEAF.GNC import GainScheduledPIDRocketMomentController, Stabilizer
 from MAPLEAF.IO import SubDictReader
+from MAPLEAF.Motion import integratorFactory
 
+__all__ = [ "RocketControlSystem", "ControlSystem" ]
 
 class ControlSystem(abc.ABC):
     ''' Interface for control systems '''

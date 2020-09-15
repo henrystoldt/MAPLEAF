@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from MAPLEAF.GNC.PID import GainScheduledPIDController, PIDController
+from MAPLEAF.GNC import GainScheduledPIDController, PIDController
 
 
 class TestPIDController(unittest.TestCase):

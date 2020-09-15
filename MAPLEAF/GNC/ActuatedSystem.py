@@ -6,9 +6,10 @@ Rocket component classes need to inherit from this class to become controllable 
 import abc
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.GNC.Actuators import (FirstOrderActuator,
-                               TableInterpolatingActuatorController)
+from MAPLEAF.GNC import (FirstOrderActuator,
+                         TableInterpolatingActuatorController)
 
+__all__ = [ "ActuatedSystem" ]
 
 class ActuatedSystem(abc.ABC):
     '''

@@ -7,8 +7,9 @@ import abc
 import numpy as np
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.GNC.PID import GainScheduledPIDController
+from MAPLEAF.GNC import GainScheduledPIDController
 
+__all__ = [ "GainScheduledPIDRocketMomentController", "MomentController" ]
 
 class MomentController(abc.ABC):
     @abc.abstractmethod

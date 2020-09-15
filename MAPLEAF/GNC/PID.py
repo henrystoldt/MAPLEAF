@@ -3,6 +3,7 @@
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
+__all__ = [ "PIDController", "GainScheduledPIDController" ]
 
 class PIDController():
 

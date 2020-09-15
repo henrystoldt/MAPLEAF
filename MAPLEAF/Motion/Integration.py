@@ -2,7 +2,7 @@
 
 import math
 
-from MAPLEAF.GNC.PID import PIDController
+__all__ = [ "integratorFactory" ]
 
 def checkButcherTableau(tableau):
     ''' 
@@ -290,7 +290,11 @@ class AdaptiveIntegrator():
         elif controller == "PID":
             self.safetyFactor = 1
             P, I, D = PIDCoeffs
+            
+            # Delayed import of GNC.PID to avoid circular import problems
+            from MAPLEAF.GNC import PIDController
             self.PIDController = PIDController(P, I, D, maxIntegral=1)
+
             self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_PID
 
         elif controller == "Constant":

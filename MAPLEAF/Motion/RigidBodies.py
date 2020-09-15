@@ -4,8 +4,7 @@ Rigid body classes contain the logic for calculating rigid body state derivative
 """
 
 from MAPLEAF.Motion import (AngularVelocity, RigidBodyStateDerivative,
-                            RigidBodyStateDerivative_3DoF)
-from MAPLEAF.Motion.Integration import integratorFactory
+                            RigidBodyStateDerivative_3DoF, integratorFactory)
 
 __all__ = [ "RigidBody_3DoF", "RigidBody" ]
 

@@ -3,9 +3,9 @@ from math import pi
 
 import numpy as np
 
-from MAPLEAF.GNC.MomentControllers import \
+from MAPLEAF.GNC import \
     GainScheduledPIDRocketMomentController
-from MAPLEAF.GNC.Navigation import Stabilizer
+from MAPLEAF.GNC import Stabilizer
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 
 
