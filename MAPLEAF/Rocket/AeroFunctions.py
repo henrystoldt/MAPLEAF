@@ -9,8 +9,7 @@ Used throughout the aeordynamics functions
 
 import math
 
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem, Quaternion, Vector
 
 #### Function decorators ####
 def cacheLastResult(func):
