@@ -44,7 +44,7 @@ class CompositeObject():
         self.variableMassComponents = []
 
         for component in self.components:
-            if component.__clas__.__name__ ==  "FixedMass":
+            if component.__class__.__name__ ==  "FixedMass":
                 self.fixedMassComponents.append(component)
             else:
                 self.variableMassComponents.append(component)

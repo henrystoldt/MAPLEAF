@@ -408,7 +408,7 @@ def getDragToAxialForceFactor(AOA):
 
 
 #### Creating ForceMomentSystems from Coefficients ####
-def forceFromCdCN(self, rocketState, environment, Cd, CN, CPLocation, refArea, moment=None):
+def forceFromCdCN(rocketState, environment, Cd, CN, CPLocation, refArea, moment=None):
     ''' 
         Convenience function for Barrowman Aero methods
         Initialize ForceMomentSystem from aerodynamic coefficients Cd and CN
@@ -428,7 +428,7 @@ def forceFromCdCN(self, rocketState, environment, Cd, CN, CPLocation, refArea, m
     totalForce = (axialForce + normalForce) * refArea * q
     return ForceMomentSystem(totalForce, CPLocation, moment)
 
-def forceFromCoefficients(self, rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLocation, refArea, refLength):
+def forceFromCoefficients(rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLocation, refArea, refLength):
     ''' Initialize ForceMomentSystem from all aerodynamic coefficients '''
     q = getDynamicPressure(rocketState, environment)
     if q == 0.0:
