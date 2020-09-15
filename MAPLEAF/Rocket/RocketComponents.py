@@ -12,7 +12,7 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem, Inertia, Vector, linInterp
+from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
@@ -224,7 +224,7 @@ class AeroForce(RocketComponent):
 
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
-        return ForceMomentSystem.fromAllCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
         return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
@@ -258,7 +258,7 @@ class AeroDamping(AeroForce):
         xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
         momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
 
-        return ForceMomentSystem.fromAllCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)
 
 class TabulatedAeroForce(AeroForce):
     ''' A zero-inertia component with aerodynamic coefficients that are tabulated according to one or more parameters (ex. AOA) '''
@@ -294,7 +294,7 @@ class TabulatedAeroForce(AeroForce):
             i += 1
 
         # Continue parsing column names - aero coefficient names now            
-        # This is the ordering expected by ForceMomentSystem.fromAllCoefficients
+        # This is the ordering expected by AeroFunctions.forceFromCoefficients
         aeroCoeffStrings = [ "CD", "CL", "CMx", "CMy", "CMz" ]
         self.aeroCoeffIndices = [] # Provides mapping between value column position in interpolation table & position in output aero coefficient list (ordered like aeroCoeffStrings above)
         while i < len(columnNames):
@@ -343,7 +343,7 @@ class TabulatedAeroForce(AeroForce):
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
-        return ForceMomentSystem.fromAllCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
         return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)

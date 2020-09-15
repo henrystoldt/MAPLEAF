@@ -12,7 +12,7 @@ from math import cos, pi, sin
 
 from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Motion import Inertia
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import RigidBody, RigidBodyState

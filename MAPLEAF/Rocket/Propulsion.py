@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 from MAPLEAF.Motion import linInterp
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Motion import Inertia
 from MAPLEAF.Rocket import RocketComponent
 

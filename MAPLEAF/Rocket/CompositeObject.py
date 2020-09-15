@@ -3,7 +3,7 @@ Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inh
 It implements functionality to add forces and inertias from an arbitrary number of subcomponents.
 '''
 
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem, Inertia, Vector
+from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
 
 __all__ = [ 'CompositeObject' ]
@@ -76,6 +76,7 @@ class CompositeObject():
                 pass # Not a CompositeObject
 
     #TODO: Compute forces at interfaces between components
+    
     @cacheLastResult
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         '''

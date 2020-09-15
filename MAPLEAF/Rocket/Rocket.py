@@ -21,7 +21,7 @@ from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
                             RigidBodyState, RigidBodyState_3DoF, Vector)
-from MAPLEAF.Motion.CompositeObject import CompositeObject
+from MAPLEAF.Rocket.CompositeObject import CompositeObject
 from MAPLEAF.Rocket import (
     BoatTail, BodyComponent, BodyTube, FinSet, NoseCone, PlanarInterface,
     SimEventDetector, Stage, TabulatedMotor)

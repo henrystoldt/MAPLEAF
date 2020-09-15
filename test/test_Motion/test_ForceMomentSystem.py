@@ -8,7 +8,7 @@
 
 import unittest
 
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Motion import Vector
 
 

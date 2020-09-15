@@ -2,7 +2,7 @@ import re
 from typing import List, Union
 
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CompositeObject import CompositeObject
+from MAPLEAF.Rocket.CompositeObject import CompositeObject
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import (BodyComponent, PlanarInterface,
                             rocketComponentFactory, stringNameToClassMap)

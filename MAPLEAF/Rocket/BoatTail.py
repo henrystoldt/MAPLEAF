@@ -4,7 +4,7 @@ from typing import List
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 from MAPLEAF.Rocket.noseCone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
 
@@ -167,7 +167,7 @@ class Transition(FixedMass, BodyComponent):
         Cd = Cd_pressure + skinFrictionDragCoefficient
 
         #### Assemble & return final force object ####
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
 
     def getMaxDiameter(self):
         return max(self.startDiameter, self.endDiameter)
@@ -215,4 +215,4 @@ class BoatTail(Transition):
         Cd = Cd_pressure + skinFrictionDragCoefficient
 
         #### Assemble & return final force object ####
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)

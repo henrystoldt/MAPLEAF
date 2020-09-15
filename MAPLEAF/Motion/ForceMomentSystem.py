@@ -1,5 +1,4 @@
 import math
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion import Quaternion
 
@@ -55,57 +54,3 @@ class ForceMomentSystem():
     def __eq__(self, force2):
         return self.force == force2.force and self.location == force2.location and self.moment == force2.moment
 
-    @classmethod
-    def fromCoefficients(self, rocketState, environment, Cd, CN, CPLocation, refArea, moment=None):
-        ''' 
-            Convenience function for Barrowman Aero methods
-            Initialize ForceMomentSystem from aerodynamic coefficients Cd and CN
-            Cd should NOT already be adjusted for angle of attack 
-            Moment should be a dimensional moment vector
-        '''
-        angleOfAttack = AeroFunctions.getTotalAOA(rocketState, environment)
-        q = AeroFunctions.getDynamicPressure(rocketState, environment)
-
-        #### Axial Force ####
-        CA = AeroFunctions.getDragToAxialForceFactor(angleOfAttack) * Cd
-        axialForce = Vector(0, 0, -CA) #Axial force is in the negative Z-direction 
-
-        #### Normal Force ####
-        normalForce = AeroFunctions.getNormalAeroForceDirection(rocketState, environment) * CN
-
-        totalForce = (axialForce + normalForce) * refArea * q
-        return ForceMomentSystem(totalForce, CPLocation, moment)
-
-    @classmethod
-    def fromAllCoefficients(self, rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLocation, refArea, refLength):
-        ''' Initialize ForceMomentSystem from all aerodynamic coefficients '''
-        q = AeroFunctions.getDynamicPressure(rocketState, environment)
-        if q == 0.0:
-            # No force without dynamic pressure
-            return ForceMomentSystem(Vector(0,0,0))
-        nonDimConstant = q * refArea
-
-        #### Drag ####
-        localFrameAirVel = AeroFunctions.getLocalFrameAirVel(rocketState, environment)
-        dragDirection = localFrameAirVel.normalize()
-        dragForce = dragDirection * Cd
-
-        #### Lift ####
-        # Find the lift force direction
-            # Lift force will be in the same plane as the normalForceDirection & rocketFrameAirVel vectors
-            # But, the lift force will be perpendicular to rocketFraeAirVel, whereas the normalForceDirection might form an acute angle with it
-            # Rotate the normal force direction vector until it's perpendicular with rocketFrameAirVel
-        normalForceDir = AeroFunctions.getNormalAeroForceDirection(rocketState, environment)
-        rotAxis = localFrameAirVel.crossProduct(normalForceDir)
-        angle = math.pi/2 - localFrameAirVel.angle(normalForceDir)
-        rotatorQuat = Quaternion(rotAxis, angle)
-        liftDirection = rotatorQuat.rotate(normalForceDir)
-        liftForce = liftDirection * Cl
-
-        # Combine and redimensionalize
-        totalForce = (dragForce + liftForce) * nonDimConstant
-
-        #### Moments ####
-        moments = Vector(CMx, CMy, CMz) * nonDimConstant * refLength
-
-        return ForceMomentSystem(totalForce, CPLocation, moments)

@@ -18,7 +18,7 @@ from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Motion import Inertia
 from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import (BodyTube, FixedForce, FixedMass, NoseCone, Rocket,

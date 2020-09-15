@@ -5,7 +5,7 @@ from typing import List
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 
 __all__ = [ "BodyTube" ]
@@ -60,7 +60,7 @@ class BodyTube(FixedMass, BodyComponent):
         dampingMoments += rollDampingMoment
 
         # Compute & dimensionalize total-------------------------------------------------------------------------
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
 
     def _computeLongitudinalDampingMoments(self, rocketState, environment, CoR, nSegments=25):
         ''' CoR = Center of Rotation (usually the rocket's CG) '''

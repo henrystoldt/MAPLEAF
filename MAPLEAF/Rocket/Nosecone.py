@@ -7,7 +7,7 @@ import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 import MAPLEAF.Motion as Interpolation
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 
 __all__ = [ "NoseCone" ]
@@ -200,7 +200,7 @@ class NoseCone(FixedMass, BodyComponent):
         dampingMoments = rollDampingMoment
 
         # Combine forces and return total -------------------------------------------------------------------------------------
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, totalDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, totalDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
 
     def _getCd_Pressure(self, Mach):
         if Mach < 1:

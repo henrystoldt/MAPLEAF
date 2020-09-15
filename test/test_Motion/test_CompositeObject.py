@@ -3,7 +3,7 @@
 
 import unittest
 
-from MAPLEAF.Motion.CompositeObject import CompositeObject
+from MAPLEAF.Rocket.CompositeObject import CompositeObject
 from MAPLEAF.Motion import Inertia
 from MAPLEAF.Rocket import FixedMass
 from test.testUtilities import assertIterablesAlmostEqual

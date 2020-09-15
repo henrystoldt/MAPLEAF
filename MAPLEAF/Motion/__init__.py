@@ -20,12 +20,13 @@ from .CythonVector import *
 from .CythonQuaternion import *
 from .CythonAngularVelocity import *
 from .Interpolation import *
+from .forceMomentSystem import ForceMomentSystem
 from .inertia import *
 from .RigidBodyStates import *
 from .RigidBodies import *
 
 # For some reason CythonVector and company don't exist down here, so they won't import when running from MAPLEAF.Motion import *
-subModules = [ inertia, RigidBodies, RigidBodyStates, Interpolation ]
+subModules = [ inertia, RigidBodies, RigidBodyStates, Interpolation, forceMomentSystem ]
 
 __all__ = [ "Vector", "Quaternion", "AngularVelocity" ]
 

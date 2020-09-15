@@ -19,7 +19,7 @@ from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Motion import Inertia
 from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import BodyTube, Rocket

@@ -3,7 +3,7 @@
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import ForceMomentSystem
 
 class LaunchRail():
     def __init__(self, initialPosition, initialDirection, length, earthRotationRate=0):
