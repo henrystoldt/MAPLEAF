@@ -5,6 +5,7 @@ It implements functionality to add forces and inertias from an arbitrary number 
 
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
+from MAPLEAF.Rocket import FixedMass
 
 __all__ = [ 'CompositeObject' ]
 
@@ -44,7 +45,7 @@ class CompositeObject():
         self.variableMassComponents = []
 
         for component in self.components:
-            if component.__class__.__name__ ==  "FixedMass":
+            if isinstance(component, FixedMass):
                 self.fixedMassComponents.append(component)
             else:
                 self.variableMassComponents.append(component)
