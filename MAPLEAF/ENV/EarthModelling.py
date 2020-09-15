@@ -1,16 +1,16 @@
 ''' These classes model the earth's gravity and perform some coordinate transformations between the global inertial frame and the ENU/launch tower frame '''
 
 from abc import ABC, abstractmethod
-from math import atan2, cos, degrees, radians, sin, sqrt, pi
+from math import atan2, cos, degrees, pi, radians, sin, sqrt
 from typing import Union
 
 import numpy as np
 
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import Inertia
-from MAPLEAF.Motion import RigidBodyState, RigidBodyState_3DoF
 from MAPLEAF.IO import getAbsoluteFilePath
+from MAPLEAF.Motion import (Inertia, Quaternion, RigidBodyState,
+                            RigidBodyState_3DoF, Vector)
+
+__all__ = [ "earthModelFactory", "NoEarth", "FlatEarth", "SphericalEarth", "WGS84" ]
 
 class EarthModel(ABC):
     ''' Interface for all earth models '''
@@ -66,7 +66,7 @@ def earthModelFactory(envDictReader=None) -> EarthModel:
     elif earthModel == "Round":
         return SphericalEarth()
     elif earthModel == "WGS84":
-        return WGS84Earth()
+        return WGS84()
     elif earthModel == "None":
         return NoEarth()
     else:
@@ -226,7 +226,7 @@ class SphericalEarth(EarthModel):
         except AttributeError: # 3DoF Case
             return RigidBodyState_3DoF(globalFramePosition, globalFrameVelocity)             
 
-class WGS84Earth(SphericalEarth):
+class WGS84(SphericalEarth):
     ''' 
         Models a rotating, ellipsoid earth, with non-uniform gravity 
         Inherits the getInertialToENUFrameRotation function from SphericalEarth, otherwise overrides everything

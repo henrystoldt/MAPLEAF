@@ -12,7 +12,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 import numpy as np
 
-from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.ENV import Environment
 from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader

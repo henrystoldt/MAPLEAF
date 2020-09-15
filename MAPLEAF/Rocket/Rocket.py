@@ -11,7 +11,7 @@ import math
 import matplotlib.pyplot as plt
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
+from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC.ControlSystems import RocketControlSystem
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
@@ -44,7 +44,7 @@ class Rocket(CompositeObject):
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n >= 1.  
             * simRunner:            (`MAPLEAF.Main.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
-            * environment:          (`MAPLEAF.ENV.Environment.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
+            * environment:          (`MAPLEAF.ENV.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
         '''
         self.rocketDictReader = rocketDictReader
         self.simDefinition = rocketDictReader.simDefinition
@@ -53,7 +53,7 @@ class Rocket(CompositeObject):
         ''' Parent instance of `MAPLEAF.Main.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. '''
         
         self.environment = environment
-        ''' Instance of `MAPLEAF.ENV.Environment.Environment` '''
+        ''' Instance of `MAPLEAF.ENV.Environment` '''
         if self.environment == None:
             # If no environment is passed in, create one
             self.environment = Environment(self.simDefinition, silent=silent)

@@ -4,14 +4,14 @@ import math
 from collections import namedtuple
 from typing import Union
 
-from MAPLEAF.ENV.AtmosphereModelling import atmosphericModelFactory
-from MAPLEAF.ENV.EarthModelling import earthModelFactory
-from MAPLEAF.ENV.LaunchRail import LaunchRail
-from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
-from MAPLEAF.ENV.TurbulenceModelling import turbulenceModelFactory
+from MAPLEAF.ENV import (LaunchRail, atmosphericModelFactory,
+                         earthModelFactory, meanWindModelFactory,
+                         turbulenceModelFactory)
 from MAPLEAF.IO import SubDictReader, defaultConfigValues
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
                             RigidBodyState, RigidBodyState_3DoF, Vector)
+
+__all__ = [ "EnvironmentalConditions", "Environment" ]
 
 # This named tuple is the object used to return information from the Environmental models to the rocket
     # It is subsequently passed to all rocket objects, who use it in their calculations if they have

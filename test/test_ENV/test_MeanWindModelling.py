@@ -11,9 +11,9 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 import numpy as np
 
+from MAPLEAF.ENV import ConstantWind, InterpolatedWind, meanWindModelFactory
 from MAPLEAF.ENV.MeanWindModelling import (
-    Constant, InterpolatedProfile, RadioSondeDataSampler,
-    _convertWindHeadingToXYPlaneWindDirection, meanWindModelFactory)
+    RadioSondeDataSampler, _convertWindHeadingToXYPlaneWindDirection)
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import Vector
 
@@ -31,7 +31,7 @@ class TestMeanWindModels(unittest.TestCase):
         assertVectorsAlmostEqual(self, _convertWindHeadingToXYPlaneWindDirection(360), Vector(0,-1,0))
 
     def test_readCustomWindProfile(self):
-        windModel = InterpolatedProfile(windFilePath="MAPLEAF/Examples/Wind/testWindProfile.txt")
+        windModel = InterpolatedWind(windFilePath="MAPLEAF/Examples/Wind/testWindProfile.txt")
         
         self.assertTrue(np.allclose(windModel.windAltitudes, np.array([ 2000, 6000, 7000 ])))
         self.assertTrue(np.allclose(windModel.winds, np.array([ [ 10, 0, 0 ],
@@ -69,7 +69,7 @@ class TestMeanWindModels(unittest.TestCase):
         assertVectorsAlmostEqual(self, mWM.getMeanWind(0), Vector(5, 1, 0))
 
     def test_getMeanWind_Constant(self):
-        windModel = Constant(Vector(1,2,3))
+        windModel = ConstantWind(Vector(1,2,3))
         for altitude in [ 0, 1000, 10000, 100000 ]:
             self.assertEqual(windModel.getMeanWind(altitude), Vector(1,2,3))
 

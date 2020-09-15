@@ -11,7 +11,7 @@ import unittest
 from test.testUtilities import (assertForceMomentSystemsAlmostEqual,
                                 assertIterablesAlmostEqual)
 
-from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion import (ForceMomentSystem, Inertia, Quaternion,

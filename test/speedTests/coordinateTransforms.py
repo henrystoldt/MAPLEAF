@@ -7,7 +7,7 @@ print("Each operation performed {} times".format(nTests))
 
 setupTransforms = \
 '''
-from MAPLEAF.ENV.Environment import WGS84Earth, SphericalEarth
+from MAPLEAF.ENV import WGS84Earth, SphericalEarth
 import pyproj
 
 wgs = WGS84Earth()

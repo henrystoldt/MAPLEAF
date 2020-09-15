@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import RocketFlight, SimDefinition, SubDictReader
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
@@ -49,7 +49,7 @@ class SingleSimRunner():
                 If both are provided, the SimDefinition is used.""")
 
         self.environment = Environment(self.simDefinition, silent=silent)
-        ''' Instance of `MAPLEAF.ENV.Environment.Environment`. Will be shared by all Rockets created by this sim runner '''
+        ''' Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner '''
 
         self.stagingIndex = None # Set in self.prepRocketForSingleSimulation
         ''' (int) Set in `SingleSimRunner.prepRocketForSingleSimulation`. Tracks how many stages have been dropped '''

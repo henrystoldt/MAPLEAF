@@ -11,7 +11,7 @@ import unittest
 from test.testUtilities import assertVectorsAlmostEqual
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.ENV import Environment
 from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.Main import SingleSimRunner
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,

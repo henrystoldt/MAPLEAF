@@ -5,8 +5,8 @@ import math
 import unittest
 
 from MAPLEAF.SimulationRunners import SingleSimRunner
-from MAPLEAF.ENV.EarthModelling import (FlatEarth, NoEarth, SphericalEarth,
-                                    WGS84Earth)
+from MAPLEAF.ENV import (FlatEarth, NoEarth, SphericalEarth,
+                                    WGS84)
 from MAPLEAF.Motion import Vector
 from test.testUtilities import assertVectorsAlmostEqual
 from MAPLEAF.IO import SimDefinition
@@ -17,7 +17,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 class TestEarthModels(unittest.TestCase):
 
     def setUp(self):
-        self.WGS84 = WGS84Earth()
+        self.WGS84 = WGS84()
         self.roundEarth = SphericalEarth()
         self.noEarth = NoEarth()
         self.flatEarth = FlatEarth()

@@ -1,9 +1,9 @@
 ''' Modeling of the effects of a Launch Rail on rocket launches '''
 
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import ForceMomentSystem
+from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
+                            Vector)
+
+__all__ = [ "LaunchRail" ]
 
 class LaunchRail():
     def __init__(self, initialPosition, initialDirection, length, earthRotationRate=0):

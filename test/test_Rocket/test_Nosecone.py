@@ -10,7 +10,7 @@
 import math
 import unittest
 
-from MAPLEAF.ENV.Environment import Environment
+from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Rocket import NoseCone, Rocket

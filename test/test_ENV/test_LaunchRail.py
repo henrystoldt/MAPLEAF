@@ -2,8 +2,8 @@ import math
 import unittest
 from test.testUtilities import assertVectorsAlmostEqual
 
-from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.ENV.LaunchRail import LaunchRail
+from MAPLEAF.ENV import Environment
+from MAPLEAF.ENV import LaunchRail
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.Motion import Quaternion

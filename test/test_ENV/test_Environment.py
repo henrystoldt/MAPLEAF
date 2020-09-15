@@ -4,7 +4,7 @@
 import unittest
 from test.testUtilities import assertIterablesAlmostEqual
 
-from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
+from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import Vector
 
