@@ -51,6 +51,10 @@ class ForceMomentSystem():
         # Add it to the previous moment
         return ForceMomentSystem(self.force, newLocation, self.moment + momentAppliedAboutNewLocation)
 
+    def __str__(self):
+        ''' Return string representation of object (Used by print()) '''
+        return 'Force=({}) At=({}) + Moment=({})'.format(self.force, self.location, self.moment)
+
     def __eq__(self, force2):
         return self.force == force2.force and self.location == force2.location and self.moment == force2.moment
 
