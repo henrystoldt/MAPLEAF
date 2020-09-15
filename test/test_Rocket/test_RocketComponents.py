@@ -16,11 +16,11 @@ from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
+from MAPLEAF.Motion import Inertia
+from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import (BodyTube, FixedForce, FixedMass, NoseCone, Rocket,
                             TabulatedAeroForce)
 

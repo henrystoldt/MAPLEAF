@@ -5,12 +5,14 @@ Rigid body classes contain the logic for calculating rigid body state derivative
 
 from collections import namedtuple
 
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.Inertia import Inertia
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Inertia
 from MAPLEAF.Motion.Integration import integratorFactory
-from MAPLEAF.Motion.RigidBodyStates import (RigidBodyState, RigidBodyStateDerivative,
+from MAPLEAF.Motion import (RigidBodyState, RigidBodyStateDerivative,
                              RigidBodyStateDerivative_3DoF)
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
+
+__all__ = [ "RigidBody_3DoF", "RigidBody" ]
 
 #### 3 DoF ####
 class RigidBody_3DoF:

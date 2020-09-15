@@ -5,7 +5,7 @@ import builtins
 import sys
 from contextlib import contextmanager
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 #### Functions to assess near-equality for custom types ####
 

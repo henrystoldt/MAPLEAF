@@ -22,7 +22,7 @@ import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.SimulationRunners import SingleSimRunner, WindTunnelRunner
 
 

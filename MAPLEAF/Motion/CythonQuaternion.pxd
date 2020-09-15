@@ -1,4 +1,4 @@
-from MAPLEAF.Motion.CythonVector cimport Vector
+from MAPLEAF.Motion cimport Vector
 
 cdef class Quaternion:
     cdef public double Q0

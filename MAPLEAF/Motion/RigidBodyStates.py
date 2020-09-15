@@ -3,9 +3,11 @@ Define standard and time-derivative rigid body states.
 These are defined in such a way that, for the purposes of Runge-Kutta motion integration, they can be treated like scalars.
 '''
 
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import AngularVelocity
+
+__all__ = [ "RigidBodyState_3DoF", "RigidBodyStateDerivative_3DoF", "RigidBodyState", "RigidBodyStateDerivative", "interpolateRigidBodyStates" ]
 
 class RigidBodyState_3DoF():
     """ Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
@@ -228,5 +230,24 @@ class RigidBodyStateDerivative():
     def __rmul__(self, scalar):
         return self * scalar
 
+def interpolateRigidBodyStates(state1, state2, state1Weight):
+    '''
+        Linearly interpolates between state 1 and state2.
+        state1Weight should be a decimal value between 0 and 1.
+    '''
+    state2Weight = 1 - state1Weight
+    
+    # Properties of all rigid body states
+    pos = state1.position*state1Weight + state2.position*state2Weight
+    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
 
+    try:
+        # 6DoF Properties
+        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
+        orientation = state1.orientation * orientationDelta
+        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
+        return RigidBodyState(pos, vel, orientation, angVel)
 
+    except AttributeError:
+        # 3DoF doesn't include orientation / angVel
+        return RigidBodyState_3DoF(pos, vel)

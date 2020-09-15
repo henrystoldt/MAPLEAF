@@ -4,7 +4,7 @@ from typing import List
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 

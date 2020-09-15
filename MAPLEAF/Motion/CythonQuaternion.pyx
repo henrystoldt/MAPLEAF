@@ -4,7 +4,9 @@
 import numbers
 from libc.math cimport atan2, asin, cos, pi, sin, sqrt
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
+
+__all__ = [ 'Quaternion' ]
 
 cdef class Quaternion:    
     '''

@@ -8,8 +8,8 @@
 
 import unittest
 
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Inertia
+from MAPLEAF.Motion import Vector
 from test.testUtilities import assertIterablesAlmostEqual
 
 

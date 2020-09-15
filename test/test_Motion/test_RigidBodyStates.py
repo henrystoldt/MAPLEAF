@@ -9,10 +9,10 @@
 import unittest
 from math import pi
 
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF, RigidBodyStateDerivative_3DoF, RigidBodyStateDerivative
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import RigidBodyState, RigidBodyState_3DoF, RigidBodyStateDerivative_3DoF, RigidBodyStateDerivative
+from MAPLEAF.Motion import Vector
 from test.testUtilities import assertQuaternionsAlmostEqual, assertRigidBodyStatesalmostEqual, assertVectorsAlmostEqual
 
 

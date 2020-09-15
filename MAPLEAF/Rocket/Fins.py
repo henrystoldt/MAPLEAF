@@ -6,13 +6,12 @@ from math import asin, cos, degrees, radians, sqrt
 
 import numpy as np
 
-import MAPLEAF.Motion.Interpolation as Interpolation
+import MAPLEAF.Motion as Interpolation
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import EnvironmentalConditions
 from MAPLEAF.GNC.ActuatedSystem import ActuatedSystem
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
 from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,

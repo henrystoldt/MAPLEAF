@@ -17,7 +17,7 @@ from MAPLEAF.IO import SubDictReader
 from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
 from MAPLEAF.Rocket import Rocket
 from MAPLEAF.ENV.TurbulenceModelling import PinkNoiseGenerator, turbulenceModelFactory
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestTurbulenceModels(unittest.TestCase):

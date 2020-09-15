@@ -12,7 +12,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 from MAPLEAF.IO import SimDefinition, defaultConfigValues 
 from MAPLEAF.IO.simDefinition import getImmediateSubKey, getKeyLevel, isSubKey
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestSimDefinition(unittest.TestCase):

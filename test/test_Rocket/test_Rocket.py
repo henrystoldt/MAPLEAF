@@ -17,12 +17,12 @@ from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.Integration import Integrator
-from MAPLEAF.Motion.RigidBody import RigidBodyState
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
+from MAPLEAF.Motion import RigidBodyState
+from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import RecoverySystem, Rocket
 
 

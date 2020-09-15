@@ -9,7 +9,7 @@
 import unittest
 
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestForceMomentSystem(unittest.TestCase):

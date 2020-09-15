@@ -2,8 +2,10 @@
 # June 2020 - moved from Quaternion.py
 
 import numbers
-from MAPLEAF.Motion.CythonQuaternion cimport Quaternion
-from MAPLEAF.Motion.CythonVector cimport Vector
+from MAPLEAF.Motion cimport Quaternion
+from MAPLEAF.Motion cimport Vector
+
+__all__ = [ "AngularVelocity" ]
 
 cdef class AngularVelocity(Vector):
     '''

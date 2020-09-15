@@ -3,15 +3,15 @@ from math import pi
 
 import numpy as np
 
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.GNC.ControlSystems import RocketControlSystem
 from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBody import RigidBodyState
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import Rocket
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestRocketControlSystem(unittest.TestCase):

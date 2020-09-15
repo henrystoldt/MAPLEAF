@@ -8,9 +8,9 @@
 
 import unittest
 
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 
 class TestAngularVelocity(unittest.TestCase):
     def setUp(self):

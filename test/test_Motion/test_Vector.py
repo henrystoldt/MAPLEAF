@@ -11,7 +11,7 @@ from math import acos, sqrt
 from test.testUtilities import assertVectorsAlmostEqual
 
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestVector(unittest.TestCase):

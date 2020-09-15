@@ -3,11 +3,10 @@ Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inh
 It implements functionality to add forces and inertias from an arbitrary number of subcomponents.
 '''
 
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem, Inertia, Vector
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Rocket import FixedMass
-from MAPLEAF.Motion.CythonVector import Vector
+
+__all__ = [ 'CompositeObject' ]
 
 class CompositeObject():
     """
@@ -45,7 +44,7 @@ class CompositeObject():
         self.variableMassComponents = []
 
         for component in self.components:
-            if isinstance(component, FixedMass):
+            if component.__clas__.__name__ ==  "FixedMass":
                 self.fixedMassComponents.append(component)
             else:
                 self.variableMassComponents.append(component)
@@ -133,4 +132,3 @@ class CompositeObject():
 
     def getCG(self, time, state):
         return self.getInertia(time, state).CG
-

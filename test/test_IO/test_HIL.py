@@ -13,10 +13,10 @@ import serial
 
 import MAPLEAF.IO.HIL as HIL
 from MAPLEAF.IO.HIL import packet
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBody import RigidBodyState
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import RigidBodyState
+from MAPLEAF.Motion import Vector
 
 
 class testHILInterface(unittest.TestCase):

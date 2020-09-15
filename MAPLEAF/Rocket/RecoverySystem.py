@@ -1,5 +1,5 @@
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Rocket import EventTypes, FixedMass
 from MAPLEAF.Rocket.AeroFunctions import logForceResult

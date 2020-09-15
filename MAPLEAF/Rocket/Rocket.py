@@ -18,14 +18,10 @@ from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
 from MAPLEAF.GNC.ControlSystems import RocketControlSystem
 from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
+from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
+                            Quaternion, RigidBody, RigidBody_3DoF,
+                            RigidBodyState, RigidBodyState_3DoF, Vector)
 from MAPLEAF.Motion.CompositeObject import CompositeObject
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBody import RigidBody, RigidBody_3DoF
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
 from MAPLEAF.Rocket import (
     BoatTail, BodyComponent, BodyTube, FinSet, NoseCone, PlanarInterface,
     SimEventDetector, Stage, TabulatedMotor)

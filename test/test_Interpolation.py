@@ -8,11 +8,11 @@
 
 import unittest
 
-from MAPLEAF.Motion.Interpolation import linInterp, linInterpWeights, interpolateRigidBodyStates
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState_3DoF, RigidBodyState
+from MAPLEAF.Motion import linInterp, linInterpWeights, interpolateRigidBodyStates
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import RigidBodyState_3DoF, RigidBodyState
 from test.testUtilities import assertIterablesAlmostEqual, assertQuaternionsAlmostEqual
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 class TestInterpolation(unittest.TestCase):
 

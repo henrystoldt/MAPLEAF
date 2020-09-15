@@ -7,8 +7,8 @@ from bisect import bisect
 
 import numpy as np
 
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
 
+__all__ = [ "linInterp", "linInterpWeights", "calculateCubicInterpCoefficients", "cubicInterp" ]
 
 def linInterp(X, Y, desiredX):
     '''
@@ -94,24 +94,3 @@ def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
     interpCoeffs = calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dy_dx_x1, dy_dx_x2)
     return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)
 
-def interpolateRigidBodyStates(state1, state2, state1Weight):
-    '''
-        Linearly interpolates between state 1 and state2.
-        state1Weight should be a decimal value between 0 and 1.
-    '''
-    state2Weight = 1 - state1Weight
-    
-    # Properties of all rigid body states
-    pos = state1.position*state1Weight + state2.position*state2Weight
-    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
-
-    try:
-        # 6DoF Properties
-        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
-        orientation = state1.orientation * orientationDelta
-        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
-        return RigidBodyState(pos, vel, orientation, angVel)
-
-    except AttributeError:
-        # 3DoF doesn't include orientation / angVel
-        return RigidBodyState_3DoF(pos, vel)

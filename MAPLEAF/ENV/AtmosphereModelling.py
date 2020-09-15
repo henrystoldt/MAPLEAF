@@ -7,7 +7,7 @@ from typing import Sequence
 
 import numpy as np
 
-from MAPLEAF.Motion.Interpolation import linInterp
+from MAPLEAF.Motion import linInterp
 from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
 
 

@@ -23,7 +23,7 @@ from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO import RocketFlight
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
 

@@ -9,8 +9,8 @@
 import unittest
 from math import pi, sin, sqrt
 
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 from test.testUtilities import assertQuaternionsAlmostEqual, assertIterablesAlmostEqual, assertVectorsAlmostEqual
 
 class TestQuaternion(unittest.TestCase):

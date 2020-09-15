@@ -9,8 +9,8 @@ print("Custom Quaternion")
 print("")
 
 importQuatVec = '''
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 v1 = Vector(1, 1, 2)
 '''
 # Test Quaternion speed (init)
@@ -23,8 +23,8 @@ print(timeit("a = Quaternion(components=[1, 1.2, 2.3, 4.5])", setup=importQuatVe
 
 
 setupRotQuat = '''
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 
 qRot = Quaternion(axisOfRotation=Vector(1, 1, 2), angle=1.2)
 vec = Vector(1, 2, 3)
@@ -39,7 +39,7 @@ print("")
 
 setupScipyRot = '''
 from scipy.spatial.transform import Rotation as R
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 v1 = list(Vector(1, 1, 2).normalize() * 1.2)
 '''
 # Test Scipy speed (init)
@@ -48,7 +48,7 @@ print(timeit("a = R.from_rotvec(v1)", setup=setupScipyRot, number=nTests))
 
 setupScipyRot = '''
 from scipy.spatial.transform import Rotation as R
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 v1 = list(Vector(1, 1, 2).normalize() * 1.2)
 sRot = R.from_rotvec(v1)
 vec = [1, 2, 3]
@@ -63,7 +63,7 @@ print("Custom Vector")
 print("")
 
 setup = '''
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 import numpy as np
 a = [1,2,3]

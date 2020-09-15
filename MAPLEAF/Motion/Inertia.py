@@ -2,7 +2,9 @@
 # April 2020
 
 import MAPLEAF
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
+
+__all__ = [ "Inertia" ]
 
 class Inertia():
 

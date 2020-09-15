@@ -5,11 +5,11 @@ from test.testUtilities import assertVectorsAlmostEqual
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.ENV.LaunchRail import LaunchRail
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import AngularVelocity
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
+from MAPLEAF.Motion import RigidBodyState
 
 
 class TestLaunchRail(unittest.TestCase):

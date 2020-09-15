@@ -15,12 +15,12 @@ import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBody import RigidBodyState
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Inertia
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import RigidBodyState
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import NoseCone
 from MAPLEAF.Rocket import Rocket
 

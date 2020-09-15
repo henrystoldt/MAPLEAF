@@ -10,8 +10,8 @@ import time
 
 import serial
 
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 
 
 class packet:

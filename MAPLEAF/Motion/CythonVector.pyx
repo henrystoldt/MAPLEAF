@@ -8,6 +8,7 @@ import numbers
 from libc.math cimport acos, sqrt
 from libc.stdlib cimport atof
 
+__all__ = [ "Vector" ]
 
 cdef class Vector:
     

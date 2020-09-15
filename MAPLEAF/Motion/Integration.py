@@ -3,7 +3,6 @@
 import math
 
 from MAPLEAF.GNC.PID import PIDController
-from MAPLEAF.IO import SubDictReader
 
 def checkButcherTableau(tableau):
     ''' 
@@ -51,6 +50,7 @@ def integratorFactory(integrationMethod="Euler", simDefinition=None, discardedTi
         if simDefinition == None:
             raise ValueError("SimDefinition object required to initialize adaptive integrator")
 
+        from MAPLEAF.IO import SubDictReader
         adaptDictReader = SubDictReader("SimControl.TimeStepAdaptation", simDefinition)
 
         # Adaptive Integration

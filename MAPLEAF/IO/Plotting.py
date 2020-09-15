@@ -17,10 +17,10 @@ import mpl_toolkits.mplot3d.axes3d as p3
 import numpy as np
 import pandas as pd
 
-from MAPLEAF.Motion.Interpolation import interpolateRigidBodyStates, linInterpWeights
+from MAPLEAF.Motion import interpolateRigidBodyStates, linInterpWeights
 from MAPLEAF.IO import RocketFlight
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
 
 # For all plots for publications: (match publication font)
 plt.rcParams["font.family"] = "Times New Roman"

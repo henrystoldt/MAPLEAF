@@ -5,7 +5,7 @@
 from distutils.util import strtobool
 from typing import List, Any, Union
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 __all__ = [ "SubDictReader" ]
 

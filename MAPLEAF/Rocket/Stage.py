@@ -3,7 +3,7 @@ from typing import List, Union
 
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion.CompositeObject import CompositeObject
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import (BodyComponent, PlanarInterface,
                             rocketComponentFactory, stringNameToClassMap)
 

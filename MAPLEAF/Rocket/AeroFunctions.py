@@ -8,7 +8,7 @@ Used throughout the aeordynamics functions
 import math
 from functools import wraps
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 #### Function decorators ####
 def cacheLastResult(func):

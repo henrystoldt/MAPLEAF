@@ -12,13 +12,7 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import EnvironmentalConditions
-from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
@@ -26,15 +20,15 @@ __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", 
 class RocketComponent(ABC):
     ''' Interface definition for rocket components '''
     @abstractmethod
-    def __init__(self, componentDictReader: SubDictReader, rocket, stage):
+    def __init__(self, componentDictReader, rocket, stage):
         return
 
     @abstractmethod
-    def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -> Inertia:
+    def getInertia(self, time, state) -> Inertia:
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -> ForceMomentSystem:
+    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -> ForceMomentSystem:
         return
 
 class BodyComponent(ABC):
@@ -325,7 +319,7 @@ class TabulatedAeroForce(AeroForce):
             # Create n-dimensional interpolation function for aero coefficients
             self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
         else:
-            # Save to use with MAPLEAF.Motion.Interpolation.linInterp
+            # Save to use with MAPLEAF.Motion.linInterp
             self.keys = [ key[0] for key in keys ]
             self.values = aeroCoefficients
 

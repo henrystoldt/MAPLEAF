@@ -5,7 +5,7 @@ Used for creating flight animations.
 
 from math import sqrt
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 __all__ = [ "RocketFlight" ]
 

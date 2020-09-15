@@ -4,13 +4,13 @@
 import unittest
 
 from MAPLEAF.Motion.CompositeObject import CompositeObject
-from MAPLEAF.Motion.Inertia import Inertia
+from MAPLEAF.Motion import Inertia
 from MAPLEAF.Rocket import FixedMass
 from test.testUtilities import assertIterablesAlmostEqual
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
-class FixedMassForCompsiteObjectTest(FixedMass):
+class FixedMassForCompositeObjectTest(FixedMass):
     def __init__(self, inertia):
         self.inertia = inertia
 
@@ -30,15 +30,15 @@ class TestCompositeObject(unittest.TestCase):
         ballCentroid2 = Vector(0.4, 0, 0)
         ballMass = 40
         ball1Inertia = Inertia(ballMOI, ballCentroid1, ballMass, ballCentroid1)
-        ball1 = FixedMassForCompsiteObjectTest(ball1Inertia)
+        ball1 = FixedMassForCompositeObjectTest(ball1Inertia)
         ball2Inertia = Inertia(ballMOI, ballCentroid2, ballMass, ballCentroid2)
-        ball2 = FixedMassForCompsiteObjectTest(ball2Inertia)
+        ball2 = FixedMassForCompositeObjectTest(ball2Inertia)
 
         rodMOI = Vector(0,0.6,0.6)
         rodCentroid = Vector(0,0,0)
         rodMass = 20
         rodInertia = Inertia(rodMOI, rodCentroid, rodMass, rodCentroid)
-        rod = FixedMassForCompsiteObjectTest(rodInertia)
+        rod = FixedMassForCompositeObjectTest(rodInertia)
 
         # Create composite object
         dumbbell = CompositeObject([ball1, ball2, rod])
@@ -71,10 +71,10 @@ class TestCompositeObject(unittest.TestCase):
         ball2Inertia = Inertia(ballMOI, ballCentroid2, 20)
         ball3Inertia = Inertia(ballMOI, ballCentroid3, 30)
         ball4Inertia = Inertia(ballMOI, ballCentroid4, 40)
-        Ball1 = FixedMassForCompsiteObjectTest(ball1Inertia)
-        Ball2 = FixedMassForCompsiteObjectTest(ball2Inertia)
-        Ball3 = FixedMassForCompsiteObjectTest(ball3Inertia)
-        Ball4 = FixedMassForCompsiteObjectTest(ball4Inertia)
+        Ball1 = FixedMassForCompositeObjectTest(ball1Inertia)
+        Ball2 = FixedMassForCompositeObjectTest(ball2Inertia)
+        Ball3 = FixedMassForCompositeObjectTest(ball3Inertia)
+        Ball4 = FixedMassForCompositeObjectTest(ball4Inertia)
 
         innerCompObject1 = CompositeObject([Ball1, Ball2])
         innerCompObject2 = CompositeObject([Ball3, Ball4])

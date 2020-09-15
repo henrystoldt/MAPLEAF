@@ -6,10 +6,10 @@ from typing import Union
 
 import numpy as np
 
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import Inertia
+from MAPLEAF.Motion import RigidBodyState, RigidBodyState_3DoF
 from MAPLEAF.IO import getAbsoluteFilePath
 
 class EarthModel(ABC):

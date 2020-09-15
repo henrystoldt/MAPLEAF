@@ -8,10 +8,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rv_histogram
 
-from MAPLEAF.Motion.Interpolation import linInterp
+from MAPLEAF.Motion import linInterp
 from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 # Mean Wind Model Abstract Base Class / Interface Definition

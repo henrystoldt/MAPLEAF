@@ -3,11 +3,11 @@ from pathlib import Path
 
 from scipy.interpolate import interp1d
 
-from MAPLEAF.Motion.Interpolation import linInterp
+from MAPLEAF.Motion import linInterp
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
+from MAPLEAF.Motion import Inertia
 from MAPLEAF.Rocket import RocketComponent
 
 __all__ = [ "TabulatedMotor" ]

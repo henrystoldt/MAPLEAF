@@ -4,7 +4,7 @@ import abc
 import random
 from math import cos, pi
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.IO import SubDictReader
 
 #TODO: Implement vonKarman or Dryden model with std deviation / length scale that varies with altitude as per NASA HDBK-1001

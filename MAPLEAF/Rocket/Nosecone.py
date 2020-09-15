@@ -4,9 +4,9 @@ from typing import List
 import numpy as np
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-import MAPLEAF.Motion.Interpolation as Interpolation
+import MAPLEAF.Motion as Interpolation
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
 from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 

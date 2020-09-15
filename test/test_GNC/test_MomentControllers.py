@@ -3,13 +3,13 @@ from math import pi
 
 import numpy as np
 
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
 from MAPLEAF.GNC.Navigation import Stabilizer
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import RigidBodyState
 from MAPLEAF.Rocket import Rocket
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestGainScheduledPIDRocketMomentController(unittest.TestCase):

@@ -16,7 +16,7 @@ from MAPLEAF.ENV.MeanWindModelling import (
     Constant, InterpolatedProfile, RadioSondeDataSampler,
     _convertWindHeadingToXYPlaneWindDirection, meanWindModelFactory)
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
 
 class TestMeanWindModels(unittest.TestCase):
