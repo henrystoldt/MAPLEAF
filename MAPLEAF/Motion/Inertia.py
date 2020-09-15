@@ -24,6 +24,16 @@ class Inertia():
         else:
             self.CG = CG + componentLocation
 
+    def checkDefinedAboutCG(self, inertiasList):
+        '''
+            Called by the functions that add/combine inertias.
+            Checks that every inertia to be added up has MOIs defined about its CG.
+            Throws a ValueError if this is not the case
+        '''
+        for inertia in inertiasList:
+            if inertia.MOICentroidLocation != inertia.CG:
+                raise ValueError("At least one of the inertias to be added has an MOI not defined about its CG: {}".format(inertia))
+
     def combineInertiasAboutPoint(self, inertiasList, Point):
         """
             Version of the combineInertias function below, which can combine Inertias about a point which is not coincident with the combined CG of the resulting combined object.
@@ -43,6 +53,8 @@ class Inertia():
         # Add the current object to the list of Inertia objects to be combined
         if self not in inertiasList:
             inertiasList.append(self)
+
+        self.checkDefinedAboutCG(inertiasList)
 
         # Add up all the inertias in the list
         for inertia in inertiasList:
@@ -77,6 +89,8 @@ class Inertia():
         if self not in inertiasList:
             inertiasList.append(self)
 
+        self.checkDefinedAboutCG(inertiasList)
+
         # Calculate combined CG
         totalMass = 0
         totalCG = Vector(0,0,0)
@@ -107,6 +121,13 @@ class Inertia():
 
     def __add__(self, inertia2):
         return self.combineInertias([inertia2])
+
+    def __str__(self):
+        ''' Get string representation, used by str() and print() '''
+        if self.MOICentroidLocation == self.CG:
+            return 'MOI=({}) calculated about CG=({}) Mass=({}) '
+        else:
+            return 'MOI=({}) calculated about non-CG Point=({}) CG=({}) Mass=({})'
 
     def __eq__(self, inertia2):
         try:
