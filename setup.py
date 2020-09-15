@@ -1,10 +1,7 @@
-import subprocess
-
 import setuptools
 from Cython.Build import cythonize
 from pkg_resources import parse_requirements
-from setuptools import setup, Extension
-
+from setuptools import Extension, setup
 
 #### Get/Set info to be passed into setup() ####
 with open("README.md", "r") as fh:

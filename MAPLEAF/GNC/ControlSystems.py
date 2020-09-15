@@ -5,7 +5,6 @@ Control systems run a simulated control loops between simulation time steps, and
 
 import abc
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
 from MAPLEAF.GNC.Navigation import Stabilizer
 from MAPLEAF.Motion.Integration import integratorFactory

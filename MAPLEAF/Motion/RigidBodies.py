@@ -3,14 +3,9 @@ Classes that represent 3- and 6-DoF rigid bodies.
 Rigid body classes contain the logic for calculating rigid body state derivatives, given current applied forces and inertia of the rigid body
 """
 
-from collections import namedtuple
-
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Inertia
+from MAPLEAF.Motion import (AngularVelocity, RigidBodyStateDerivative,
+                            RigidBodyStateDerivative_3DoF)
 from MAPLEAF.Motion.Integration import integratorFactory
-from MAPLEAF.Motion import (RigidBodyState, RigidBodyStateDerivative,
-                             RigidBodyStateDerivative_3DoF)
-from MAPLEAF.Motion import Vector
 
 __all__ = [ "RigidBody_3DoF", "RigidBody" ]
 

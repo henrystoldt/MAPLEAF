@@ -7,7 +7,6 @@
 #In all files in the current directory: [python -m unittest discover]
 #Add [-v] for verbose output (displays names of all test functions)
 
-import math
 import unittest
 from test.testUtilities import (assertInertiasAlmostEqual,
                                 assertIterablesAlmostEqual)

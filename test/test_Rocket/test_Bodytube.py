@@ -9,19 +9,11 @@
 
 import math
 import unittest
-from test.testUtilities import (assertForceMomentSystemsAlmostEqual,
-                                assertVectorsAlmostEqual)
+from test.testUtilities import assertVectorsAlmostEqual
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Motion import Inertia
-from MAPLEAF.Motion import RigidBodyState
+from MAPLEAF.IO import SimDefinition, SubDictReader
+from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Rocket import BodyTube, Rocket
 from MAPLEAF.SimulationRunners import SingleSimRunner
 

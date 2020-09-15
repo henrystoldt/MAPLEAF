@@ -9,13 +9,12 @@
 import os
 import sys
 import unittest
-from test.testUtilities import captureOutput, assertIterablesAlmostEqual
+from test.testUtilities import assertIterablesAlmostEqual
 
 import MAPLEAF.IO.Logging as Logging
 from MAPLEAF.IO.Logging import (Logger, MonteCarloLogger,
-                        findNextAvailableNumberedFileName,
-                        getSimDefinitionAndDefaultValueDictsForOutput,
-                        getSystemInfo, removeLogger)
+                                findNextAvailableNumberedFileName,
+                                getSystemInfo, removeLogger)
 
 
 class TestLogger(unittest.TestCase):

@@ -10,21 +10,13 @@ import math
 import unittest
 from test.testUtilities import assertVectorsAlmostEqual
 
-import numpy as np
-
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.IO.Logging import removeLogger
-from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Motion.Integration import Integrator
-from MAPLEAF.Motion import RigidBodyState
-from MAPLEAF.Motion import RigidBodyState
-from MAPLEAF.Rocket import NoseCone, Rocket
+from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
+                            RigidBodyState, Vector)
+from MAPLEAF.Rocket import NoseCone
 
 
 def createStateWithRe(reynoldsNumber, env, length=1):

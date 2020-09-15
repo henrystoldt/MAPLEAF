@@ -1,11 +1,10 @@
 import math
-from typing import List
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
+from MAPLEAF.Rocket import BodyComponent, FixedMass
 from MAPLEAF.Rocket.noseCone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
 
 __all__ = [ "Transition", "BoatTail" ]

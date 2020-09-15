@@ -8,7 +8,6 @@ Defines a basic single simulation runner `SingleSimRunner`, as well as more spec
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 '''
 
-import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
@@ -20,9 +19,7 @@ from tqdm import tqdm
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO import RocketFlight
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
+from MAPLEAF.IO import RocketFlight, SimDefinition, SubDictReader
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 

@@ -12,13 +12,8 @@ import unittest
 from math import radians
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import RigidBodyState
+from MAPLEAF.IO import SimDefinition, SubDictReader
+from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Rocket import FinSet, Rocket
 from MAPLEAF.Rocket.CythonFinFunctions import getFinSliceAngleOfAttack
 

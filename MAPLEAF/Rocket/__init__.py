@@ -29,6 +29,8 @@ Natural cast-iron surface:            250
 Raw wooden boards:                    500
 Average concrete:                     1000
 
+MAPLEAF.Rocket relies on (in order of importance) MAPLEAF.Motion, MAPLEAF.ENV, MAPLEAF.IO, and MAPLEAF.GNC
+
 '''
 # Make the classes in all submodules importable directly from MAPLEAF.Rocket
 from .RocketComponents import *

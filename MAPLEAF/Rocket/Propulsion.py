@@ -1,7 +1,4 @@
 import re
-from pathlib import Path
-
-from scipy.interpolate import interp1d
 
 from MAPLEAF.Motion import linInterp
 from MAPLEAF.IO import SubDictReader

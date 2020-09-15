@@ -1,7 +1,6 @@
 # Created by: Henry Stoldt & Declan Quinn
 # April 2020
 
-import MAPLEAF
 from MAPLEAF.Motion import Vector
 
 __all__ = [ "Inertia" ]

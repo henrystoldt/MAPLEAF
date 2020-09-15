@@ -1,17 +1,11 @@
 import unittest
-from math import pi
 
 import numpy as np
 
-from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.GNC.ControlSystems import RocketControlSystem
-from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import RigidBodyState
-from MAPLEAF.Rocket import Rocket
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
+from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
 
 
 class TestRocketControlSystem(unittest.TestCase):

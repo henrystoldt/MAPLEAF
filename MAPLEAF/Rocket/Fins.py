@@ -1,8 +1,7 @@
 import copy
 import math
-import re
 from collections import namedtuple
-from math import asin, cos, degrees, radians, sqrt
+from math import cos, radians, sqrt
 
 import numpy as np
 
@@ -15,7 +14,6 @@ from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion import ForceMomentSystem
 from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
 from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,
-                                           getFinSliceForce_Supersonic,
                                            getSubsonicFinNormalForce,
                                            getSupersonicFinNormalForce)
 from MAPLEAF.Rocket import FixedMass

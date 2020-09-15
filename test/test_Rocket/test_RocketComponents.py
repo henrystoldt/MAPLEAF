@@ -7,20 +7,15 @@
 #In all files in the current directory: [python -m unittest discover]
 #Add [-v] for verbose output (displays names of all test functions)
 
-import math
 import unittest
 from test.testUtilities import (assertForceMomentSystemsAlmostEqual,
                                 assertIterablesAlmostEqual)
 
 from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
+from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.Main import SingleSimRunner
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Motion import Inertia
-from MAPLEAF.Motion import RigidBodyState
+from MAPLEAF.Motion import (ForceMomentSystem, Inertia, Quaternion,
+                            RigidBodyState, Vector)
 from MAPLEAF.Rocket import (BodyTube, FixedForce, FixedMass, NoseCone, Rocket,
                             TabulatedAeroForce)
 

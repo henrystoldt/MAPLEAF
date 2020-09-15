@@ -3,7 +3,7 @@
 '''
 
 from distutils.util import strtobool
-from typing import List, Any, Union
+from typing import List, Union
 
 from MAPLEAF.Motion import Vector
 

@@ -7,24 +7,20 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.SingleSimRun
 """
 
 import math
-import re
-from distutils.util import strtobool
 
 import matplotlib.pyplot as plt
-import numpy
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
 from MAPLEAF.GNC.ControlSystems import RocketControlSystem
-from MAPLEAF.IO import SimDefinition, SubDictReader
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
-from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
-                            Quaternion, RigidBody, RigidBody_3DoF,
-                            RigidBodyState, RigidBodyState_3DoF, Vector)
+from MAPLEAF.Motion import (AngularVelocity, Inertia, Quaternion, RigidBody,
+                            RigidBody_3DoF, RigidBodyState,
+                            RigidBodyState_3DoF, Vector)
+from MAPLEAF.Rocket import (BoatTail, BodyComponent, PlanarInterface,
+                            SimEventDetector, Stage)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
-from MAPLEAF.Rocket import (
-    BoatTail, BodyComponent, BodyTube, FinSet, NoseCone, PlanarInterface,
-    SimEventDetector, Stage, TabulatedMotor)
 
 __all__ = [ "Rocket" ]
 

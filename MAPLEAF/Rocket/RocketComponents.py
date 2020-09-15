@@ -12,7 +12,8 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp, RigidBodyState
+from MAPLEAF.Motion import (
+    ForceMomentSystem, Inertia, RigidBodyState, Vector, linInterp)
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]

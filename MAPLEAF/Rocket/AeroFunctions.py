@@ -8,7 +8,6 @@ Used throughout the aeordynamics functions
 #TODO: This file needs to be split up neatly
 
 import math
-from functools import wraps
 
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion import ForceMomentSystem

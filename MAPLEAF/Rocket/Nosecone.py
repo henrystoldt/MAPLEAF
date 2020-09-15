@@ -1,14 +1,11 @@
 import math
-from typing import List
 
 import numpy as np
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 import MAPLEAF.Motion as Interpolation
+import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Rocket import BodyComponent, FixedMass
 from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Rocket import RocketComponent, BodyComponent, FixedMass
 
 __all__ = [ "NoseCone" ]
 

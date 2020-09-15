@@ -1,6 +1,4 @@
-import math
 from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import Quaternion
 
 __all__ = [ 'ForceMomentSystem' ]
 
@@ -57,4 +55,3 @@ class ForceMomentSystem():
 
     def __eq__(self, force2):
         return self.force == force2.force and self.location == force2.location and self.moment == force2.moment
-

@@ -11,7 +11,6 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 import numpy as np
 
-from MAPLEAF.ENV.Environment import Environment
 from MAPLEAF.ENV.MeanWindModelling import (
     Constant, InterpolatedProfile, RadioSondeDataSampler,
     _convertWindHeadingToXYPlaneWindDirection, meanWindModelFactory)

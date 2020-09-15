@@ -9,18 +9,13 @@
 import math
 import unittest
 from math import cos, pi, sin
+from test.testUtilities import (assertAngVelAlmostEqual,
+                                assertQuaternionsAlmostEqual,
+                                assertVectorsAlmostEqual)
 
-from MAPLEAF.Motion import AngularVelocity
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Motion import Inertia
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import RigidBody, RigidBodyState
-from test.testUtilities import (
-    assertAngVelAlmostEqual, assertIterablesAlmostEqual,
-    assertQuaternionsAlmostEqual, assertRigidBodyStatesalmostEqual,
-    assertVectorsAlmostEqual)
-from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
+                            Quaternion, RigidBody, RigidBodyState, Vector)
 
 
 class TestRigidBody(unittest.TestCase):

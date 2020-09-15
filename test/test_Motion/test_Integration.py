@@ -1,7 +1,6 @@
 import unittest
 
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Motion.Integration import Integrator, AdaptiveIntegrator, integratorFactory
+from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
 
 
 # https://lpsa.swarthmore.edu/NumInt/NumIntSecond.html

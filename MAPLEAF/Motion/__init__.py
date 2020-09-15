@@ -13,6 +13,8 @@ Fundamental data types used throughout the simulator defined in:
 
 Generalized constant and adaptive time stepping integrators are defined in `Integration`
 
+MAPLEAF.Motion does not rely on any of MAPLEAF's other packages.
+
 .. image:: https://www.researchgate.net/profile/Alireza_Abbaspour2/publication/326452421/figure/fig1/AS:701040399753217@1544152464477/The-aircraft-coordinate-system-34.jpg
 '''
 # Make the classes in all submodules importable directly from MAPLEAF.Rocket

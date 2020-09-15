@@ -11,7 +11,7 @@ from math import pi, sin, sqrt
 
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
-from test.testUtilities import assertQuaternionsAlmostEqual, assertIterablesAlmostEqual, assertVectorsAlmostEqual
+from test.testUtilities import assertQuaternionsAlmostEqual, assertVectorsAlmostEqual
 
 class TestQuaternion(unittest.TestCase):
     def setUp(self):
