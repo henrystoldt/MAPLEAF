@@ -5,3 +5,4 @@ pandas>=1.0.3
 pyserial>=3.4
 tqdm>=4.0
 cython
+pyswarms

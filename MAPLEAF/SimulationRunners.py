@@ -8,11 +8,11 @@ Defines a basic single simulation runner `SingleSimRunner`, as well as more spec
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 '''
 
+import math
 import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
-from math import pi
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -416,7 +416,7 @@ class SingleSimRunner():
                 # Post process / calculate force/moment coefficients if desired
                 if self.loggingLevel >= 3:
                     bodyDiameter = self.rocketStages[0].bodyTubeDiameter
-                    crossSectionalArea = pi * bodyDiameter * bodyDiameter / 4
+                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
 
@@ -583,6 +583,7 @@ def isMonteCarloSimulation(simDefinition):
 
     return False
 
+#TODO: MonteCarloSimRunner -> runMonteCarloSimulation (function)
 class MonteCarloSimRunner(SingleSimRunner):
     '''
         Runs a simulation repeatedly, always resampling parameters that have a specfified normal distribution in the simulation definition
@@ -696,27 +697,139 @@ def runParallelMonteCarloSim(simDefinition):
     print("1: {}".format(results))
     print("2: {}".format(results2))
 
-class RocketOptimizer():
-    ''' 
-        Reads SimDefinition file and Optimization dictionary, instantiates child sim runner to run simulation.
-        Computes optimization metrics
-        Creates an optimization log file unless SimControl.loggingLevel = 0
-    '''
+class OptimizingSimRunner():
 
     def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
         ''' Reads optimization dict, intializes variable vectors, constraints etc. '''
-        pass
+        
+        # Store / load simulation definition
+        if simDefinition == None and simDefinitionFilePath != None:
+            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file from filePath
+        elif simDefinition != None:
+            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
+        else:
+            raise ValueError(""" Insufficient information. Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+                If both are provided, the SimDefinition is used.""")
 
-    def evaluateMetric(variableValues: List[float]) -> float:
+        # Parse the simulation definition's Optimization dictionary, but don't run it yet
+        self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
+        self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
+        self.optimizer, self.nIterations = self._createOptimizer()
+
+    def _loadIndependentVariables(self):
         ''' 
+            Parses the independent variables section of Optimization dictionary.
+            Returns four lists:
 
-            1. Creates modified simulation definition from variableVector, checks constraints, ajusts dependent variables
-            2. Instantiates (Single or Monte Carlo) simulation runner + runs sim
-            3. Computes + returns metric
+            * A list of string paths to the corresponding values in the simulation definition
+            * Parameter names
+            * A list of minimum parameter values
+            * A list of maximum parameter values
 
-            References to this function can be passed to an external optimizer.
+            All lists are in corresponding order
         '''
-        pass
+        varKeys = []
+        varNames = []
+        minVals = []
+        maxVals = []
+
+        for key in self.simDefinition.getSubKeys("Optimization.IndependentVariables"):
+            # Value expected to be 'min < key.Path < max'
+            # Split into three parts using the '<' characters
+            strings = self.simDefinition.getValue(key).split('<')
+
+            if len(strings) != 3:
+                # ERROR: too many or too few values
+                raise ValueError("Parameters in the Optimization.IndependentVariables dictionary should be scalars and conform to the following format: '[minValue] < [path.To.Parameter] < [maxValue]' \
+                                Problem key is {}, which has a value of {}".format(key, " ".join(strings)))
+            
+            # Remove spaces
+            minVal, keyPath, maxVal = [ s.strip() for s in strings ]
+            varName = key.split('.')[-1] # User's given name
+
+            # Parse / Save
+            varKeys.append(keyPath)
+            varNames.append(varName)
+            minVals.append(float(minVal))
+            maxVals.append(float(maxVal))
+
+        return varKeys, names, minVals, maxVals
+
+    def _loadDependentVariables(self):
+        '''
+            Parses the dependent variables section of Optimization dictionary.
+            Returns two lists:
+
+            * A list of string paths to the corresponding values in the simulation definition
+            * Dependent parameter names
+
+            Both in corresponding order
+        '''
+        depVarNames = []
+        depVarDefinitions = []
+
+
+        for depVar in self.simDefinition.getSubKeys("Optimization.DependentVariables"):
+            # Value expected: [paramName]  [paramDefinitionString]
+            depVarNames.append(depVar)
+            depVarDefinitions.append(simDefinition.getValue(depVar))
+
+        return depVarnames, depVarDefinitions
+
+    def _createOptimizer(self):
+        ''' 
+            Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
+            Returns the Optimizer and the user's desired number of iterations
+        '''
+        pSwarmReader = SubDictReader("Optimization.ParticleSwarm", self.simDefinition)
+
+        nParticles = pSwarmReader.getInt("nParticles")
+        nIterations = pSwarmReader.getInt("nIterations")
+        
+        c1 = pSwarmReader.getFloat("cognitiveParam")
+        c2 = pSwarmReader.getFloat("socialParam")
+        w = pSwarmReader.getFloat("inertiaParam")
+        pySwarmOptions = { 'c1':c1, 'c2':c2, 'w':w }
+
+        nVars = len(self.varNames)
+        varBounds = (self.minVals, self.maxVals)
+
+        from pyswarms.single import GlobalBestPSO # Import here because for most sims it's not required
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
+
+        return optimizer, nIterations
+
+    def _evalStatement(self, statement: str, additionalVars={}):
+        names = {
+            '__builtins__': None, # Restrict access to builtins
+            'math': math # Make math functions available
+        }
+
+        return eval(statement, globals=names, locals=additionalVars)
+
+    def runOptimization(self):
+        ''' Run the Optimization '''
+        self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
+
+    def computeCostFunction(self, indVarValues: List[float]) -> float:
+        ''' Given a values the independent variable, returns the cost function value '''
+        simDef = deepcopy(self.simDefinition)
+        self._updateVarValues(simDef, indVarValues)
+
+    def _updateVarValues(self, simDefinition, indVarValues):
+        ''' Returns simDefinition with the independent and dependent variable values updated '''
+        
+        # Set independent variable values
+        for i in range(len(indVarValues)):
+            simDefinition.setValue(self.varKeys[i], indVarValues[i])
+
+        # Define dict of var values
+
+        # Set dependent variables values
+        for i in range(len(self.dependentVars)):
+            val = self._evalStatement()
+
+
 
 class ConvergenceSimRunner(SingleSimRunner):
     '''
