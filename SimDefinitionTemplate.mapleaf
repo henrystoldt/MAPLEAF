@@ -65,10 +65,23 @@
 #### All possible options to define simulations ####
 
 Optimization{
+    # Converge minimum mass, but all zero perigee error
+    # Error in staging altitude (can't stage too early)?
+    # Propellant residual maximizing?
+    # Solution space continuous, don't fail with artificially high cost
+
+    # Cost functions? Single or multi-objective?
+        # Altitude
+        # Cost
+        # c1*Cost + c2*Altitude
+
     # Lambda function, with a selection of common variables available
     metric                                      Apogee*12/dryWeight
     # Custom function, gets passed log file paths
     metric                                      MAPLEAF.Optimization.Metrics:CustomFunctionName
+
+    # Error/Cost Function is current - target
+    # target                                      Minimize/Maximize/Target?
     
     IndependentVariables{
         bodyLength                              Rocket.SecondStage.BodyTube.length
@@ -78,8 +91,11 @@ Optimization{
         Rocket.SecondStage.BoatTail.position    (0 0 -2.75+(bodyLength-3.5538))
     }
 
+    # Max accel - if above limit, then that generation of rocket fails?
+
     Constraints{
         bodyLength                              <10
+        bodyLength                              >0
     }
 }
 
