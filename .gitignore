@@ -78,3 +78,6 @@ clean.sh
 
 # Documentation
 doc
+
+# PySwarms logs
+report.log

@@ -195,6 +195,12 @@ class SimDefinition():
         # Initialize tracking of default values used and unaccessed keys
         self._resetUsedAndUnusedKeyTrackers()
 
+        # Check if any probabilistic keys exist
+        containsProbabilisticValues = False
+        for key in self.dict:
+            if "_stdDev" == key[-7:]:
+                containsProbabilisticValues = True
+
         # Initialize instance of random.Random for Monte Carlo sampling
         if not disableDistributionSampling:
             try:
@@ -202,7 +208,7 @@ class SimDefinition():
             except KeyError:
                 randomSeed = random.randrange(1000000)
             
-            if not silent:
+            if not silent and containsProbabilisticValues:
                 print("Monte Carlo random seed: {}".format(randomSeed))
             self.rng = random.Random(randomSeed)
             ''' Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. '''

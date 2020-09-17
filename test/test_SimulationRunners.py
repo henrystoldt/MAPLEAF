@@ -78,8 +78,6 @@ class TestSimRunners(unittest.TestCase):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
         optSimRunner = OptimizingSimRunner(simDefinition=simDef)
 
-        # Check that initialization worked correctly
-
         # Check output of _loadIndependentVariables()
         self.assertEqual(optSimRunner.varKeys, [ "Rocket.Sustainer.UpperBodyTube.mass" ])        
         self.assertEqual(optSimRunner.varNames, [ "bodyWeight" ])
@@ -88,12 +86,12 @@ class TestSimRunners(unittest.TestCase):
 
         # Check out of _loadDependentVariables()
         self.assertEqual(optSimRunner.dependentVars, [ "Rocket.Sustainer.Nosecone.mass" ])        
-        self.assertEqual(optSimRunner.dependentVarDefinitions, [ "!0.007506 + 0.01/bodyWeight!" ])
+        self.assertEqual(optSimRunner.dependentVarDefinitions, [ "!0.007506 + 0.015/bodyWeight!" ])
 
         # Check output of _createOptimizer()
         self.assertEqual(optSimRunner.nIterations, 5)
         self.assertEqual(optSimRunner.showConvergence, True)
-        self.assertEqual(optSimRunner.optimizer.n_particles, 3)
+        self.assertEqual(optSimRunner.optimizer.n_particles, 20)
 
         # Check updating independent variable values
         indVarDict = optSimRunner._updateIndependentVariableValues(simDef, [0.15] )
@@ -102,7 +100,7 @@ class TestSimRunners(unittest.TestCase):
 
         # Check updating dependent variables values
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
-        self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.074172666666667)
+        self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
 
     def test_evalExpression(self):
         varDict = { "bodyWeight": 0.15 }

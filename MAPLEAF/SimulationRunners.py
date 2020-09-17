@@ -703,6 +703,8 @@ class OptimizingSimRunner():
     #### Initialization ####
     def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
         ''' Reads optimization dict, intializes variable vectors, constraints etc. '''
+
+        print("Particle Swarm Optimization")
         
         # Store / load simulation definition
         if simDefinition == None and simDefinitionFilePath != None:
@@ -759,6 +761,12 @@ class OptimizingSimRunner():
             minVals.append(float(minVal))
             maxVals.append(float(maxVal))
 
+        # Output setup to console
+        print("Independent Variables: ")
+        for i in range(len(varNames)):
+            print("{} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
+        print("")
+
         return varKeys, varNames, minVals, maxVals
 
     def _loadDependentVariables(self):
@@ -780,6 +788,12 @@ class OptimizingSimRunner():
             depVarKey = depVar.replace("Optimization.DependentVariables.", "")
             depVarNames.append(depVarKey)
             depVarDefinitions.append(self.simDefinition.getValue(depVar))
+
+        # Output results to console
+        print("Dependent variables:")
+        for i in range(len(depVarNames)):
+            print("{} = {}".format(depVarNames[i], depVarDefinitions[i]))
+        print("")
 
         return depVarNames, depVarDefinitions
 
@@ -806,6 +820,15 @@ class OptimizingSimRunner():
 
         showConvergence = pSwarmReader.getBool("Optimization.showConvergencePlot")
 
+        print("Optimization Parameters:")
+        print("{} Particles".format(nParticles))
+        print("{} Iterations".format(nIterations))
+        print("c1 = {}, c2 = {}, w = {}\n".format(c1, c2, w))
+        
+        costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")
+        print("Cost Function:")
+        print(costFunctionDefinition + "\n")
+
         return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
@@ -813,7 +836,10 @@ class OptimizingSimRunner():
         ''' Run the Optimization and show convergence history '''
         self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
 
+        
         if self.showConvergence:
+            print("Showing optimization convergence plot")
+
             # Show optimization history
             from pyswarms.utils.plotters import plot_cost_history
             plot_cost_history(self.optimizer.cost_history)
