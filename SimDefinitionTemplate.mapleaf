@@ -79,7 +79,7 @@
 #### All possible options to define simulations ####
 
 Optimization{
-    ### Use this dictionary to specify Optimization runs ###
+    ### Specify Optimization runs ###
 
     # Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
         # The 'MonteCarlo' dictionary is disregarded when this one is present (no batch runs to calculate cost function)
@@ -119,11 +119,11 @@ Optimization{
         inertiaParam                            0.9 # aka w
     }           
 
-    showCostFunctionHistory                     True
+    showConvergencePlot                         True
 }
 
 MonteCarlo{
-    ### Use this dictionary to make MAPLEAF run a probabilistic simulation several times in a row, and output a summary of results ###
+    ### Make MAPLEAF run a probabilistic simulation several times in a row, and output a summary of results ###
     randomSeed      458623 # (optional) for repeatability
     numberRuns      10
     
@@ -139,7 +139,7 @@ MonteCarlo{
 }
 
 SimControl{
-    ### Use this dictionary to control termination conditions, sim outputs, and time discretization for single simulations ###
+    ### Controls termination conditions, outputs, and time discretization ###
 
     # Control simulation termination condition for main rocket (top stage)
     EndCondition            Altitude # Altitude, Time, Apogee
@@ -204,7 +204,7 @@ SimControl{
 }
 
 Environment{
-    ### Define models of the physical environment here ###
+    ### Define models of the physical environment ###
 
     LaunchSite{
         elevation               0 #m, Relative to sea level - Impacts the acceleration of gravity at launch        

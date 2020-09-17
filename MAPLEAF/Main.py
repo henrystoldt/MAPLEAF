@@ -13,7 +13,7 @@ import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO.SimDefinition import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
-                                   SingleSimRunner, isMonteCarloSimulation)
+                                   SingleSimRunner, OptimizingSimRunner)
 
 
 def buildParser() -> argparse.ArgumentParser:
@@ -94,6 +94,23 @@ def findSimDefinitionFile(providedPath):
     print("ERROR: Unable to locate simulation definition file: {}!".format(providedPath))
     sys.exit()
 
+def isOptimizationProblem(simDefinition) -> bool:
+    try:
+        simDefinition.getValue("Optimization.costFunction")
+        return True
+    except KeyError:
+        return False
+
+def isMonteCarloSimulation(simDefinition) -> bool:
+    try:
+        nRuns = float(simDefinition.getValue("MonteCarlo.numberRuns"))
+        if nRuns > 1:
+            return True
+    except (KeyError, ValueError):
+        pass
+
+    return False
+
 def main(argv: List[str]=None) -> int:
     ''' 
         Main function to run a MAPLEAF simulation. 
@@ -119,6 +136,11 @@ def main(argv: List[str]=None) -> int:
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
+    # Optimization
+    if isOptimizationProblem(simDef):
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
+        optSimRunner.runOptimization()
+
     # Monte Carlo Sim
     if isMonteCarloSimulation(simDef):
         mCSimRunner = MonteCarloSimRunner(simDefinition=simDef, silent=args.silent)

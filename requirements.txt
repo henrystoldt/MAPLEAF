@@ -6,3 +6,4 @@ pyserial>=3.4
 tqdm>=4.0
 cython
 pyswarms
+pyyaml # Secretly required by pyswarms

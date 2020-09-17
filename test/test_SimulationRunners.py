@@ -11,7 +11,8 @@ import os
 
 import matplotlib.pyplot as plt
 
-from MAPLEAF.SimulationRunners import SingleSimRunner, MonteCarloSimRunner, ConvergenceSimRunner, isMonteCarloSimulation
+from MAPLEAF.SimulationRunners import SingleSimRunner, MonteCarloSimRunner, ConvergenceSimRunner
+from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.IO.SimDefinition import SimDefinition
 import test.testUtilities
 

@@ -573,17 +573,6 @@ class WindTunnelRunner(SingleSimRunner):
         self.stageFlightPaths = [ RocketFlight() ]
         return super()._postSingleSimCleanup(simDefinition)
 
-def isMonteCarloSimulation(simDefinition):
-    ''' Returns bool '''
-    try:
-        nRuns = float(simDefinition.getValue("MonteCarlo.numberRuns"))
-        if nRuns > 1:
-            return True
-    except (KeyError, ValueError):
-        pass
-
-    return False
-
 #TODO: MonteCarloSimRunner -> runMonteCarloSimulation (function)
 class MonteCarloSimRunner(SingleSimRunner):
     '''
@@ -724,10 +713,14 @@ class OptimizingSimRunner():
             raise ValueError(""" Insufficient information. Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
                 If both are provided, the SimDefinition is used.""")
 
+        # Ensure no output is produced during each cost function evaluation
+        self.simDefinition.setValue("SimControl.plot", "None")
+        self.simDefinition.setValue("SimControl.RocketPlot", "Off")
+
         # Parse the simulation definition's Optimization dictionary, but don't run it yet
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
-        self.optimizer, self.nIterations = self._createOptimizer()
+        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
 
     def _loadIndependentVariables(self):
         ''' 
@@ -766,7 +759,7 @@ class OptimizingSimRunner():
             minVals.append(float(minVal))
             maxVals.append(float(maxVal))
 
-        return varKeys, names, minVals, maxVals
+        return varKeys, varNames, minVals, maxVals
 
     def _loadDependentVariables(self):
         '''
@@ -785,14 +778,14 @@ class OptimizingSimRunner():
         for depVar in self.simDefinition.getSubKeys("Optimization.DependentVariables"):
             # Value expected: [paramName]  [paramDefinitionString]
             depVarNames.append(depVar)
-            depVarDefinitions.append(simDefinition.getValue(depVar))
+            depVarDefinitions.append(self.simDefinition.getValue(depVar))
 
-        return depVarnames, depVarDefinitions
+        return depVarNames, depVarDefinitions
 
     def _createOptimizer(self):
         ''' 
             Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
-            Returns the Optimizer and the user's desired number of iterations
+            Returns the Optimizer, the user's desired number of iterations, and showConvergence (bool)
         '''
         pSwarmReader = SubDictReader("Optimization.ParticleSwarm", self.simDefinition)
 
@@ -810,16 +803,18 @@ class OptimizingSimRunner():
         from pyswarms.single import GlobalBestPSO # Import here because for most sims it's not required
         optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
 
-        return optimizer, nIterations
+        showConvergence = pSwarmReader.getBool("Optimization.showConvergencePlot")
+
+        return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
         self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
 
-        if not self.silent:
+        if self.showConvergence:
             # Show optimization history
-            from pyswarms.utils.plotters import plot_cost_history()
+            from pyswarms.utils.plotters import plot_cost_history
             plot_cost_history(self.optimizer.cost_history)
             plt.show()
 
@@ -866,7 +861,6 @@ class OptimizingSimRunner():
             Updates simDefinition with the independent variable values
             Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
         '''
-        
         # Independent variable values
         indVarValueDict = {}
         for i in range(len(indVarValues)):

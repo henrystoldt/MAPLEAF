@@ -1,0 +1,1 @@
+2020-09-17 07:55:14,944 - pyswarms.single.global_best - INFO - Optimize for 5 iters with {'c1': 0.5, 'c2': 0.6, 'w': 0.9}
