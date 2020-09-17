@@ -1,8 +1,6 @@
 # MAPLEAF
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
-# This file is the base case for the OpenRocket 'SimpleRocket' validation cases
-
 Optimization{
     costFunction        1/apogee if (apogee > 0) else -apogee
 
@@ -16,8 +14,8 @@ Optimization{
     }
 
     ParticleSwarm{
-        nParticles      20
-        nIterations     5
+        nParticles      5
+        nIterations     20
     }
 }
 
