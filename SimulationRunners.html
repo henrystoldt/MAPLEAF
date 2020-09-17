@@ -42,11 +42,13 @@ Defines a basic single simulation runner `SingleSimRunner`, as well as more spec
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 &#39;&#39;&#39;
 
+import importlib
+import math
 import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
-from math import pi
+from typing import List
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -71,7 +73,6 @@ class SingleSimRunner():
                 * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         &#39;&#39;&#39;
-
         self.simDefinition = None
         &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
 
@@ -450,7 +451,7 @@ class SingleSimRunner():
                 # Post process / calculate force/moment coefficients if desired
                 if self.loggingLevel &gt;= 3:
                     bodyDiameter = self.rocketStages[0].bodyTubeDiameter
-                    crossSectionalArea = pi * bodyDiameter * bodyDiameter / 4
+                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
 
@@ -606,17 +607,7 @@ class WindTunnelRunner(SingleSimRunner):
         self.stageFlightPaths = [ RocketFlight() ]
         return super()._postSingleSimCleanup(simDefinition)
 
-def isMonteCarloSimulation(simDefinition):
-    &#39;&#39;&#39; Returns bool &#39;&#39;&#39;
-    try:
-        nRuns = float(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
-        if nRuns &gt; 1:
-            return True
-    except (KeyError, ValueError):
-        pass
-
-    return False
-
+#TODO: MonteCarloSimRunner -&gt; runMonteCarloSimulation (function)
 class MonteCarloSimRunner(SingleSimRunner):
     &#39;&#39;&#39;
         Runs a simulation repeatedly, always resampling parameters that have a specfified normal distribution in the simulation definition
@@ -729,6 +720,237 @@ def runParallelMonteCarloSim(simDefinition):
 
     print(&#34;1: {}&#34;.format(results))
     print(&#34;2: {}&#34;.format(results2))
+
+def evalExpression(statement: str, additionalVars={}):
+    globalVars = {
+        &#39;__builtins__&#39;: None, # Restrict access to builtins
+        &#39;math&#39;: math # Make math functions available
+    }
+
+    return eval(statement, globalVars, additionalVars)
+
+class OptimizingSimRunner():
+    &#39;&#39;&#39;
+        Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
+        Configurable using the top-level &#39;Optimization&#39; dictionary in .mapleaf files
+    &#39;&#39;&#39;
+    #### Initialization ####
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        &#39;&#39;&#39; Reads optimization dict, intializes variable vectors, constraints etc. &#39;&#39;&#39;
+
+        print(&#34;Particle Swarm Optimization&#34;)
+        
+        # Store / load simulation definition
+        if simDefinition == None and simDefinitionFilePath != None:
+            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file from filePath
+        elif simDefinition != None:
+            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
+        else:
+            raise ValueError(&#34;&#34;&#34; Insufficient information. Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+                If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
+
+        # Ensure no output is produced during each cost function evaluation
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+        # Parse the simulation definition&#39;s Optimization dictionary, but don&#39;t run it yet
+        self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
+        self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
+        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
+
+    def _loadIndependentVariables(self):
+        &#39;&#39;&#39; 
+            Parses the independent variables section of Optimization dictionary.
+            Returns four lists:
+
+            * A list of string paths to the corresponding values in the simulation definition
+            * Parameter names
+            * A list of minimum parameter values
+            * A list of maximum parameter values
+
+            All lists are in corresponding order
+        &#39;&#39;&#39;
+        varKeys = []
+        varNames = []
+        minVals = []
+        maxVals = []
+
+        for key in self.simDefinition.getSubKeys(&#34;Optimization.IndependentVariables&#34;):
+            # Value expected to be &#39;min &lt; key.Path &lt; max&#39;
+            # Split into three parts using the &#39;&lt;&#39; characters
+            strings = self.simDefinition.getValue(key).split(&#39;&lt;&#39;)
+
+            if len(strings) != 3:
+                # ERROR: too many or too few values
+                raise ValueError(&#34;Parameters in the Optimization.IndependentVariables dictionary should be scalars and conform to the following format: &#39;[minValue] &lt; [path.To.Parameter] &lt; [maxValue]&#39; \
+                                Problem key is {}, which has a value of {}&#34;.format(key, &#34; &#34;.join(strings)))
+            
+            # Remove spaces
+            minVal, keyPath, maxVal = [ s.strip() for s in strings ]
+            varName = key.split(&#39;.&#39;)[-1] # User&#39;s given name
+
+            # Parse / Save
+            varKeys.append(keyPath)
+            varNames.append(varName)
+            minVals.append(float(minVal))
+            maxVals.append(float(maxVal))
+
+        # Output setup to console
+        print(&#34;Independent Variables: &#34;)
+        for i in range(len(varNames)):
+            print(&#34;{} &lt; {} &lt; {}&#34;.format(minVals[i], varNames[i], maxVals[i]))
+        print(&#34;&#34;)
+
+        return varKeys, varNames, minVals, maxVals
+
+    def _loadDependentVariables(self):
+        &#39;&#39;&#39;
+            Parses the dependent variables section of Optimization dictionary.
+            Returns two lists:
+
+            * A list of string paths to the corresponding values in the simulation definition
+            * Dependent parameter names
+
+            Both in corresponding order
+        &#39;&#39;&#39;
+        depVarNames = []
+        depVarDefinitions = []
+
+
+        for depVar in self.simDefinition.getSubKeys(&#34;Optimization.DependentVariables&#34;):
+            # Value expected: [paramName]  [paramDefinitionString]
+            depVarKey = depVar.replace(&#34;Optimization.DependentVariables.&#34;, &#34;&#34;)
+            depVarNames.append(depVarKey)
+            depVarDefinitions.append(self.simDefinition.getValue(depVar))
+
+        # Output results to console
+        print(&#34;Dependent variables:&#34;)
+        for i in range(len(depVarNames)):
+            print(&#34;{} = {}&#34;.format(depVarNames[i], depVarDefinitions[i]))
+        print(&#34;&#34;)
+
+        return depVarNames, depVarDefinitions
+
+    def _createOptimizer(self):
+        &#39;&#39;&#39; 
+            Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
+            Returns the Optimizer, the user&#39;s desired number of iterations, and showConvergence (bool)
+        &#39;&#39;&#39;
+        pSwarmReader = SubDictReader(&#34;Optimization.ParticleSwarm&#34;, self.simDefinition)
+
+        nParticles = pSwarmReader.getInt(&#34;nParticles&#34;)
+        nIterations = pSwarmReader.getInt(&#34;nIterations&#34;)
+        
+        c1 = pSwarmReader.getFloat(&#34;cognitiveParam&#34;)
+        c2 = pSwarmReader.getFloat(&#34;socialParam&#34;)
+        w = pSwarmReader.getFloat(&#34;inertiaParam&#34;)
+        pySwarmOptions = { &#39;c1&#39;:c1, &#39;c2&#39;:c2, &#39;w&#39;:w }
+
+        nVars = len(self.varNames)
+        varBounds = (self.minVals, self.maxVals)
+
+        from pyswarms.single import GlobalBestPSO # Import here because for most sims it&#39;s not required
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
+
+        showConvergence = pSwarmReader.getBool(&#34;Optimization.showConvergencePlot&#34;)
+
+        print(&#34;Optimization Parameters:&#34;)
+        print(&#34;{} Particles&#34;.format(nParticles))
+        print(&#34;{} Iterations&#34;.format(nIterations))
+        print(&#34;c1 = {}, c2 = {}, w = {}\n&#34;.format(c1, c2, w))
+        
+        costFunctionDefinition = self.simDefinition.getValue(&#34;Optimization.costFunction&#34;)
+        print(&#34;Cost Function:&#34;)
+        print(costFunctionDefinition + &#34;\n&#34;)
+
+        return optimizer, nIterations, showConvergence
+
+    #### Running the optimization ####
+    def runOptimization(self):
+        &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
+        self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
+
+        
+        if self.showConvergence:
+            print(&#34;Showing optimization convergence plot&#34;)
+
+            # Show optimization history
+            from pyswarms.utils.plotters import plot_cost_history
+            plot_cost_history(self.optimizer.cost_history)
+            plt.show()
+
+    def computeCostFunction(self, trialSolutions: List[List[float]]) -&gt; float:
+        &#39;&#39;&#39; Given a values the independent variable, returns the cost function value &#39;&#39;&#39;
+        results = []
+        for indVarValues in trialSolutions:
+            # Create new sim definition
+            simDef = deepcopy(self.simDefinition)
+            
+            # Update variable values
+            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+            self._updateDependentVariableValues(simDef, varDict)
+
+            # Run the simulation
+            simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
+            stageFlights, logFilePaths = simRunner.runSingleSimulation()
+
+            # Evaluate the cost function
+            costFunctionDefinition = simDef.getValue(&#34;Optimization.costFunction&#34;)
+
+            if &#34;:&#34; in costFunctionDefinition:
+                # Cost function is expected to be a custom function defined in an importable module
+                modulePath, funcName = costFunctionDefinition.split(&#39;:&#39;)
+
+                customModule = importlib.import_module(modulePath)
+                customCostFunction = getattr(customModule, funcName)
+
+                # Call the user&#39;s custom function, passing in the paths to all log files from the present run
+                # User&#39;s function is expected to return a scalar value           
+                results.append(float( customCostFunction(logFilePaths) ))
+
+            else:
+                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+                topStageFlight = stageFlights[0]
+                varVals = {
+                    &#34;flightTime&#34;:   topStageFlight.getFlightTime(),
+                    &#34;apogee&#34;:       topStageFlight.getApogee(),
+                    &#34;maxSpeed&#34;:     topStageFlight.getMaxSpeed(),
+                    &#34;maxHorizontalVel&#34;: topStageFlight.getMaxHorizontalVel(),
+                }
+                results.append(evalExpression(costFunctionDefinition, varVals))
+
+        return results
+            
+    def _updateIndependentVariableValues(self, simDefinition, indVarValues):
+        &#39;&#39;&#39; 
+            Updates simDefinition with the independent variable values
+            Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
+        &#39;&#39;&#39;
+        # Independent variable values
+        indVarValueDict = {}
+        for i in range(len(indVarValues)):
+            simDefinition.setValue(self.varKeys[i], str(indVarValues[i]))
+            
+            varName = self.varNames[i]
+            indVarValueDict[varName] = indVarValues[i]
+
+        return indVarValueDict
+
+    def _updateDependentVariableValues(self, simDefinition, indVarValueDict):
+        &#39;&#39;&#39; Set all the dependent variables defined in Optimization.DependentVariables in simDefinition. Each can be a function of the independent variable values in indVarValueDict &#39;&#39;&#39;
+        
+        for i in range(len(self.dependentVars)):
+            # Take the definition string, split out the parts to be computed (delimited by exclamation marks)
+                # &#34;(0 0 !a+b!)&#34; -&gt; [ &#34;(0 0&#34;, &#34;a+b&#34;, &#34;)&#34; ] -&gt; Need to evaluate all the odd-indexed values
+            splitDepVarDef = self.dependentVarDefinitions[i].split(&#39;!&#39;)
+            for j in range(1, len(splitDepVarDef), 2):
+                functionValue = evalExpression(splitDepVarDef[j], indVarValueDict)
+                # Overwrite the function definition with its string value
+                splitDepVarDef[j] = str(functionValue)
+            
+            # Re-combine strings, save result
+            depValue = &#34;&#34;.join(splitDepVarDef)
+            simDefinition.setValue(self.dependentVars[i], depValue)
 
 class ConvergenceSimRunner(SingleSimRunner):
     &#39;&#39;&#39;
@@ -1054,25 +1276,22 @@ if __name__ == &#34;__main__&#34;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="MAPLEAF.SimulationRunners.isMonteCarloSimulation"><code class="name flex">
-<span>def <span class="ident">isMonteCarloSimulation</span></span>(<span>simDefinition)</span>
+<dt id="MAPLEAF.SimulationRunners.evalExpression"><code class="name flex">
+<span>def <span class="ident">evalExpression</span></span>(<span>statement: str, additionalVars={})</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns bool</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def isMonteCarloSimulation(simDefinition):
-    &#39;&#39;&#39; Returns bool &#39;&#39;&#39;
-    try:
-        nRuns = float(simDefinition.getValue(&#34;MonteCarlo.numberRuns&#34;))
-        if nRuns &gt; 1:
-            return True
-    except (KeyError, ValueError):
-        pass
+<pre><code class="python">def evalExpression(statement: str, additionalVars={}):
+    globalVars = {
+        &#39;__builtins__&#39;: None, # Restrict access to builtins
+        &#39;math&#39;: math # Make math functions available
+    }
 
-    return False</code></pre>
+    return eval(statement, globalVars, additionalVars)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.SimulationRunners.runParallelMonteCarloSim"><code class="name flex">
@@ -2042,6 +2261,320 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
 </li>
 </ul>
 </dd>
+<dt id="MAPLEAF.SimulationRunners.OptimizingSimRunner"><code class="flex name class">
+<span>class <span class="ident">OptimizingSimRunner</span></span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
+Configurable using the top-level 'Optimization' dictionary in .mapleaf files</p>
+<p>Reads optimization dict, intializes variable vectors, constraints etc.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class OptimizingSimRunner():
+    &#39;&#39;&#39;
+        Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
+        Configurable using the top-level &#39;Optimization&#39; dictionary in .mapleaf files
+    &#39;&#39;&#39;
+    #### Initialization ####
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        &#39;&#39;&#39; Reads optimization dict, intializes variable vectors, constraints etc. &#39;&#39;&#39;
+
+        print(&#34;Particle Swarm Optimization&#34;)
+        
+        # Store / load simulation definition
+        if simDefinition == None and simDefinitionFilePath != None:
+            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file from filePath
+        elif simDefinition != None:
+            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
+        else:
+            raise ValueError(&#34;&#34;&#34; Insufficient information. Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+                If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
+
+        # Ensure no output is produced during each cost function evaluation
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+        # Parse the simulation definition&#39;s Optimization dictionary, but don&#39;t run it yet
+        self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
+        self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
+        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
+
+    def _loadIndependentVariables(self):
+        &#39;&#39;&#39; 
+            Parses the independent variables section of Optimization dictionary.
+            Returns four lists:
+
+            * A list of string paths to the corresponding values in the simulation definition
+            * Parameter names
+            * A list of minimum parameter values
+            * A list of maximum parameter values
+
+            All lists are in corresponding order
+        &#39;&#39;&#39;
+        varKeys = []
+        varNames = []
+        minVals = []
+        maxVals = []
+
+        for key in self.simDefinition.getSubKeys(&#34;Optimization.IndependentVariables&#34;):
+            # Value expected to be &#39;min &lt; key.Path &lt; max&#39;
+            # Split into three parts using the &#39;&lt;&#39; characters
+            strings = self.simDefinition.getValue(key).split(&#39;&lt;&#39;)
+
+            if len(strings) != 3:
+                # ERROR: too many or too few values
+                raise ValueError(&#34;Parameters in the Optimization.IndependentVariables dictionary should be scalars and conform to the following format: &#39;[minValue] &lt; [path.To.Parameter] &lt; [maxValue]&#39; \
+                                Problem key is {}, which has a value of {}&#34;.format(key, &#34; &#34;.join(strings)))
+            
+            # Remove spaces
+            minVal, keyPath, maxVal = [ s.strip() for s in strings ]
+            varName = key.split(&#39;.&#39;)[-1] # User&#39;s given name
+
+            # Parse / Save
+            varKeys.append(keyPath)
+            varNames.append(varName)
+            minVals.append(float(minVal))
+            maxVals.append(float(maxVal))
+
+        # Output setup to console
+        print(&#34;Independent Variables: &#34;)
+        for i in range(len(varNames)):
+            print(&#34;{} &lt; {} &lt; {}&#34;.format(minVals[i], varNames[i], maxVals[i]))
+        print(&#34;&#34;)
+
+        return varKeys, varNames, minVals, maxVals
+
+    def _loadDependentVariables(self):
+        &#39;&#39;&#39;
+            Parses the dependent variables section of Optimization dictionary.
+            Returns two lists:
+
+            * A list of string paths to the corresponding values in the simulation definition
+            * Dependent parameter names
+
+            Both in corresponding order
+        &#39;&#39;&#39;
+        depVarNames = []
+        depVarDefinitions = []
+
+
+        for depVar in self.simDefinition.getSubKeys(&#34;Optimization.DependentVariables&#34;):
+            # Value expected: [paramName]  [paramDefinitionString]
+            depVarKey = depVar.replace(&#34;Optimization.DependentVariables.&#34;, &#34;&#34;)
+            depVarNames.append(depVarKey)
+            depVarDefinitions.append(self.simDefinition.getValue(depVar))
+
+        # Output results to console
+        print(&#34;Dependent variables:&#34;)
+        for i in range(len(depVarNames)):
+            print(&#34;{} = {}&#34;.format(depVarNames[i], depVarDefinitions[i]))
+        print(&#34;&#34;)
+
+        return depVarNames, depVarDefinitions
+
+    def _createOptimizer(self):
+        &#39;&#39;&#39; 
+            Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
+            Returns the Optimizer, the user&#39;s desired number of iterations, and showConvergence (bool)
+        &#39;&#39;&#39;
+        pSwarmReader = SubDictReader(&#34;Optimization.ParticleSwarm&#34;, self.simDefinition)
+
+        nParticles = pSwarmReader.getInt(&#34;nParticles&#34;)
+        nIterations = pSwarmReader.getInt(&#34;nIterations&#34;)
+        
+        c1 = pSwarmReader.getFloat(&#34;cognitiveParam&#34;)
+        c2 = pSwarmReader.getFloat(&#34;socialParam&#34;)
+        w = pSwarmReader.getFloat(&#34;inertiaParam&#34;)
+        pySwarmOptions = { &#39;c1&#39;:c1, &#39;c2&#39;:c2, &#39;w&#39;:w }
+
+        nVars = len(self.varNames)
+        varBounds = (self.minVals, self.maxVals)
+
+        from pyswarms.single import GlobalBestPSO # Import here because for most sims it&#39;s not required
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
+
+        showConvergence = pSwarmReader.getBool(&#34;Optimization.showConvergencePlot&#34;)
+
+        print(&#34;Optimization Parameters:&#34;)
+        print(&#34;{} Particles&#34;.format(nParticles))
+        print(&#34;{} Iterations&#34;.format(nIterations))
+        print(&#34;c1 = {}, c2 = {}, w = {}\n&#34;.format(c1, c2, w))
+        
+        costFunctionDefinition = self.simDefinition.getValue(&#34;Optimization.costFunction&#34;)
+        print(&#34;Cost Function:&#34;)
+        print(costFunctionDefinition + &#34;\n&#34;)
+
+        return optimizer, nIterations, showConvergence
+
+    #### Running the optimization ####
+    def runOptimization(self):
+        &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
+        self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
+
+        
+        if self.showConvergence:
+            print(&#34;Showing optimization convergence plot&#34;)
+
+            # Show optimization history
+            from pyswarms.utils.plotters import plot_cost_history
+            plot_cost_history(self.optimizer.cost_history)
+            plt.show()
+
+    def computeCostFunction(self, trialSolutions: List[List[float]]) -&gt; float:
+        &#39;&#39;&#39; Given a values the independent variable, returns the cost function value &#39;&#39;&#39;
+        results = []
+        for indVarValues in trialSolutions:
+            # Create new sim definition
+            simDef = deepcopy(self.simDefinition)
+            
+            # Update variable values
+            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+            self._updateDependentVariableValues(simDef, varDict)
+
+            # Run the simulation
+            simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
+            stageFlights, logFilePaths = simRunner.runSingleSimulation()
+
+            # Evaluate the cost function
+            costFunctionDefinition = simDef.getValue(&#34;Optimization.costFunction&#34;)
+
+            if &#34;:&#34; in costFunctionDefinition:
+                # Cost function is expected to be a custom function defined in an importable module
+                modulePath, funcName = costFunctionDefinition.split(&#39;:&#39;)
+
+                customModule = importlib.import_module(modulePath)
+                customCostFunction = getattr(customModule, funcName)
+
+                # Call the user&#39;s custom function, passing in the paths to all log files from the present run
+                # User&#39;s function is expected to return a scalar value           
+                results.append(float( customCostFunction(logFilePaths) ))
+
+            else:
+                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+                topStageFlight = stageFlights[0]
+                varVals = {
+                    &#34;flightTime&#34;:   topStageFlight.getFlightTime(),
+                    &#34;apogee&#34;:       topStageFlight.getApogee(),
+                    &#34;maxSpeed&#34;:     topStageFlight.getMaxSpeed(),
+                    &#34;maxHorizontalVel&#34;: topStageFlight.getMaxHorizontalVel(),
+                }
+                results.append(evalExpression(costFunctionDefinition, varVals))
+
+        return results
+            
+    def _updateIndependentVariableValues(self, simDefinition, indVarValues):
+        &#39;&#39;&#39; 
+            Updates simDefinition with the independent variable values
+            Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
+        &#39;&#39;&#39;
+        # Independent variable values
+        indVarValueDict = {}
+        for i in range(len(indVarValues)):
+            simDefinition.setValue(self.varKeys[i], str(indVarValues[i]))
+            
+            varName = self.varNames[i]
+            indVarValueDict[varName] = indVarValues[i]
+
+        return indVarValueDict
+
+    def _updateDependentVariableValues(self, simDefinition, indVarValueDict):
+        &#39;&#39;&#39; Set all the dependent variables defined in Optimization.DependentVariables in simDefinition. Each can be a function of the independent variable values in indVarValueDict &#39;&#39;&#39;
+        
+        for i in range(len(self.dependentVars)):
+            # Take the definition string, split out the parts to be computed (delimited by exclamation marks)
+                # &#34;(0 0 !a+b!)&#34; -&gt; [ &#34;(0 0&#34;, &#34;a+b&#34;, &#34;)&#34; ] -&gt; Need to evaluate all the odd-indexed values
+            splitDepVarDef = self.dependentVarDefinitions[i].split(&#39;!&#39;)
+            for j in range(1, len(splitDepVarDef), 2):
+                functionValue = evalExpression(splitDepVarDef[j], indVarValueDict)
+                # Overwrite the function definition with its string value
+                splitDepVarDef[j] = str(functionValue)
+            
+            # Re-combine strings, save result
+            depValue = &#34;&#34;.join(splitDepVarDef)
+            simDefinition.setValue(self.dependentVars[i], depValue)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.OptimizingSimRunner.computeCostFunction"><code class="name flex">
+<span>def <span class="ident">computeCostFunction</span></span>(<span>self, trialSolutions: List[List[float]]) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a values the independent variable, returns the cost function value</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def computeCostFunction(self, trialSolutions: List[List[float]]) -&gt; float:
+    &#39;&#39;&#39; Given a values the independent variable, returns the cost function value &#39;&#39;&#39;
+    results = []
+    for indVarValues in trialSolutions:
+        # Create new sim definition
+        simDef = deepcopy(self.simDefinition)
+        
+        # Update variable values
+        varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+        self._updateDependentVariableValues(simDef, varDict)
+
+        # Run the simulation
+        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
+        stageFlights, logFilePaths = simRunner.runSingleSimulation()
+
+        # Evaluate the cost function
+        costFunctionDefinition = simDef.getValue(&#34;Optimization.costFunction&#34;)
+
+        if &#34;:&#34; in costFunctionDefinition:
+            # Cost function is expected to be a custom function defined in an importable module
+            modulePath, funcName = costFunctionDefinition.split(&#39;:&#39;)
+
+            customModule = importlib.import_module(modulePath)
+            customCostFunction = getattr(customModule, funcName)
+
+            # Call the user&#39;s custom function, passing in the paths to all log files from the present run
+            # User&#39;s function is expected to return a scalar value           
+            results.append(float( customCostFunction(logFilePaths) ))
+
+        else:
+            # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+            topStageFlight = stageFlights[0]
+            varVals = {
+                &#34;flightTime&#34;:   topStageFlight.getFlightTime(),
+                &#34;apogee&#34;:       topStageFlight.getApogee(),
+                &#34;maxSpeed&#34;:     topStageFlight.getMaxSpeed(),
+                &#34;maxHorizontalVel&#34;: topStageFlight.getMaxHorizontalVel(),
+            }
+            results.append(evalExpression(costFunctionDefinition, varVals))
+
+    return results</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.OptimizingSimRunner.runOptimization"><code class="name flex">
+<span>def <span class="ident">runOptimization</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run the Optimization and show convergence history</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runOptimization(self):
+    &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
+    self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
+
+    
+    if self.showConvergence:
+        print(&#34;Showing optimization convergence plot&#34;)
+
+        # Show optimization history
+        from pyswarms.utils.plotters import plot_cost_history
+        plot_cost_history(self.optimizer.cost_history)
+        plt.show()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="MAPLEAF.SimulationRunners.SingleSimRunner"><code class="flex name class">
 <span>class <span class="ident">SingleSimRunner</span></span>
 <span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
@@ -2072,7 +2605,6 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
                 * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         &#39;&#39;&#39;
-
         self.simDefinition = None
         &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
 
@@ -2451,7 +2983,7 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
                 # Post process / calculate force/moment coefficients if desired
                 if self.loggingLevel &gt;= 3:
                     bodyDiameter = self.rocketStages[0].bodyTubeDiameter
-                    crossSectionalArea = pi * bodyDiameter * bodyDiameter / 4
+                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
 
@@ -3054,7 +3586,7 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="MAPLEAF.SimulationRunners.isMonteCarloSimulation" href="#MAPLEAF.SimulationRunners.isMonteCarloSimulation">isMonteCarloSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.evalExpression" href="#MAPLEAF.SimulationRunners.evalExpression">evalExpression</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.runParallelMonteCarloSim" href="#MAPLEAF.SimulationRunners.runParallelMonteCarloSim">runParallelMonteCarloSim</a></code></li>
 </ul>
 </li>
@@ -3072,6 +3604,13 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.SimulationRunners.MonteCarloSimRunner" href="#MAPLEAF.SimulationRunners.MonteCarloSimRunner">MonteCarloSimRunner</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.SimulationRunners.MonteCarloSimRunner.runMonteCarloSimulation" href="#MAPLEAF.SimulationRunners.MonteCarloSimRunner.runMonteCarloSimulation">runMonteCarloSimulation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.OptimizingSimRunner" href="#MAPLEAF.SimulationRunners.OptimizingSimRunner">OptimizingSimRunner</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.OptimizingSimRunner.computeCostFunction" href="#MAPLEAF.SimulationRunners.OptimizingSimRunner.computeCostFunction">computeCostFunction</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.OptimizingSimRunner.runOptimization" href="#MAPLEAF.SimulationRunners.OptimizingSimRunner.runOptimization">runOptimization</a></code></li>
 </ul>
 </li>
 <li>

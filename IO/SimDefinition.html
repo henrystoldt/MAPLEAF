@@ -51,6 +51,13 @@ from MAPLEAF.Motion.CythonVector import Vector
 
 #################### Default value dictionary  #########################
 defaultConfigValues = {
+    &#34;Optimization.ParticleSwarm.nParticles&#34;:                &#34;20&#34;,
+    &#34;Optimization.ParticleSwarm.nIterations&#34;:               &#34;50&#34;,
+    &#34;Optimization.ParticleSwarm.cognitiveParam&#34;:            &#34;0.5&#34;,
+    &#34;Optimization.ParticleSwarm.socialParam&#34;:               &#34;0.6&#34;,
+    &#34;Optimization.ParticleSwarm.inertiaParam&#34;:              &#34;0.9&#34;,
+    &#34;Optimization.showConvergencePlot&#34;:                     &#34;True&#34;,
+
     &#34;MonteCarlo.output&#34;:                                    &#34;landingLocations&#34;,
 
     &#34;SimControl.plot&#34;:                                      &#34;Position Velocity AngularVelocity FlightAnimation&#34;,
@@ -223,6 +230,12 @@ class SimDefinition():
         # Initialize tracking of default values used and unaccessed keys
         self._resetUsedAndUnusedKeyTrackers()
 
+        # Check if any probabilistic keys exist
+        containsProbabilisticValues = False
+        for key in self.dict:
+            if &#34;_stdDev&#34; == key[-7:]:
+                containsProbabilisticValues = True
+
         # Initialize instance of random.Random for Monte Carlo sampling
         if not disableDistributionSampling:
             try:
@@ -230,7 +243,7 @@ class SimDefinition():
             except KeyError:
                 randomSeed = random.randrange(1000000)
             
-            if not silent:
+            if not silent and containsProbabilisticValues:
                 print(&#34;Monte Carlo random seed: {}&#34;.format(randomSeed))
             self.rng = random.Random(randomSeed)
             &#39;&#39;&#39; Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. &#39;&#39;&#39;
@@ -1130,6 +1143,12 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
         # Initialize tracking of default values used and unaccessed keys
         self._resetUsedAndUnusedKeyTrackers()
 
+        # Check if any probabilistic keys exist
+        containsProbabilisticValues = False
+        for key in self.dict:
+            if &#34;_stdDev&#34; == key[-7:]:
+                containsProbabilisticValues = True
+
         # Initialize instance of random.Random for Monte Carlo sampling
         if not disableDistributionSampling:
             try:
@@ -1137,7 +1156,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
             except KeyError:
                 randomSeed = random.randrange(1000000)
             
-            if not silent:
+            if not silent and containsProbabilisticValues:
                 print(&#34;Monte Carlo random seed: {}&#34;.format(randomSeed))
             self.rng = random.Random(randomSeed)
             &#39;&#39;&#39; Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. &#39;&#39;&#39;
