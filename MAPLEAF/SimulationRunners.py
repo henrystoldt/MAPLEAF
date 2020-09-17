@@ -687,13 +687,13 @@ def runParallelMonteCarloSim(simDefinition):
     print("1: {}".format(results))
     print("2: {}".format(results2))
 
-def evalExpression(self, statement: str, additionalVars={}):
-    names = {
+def evalExpression(statement: str, additionalVars={}):
+    globalVars = {
         '__builtins__': None, # Restrict access to builtins
         'math': math # Make math functions available
     }
 
-    return eval(statement, globals=names, locals=additionalVars)
+    return eval(statement, globalVars, additionalVars)
 
 class OptimizingSimRunner():
     '''
@@ -777,7 +777,8 @@ class OptimizingSimRunner():
 
         for depVar in self.simDefinition.getSubKeys("Optimization.DependentVariables"):
             # Value expected: [paramName]  [paramDefinitionString]
-            depVarNames.append(depVar)
+            depVarKey = depVar.replace("Optimization.DependentVariables.", "")
+            depVarNames.append(depVarKey)
             depVarDefinitions.append(self.simDefinition.getValue(depVar))
 
         return depVarNames, depVarDefinitions
@@ -818,43 +819,47 @@ class OptimizingSimRunner():
             plot_cost_history(self.optimizer.cost_history)
             plt.show()
 
-    def computeCostFunction(self, indVarValues: List[float]) -> float:
+    def computeCostFunction(self, trialSolutions: List[List[float]]) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
-        # Create new sim definition
-        simDef = deepcopy(self.simDefinition)
-        
-        # Update variable values
-        varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-        self._updateDependentVariableValues(simDef, varDict)
+        results = []
+        for indVarValues in trialSolutions:
+            # Create new sim definition
+            simDef = deepcopy(self.simDefinition)
+            
+            # Update variable values
+            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+            self._updateDependentVariableValues(simDef, varDict)
 
-        # Run the simulation
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        stageFlights, logFilePaths = simRunner.runSingleSimulation()
+            # Run the simulation
+            simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
+            stageFlights, logFilePaths = simRunner.runSingleSimulation()
 
-        # Evaluate the cost function
-        costFunctionDefinition = simDef.getValue("Optimization.costFunction")
+            # Evaluate the cost function
+            costFunctionDefinition = simDef.getValue("Optimization.costFunction")
 
-        if ":" in costFunctionDefinition:
-            # Cost function is expected to be a custom function defined in an importable module
-            modulePath, funcName = costFunctionDefinition.split(':')
+            if ":" in costFunctionDefinition:
+                # Cost function is expected to be a custom function defined in an importable module
+                modulePath, funcName = costFunctionDefinition.split(':')
 
-            customModule = importlib.import_module(modulePath)
-            customCostFunction = getattr(customModule, funcName)
+                customModule = importlib.import_module(modulePath)
+                customCostFunction = getattr(customModule, funcName)
 
-            # Call the user's custom function, passing in the paths to all log files from the present run
-            # User's function is expected to return a scalar value           
-            return float( customCostFunction(logFilePaths) )
+                # Call the user's custom function, passing in the paths to all log files from the present run
+                # User's function is expected to return a scalar value           
+                results.append(float( customCostFunction(logFilePaths) ))
 
-        else:
-            # Cost function is expected to be an anonymous function defined in costFunctionDefinition
-            topStageFlight = stageFlights[0]
-            varVals = {
-                "flightTime":   topStageFlight.getFlightTime(),
-                "apogee":       topStageFlight.getApogee(),
-                "maxSpeed":     topStageFlight.getMaxSpeed(),
-                "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
-            }
-            return evalExpression(costFunctionDefinition, varVals)
+            else:
+                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+                topStageFlight = stageFlights[0]
+                varVals = {
+                    "flightTime":   topStageFlight.getFlightTime(),
+                    "apogee":       topStageFlight.getApogee(),
+                    "maxSpeed":     topStageFlight.getMaxSpeed(),
+                    "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
+                }
+                results.append(evalExpression(costFunctionDefinition, varVals))
+
+        return results
             
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         ''' 
@@ -864,7 +869,7 @@ class OptimizingSimRunner():
         # Independent variable values
         indVarValueDict = {}
         for i in range(len(indVarValues)):
-            simDefinition.setValue(self.varKeys[i], indVarValues[i])
+            simDefinition.setValue(self.varKeys[i], str(indVarValues[i]))
             
             varName = self.varNames[i]
             indVarValueDict[varName] = indVarValues[i]
@@ -878,8 +883,8 @@ class OptimizingSimRunner():
             # Take the definition string, split out the parts to be computed (delimited by exclamation marks)
                 # "(0 0 !a+b!)" -> [ "(0 0", "a+b", ")" ] -> Need to evaluate all the odd-indexed values
             splitDepVarDef = self.dependentVarDefinitions[i].split('!')
-            for j in range(1, len(splitDepVarDef, 2)):
-                functionValue = evalExpression(splitDepVarDef, indVarValueDict)
+            for j in range(1, len(splitDepVarDef), 2):
+                functionValue = evalExpression(splitDepVarDef[j], indVarValueDict)
                 # Overwrite the function definition with its string value
                 splitDepVarDef[j] = str(functionValue)
             

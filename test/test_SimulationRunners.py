@@ -11,7 +11,7 @@ import os
 
 import matplotlib.pyplot as plt
 
-from MAPLEAF.SimulationRunners import SingleSimRunner, MonteCarloSimRunner, ConvergenceSimRunner
+from MAPLEAF.SimulationRunners import SingleSimRunner, MonteCarloSimRunner, ConvergenceSimRunner, OptimizingSimRunner, evalExpression
 from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.IO.SimDefinition import SimDefinition
 import test.testUtilities
@@ -74,6 +74,41 @@ class TestSimRunners(unittest.TestCase):
         mCSR = MonteCarloSimRunner(simDefinition=mCSimDef, silent=True)
         mCSR.runMonteCarloSimulation()
 
+    def test_Optimization(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef)
+
+        # Check that initialization worked correctly
+
+        # Check output of _loadIndependentVariables()
+        self.assertEqual(optSimRunner.varKeys, [ "Rocket.Sustainer.UpperBodyTube.mass" ])        
+        self.assertEqual(optSimRunner.varNames, [ "bodyWeight" ])
+        self.assertEqual(optSimRunner.minVals, [ 0.01 ])
+        self.assertEqual(optSimRunner.maxVals, [ 0.2 ])
+
+        # Check out of _loadDependentVariables()
+        self.assertEqual(optSimRunner.dependentVars, [ "Rocket.Sustainer.Nosecone.mass" ])        
+        self.assertEqual(optSimRunner.dependentVarDefinitions, [ "!0.007506 + 0.01/bodyWeight!" ])
+
+        # Check output of _createOptimizer()
+        self.assertEqual(optSimRunner.nIterations, 5)
+        self.assertEqual(optSimRunner.showConvergence, True)
+        self.assertEqual(optSimRunner.optimizer.n_particles, 3)
+
+        # Check updating independent variable values
+        indVarDict = optSimRunner._updateIndependentVariableValues(simDef, [0.15] )
+        self.assertEqual(simDef.getValue("Rocket.Sustainer.UpperBodyTube.mass"), "0.15")
+        self.assertEqual(indVarDict, { "bodyWeight": 0.15 })
+
+        # Check updating dependent variables values
+        optSimRunner._updateDependentVariableValues(simDef, indVarDict)
+        self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.074172666666667)
+
+    def test_evalExpression(self):
+        varDict = { "bodyWeight": 0.15 }
+        result = evalExpression( "0.007506 + 0.01/bodyWeight", varDict)
+        self.assertAlmostEqual(result, 0.0741726666666)
+
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
         convSimDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
@@ -127,3 +162,4 @@ class TestSimRunners(unittest.TestCase):
     def tearDown(self):
         plt.cla()
         plt.clf()
+

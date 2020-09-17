@@ -142,7 +142,7 @@ def main(argv: List[str]=None) -> int:
         optSimRunner.runOptimization()
 
     # Monte Carlo Sim
-    if isMonteCarloSimulation(simDef):
+    elif isMonteCarloSimulation(simDef):
         mCSimRunner = MonteCarloSimRunner(simDefinition=simDef, silent=args.silent)
         mCSimRunner.runMonteCarloSimulation()
 

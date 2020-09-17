@@ -4,14 +4,19 @@
 # This file is the base case for the OpenRocket 'SimpleRocket' validation cases
 
 Optimization{
-    costFunction        1/apogee
+    costFunction        1/apogee if apogee > 0 else -apogee
 
     IndependentVariables{
         bodyWeight      0.01 < Rocket.Sustainer.UpperBodyTube.mass < 0.2
     }
 
+    DependentVariables{
+        # Equation creates tradeoff between body weight and nose cone weight
+        Rocket.Sustainer.Nosecone.mass  !0.007506 + 0.01/bodyWeight!
+    }
+
     ParticleSwarm{
-        nParticles      3
+        nParticles      6
         nIterations     5
     }
 }
