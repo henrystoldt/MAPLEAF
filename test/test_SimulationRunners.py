@@ -89,9 +89,9 @@ class TestSimRunners(unittest.TestCase):
         self.assertEqual(optSimRunner.dependentVarDefinitions, [ "!0.007506 + 0.015/bodyWeight!" ])
 
         # Check output of _createOptimizer()
-        self.assertEqual(optSimRunner.nIterations, 5)
+        self.assertEqual(optSimRunner.nIterations, 20)
         self.assertEqual(optSimRunner.showConvergence, True)
-        self.assertEqual(optSimRunner.optimizer.n_particles, 20)
+        self.assertEqual(optSimRunner.optimizer.n_particles, 5)
 
         # Check updating independent variable values
         indVarDict = optSimRunner._updateIndependentVariableValues(simDef, [0.15] )
