@@ -19,12 +19,12 @@ from typing import List
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-import MAPLEAF.IO.Logging as Logging
-import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.ENV import Environment
-from MAPLEAF.IO import RocketFlight, SimDefinition, SubDictReader
+from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
+                        SubDictReader)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
+from MAPLEAF.Utilities import evalExpression
 
 
 class SingleSimRunner():
@@ -684,14 +684,6 @@ def runParallelMonteCarloSim(simDefinition):
 
     print("1: {}".format(results))
     print("2: {}".format(results2))
-
-def evalExpression(statement: str, additionalVars={}):
-    globalVars = {
-        '__builtins__': None, # Restrict access to builtins
-        'math': math # Make math functions available
-    }
-
-    return eval(statement, globalVars, additionalVars)
 
 class OptimizingSimRunner():
     '''

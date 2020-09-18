@@ -13,12 +13,11 @@ import unittest
 import matplotlib.pyplot as plt
 
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO.SimDefinition import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
                                        MonteCarloSimRunner,
-                                       OptimizingSimRunner, SingleSimRunner,
-                                       evalExpression, isMonteCarloSimulation)
+                                       OptimizingSimRunner, SingleSimRunner)
+from MAPLEAF.Utilities import evalExpression
 
 
 class TestSimRunners(unittest.TestCase):

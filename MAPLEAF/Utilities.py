@@ -1,3 +1,4 @@
+import math
 
 def cacheLastResult(func):
     '''
@@ -32,3 +33,11 @@ def logForceResult(func):
         
         return aeroForce
     return loggedAeroFunction
+
+def evalExpression(statement: str, additionalVars={}):
+    globalVars = {
+        '__builtins__': None, # Restrict access to builtins
+        'math': math # Make math functions available
+    }
+
+    return eval(statement, globalVars, additionalVars)
