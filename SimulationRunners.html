@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.SimulationRunners API documentation</title>
-<meta name="description" content="Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes that run several simulations in one go …" />
+<meta name="description" content="Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized classes that run several simulations in one go …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -26,7 +26,7 @@
 <h1 class="title">Module <code>MAPLEAF.SimulationRunners</code></h1>
 </header>
 <section id="section-intro">
-<p>Defines a basic single simulation runner <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code>, as well as more specialized child classes that run several simulations in one go.</p>
+<p>Defines a basic single simulation runner <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code>, as well as more specialized classes that run several simulations in one go.</p>
 <p><img alt="" src="https://storage.needpix.com/rsynced_images/important-1705212_1280.png"></p>
 <details class="source">
 <summary>
@@ -37,7 +37,7 @@
 #Created by: Henry Stoldt
 #February 2019
 &#39;&#39;&#39;
-Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes that run several simulations in one go.
+Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized classes that run several simulations in one go.
 
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 &#39;&#39;&#39;
@@ -53,14 +53,12 @@ from typing import List
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-import MAPLEAF.IO.Logging as Logging
-import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.ENV.Environment import Environment
-from MAPLEAF.IO.RocketFlight import RocketFlight
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Rocket.Rocket import Rocket
+from MAPLEAF.ENV import Environment
+from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
+                        SubDictReader)
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Rocket import Rocket
+from MAPLEAF.Utilities import evalExpression
 
 
 class SingleSimRunner():
@@ -70,11 +68,11 @@ class SingleSimRunner():
             Inputs:
                 
                 * simDefinitionFilePath:  (string) path to simulation definition file  
-                * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         &#39;&#39;&#39;
         self.simDefinition = None
-        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
+        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
 
         # Load simulation definition file - have to do this before creating the environment from it
         if simDefinition == None and simDefinitionFilePath != None:
@@ -87,7 +85,7 @@ class SingleSimRunner():
                 If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
 
         self.environment = Environment(self.simDefinition, silent=silent)
-        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
 
         self.stagingIndex = None # Set in self.prepRocketForSingleSimulation
         &#39;&#39;&#39; (int) Set in `SingleSimRunner.prepRocketForSingleSimulation`. Tracks how many stages have been dropped &#39;&#39;&#39;
@@ -705,12 +703,10 @@ def runParallelMonteCarloSim(simDefinition):
     import ray
     ray.init()
 
-    global SingleSimRunner
+    RemoteSimRunner = ray.remote(SingleSimRunner)
 
-    SingleSimRunner = ray.remote(SingleSimRunner)
-
-    runner1 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
-    runner2 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True)
+    runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
+    runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
 
     f1 = runner1.runSingleSimulation.remote()
     f2 = runner2.runSingleSimulation.remote()
@@ -720,14 +716,6 @@ def runParallelMonteCarloSim(simDefinition):
 
     print(&#34;1: {}&#34;.format(results))
     print(&#34;2: {}&#34;.format(results2))
-
-def evalExpression(statement: str, additionalVars={}):
-    globalVars = {
-        &#39;__builtins__&#39;: None, # Restrict access to builtins
-        &#39;math&#39;: math # Make math functions available
-    }
-
-    return eval(statement, globalVars, additionalVars)
 
 class OptimizingSimRunner():
     &#39;&#39;&#39;
@@ -1276,24 +1264,6 @@ if __name__ == &#34;__main__&#34;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="MAPLEAF.SimulationRunners.evalExpression"><code class="name flex">
-<span>def <span class="ident">evalExpression</span></span>(<span>statement: str, additionalVars={})</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def evalExpression(statement: str, additionalVars={}):
-    globalVars = {
-        &#39;__builtins__&#39;: None, # Restrict access to builtins
-        &#39;math&#39;: math # Make math functions available
-    }
-
-    return eval(statement, globalVars, additionalVars)</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.SimulationRunners.runParallelMonteCarloSim"><code class="name flex">
 <span>def <span class="ident">runParallelMonteCarloSim</span></span>(<span>simDefinition)</span>
 </code></dt>
@@ -1312,12 +1282,10 @@ if __name__ == &#34;__main__&#34;:
     import ray
     ray.init()
 
-    global SingleSimRunner
+    RemoteSimRunner = ray.remote(SingleSimRunner)
 
-    SingleSimRunner = ray.remote(SingleSimRunner)
-
-    runner1 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
-    runner2 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True)
+    runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
+    runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
 
     f1 = runner1.runSingleSimulation.remote()
     f2 = runner2.runSingleSimulation.remote()
@@ -1346,7 +1314,7 @@ if __name__ == &#34;__main__&#34;:
 (string) path to simulation definition file
 </li>
 <li>fW:
-(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+(<code><a title="MAPLEAF.IO.SimDefinition" href="IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
 </li>
 <li>silent:
 (bool) toggles optional outputs to the console</li>
@@ -2058,7 +2026,7 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
 (string) path to simulation definition file
 </li>
 <li>fW:
-(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+(<code><a title="MAPLEAF.IO.SimDefinition" href="IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
 </li>
 <li>silent:
 (bool) toggles optional outputs to the console</li>
@@ -2586,7 +2554,7 @@ Configurable using the top-level 'Optimization' dictionary in .mapleaf files</p>
 (string) path to simulation definition file
 </li>
 <li>fW:
-(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+(<code><a title="MAPLEAF.IO.SimDefinition" href="IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
 </li>
 <li>silent:
 (bool) toggles optional outputs to the console</li>
@@ -2602,11 +2570,11 @@ Configurable using the top-level 'Optimization' dictionary in .mapleaf files</p>
             Inputs:
                 
                 * simDefinitionFilePath:  (string) path to simulation definition file  
-                * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         &#39;&#39;&#39;
         self.simDefinition = None
-        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
+        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
 
         # Load simulation definition file - have to do this before creating the environment from it
         if simDefinition == None and simDefinitionFilePath != None:
@@ -2619,7 +2587,7 @@ Configurable using the top-level 'Optimization' dictionary in .mapleaf files</p>
                 If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
 
         self.environment = Environment(self.simDefinition, silent=silent)
-        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
 
         self.stagingIndex = None # Set in self.prepRocketForSingleSimulation
         &#39;&#39;&#39; (int) Set in `SingleSimRunner.prepRocketForSingleSimulation`. Tracks how many stages have been dropped &#39;&#39;&#39;
@@ -3028,7 +2996,7 @@ Configurable using the top-level 'Optimization' dictionary in .mapleaf files</p>
 <dl>
 <dt id="MAPLEAF.SimulationRunners.SingleSimRunner.environment"><code class="name">var <span class="ident">environment</span></code></dt>
 <dd>
-<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment.Environment" href="ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>. Will be shared by all Rockets created by this sim runner</p></div>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment" href="ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code>. Will be shared by all Rockets created by this sim runner</p></div>
 </dd>
 <dt id="MAPLEAF.SimulationRunners.SingleSimRunner.silent"><code class="name">var <span class="ident">silent</span></code></dt>
 <dd>
@@ -3036,7 +3004,7 @@ Configurable using the top-level 'Optimization' dictionary in .mapleaf files</p>
 </dd>
 <dt id="MAPLEAF.SimulationRunners.SingleSimRunner.simDefinition"><code class="name">var <span class="ident">simDefinition</span></code></dt>
 <dd>
-<div class="desc"><p>Instance of <code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>. Defines the current simulation</p></div>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.IO.SimDefinition" href="IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>. Defines the current simulation</p></div>
 </dd>
 <dt id="MAPLEAF.SimulationRunners.SingleSimRunner.stagingIndex"><code class="name">var <span class="ident">stagingIndex</span></code></dt>
 <dd>
@@ -3294,7 +3262,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
 (string) path to simulation definition file
 </li>
 <li>fW:
-(<code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="IO/SimDefinition.html#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+(<code><a title="MAPLEAF.IO.SimDefinition" href="IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
 </li>
 <li>silent:
 (bool) toggles optional outputs to the console</li>
@@ -3586,7 +3554,6 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="MAPLEAF.SimulationRunners.evalExpression" href="#MAPLEAF.SimulationRunners.evalExpression">evalExpression</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.runParallelMonteCarloSim" href="#MAPLEAF.SimulationRunners.runParallelMonteCarloSim">runParallelMonteCarloSim</a></code></li>
 </ul>
 </li>

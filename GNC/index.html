@@ -39,17 +39,27 @@ Guidance, Navigation, and Control functionality for 3D navigation (air vehicles)
 Main module is `MAPLEAF.GNC.ControlSystems`
 
 .. image:: https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Homing_pigeon.jpg/1272px-Homing_pigeon.jpg
-&#39;&#39;&#39;</code></pre>
+&#39;&#39;&#39;
+# Make the classes in all submodules importable directly from MAPLEAF.Rocket
+
+from .Actuators import *
+from .PID import *
+from .Navigation import *
+from .actuatedSystem import *
+from .MomentControllers import *
+from .ControlSystems import *
+
+subModules = [ actuatedSystem, Actuators, ControlSystems, MomentControllers, Navigation, PID ]
+
+__all__ = []
+
+for subModule in subModules:
+    __all__ += subModule.__all__</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="MAPLEAF.GNC.ActuatedSystem" href="ActuatedSystem.html">MAPLEAF.GNC.ActuatedSystem</a></code></dt>
-<dd>
-<div class="desc"><p>The actuated system class initializes actuators, which are controlled by a <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code>
-Rocket component classes need …</p></div>
-</dd>
 <dt><code class="name"><a title="MAPLEAF.GNC.Actuators" href="Actuators.html">MAPLEAF.GNC.Actuators</a></code></dt>
 <dd>
 <div class="desc"><p>Modelling of actuators, which can control things like the position of rocket fin angles&hellip;</p></div>
@@ -70,6 +80,11 @@ Rocket component classes need …</p></div>
 <dd>
 <div class="desc"><p>PID controllers control parts of the control system and adaptive simulation timestepping</p></div>
 </dd>
+<dt><code class="name"><a title="MAPLEAF.GNC.actuatedSystem" href="actuatedSystem.html">MAPLEAF.GNC.actuatedSystem</a></code></dt>
+<dd>
+<div class="desc"><p>The actuated system class initializes actuators, which are controlled by a <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code>
+Rocket component classes need …</p></div>
+</dd>
 </dl>
 </section>
 <section>
@@ -77,6 +92,1208 @@ Rocket component classes need …</p></div>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.GNC.ActuatedSystem"><code class="flex name class">
+<span>class <span class="ident">ActuatedSystem</span></span>
+<span>(</span><span>nActuators)</span>
+</code></dt>
+<dd>
+<div class="desc"><p><strong>Mixin-type class</strong><br>
+Inherit from this class to add its functionality to a class
+</p>
+<ul>
+<li>ActuatedSystem.__init__ initializes actuators defined in the component's 'Actuator' subdictionary
+</li>
+<li>These actuators are then stored in self.actuatorList
+</li>
+<li>Child classes must call ActuatedSystem.__init__() to actually instantiate the actuators</li>
+<li>Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality</li>
+<li>Expects that child classes have a self.rocket attribute</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ActuatedSystem(abc.ABC):
+    &#39;&#39;&#39;
+            **Mixin-type class**  
+            Inherit from this class to add its functionality to a class  
+                
+            * ActuatedSystem.\_\_init\_\_ initializes actuators defined in the component&#39;s &#39;Actuator&#39; subdictionary  
+            * These actuators are then stored in self.actuatorList  
+            * Child classes must call ActuatedSystem.\_\_init\_\_() to actually instantiate the actuators
+            * Expects that child classes also inherit from SubDictReader, and have already initialized the SubDictReader functionality
+            * Expects that child classes have a self.rocket attribute
+    &#39;&#39;&#39;
+    def __init__(self, nActuators):
+
+        # Initialize Actuator Models
+        actuatorList = []
+        for i in range(nActuators):
+            actuatorResponseModel = self.componentDictReader.getString(&#34;Actuators.responseModel&#34;)
+            if actuatorResponseModel == &#34;FirstOrder&#34;:
+                responseTime = self.componentDictReader.getFloat(&#34;Actuators.responseTime&#34;)
+                maxDeflection = self.componentDictReader.tryGetFloat(&#34;Actuators.maxDeflection&#34;, defaultValue=None)
+                minDeflection = self.componentDictReader.tryGetFloat(&#34;Actuators.minDeflection&#34;, defaultValue=None)
+                actuator = FirstOrderActuator(responseTime, maxDeflection=maxDeflection, minDeflection=minDeflection)
+                actuatorList.append(actuator)
+            else:
+                raise ValueError(&#34;Actuator response model {} not implemented. Try &#39;FirstOrder&#39;&#34;.format(actuatorResponseModel))
+
+        self.actuatorList = actuatorList
+
+        # Initialize Actuator controller
+        controllerType = self.componentDictReader.getString(&#34;Actuators.controller&#34;)
+        if controllerType == &#34;TableInterpolating&#34;:
+            deflectionTablePath = self.componentDictReader.getString(&#34;Actuators.deflectionTablePath&#34;)
+
+            # Get list of &#39;key&#39; columns
+            deflectionKeyColumns = self.componentDictReader.getString(&#34;Actuators.deflectionKeyColumns&#34;).split()
+            noDesiredKeys = []
+            for key in deflectionKeyColumns:
+                if &#34;Desired&#34; not in key:
+                    noDesiredKeys.append(key)
+                else:
+                    break
+
+            # Check that no non-&#39;desired&#39; key columns after desired ones
+            for i in range(len(noDesiredKeys), len(deflectionKeyColumns)):
+                if &#34;Desired&#34; not in deflectionKeyColumns[i]:
+                    raise ValueError(&#34;&#39;Desired&#39; columns such as DesiredMx must come last in deflectionKeyColumns&#34;)
+
+            deflectionKeyFunctionVector = [ AeroParameters.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
+
+            self.actuatorController = TableInterpolatingActuatorController(deflectionTablePath, len(deflectionKeyColumns), deflectionKeyFunctionVector, actuatorList)
+        else:
+            raise ValueError(&#34;Actuator controller: {} not implemented. Try TableInterpolating.&#34;)
+
+    @abc.abstractmethod
+    def initializeActuators(self, controlSystem):
+        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Rocket.Fins.FinSet" href="../Rocket/Fins.html#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.ActuatedSystem.initializeActuators"><code class="name flex">
+<span>def <span class="ident">initializeActuators</span></span>(<span>self, controlSystem)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Concrete implementations of this function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def initializeActuators(self, controlSystem):
+    &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.Actuator"><code class="flex name class">
+<span>class <span class="ident">Actuator</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for actuators.
+Actuators model the movement of a physical actuator (ex. servo, hydraulics).
+Target deflections are usually provided by the rocket's <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code>, usually obtained from a <code><a title="MAPLEAF.GNC.ActuatorController" href="#MAPLEAF.GNC.ActuatorController">ActuatorController</a></code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Actuator(abc.ABC):
+    &#39;&#39;&#39; 
+        Interface for actuators.
+        Actuators model the movement of a physical actuator (ex. servo, hydraulics).
+        Target deflections are usually provided by the rocket&#39;s `MAPLEAF.GNC.ControlSystems.ControlSystem`, usually obtained from a `ActuatorController`
+    &#39;&#39;&#39;
+    @abc.abstractmethod
+    def setTargetDeflection(self, newTarget, time):
+        &#39;&#39;&#39; Should return nothing, update setPoint for the actuator &#39;&#39;&#39;
+        pass
+
+    @abc.abstractmethod
+    def getDeflection(self, time):
+        &#39;&#39;&#39; Should return the current deflection &#39;&#39;&#39;
+        pass
+
+    @abc.abstractmethod
+    def getDeflectionDerivative(self, state, environment, time):
+        &#39;&#39;&#39; Should return the current deflection derivative &#39;&#39;&#39;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Actuators.FirstOrderActuator" href="Actuators.html#MAPLEAF.GNC.Actuators.FirstOrderActuator">FirstOrderActuator</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.Actuator.getDeflection"><code class="name flex">
+<span>def <span class="ident">getDeflection</span></span>(<span>self, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return the current deflection</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getDeflection(self, time):
+    &#39;&#39;&#39; Should return the current deflection &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.Actuator.getDeflectionDerivative"><code class="name flex">
+<span>def <span class="ident">getDeflectionDerivative</span></span>(<span>self, state, environment, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return the current deflection derivative</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getDeflectionDerivative(self, state, environment, time):
+    &#39;&#39;&#39; Should return the current deflection derivative &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.Actuator.setTargetDeflection"><code class="name flex">
+<span>def <span class="ident">setTargetDeflection</span></span>(<span>self, newTarget, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return nothing, update setPoint for the actuator</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def setTargetDeflection(self, newTarget, time):
+    &#39;&#39;&#39; Should return nothing, update setPoint for the actuator &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.ActuatorController"><code class="flex name class">
+<span>class <span class="ident">ActuatorController</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for actuator controllers. <br>
+Actuator controllers are in charge of determining what actuator deflections are required to produce moments desired by the rocket's <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ActuatorController(abc.ABC):
+    &#39;&#39;&#39; 
+        Interface for actuator controllers.   
+        Actuator controllers are in charge of determining what actuator deflections are required to produce moments desired by the rocket&#39;s `MAPLEAF.GNC.ControlSystems.ControlSystem`
+    &#39;&#39;&#39;
+    @abc.abstractmethod
+    def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
+        &#39;&#39;&#39; Should return nothing, control the appropriate rocket system to generate the desired moments &#39;&#39;&#39;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Actuators.TableInterpolatingActuatorController" href="Actuators.html#MAPLEAF.GNC.Actuators.TableInterpolatingActuatorController">TableInterpolatingActuatorController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.ActuatorController.setTargetActuatorDeflections"><code class="name flex">
+<span>def <span class="ident">setTargetActuatorDeflections</span></span>(<span>self, desiredMoments, state, environment, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return nothing, control the appropriate rocket system to generate the desired moments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
+    &#39;&#39;&#39; Should return nothing, control the appropriate rocket system to generate the desired moments &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.ControlSystem"><code class="flex name class">
+<span>class <span class="ident">ControlSystem</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface for control systems</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ControlSystem(abc.ABC):
+    &#39;&#39;&#39; Interface for control systems &#39;&#39;&#39;
+
+    @abc.abstractmethod
+    def runControlLoopIfRequired(self, currentTime, rocketState, environment):
+        &#39;&#39;&#39; 
+            Should check if the control loop needs to be run and run it if so. 
+            Should return a list of actuator deflections (for logging)
+
+            Reference to controlled system expected to be self.controlledSystem
+            Controlled system expected to inherit from ActuatedSystem
+
+            If the control system ran:
+                Should return an iterable of new actuator position targets (in order consistent with log headers)
+            If the control system didn&#39;t run:
+                Should return False
+        &#39;&#39;&#39;
+
+    @abc.abstractmethod
+    def getLogHeader(self):
+        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.ControlSystem.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getLogHeader(self):
+    &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.ControlSystem.runControlLoopIfRequired"><code class="name flex">
+<span>def <span class="ident">runControlLoopIfRequired</span></span>(<span>self, currentTime, rocketState, environment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should check if the control loop needs to be run and run it if so.
+Should return a list of actuator deflections (for logging)</p>
+<p>Reference to controlled system expected to be self.controlledSystem
+Controlled system expected to inherit from ActuatedSystem</p>
+<p>If the control system ran:
+Should return an iterable of new actuator position targets (in order consistent with log headers)
+If the control system didn't run:
+Should return False</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def runControlLoopIfRequired(self, currentTime, rocketState, environment):
+    &#39;&#39;&#39; 
+        Should check if the control loop needs to be run and run it if so. 
+        Should return a list of actuator deflections (for logging)
+
+        Reference to controlled system expected to be self.controlledSystem
+        Controlled system expected to inherit from ActuatedSystem
+
+        If the control system ran:
+            Should return an iterable of new actuator position targets (in order consistent with log headers)
+        If the control system didn&#39;t run:
+            Should return False
+    &#39;&#39;&#39;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.FirstOrderActuator"><code class="flex name class">
+<span>class <span class="ident">FirstOrderActuator</span></span>
+<span>(</span><span>responseTime, initialDeflection=0, initialTime=0, maxDeflection=None, minDeflection=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>First-order system - simple enought that its motion between control loops can be determined analytically.
+Motion does not need to be integrated</p>
+<p>Basically just a version of the FirstOrderSystem class that internally stores state information</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FirstOrderActuator(Actuator, FirstOrderSystem):
+    &#39;&#39;&#39;
+        First-order system - simple enought that its motion between control loops can be determined analytically.
+        Motion does not need to be integrated
+
+        Basically just a version of the FirstOrderSystem class that internally stores state information
+    &#39;&#39;&#39;
+    def __init__(self, responseTime, initialDeflection=0, initialTime=0, maxDeflection=None, minDeflection=None):
+        self.responseTime = responseTime
+        self.lastDeflection = initialDeflection
+        self.lastTime = 0
+        self.targetDeflection = 0
+        self.maxDeflection = maxDeflection
+        self.minDeflection = minDeflection
+
+    def setTargetDeflection(self, newTarget, time):
+        # Record current deflection and time
+        self.lastDeflection = self.getDeflection(time)
+        self.lastTime = time
+
+        # Apply limiters to new target
+        if self.maxDeflection != None:
+            newTarget = min(newTarget, self.maxDeflection)
+        if self.minDeflection != None:
+            newTarget = max(newTarget, self.minDeflection)
+
+        # Set new target
+        self.targetDeflection = newTarget
+
+    def getDeflection(self, time):
+        return self.getPosition(time, self.lastTime, self.lastDeflection, self.targetDeflection)
+
+    def getDeflectionDerivative(self, _, _2, _3):
+        &#39;&#39;&#39; Not required for first-order actuator - deflections can be integrated analytically &#39;&#39;&#39;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Actuators.Actuator" href="Actuators.html#MAPLEAF.GNC.Actuators.Actuator">Actuator</a></li>
+<li>abc.ABC</li>
+<li><a title="MAPLEAF.GNC.Actuators.FirstOrderSystem" href="Actuators.html#MAPLEAF.GNC.Actuators.FirstOrderSystem">FirstOrderSystem</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.FirstOrderActuator.getDeflectionDerivative"><code class="name flex">
+<span>def <span class="ident">getDeflectionDerivative</span></span>(<span>self, _, _2, _3)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Not required for first-order actuator - deflections can be integrated analytically</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDeflectionDerivative(self, _, _2, _3):
+    &#39;&#39;&#39; Not required for first-order actuator - deflections can be integrated analytically &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.GNC.Actuators.Actuator" href="Actuators.html#MAPLEAF.GNC.Actuators.Actuator">Actuator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.GNC.Actuators.Actuator.getDeflection" href="Actuators.html#MAPLEAF.GNC.Actuators.Actuator.getDeflection">getDeflection</a></code></li>
+<li><code><a title="MAPLEAF.GNC.Actuators.Actuator.setTargetDeflection" href="Actuators.html#MAPLEAF.GNC.Actuators.Actuator.setTargetDeflection">setTargetDeflection</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.GNC.FirstOrderSystem"><code class="flex name class">
+<span>class <span class="ident">FirstOrderSystem</span></span>
+<span>(</span><span>responseTime)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FirstOrderSystem():
+    def __init__(self, responseTime):
+        self.responseTime = responseTime
+
+    def getPosition(self, currentTime, lastTime, lastPosition, lastTarget):
+        dt = currentTime - lastTime
+        if dt &lt; -1e-17: # Exception check here because this would pass through the exponent expression below without causing an error
+            raise ValueError(&#34;Current time ({}) must be after lastTime ({})&#34;.format(currentTime, lastTime))
+            
+        if dt &lt; 0:
+            dt = 0
+
+        lastError = lastTarget - lastPosition
+        errorFractionRemoved = (1 - e**(-dt/self.responseTime))
+        newPosition = lastPosition + lastError*errorFractionRemoved
+
+        return newPosition</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Actuators.FirstOrderActuator" href="Actuators.html#MAPLEAF.GNC.Actuators.FirstOrderActuator">FirstOrderActuator</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.FirstOrderSystem.getPosition"><code class="name flex">
+<span>def <span class="ident">getPosition</span></span>(<span>self, currentTime, lastTime, lastPosition, lastTarget)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getPosition(self, currentTime, lastTime, lastPosition, lastTarget):
+    dt = currentTime - lastTime
+    if dt &lt; -1e-17: # Exception check here because this would pass through the exponent expression below without causing an error
+        raise ValueError(&#34;Current time ({}) must be after lastTime ({})&#34;.format(currentTime, lastTime))
+        
+    if dt &lt; 0:
+        dt = 0
+
+    lastError = lastTarget - lastPosition
+    errorFractionRemoved = (1 - e**(-dt/self.responseTime))
+    newPosition = lastPosition + lastError*errorFractionRemoved
+
+    return newPosition</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.GainScheduledPIDController"><code class="flex name class">
+<span>class <span class="ident">GainScheduledPIDController</span></span>
+<span>(</span><span>gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>gainTableFilePath:
+(string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
+nKeyColumns:
+(int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
+PCol:
+(int) zero-indexed column number of P Coefficient
+DCol:
+(int) zero-indexed column number of D Coefficient</p>
+<p>Note:
+It is assumed that PCol, ICol, and DCol exist one after another in the table</p>
+<p>Inputs passed through to parent class (PICController):
+initialError, maxIntegral</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GainScheduledPIDController(PIDController):
+    def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
+        &#39;&#39;&#39;
+            Inputs:
+                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt&#39;
+                nKeyColumns:        (int) Number of &#39;key&#39; columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
+                PCol:               (int) zero-indexed column number of P Coefficient
+                DCol:               (int) zero-indexed column number of D Coefficient
+
+                Note:
+                    It is assumed that PCol, ICol, and DCol exist one after another in the table
+                
+                Inputs passed through to parent class (PICController):
+                    initialError, maxIntegral
+        &#39;&#39;&#39;
+        PIDController.__init__(self, 0,0,0, initialError=initialError, maxIntegral=maxIntegral)
+
+        # Columns are: Mach, Altitude(ASL), P1, I1, D1
+        pidData = np.loadtxt(gainTableFilePath, skiprows=1)
+        keys = pidData[:,0:nKeyColumns]
+        pidData = pidData[:,PCol:DCol+1]
+
+        #Create interpolation function for PID coefficients
+        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
+
+    def updateCoefficientsFromGainTable(self, keyList):
+        P, I, D = self._getPIDCoeffs(keyList)
+        self.updateCoefficients(P, I, D)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController">GainScheduledPIDRocketMomentController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.GainScheduledPIDController.updateCoefficientsFromGainTable"><code class="name flex">
+<span>def <span class="ident">updateCoefficientsFromGainTable</span></span>(<span>self, keyList)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateCoefficientsFromGainTable(self, keyList):
+    P, I, D = self._getPIDCoeffs(keyList)
+    self.updateCoefficients(P, I, D)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.GainScheduledPIDRocketMomentController"><code class="flex name class">
+<span>class <span class="ident">GainScheduledPIDRocketMomentController</span></span>
+<span>(</span><span>gainTableFilePath, keyColumnNames)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<p>Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
+Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
+Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GainScheduledPIDRocketMomentController(MomentController, GainScheduledPIDController):
+    def __init__(self, gainTableFilePath, keyColumnNames):
+        &#39;&#39;&#39;
+            Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
+            Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
+            Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt
+        &#39;&#39;&#39;
+        self.keyFunctionList = [ AeroParameters.stringToAeroFunctionMap[x] for x in keyColumnNames ]
+        nKeyColumns = len(keyColumnNames)
+        GainScheduledPIDController.__init__(self, gainTableFilePath, nKeyColumns, PCol=nKeyColumns, DCol=nKeyColumns+5)
+        
+    def updateCoefficientsFromGainTable(self, keyList):
+        &#39;&#39;&#39; Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller &#39;&#39;&#39;
+        Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
+
+        # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
+        # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)
+        P = np.array([Pxy, Pxy, Pz])
+        I = np.array([Ixy, Ixy, Iz])
+        D = np.array([Dxy, Dxy, Dz])
+        self.updateCoefficients(P, I, D)
+
+    def _getOrientationError(self, rocketState, targetOrientation):
+        return np.array((targetOrientation / rocketState.orientation).toRotationVector())
+
+    def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+        &#39;&#39;&#39;
+            Inputs: 
+                gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+                rocketState:        must have .orientation attribute (Quaternion)
+                targetOrientation:  (Quaternion)
+                _:                  currently unused (time argument)
+                dt:                 (numeric) time since last execution of the control system
+        &#39;&#39;&#39;
+        orientationError = self._getOrientationError(rocketState, targetOrientation)
+        gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
+        self.updateCoefficientsFromGainTable(gainKeyList)
+        return self.getNewSetPoint(orientationError, dt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.MomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.MomentController">MomentController</a></li>
+<li>abc.ABC</li>
+<li><a title="MAPLEAF.GNC.PID.GainScheduledPIDController" href="PID.html#MAPLEAF.GNC.PID.GainScheduledPIDController">GainScheduledPIDController</a></li>
+<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.getDesiredMoments"><code class="name flex">
+<span>def <span class="ident">getDesiredMoments</span></span>(<span>self, rocketState, environment, targetOrientation, time, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Inputs:
+gainKeyList:
+iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+rocketState:
+must have .orientation attribute (Quaternion)
+targetOrientation:
+(Quaternion)
+_:
+currently unused (time argument)
+dt:
+(numeric) time since last execution of the control system</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+    &#39;&#39;&#39;
+        Inputs: 
+            gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+            rocketState:        must have .orientation attribute (Quaternion)
+            targetOrientation:  (Quaternion)
+            _:                  currently unused (time argument)
+            dt:                 (numeric) time since last execution of the control system
+    &#39;&#39;&#39;
+    orientationError = self._getOrientationError(rocketState, targetOrientation)
+    gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
+    self.updateCoefficientsFromGainTable(gainKeyList)
+    return self.getNewSetPoint(orientationError, dt)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.updateCoefficientsFromGainTable"><code class="name flex">
+<span>def <span class="ident">updateCoefficientsFromGainTable</span></span>(<span>self, keyList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateCoefficientsFromGainTable(self, keyList):
+    &#39;&#39;&#39; Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller &#39;&#39;&#39;
+    Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
+
+    # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
+    # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)
+    P = np.array([Pxy, Pxy, Pz])
+    I = np.array([Ixy, Ixy, Iz])
+    D = np.array([Dxy, Dxy, Dz])
+    self.updateCoefficients(P, I, D)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.MomentController"><code class="flex name class">
+<span>class <span class="ident">MomentController</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MomentController(abc.ABC):
+    @abc.abstractmethod
+    def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+        &#39;&#39;&#39; Should return a list [ desired x-axis, y-axis, and z-axis ] moments &#39;&#39;&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController">GainScheduledPIDRocketMomentController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.MomentController.getDesiredMoments"><code class="name flex">
+<span>def <span class="ident">getDesiredMoments</span></span>(<span>self, rocketState, environment, targetOrientation, time, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return a list [ desired x-axis, y-axis, and z-axis ] moments</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+    &#39;&#39;&#39; Should return a list [ desired x-axis, y-axis, and z-axis ] moments &#39;&#39;&#39;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.Navigator"><code class="flex name class">
+<span>class <span class="ident">Navigator</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Navigator(abc.ABC):
+    @abc.abstractmethod
+    def getTargetOrientation(self, rocketState, targetState, time):
+        &#39;&#39;&#39; Should return a target orientation quaternion &#39;&#39;&#39;
+        pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Navigation.Stabilizer" href="Navigation.html#MAPLEAF.GNC.Navigation.Stabilizer">Stabilizer</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.Navigator.getTargetOrientation"><code class="name flex">
+<span>def <span class="ident">getTargetOrientation</span></span>(<span>self, rocketState, targetState, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should return a target orientation quaternion</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abc.abstractmethod
+def getTargetOrientation(self, rocketState, targetState, time):
+    &#39;&#39;&#39; Should return a target orientation quaternion &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.PIDController"><code class="flex name class">
+<span>class <span class="ident">PIDController</span></span>
+<span>(</span><span>P, I, D, initialError=0, maxIntegral=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>To make this PID controller work for vectors of values, pass in np arrays
+- they are added elementwise by default</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PIDController():
+
+    def __init__(self, P, I, D, initialError=0, maxIntegral=None):
+        &#39;&#39;&#39; To make this PID controller work for vectors of values, pass in np arrays 
+                - they are added elementwise by default
+        &#39;&#39;&#39;
+        self.P = P
+        self.I = I
+        self.D = D
+        self.lastError = initialError
+        self.errorIntegral = initialError * 0 # Initialized like this in case value passed in is an array
+        self.updateMaxIntegral(maxIntegral)
+
+    def updateMaxIntegral(self, maxIntegral):
+        if maxIntegral is not None:
+            self.maxIntegralMagnitude = abs(maxIntegral)
+        else:
+            self.maxIntegralMagnitude = maxIntegral
+
+    def getNewSetPoint(self, currentError, dt):
+        self.errorIntegral = self.errorIntegral + (currentError + self.lastError)*dt / 2
+
+        # Cap the magnitude of the integral term if necessary
+        if self.maxIntegralMagnitude is not None:
+            try:
+                # Check if vector valued
+                testIter = iter(self.errorIntegral)
+                for i in range(len(self.errorIntegral)):
+                    if abs(self.errorIntegral[i] &gt; self.maxIntegralMagnitude[i]):
+                        self.errorIntegral[i] = self.errorIntegral[i] * self.maxIntegralMagnitude[i] / abs(self.errorIntegral[i])
+
+            except TypeError:
+                # Scalar valued
+                if abs(self.errorIntegral) &gt; self.maxIntegralMagnitude:
+                    self.errorIntegral = self.errorIntegral * self.maxIntegralMagnitude / abs(self.errorIntegral)
+
+        derivative = (currentError - self.lastError) / dt
+
+        self.lastError = currentError
+        return self.P*currentError + self.I*self.errorIntegral + self.D*derivative
+
+    def updateCoefficients(self, P, I, D, maxIntegral=None):
+        self.P = P
+        self.I = I
+        self.D = D
+        self.updateMaxIntegral(maxIntegral)
+
+    def resetIntegral(self):
+        self.errorIntegral = self.lastError * 0 # Done to handle arbitrary size np arrays</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.PID.GainScheduledPIDController" href="PID.html#MAPLEAF.GNC.PID.GainScheduledPIDController">GainScheduledPIDController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.PIDController.getNewSetPoint"><code class="name flex">
+<span>def <span class="ident">getNewSetPoint</span></span>(<span>self, currentError, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getNewSetPoint(self, currentError, dt):
+    self.errorIntegral = self.errorIntegral + (currentError + self.lastError)*dt / 2
+
+    # Cap the magnitude of the integral term if necessary
+    if self.maxIntegralMagnitude is not None:
+        try:
+            # Check if vector valued
+            testIter = iter(self.errorIntegral)
+            for i in range(len(self.errorIntegral)):
+                if abs(self.errorIntegral[i] &gt; self.maxIntegralMagnitude[i]):
+                    self.errorIntegral[i] = self.errorIntegral[i] * self.maxIntegralMagnitude[i] / abs(self.errorIntegral[i])
+
+        except TypeError:
+            # Scalar valued
+            if abs(self.errorIntegral) &gt; self.maxIntegralMagnitude:
+                self.errorIntegral = self.errorIntegral * self.maxIntegralMagnitude / abs(self.errorIntegral)
+
+    derivative = (currentError - self.lastError) / dt
+
+    self.lastError = currentError
+    return self.P*currentError + self.I*self.errorIntegral + self.D*derivative</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.PIDController.resetIntegral"><code class="name flex">
+<span>def <span class="ident">resetIntegral</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resetIntegral(self):
+    self.errorIntegral = self.lastError * 0 # Done to handle arbitrary size np arrays</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.PIDController.updateCoefficients"><code class="name flex">
+<span>def <span class="ident">updateCoefficients</span></span>(<span>self, P, I, D, maxIntegral=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateCoefficients(self, P, I, D, maxIntegral=None):
+    self.P = P
+    self.I = I
+    self.D = D
+    self.updateMaxIntegral(maxIntegral)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.PIDController.updateMaxIntegral"><code class="name flex">
+<span>def <span class="ident">updateMaxIntegral</span></span>(<span>self, maxIntegral)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateMaxIntegral(self, maxIntegral):
+    if maxIntegral is not None:
+        self.maxIntegralMagnitude = abs(maxIntegral)
+    else:
+        self.maxIntegralMagnitude = maxIntegral</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.RocketControlSystem"><code class="flex name class">
+<span>class <span class="ident">RocketControlSystem</span></span>
+<span>(</span><span>controlSystemDictReader, rocket, initTime=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Simplest possible control system for a rocket</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RocketControlSystem(ControlSystem, SubDictReader):
+    &#39;&#39;&#39; Simplest possible control system for a rocket &#39;&#39;&#39;
+
+    def __init__(self, controlSystemDictReader, rocket, initTime=0):
+        self.rocket = rocket
+        self.controlSystemDictReader = controlSystemDictReader
+        self.lastControlLoopRunTime = initTime
+        self.timeSteppingModified = False # set to True if the sim&#39;s time stepping has been constrained by the control system update rate (in self._checkSimTimeStepping)
+
+        ### Create Navigator ###
+        desiredFlightDirection = controlSystemDictReader.getVector(&#34;desiredFlightDirection&#34;)
+        self.navigator = Stabilizer(desiredFlightDirection)
+
+        ### Create Moment Controller ###
+        momentControllerType = controlSystemDictReader.getString(&#34;MomentController.Type&#34;)
+        if momentControllerType == &#34;GainScheduledPIDRocket&#34;:
+            gainTableFilePath = controlSystemDictReader.getString(&#34;MomentController.gainTableFilePath&#34;)
+            keyColumnNames = controlSystemDictReader.getString(&#34;MomentController.scheduledBy&#34;).split()
+            self.momentController = GainScheduledPIDRocketMomentController(gainTableFilePath, keyColumnNames)
+        else:
+            raise ValueError(&#34;Moment Controller Type: {} not implemented. Try GainScheduledPIDRocket&#34;.format(momentControllerType))
+
+        ### Set update rate ###
+        self.updateRate = controlSystemDictReader.getFloat(&#34;updateRate&#34;)
+
+        ### Get reference to the controlled system ###
+        controlledSystemPath = controlSystemDictReader.getString(&#34;controlledSystem&#34;)
+        self.controlledSystem = None
+        for stage in rocket.stages:
+            for rocketComponent in stage.components:
+                if rocketComponent.componentDictReader.simDefDictPathToReadFrom == controlledSystemPath:
+                    self.controlledSystem = rocketComponent
+                    break
+
+        if self.controlledSystem == None:
+            simDefinitionFile = controlSystemDictReader.simDefinition.fileName
+            raise ValueError(&#34;Rocket Component: {} not found in {}&#34;.format(controlledSystemPath, simDefinitionFile))
+
+        self.controlledSystem.initializeActuators(self)
+
+        self._checkSimTimeStepping()
+
+    def _checkSimTimeStepping(self):
+        # If the update rate is zero, control system is simply run once per time step
+        if self.updateRate != 0:
+            # Since a discrete update rate has been specified, we need to ensure that the simulation time step is an integer divisor of the control system time step
+            
+            # Disable adaptive time stepping during the ascent portion of the flight (if it&#39;s enabled)
+            timeStepController = self.controlSystemDictReader.getString(&#34;SimControl.TimeStepAdaptation.controller&#34;)
+            if timeStepController != &#34;constant&#34;:
+                print(&#34;WARNING: Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate&#34;)
+                print(&#34;Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.&#34;)
+                print(&#34;Switching to RK4 time stepping&#34;)
+                self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=&#39;RK4&#39;)
+                self.timeSteppingModified = True
+
+            # Adjust the sim time step to be an even divisor of the control system time step
+            controlTimeStep = 1/self.updateRate
+            self.controlTimeStep = controlTimeStep
+            originalSimTimeStep = self.controlSystemDictReader.getFloat(&#34;SimControl.timeStep&#34;)
+            self.originalSimTimeStep = originalSimTimeStep
+            if controlTimeStep / originalSimTimeStep != round(controlTimeStep / originalSimTimeStep):
+                print(&#34;WARNING: Selected time step: {} does not divide the control system time step: {} Into an integer number of time steps.&#34;.format(originalSimTimeStep, controlTimeStep))
+                recommendedSimTimeStep = controlTimeStep / max(1, round(controlTimeStep / originalSimTimeStep))
+                
+                print(&#34;Adjusting time step to: {}&#34;.format(recommendedSimTimeStep))
+                print(&#34;&#34;)
+                # This relies on the SimRunner reading the time step size from the sim definition after intializing the rocket
+                    # To make this more robust, have the rocket perform a timestep size check every single time step
+                self.controlSystemDictReader.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(recommendedSimTimeStep))
+                self.timeSteppingModified = True
+            
+        else:
+            self.controlTimeStep = 0
+
+    def restoreOriginalTimeStepping(self):
+        &#39;&#39;&#39;
+            Should get called whenever the control system is disabled:
+                1. If a stage containing the controlled system is dropped
+                2. If the rocket recovery system is deployed
+        &#39;&#39;&#39;
+        if self.timeSteppingModified:
+            # This currently won&#39;t do anything because the time step is saved in an array by the SingleSimRunner - might be useful in the future
+            self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(self.originalSimTimeStep))
+
+            # This will re-initialize the integrator to match that originally selected in the sim definition file
+            originalTimeIntegrationMethod = self.rocketDictReader.getValue(&#34;SimControl.timeDiscretization&#34;)
+            print(&#34;Restoring original time discretization method ({})&#34;.format(originalTimeIntegrationMethod))
+            self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlDctReaders.simDefinition)
+
+    def runControlLoopIfRequired(self, currentTime, rocketState, environment):
+        # Run control loop if enough time has passed
+        if (currentTime - self.lastControlLoopRunTime) + 0.0000000001 &gt;= self.controlTimeStep:
+            dt = currentTime - self.lastControlLoopRunTime
+
+            # Figure out where to go/point
+            targetOrientation = self.navigator.getTargetOrientation(rocketState, &#34;notRequired&#34;, currentTime)
+
+            # Figure out what moment needs to be applied
+            desiredMoments = self.momentController.getDesiredMoments(rocketState, environment, targetOrientation, currentTime, dt)
+            
+            # Apply it by actuating the controlled system
+            newActuatorPositionTargets = self.controlledSystem.actuatorController.setTargetActuatorDeflections(desiredMoments, rocketState, environment, currentTime)
+
+            self.lastControlLoopRunTime = currentTime
+
+            return newActuatorPositionTargets
+        else:
+            return False
+
+    def getLogHeader(self):
+        headerStrings = [ &#34; Actuator_{}_TargetDeflection&#34;.format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
+        return &#34;&#34;.join(headerStrings)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></li>
+<li>abc.ABC</li>
+<li><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.RocketControlSystem.restoreOriginalTimeStepping"><code class="name flex">
+<span>def <span class="ident">restoreOriginalTimeStepping</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should get called whenever the control system is disabled:
+1. If a stage containing the controlled system is dropped
+2. If the rocket recovery system is deployed</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def restoreOriginalTimeStepping(self):
+    &#39;&#39;&#39;
+        Should get called whenever the control system is disabled:
+            1. If a stage containing the controlled system is dropped
+            2. If the rocket recovery system is deployed
+    &#39;&#39;&#39;
+    if self.timeSteppingModified:
+        # This currently won&#39;t do anything because the time step is saved in an array by the SingleSimRunner - might be useful in the future
+        self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(self.originalSimTimeStep))
+
+        # This will re-initialize the integrator to match that originally selected in the sim definition file
+        originalTimeIntegrationMethod = self.rocketDictReader.getValue(&#34;SimControl.timeDiscretization&#34;)
+        print(&#34;Restoring original time discretization method ({})&#34;.format(originalTimeIntegrationMethod))
+        self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlDctReaders.simDefinition)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader">getLogHeader</a></code></li>
+<li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired">runControlLoopIfRequired</a></code></li>
+</ul>
+</li>
+<li><code><b><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getString" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader.getString">getString</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.GNC.Stabilizer"><code class="flex name class">
+<span>class <span class="ident">Stabilizer</span></span>
+<span>(</span><span>desiredFlightDirection)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Stabilizer(Navigator):
+    def __init__(self, desiredFlightDirection):
+        # Calculate target orientation
+        direction = desiredFlightDirection.normalize()
+        angleFromVertical = Vector(0,0,1).angle(direction)
+        rotationAxis = Vector(0,0,1).crossProduct(direction)
+        self.targetOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+    def getTargetOrientation(self, rocketState, targetState, time):
+        return self.targetOrientation</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Navigation.Navigator" href="Navigation.html#MAPLEAF.GNC.Navigation.Navigator">Navigator</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.GNC.Navigation.Navigator" href="Navigation.html#MAPLEAF.GNC.Navigation.Navigator">Navigator</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.GNC.Navigation.Navigator.getTargetOrientation" href="Navigation.html#MAPLEAF.GNC.Navigation.Navigator.getTargetOrientation">getTargetOrientation</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.GNC.TableInterpolatingActuatorController"><code class="flex name class">
+<span>class <span class="ident">TableInterpolatingActuatorController</span></span>
+<span>(</span><span>deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Controls actuators</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TableInterpolatingActuatorController(ActuatorController):
+    &#39;&#39;&#39;
+        Controls actuators 
+    &#39;&#39;&#39;
+    def __init__(self, deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList):
+        self.actuatorList = actuatorList
+        self.keyFunctionList = keyFunctionList
+
+        # Load actuator-deflection data table
+        deflData = np.loadtxt(deflectionTableFilePath, skiprows=1)
+        keys = deflData[:,0:nKeyColumns]
+        deflData = deflData[:,nKeyColumns:]
+
+        # Check that number of actuators matches number of deflection entries in the deflection tables
+        nActuators = len(actuatorList)
+        nDeflectionTableEntries = len(deflData[0,:])
+        if nActuators != nDeflectionTableEntries:
+            raise ValueError(&#34;Number of actuators: {}, must match number of actuator deflection columns in deflection table: {}&#34;.format(nActuators, nDeflectionTableEntries))
+
+        # Create interpolation function for fin deflections
+        self._getPositionTargets = LinearNDInterpolator(keys, deflData)
+
+    def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
+        &#39;&#39;&#39;
+            Inputs:
+                desiredMoments: (3-length iterable) contains desired moments about the x,y,and z axes
+                time:           time at which the moments are requested (time of current control loop execution)
+        &#39;&#39;&#39;
+        # Construct key vector, starting with non-moment components:
+        keyVector = AeroParameters.getAeroPropertiesList(self.keyFunctionList, state, environment)
+        for desiredMoment in desiredMoments:
+            keyVector.append(desiredMoment)
+
+        newActuatorPositionTargets = self._getPositionTargets(*keyVector)
+
+        for i in range(len(self.actuatorList)):
+            self.actuatorList[i].setTargetDeflection(newActuatorPositionTargets[i], time)
+
+        return list(newActuatorPositionTargets)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.Actuators.ActuatorController" href="Actuators.html#MAPLEAF.GNC.Actuators.ActuatorController">ActuatorController</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.TableInterpolatingActuatorController.setTargetActuatorDeflections"><code class="name flex">
+<span>def <span class="ident">setTargetActuatorDeflections</span></span>(<span>self, desiredMoments, state, environment, time)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>desiredMoments: (3-length iterable) contains desired moments about the x,y,and z axes
+time:
+time at which the moments are requested (time of current control loop execution)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
+    &#39;&#39;&#39;
+        Inputs:
+            desiredMoments: (3-length iterable) contains desired moments about the x,y,and z axes
+            time:           time at which the moments are requested (time of current control loop execution)
+    &#39;&#39;&#39;
+    # Construct key vector, starting with non-moment components:
+    keyVector = AeroParameters.getAeroPropertiesList(self.keyFunctionList, state, environment)
+    for desiredMoment in desiredMoments:
+        keyVector.append(desiredMoment)
+
+    newActuatorPositionTargets = self._getPositionTargets(*keyVector)
+
+    for i in range(len(self.actuatorList)):
+        self.actuatorList[i].setTargetDeflection(newActuatorPositionTargets[i], time)
+
+    return list(newActuatorPositionTargets)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -98,12 +1315,104 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="MAPLEAF.GNC.ActuatedSystem" href="ActuatedSystem.html">MAPLEAF.GNC.ActuatedSystem</a></code></li>
 <li><code><a title="MAPLEAF.GNC.Actuators" href="Actuators.html">MAPLEAF.GNC.Actuators</a></code></li>
 <li><code><a title="MAPLEAF.GNC.ControlSystems" href="ControlSystems.html">MAPLEAF.GNC.ControlSystems</a></code></li>
 <li><code><a title="MAPLEAF.GNC.MomentControllers" href="MomentControllers.html">MAPLEAF.GNC.MomentControllers</a></code></li>
 <li><code><a title="MAPLEAF.GNC.Navigation" href="Navigation.html">MAPLEAF.GNC.Navigation</a></code></li>
 <li><code><a title="MAPLEAF.GNC.PID" href="PID.html">MAPLEAF.GNC.PID</a></code></li>
+<li><code><a title="MAPLEAF.GNC.actuatedSystem" href="actuatedSystem.html">MAPLEAF.GNC.actuatedSystem</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.GNC.ActuatedSystem" href="#MAPLEAF.GNC.ActuatedSystem">ActuatedSystem</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.ActuatedSystem.initializeActuators" href="#MAPLEAF.GNC.ActuatedSystem.initializeActuators">initializeActuators</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.Actuator" href="#MAPLEAF.GNC.Actuator">Actuator</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.Actuator.getDeflection" href="#MAPLEAF.GNC.Actuator.getDeflection">getDeflection</a></code></li>
+<li><code><a title="MAPLEAF.GNC.Actuator.getDeflectionDerivative" href="#MAPLEAF.GNC.Actuator.getDeflectionDerivative">getDeflectionDerivative</a></code></li>
+<li><code><a title="MAPLEAF.GNC.Actuator.setTargetDeflection" href="#MAPLEAF.GNC.Actuator.setTargetDeflection">setTargetDeflection</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.ActuatorController" href="#MAPLEAF.GNC.ActuatorController">ActuatorController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.ActuatorController.setTargetActuatorDeflections" href="#MAPLEAF.GNC.ActuatorController.setTargetActuatorDeflections">setTargetActuatorDeflections</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.ControlSystem" href="#MAPLEAF.GNC.ControlSystem">ControlSystem</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.ControlSystem.getLogHeader" href="#MAPLEAF.GNC.ControlSystem.getLogHeader">getLogHeader</a></code></li>
+<li><code><a title="MAPLEAF.GNC.ControlSystem.runControlLoopIfRequired" href="#MAPLEAF.GNC.ControlSystem.runControlLoopIfRequired">runControlLoopIfRequired</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.FirstOrderActuator" href="#MAPLEAF.GNC.FirstOrderActuator">FirstOrderActuator</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.FirstOrderActuator.getDeflectionDerivative" href="#MAPLEAF.GNC.FirstOrderActuator.getDeflectionDerivative">getDeflectionDerivative</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.FirstOrderSystem" href="#MAPLEAF.GNC.FirstOrderSystem">FirstOrderSystem</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.FirstOrderSystem.getPosition" href="#MAPLEAF.GNC.FirstOrderSystem.getPosition">getPosition</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.GainScheduledPIDController" href="#MAPLEAF.GNC.GainScheduledPIDController">GainScheduledPIDController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.GainScheduledPIDController.updateCoefficientsFromGainTable" href="#MAPLEAF.GNC.GainScheduledPIDController.updateCoefficientsFromGainTable">updateCoefficientsFromGainTable</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.GainScheduledPIDRocketMomentController" href="#MAPLEAF.GNC.GainScheduledPIDRocketMomentController">GainScheduledPIDRocketMomentController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.getDesiredMoments" href="#MAPLEAF.GNC.GainScheduledPIDRocketMomentController.getDesiredMoments">getDesiredMoments</a></code></li>
+<li><code><a title="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.updateCoefficientsFromGainTable" href="#MAPLEAF.GNC.GainScheduledPIDRocketMomentController.updateCoefficientsFromGainTable">updateCoefficientsFromGainTable</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.MomentController" href="#MAPLEAF.GNC.MomentController">MomentController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.MomentController.getDesiredMoments" href="#MAPLEAF.GNC.MomentController.getDesiredMoments">getDesiredMoments</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.Navigator" href="#MAPLEAF.GNC.Navigator">Navigator</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.Navigator.getTargetOrientation" href="#MAPLEAF.GNC.Navigator.getTargetOrientation">getTargetOrientation</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.PIDController" href="#MAPLEAF.GNC.PIDController">PIDController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.PIDController.getNewSetPoint" href="#MAPLEAF.GNC.PIDController.getNewSetPoint">getNewSetPoint</a></code></li>
+<li><code><a title="MAPLEAF.GNC.PIDController.resetIntegral" href="#MAPLEAF.GNC.PIDController.resetIntegral">resetIntegral</a></code></li>
+<li><code><a title="MAPLEAF.GNC.PIDController.updateCoefficients" href="#MAPLEAF.GNC.PIDController.updateCoefficients">updateCoefficients</a></code></li>
+<li><code><a title="MAPLEAF.GNC.PIDController.updateMaxIntegral" href="#MAPLEAF.GNC.PIDController.updateMaxIntegral">updateMaxIntegral</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.RocketControlSystem" href="#MAPLEAF.GNC.RocketControlSystem">RocketControlSystem</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.RocketControlSystem.restoreOriginalTimeStepping" href="#MAPLEAF.GNC.RocketControlSystem.restoreOriginalTimeStepping">restoreOriginalTimeStepping</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.Stabilizer" href="#MAPLEAF.GNC.Stabilizer">Stabilizer</a></code></h4>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.TableInterpolatingActuatorController" href="#MAPLEAF.GNC.TableInterpolatingActuatorController">TableInterpolatingActuatorController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.TableInterpolatingActuatorController.setTargetActuatorDeflections" href="#MAPLEAF.GNC.TableInterpolatingActuatorController.setTargetActuatorDeflections">setTargetActuatorDeflections</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

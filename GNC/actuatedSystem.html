@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.GNC.ActuatedSystem API documentation</title>
+<title>MAPLEAF.GNC.actuatedSystem API documentation</title>
 <meta name="description" content="The actuated system class initializes actuators, which are controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem`
 Rocket component classes need …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -17,33 +17,34 @@ Rocket component classes need …" />
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/GNC/ActuatedSystem.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/GNC/actuatedSystem.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.GNC.ActuatedSystem</code></h1>
+<h1 class="title">Module <code>MAPLEAF.GNC.actuatedSystem</code></h1>
 </header>
 <section id="section-intro">
 <p>The actuated system class initializes actuators, which are controlled by a <code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="ControlSystems.html#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code>
-Rocket component classes need to inherit from this class to become controllable (see <code><a title="MAPLEAF.Rocket.Fins.FinSet" href="../Rocket/Fins.html#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></code>)</p>
+Rocket component classes need to inherit from this class to become controllable (see <code><a title="MAPLEAF.Rocket.FinSet" href="../Rocket/index.html#MAPLEAF.Rocket.FinSet">FinSet</a></code>)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39; 
 The actuated system class initializes actuators, which are controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` 
-Rocket component classes need to inherit from this class to become controllable (see `MAPLEAF.Rocket.Fins.FinSet`)
+Rocket component classes need to inherit from this class to become controllable (see `MAPLEAF.Rocket.FinSet`)
 &#39;&#39;&#39;
 
 import abc
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.GNC.Actuators import (FirstOrderActuator,
-                               TableInterpolatingActuatorController)
+from MAPLEAF.Motion import AeroParameters
+from MAPLEAF.GNC import (FirstOrderActuator,
+                         TableInterpolatingActuatorController)
 
+__all__ = [ &#34;ActuatedSystem&#34; ]
 
 class ActuatedSystem(abc.ABC):
     &#39;&#39;&#39;
@@ -92,7 +93,7 @@ class ActuatedSystem(abc.ABC):
                 if &#34;Desired&#34; not in deflectionKeyColumns[i]:
                     raise ValueError(&#34;&#39;Desired&#39; columns such as DesiredMx must come last in deflectionKeyColumns&#34;)
 
-            deflectionKeyFunctionVector = [ AeroFunctions.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
+            deflectionKeyFunctionVector = [ AeroParameters.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
 
             self.actuatorController = TableInterpolatingActuatorController(deflectionTablePath, len(deflectionKeyColumns), deflectionKeyFunctionVector, actuatorList)
         else:
@@ -113,7 +114,7 @@ class ActuatedSystem(abc.ABC):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem"><code class="flex name class">
+<dt id="MAPLEAF.GNC.actuatedSystem.ActuatedSystem"><code class="flex name class">
 <span>class <span class="ident">ActuatedSystem</span></span>
 <span>(</span><span>nActuators)</span>
 </code></dt>
@@ -181,7 +182,7 @@ Inherit from this class to add its functionality to a class
                 if &#34;Desired&#34; not in deflectionKeyColumns[i]:
                     raise ValueError(&#34;&#39;Desired&#39; columns such as DesiredMx must come last in deflectionKeyColumns&#34;)
 
-            deflectionKeyFunctionVector = [ AeroFunctions.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
+            deflectionKeyFunctionVector = [ AeroParameters.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
 
             self.actuatorController = TableInterpolatingActuatorController(deflectionTablePath, len(deflectionKeyColumns), deflectionKeyFunctionVector, actuatorList)
         else:
@@ -202,7 +203,7 @@ Inherit from this class to add its functionality to a class
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators"><code class="name flex">
+<dt id="MAPLEAF.GNC.actuatedSystem.ActuatedSystem.initializeActuators"><code class="name flex">
 <span>def <span class="ident">initializeActuators</span></span>(<span>self, controlSystem)</span>
 </code></dt>
 <dd>
@@ -242,9 +243,9 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></code></h4>
+<h4><code><a title="MAPLEAF.GNC.actuatedSystem.ActuatedSystem" href="#MAPLEAF.GNC.actuatedSystem.ActuatedSystem">ActuatedSystem</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators" href="#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators">initializeActuators</a></code></li>
+<li><code><a title="MAPLEAF.GNC.actuatedSystem.ActuatedSystem.initializeActuators" href="#MAPLEAF.GNC.actuatedSystem.ActuatedSystem.initializeActuators">initializeActuators</a></code></li>
 </ul>
 </li>
 </ul>

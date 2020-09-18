@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.Motion.CompositeObject API documentation</title>
-<meta name="description" content="Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inherit from `CompositeObject`.
-It implements functionality to add forces …" />
+<title>MAPLEAF.Rocket.CompositeObject API documentation</title>
+<meta name="description" content="Both `MAPLEAF.Rocket.Stage` and `MAPLEAF.Rocket.Rocket` objects inherit from `CompositeObject`.
+It implements functionality to add forces and inertias …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -17,32 +17,32 @@ It implements functionality to add forces …" />
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Motion/CompositeObject.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/CompositeObject.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.Motion.CompositeObject</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Rocket.CompositeObject</code></h1>
 </header>
 <section id="section-intro">
-<p>Both <code><a title="MAPLEAF.Rocket.Stage.Stage" href="../Rocket/Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> and <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> objects inherit from <code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></code>.
+<p>Both <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code> and <code><a title="MAPLEAF.Rocket.Rocket" href="index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code> objects inherit from <code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject">CompositeObject</a></code>.
 It implements functionality to add forces and inertias from an arbitrary number of subcomponents.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;
-Both `MAPLEAF.Rocket.Stage.Stage` and `MAPLEAF.Rocket.Rocket.Rocket` objects inherit from `CompositeObject`.
+Both `MAPLEAF.Rocket.Stage` and `MAPLEAF.Rocket.Rocket` objects inherit from `CompositeObject`.
 It implements functionality to add forces and inertias from an arbitrary number of subcomponents.
 &#39;&#39;&#39;
 
-from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Rocket.RocketComponents import FixedMass
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector
+from MAPLEAF.Utilities import cacheLastResult
+from MAPLEAF.Rocket import FixedMass
+
+__all__ = [ &#39;CompositeObject&#39; ]
 
 class CompositeObject():
     &#34;&#34;&#34;
@@ -112,6 +112,7 @@ class CompositeObject():
                 pass # Not a CompositeObject
 
     #TODO: Compute forces at interfaces between components
+    
     @cacheLastResult
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         &#39;&#39;&#39;
@@ -179,7 +180,7 @@ class CompositeObject():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.Motion.CompositeObject.CompositeObject"><code class="flex name class">
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject"><code class="flex name class">
 <span>class <span class="ident">CompositeObject</span></span>
 <span>(</span><span>components=[], CGOverride=None, MOIOverride=None, massOverride=None)</span>
 </code></dt>
@@ -264,6 +265,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
                 pass # Not a CompositeObject
 
     #TODO: Compute forces at interfaces between components
+    
     @cacheLastResult
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         &#39;&#39;&#39;
@@ -323,12 +325,12 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></li>
-<li><a title="MAPLEAF.Rocket.Stage.Stage" href="../Rocket/Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></li>
+<li><a title="MAPLEAF.Rocket.rocket.Rocket" href="rocket.html#MAPLEAF.Rocket.rocket.Rocket">Rocket</a></li>
+<li><a title="MAPLEAF.Rocket.stage.Stage" href="stage.html#MAPLEAF.Rocket.stage.Stage">Stage</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Motion.CompositeObject.CompositeObject.getAeroForce"><code class="name flex">
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce"><code class="name flex">
 <span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
@@ -349,7 +351,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
     return result</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Motion.CompositeObject.CompositeObject.getCG"><code class="name flex">
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG"><code class="name flex">
 <span>def <span class="ident">getCG</span></span>(<span>self, time, state)</span>
 </code></dt>
 <dd>
@@ -362,7 +364,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
     return self.getInertia(time, state).CG</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Motion.CompositeObject.CompositeObject.getInertia"><code class="name flex">
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getInertia"><code class="name flex">
 <span>def <span class="ident">getInertia</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
@@ -383,7 +385,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
     return result</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Motion.CompositeObject.CompositeObject.getMass"><code class="name flex">
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass"><code class="name flex">
 <span>def <span class="ident">getMass</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
@@ -404,7 +406,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
     return result</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia"><code class="name flex">
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia"><code class="name flex">
 <span>def <span class="ident">recomputeFixedMassInertia</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -447,19 +449,19 @@ MAPLEAF
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="MAPLEAF.Motion" href="index.html">MAPLEAF.Motion</a></code></li>
+<li><code><a title="MAPLEAF.Rocket" href="index.html">MAPLEAF.Rocket</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject">CompositeObject</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.getAeroForce" href="#MAPLEAF.Motion.CompositeObject.CompositeObject.getAeroForce">getAeroForce</a></code></li>
-<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.getCG" href="#MAPLEAF.Motion.CompositeObject.CompositeObject.getCG">getCG</a></code></li>
-<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.getInertia" href="#MAPLEAF.Motion.CompositeObject.CompositeObject.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.getMass" href="#MAPLEAF.Motion.CompositeObject.CompositeObject.getMass">getMass</a></code></li>
-<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia" href="#MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia">recomputeFixedMassInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG">getCG</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getInertia" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getInertia">getInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass">getMass</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia">recomputeFixedMassInertia</a></code></li>
 </ul>
 </li>
 </ul>

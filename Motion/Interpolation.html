@@ -44,8 +44,8 @@ from bisect import bisect
 
 import numpy as np
 
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
 
+__all__ = [ &#34;linInterp&#34;, &#34;linInterpWeights&#34;, &#34;calculateCubicInterpCoefficients&#34;, &#34;cubicInterp&#34; ]
 
 def linInterp(X, Y, desiredX):
     &#39;&#39;&#39;
@@ -129,29 +129,7 @@ def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
     dy_dx_x2 = (Y2_plusDx - Y2) / dx
 
     interpCoeffs = calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dy_dx_x1, dy_dx_x2)
-    return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)
-
-def interpolateRigidBodyStates(state1, state2, state1Weight):
-    &#39;&#39;&#39;
-        Linearly interpolates between state 1 and state2.
-        state1Weight should be a decimal value between 0 and 1.
-    &#39;&#39;&#39;
-    state2Weight = 1 - state1Weight
-    
-    # Properties of all rigid body states
-    pos = state1.position*state1Weight + state2.position*state2Weight
-    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
-
-    try:
-        # 6DoF Properties
-        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
-        orientation = state1.orientation * orientationDelta
-        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
-        return RigidBodyState(pos, vel, orientation, angVel)
-
-    except AttributeError:
-        # 3DoF doesn&#39;t include orientation / angVel
-        return RigidBodyState_3DoF(pos, vel)</code></pre>
+    return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)</code></pre>
 </details>
 </section>
 <section>
@@ -206,39 +184,6 @@ def interpolateRigidBodyStates(state1, state2, state1Weight):
 
     interpCoeffs = calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dy_dx_x1, dy_dx_x2)
     return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Motion.Interpolation.interpolateRigidBodyStates"><code class="name flex">
-<span>def <span class="ident">interpolateRigidBodyStates</span></span>(<span>state1, state2, state1Weight)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Linearly interpolates between state 1 and state2.
-state1Weight should be a decimal value between 0 and 1.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def interpolateRigidBodyStates(state1, state2, state1Weight):
-    &#39;&#39;&#39;
-        Linearly interpolates between state 1 and state2.
-        state1Weight should be a decimal value between 0 and 1.
-    &#39;&#39;&#39;
-    state2Weight = 1 - state1Weight
-    
-    # Properties of all rigid body states
-    pos = state1.position*state1Weight + state2.position*state2Weight
-    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
-
-    try:
-        # 6DoF Properties
-        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
-        orientation = state1.orientation * orientationDelta
-        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
-        return RigidBodyState(pos, vel, orientation, angVel)
-
-    except AttributeError:
-        # 3DoF doesn&#39;t include orientation / angVel
-        return RigidBodyState_3DoF(pos, vel)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Motion.Interpolation.linInterp"><code class="name flex">
@@ -364,7 +309,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Motion.Interpolation.calculateCubicInterpCoefficients" href="#MAPLEAF.Motion.Interpolation.calculateCubicInterpCoefficients">calculateCubicInterpCoefficients</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Interpolation.cubicInterp" href="#MAPLEAF.Motion.Interpolation.cubicInterp">cubicInterp</a></code></li>
-<li><code><a title="MAPLEAF.Motion.Interpolation.interpolateRigidBodyStates" href="#MAPLEAF.Motion.Interpolation.interpolateRigidBodyStates">interpolateRigidBodyStates</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Interpolation.linInterp" href="#MAPLEAF.Motion.Interpolation.linInterp">linInterp</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Interpolation.linInterpWeights" href="#MAPLEAF.Motion.Interpolation.linInterpWeights">linInterpWeights</a></code></li>
 </ul>

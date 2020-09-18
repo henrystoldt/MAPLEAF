@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.IO.SubDictReader API documentation</title>
+<title>MAPLEAF.IO.subDictReader API documentation</title>
 <meta name="description" content="Wrapper class to read from a specific sub-dictionary in a SimDefinition." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -16,14 +16,14 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/IO/SubDictReader.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/IO/subDictReader.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.IO.SubDictReader</code></h1>
+<h1 class="title">Module <code>MAPLEAF.IO.subDictReader</code></h1>
 </header>
 <section id="section-intro">
 <p>Wrapper class to read from a specific sub-dictionary in a SimDefinition.</p>
@@ -36,10 +36,11 @@
 &#39;&#39;&#39;
 
 from distutils.util import strtobool
-from typing import List, Any, Union
+from typing import List, Union
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
 
+__all__ = [ &#34;SubDictReader&#34; ]
 
 class SubDictReader():
 
@@ -141,7 +142,7 @@ class SubDictReader():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader"><code class="flex name class">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader"><code class="flex name class">
 <span>class <span class="ident">SubDictReader</span></span>
 <span>(</span><span>stringPathToThisItemsSubDictionary, simDefinition)</span>
 </code></dt>
@@ -244,11 +245,11 @@ class SubDictReader():
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></li>
-<li><a title="MAPLEAF.Rocket.Motor.Motor" href="../Rocket/Motor.html#MAPLEAF.Rocket.Motor.Motor">Motor</a></li>
+<li><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor" href="../Rocket/Propulsion.html#MAPLEAF.Rocket.Propulsion.TabulatedMotor">TabulatedMotor</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getBool"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getBool"><code class="name flex">
 <span>def <span class="ident">getBool</span></span>(<span>self, key: str) ‑> bool</span>
 </code></dt>
 <dd>
@@ -261,7 +262,7 @@ class SubDictReader():
     return strtobool(self.getString(key))</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getDictName"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getDictName"><code class="name flex">
 <span>def <span class="ident">getDictName</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
@@ -275,7 +276,7 @@ class SubDictReader():
     return self.simDefDictPathToReadFrom[lastDotIndex+1:]</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getFloat"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getFloat"><code class="name flex">
 <span>def <span class="ident">getFloat</span></span>(<span>self, key: str) ‑> float</span>
 </code></dt>
 <dd>
@@ -288,7 +289,7 @@ class SubDictReader():
     return float(self.getString(key))</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubDicts"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getImmediateSubDicts"><code class="name flex">
 <span>def <span class="ident">getImmediateSubDicts</span></span>(<span>self, key=None) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -303,7 +304,7 @@ class SubDictReader():
     return self.simDefinition.getImmediateSubDicts(key)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubKeys"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getImmediateSubKeys"><code class="name flex">
 <span>def <span class="ident">getImmediateSubKeys</span></span>(<span>self, key=None) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -318,7 +319,7 @@ class SubDictReader():
     return self.simDefinition.getImmediateSubKeys(key)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getInt"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getInt"><code class="name flex">
 <span>def <span class="ident">getInt</span></span>(<span>self, key: str) ‑> int</span>
 </code></dt>
 <dd>
@@ -331,7 +332,7 @@ class SubDictReader():
     return int(self.getString(key))</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getString"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getString"><code class="name flex">
 <span>def <span class="ident">getString</span></span>(<span>self, key)</span>
 </code></dt>
 <dd>
@@ -361,7 +362,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
             raise KeyError(&#34;{} and {} not found in {} or in default value dictionary&#34;.format(attemptedKey1, attemptedKey2, self.simDefinition.fileName))</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getSubKeys"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getSubKeys"><code class="name flex">
 <span>def <span class="ident">getSubKeys</span></span>(<span>self, key=None) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -376,7 +377,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
     return self.simDefinition.getSubKeys(key)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.getVector"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.getVector"><code class="name flex">
 <span>def <span class="ident">getVector</span></span>(<span>self, key: str) ‑> <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></span>
 </code></dt>
 <dd>
@@ -389,7 +390,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
     return Vector(self.getString(key))</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetBool"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.tryGetBool"><code class="name flex">
 <span>def <span class="ident">tryGetBool</span></span>(<span>self, key: str, defaultValue: Union[NoneType, bool] = None)</span>
 </code></dt>
 <dd>
@@ -405,7 +406,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
         return defaultValue</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetFloat"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.tryGetFloat"><code class="name flex">
 <span>def <span class="ident">tryGetFloat</span></span>(<span>self, key: str, defaultValue: Union[NoneType, float] = None)</span>
 </code></dt>
 <dd>
@@ -421,7 +422,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
         return defaultValue</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetInt"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.tryGetInt"><code class="name flex">
 <span>def <span class="ident">tryGetInt</span></span>(<span>self, key: str, defaultValue: Union[NoneType, int] = None)</span>
 </code></dt>
 <dd>
@@ -437,7 +438,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
         return defaultValue</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetString"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.tryGetString"><code class="name flex">
 <span>def <span class="ident">tryGetString</span></span>(<span>self, key: str, defaultValue: Union[NoneType, str] = None)</span>
 </code></dt>
 <dd>
@@ -453,7 +454,7 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
         return defaultValue</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetVector"><code class="name flex">
+<dt id="MAPLEAF.IO.subDictReader.SubDictReader.tryGetVector"><code class="name flex">
 <span>def <span class="ident">tryGetVector</span></span>(<span>self, key: str, defaultValue: Union[NoneType, <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>] = None)</span>
 </code></dt>
 <dd>
@@ -494,22 +495,22 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code></h4>
+<h4><code><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getBool" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getBool">getBool</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getDictName" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getDictName">getDictName</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getFloat" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getFloat">getFloat</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubDicts" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubDicts">getImmediateSubDicts</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubKeys" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getImmediateSubKeys">getImmediateSubKeys</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getInt" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getInt">getInt</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getString" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getString">getString</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getSubKeys" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getSubKeys">getSubKeys</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getVector" href="#MAPLEAF.IO.SubDictReader.SubDictReader.getVector">getVector</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetBool" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetBool">tryGetBool</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetFloat" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetFloat">tryGetFloat</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetInt" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetInt">tryGetInt</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetString" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetString">tryGetString</a></code></li>
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.tryGetVector" href="#MAPLEAF.IO.SubDictReader.SubDictReader.tryGetVector">tryGetVector</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getBool" href="#MAPLEAF.IO.subDictReader.SubDictReader.getBool">getBool</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getDictName" href="#MAPLEAF.IO.subDictReader.SubDictReader.getDictName">getDictName</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getFloat" href="#MAPLEAF.IO.subDictReader.SubDictReader.getFloat">getFloat</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getImmediateSubDicts" href="#MAPLEAF.IO.subDictReader.SubDictReader.getImmediateSubDicts">getImmediateSubDicts</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getImmediateSubKeys" href="#MAPLEAF.IO.subDictReader.SubDictReader.getImmediateSubKeys">getImmediateSubKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getInt" href="#MAPLEAF.IO.subDictReader.SubDictReader.getInt">getInt</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getString" href="#MAPLEAF.IO.subDictReader.SubDictReader.getString">getString</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getSubKeys" href="#MAPLEAF.IO.subDictReader.SubDictReader.getSubKeys">getSubKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getVector" href="#MAPLEAF.IO.subDictReader.SubDictReader.getVector">getVector</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.tryGetBool" href="#MAPLEAF.IO.subDictReader.SubDictReader.tryGetBool">tryGetBool</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.tryGetFloat" href="#MAPLEAF.IO.subDictReader.SubDictReader.tryGetFloat">tryGetFloat</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.tryGetInt" href="#MAPLEAF.IO.subDictReader.SubDictReader.tryGetInt">tryGetInt</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.tryGetString" href="#MAPLEAF.IO.subDictReader.SubDictReader.tryGetString">tryGetString</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.tryGetVector" href="#MAPLEAF.IO.subDictReader.SubDictReader.tryGetVector">tryGetVector</a></code></li>
 </ul>
 </li>
 </ul>

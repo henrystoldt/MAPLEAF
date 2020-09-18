@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.Rocket.Bodytube API documentation</title>
+<title>MAPLEAF.Rocket.bodyTube API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -16,14 +16,14 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/Bodytube.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/bodyTube.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.Rocket.Bodytube</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Rocket.bodyTube</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -31,16 +31,15 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import math
-from typing import List
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
+from MAPLEAF.Motion import AeroParameters, Vector
+from MAPLEAF.Rocket import BodyComponent, FixedMass
+from MAPLEAF.Utilities import logForceResult
 
+__all__ = [ &#34;BodyTube&#34; ]
 
-class Bodytube(FixedMass, BodyComponent):
+class BodyTube(FixedMass, BodyComponent):
     &#39;&#39;&#39; Represent a cylindrical body tube &#39;&#39;&#39;
     
     #### Init Functions ####
@@ -70,14 +69,14 @@ class Bodytube(FixedMass, BodyComponent):
         Aref = self.rocket.Aref
 
         # Normal Force ----------------------------------------------------------------------------------------
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         # Niskanen Eqn 3.26 - originally from Galejs
         normalForceCoefficient = 1.1 * (math.sin(AOA))**2
         normalForceCoefficient *= self.planformArea / Aref
 
         # Drag -----------------------------------------------------------------------------------------------
         # Skin Friction
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach, self.surfaceRoughness, \
             self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
         
@@ -90,7 +89,7 @@ class Bodytube(FixedMass, BodyComponent):
         dampingMoments += rollDampingMoment
 
         # Compute &amp; dimensionalize total-------------------------------------------------------------------------
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
 
     def _computeLongitudinalDampingMoments(self, rocketState, environment, CoR, nSegments=25):
         &#39;&#39;&#39; CoR = Center of Rotation (usually the rocket&#39;s CG) &#39;&#39;&#39;
@@ -172,8 +171,8 @@ class Bodytube(FixedMass, BodyComponent):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.Rocket.Bodytube.Bodytube"><code class="flex name class">
-<span>class <span class="ident">Bodytube</span></span>
+<dt id="MAPLEAF.Rocket.bodyTube.BodyTube"><code class="flex name class">
+<span>class <span class="ident">BodyTube</span></span>
 <span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
@@ -182,7 +181,7 @@ class Bodytube(FixedMass, BodyComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Bodytube(FixedMass, BodyComponent):
+<pre><code class="python">class BodyTube(FixedMass, BodyComponent):
     &#39;&#39;&#39; Represent a cylindrical body tube &#39;&#39;&#39;
     
     #### Init Functions ####
@@ -212,14 +211,14 @@ class Bodytube(FixedMass, BodyComponent):
         Aref = self.rocket.Aref
 
         # Normal Force ----------------------------------------------------------------------------------------
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         # Niskanen Eqn 3.26 - originally from Galejs
         normalForceCoefficient = 1.1 * (math.sin(AOA))**2
         normalForceCoefficient *= self.planformArea / Aref
 
         # Drag -----------------------------------------------------------------------------------------------
         # Skin Friction
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach, self.surfaceRoughness, \
             self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
         
@@ -232,7 +231,7 @@ class Bodytube(FixedMass, BodyComponent):
         dampingMoments += rollDampingMoment
 
         # Compute &amp; dimensionalize total-------------------------------------------------------------------------
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)
 
     def _computeLongitudinalDampingMoments(self, rocketState, environment, CoR, nSegments=25):
         &#39;&#39;&#39; CoR = Center of Rotation (usually the rocket&#39;s CG) &#39;&#39;&#39;
@@ -313,7 +312,7 @@ class Bodytube(FixedMass, BodyComponent):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.Bodytube.Bodytube.getAeroForce"><code class="name flex">
+<dt id="MAPLEAF.Rocket.bodyTube.BodyTube.getAeroForce"><code class="name flex">
 <span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
@@ -332,7 +331,7 @@ class Bodytube(FixedMass, BodyComponent):
     return aeroForce</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Bodytube.Bodytube.plotShape"><code class="name flex">
+<dt id="MAPLEAF.Rocket.bodyTube.BodyTube.plotShape"><code class="name flex">
 <span>def <span class="ident">plotShape</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -404,10 +403,10 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.Rocket.Bodytube.Bodytube" href="#MAPLEAF.Rocket.Bodytube.Bodytube">Bodytube</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.bodyTube.BodyTube" href="#MAPLEAF.Rocket.bodyTube.BodyTube">BodyTube</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.Bodytube.Bodytube.getAeroForce" href="#MAPLEAF.Rocket.Bodytube.Bodytube.getAeroForce">getAeroForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Bodytube.Bodytube.plotShape" href="#MAPLEAF.Rocket.Bodytube.Bodytube.plotShape">plotShape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.bodyTube.BodyTube.getAeroForce" href="#MAPLEAF.Rocket.bodyTube.BodyTube.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.bodyTube.BodyTube.plotShape" href="#MAPLEAF.Rocket.bodyTube.BodyTube.plotShape">plotShape</a></code></li>
 </ul>
 </li>
 </ul>

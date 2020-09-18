@@ -187,7 +187,7 @@ def getSimDefinitionAndDefaultValueDictsForOutput(simDefinition, printToConsole=
     
     # Add default value dict
     from pprint import pformat
-    from MAPLEAF.IO.SimDefinition import defaultConfigValues
+    from MAPLEAF.IO import defaultConfigValues
     
     stringResultArray.append(&#34;\n---- Start Default Value Dictionary ----\n&#34;)
     stringResultArray.append(pformat(defaultConfigValues))
@@ -347,7 +347,7 @@ Returns a string of the form fileBaseName + Number + extension</p></div>
     
     # Add default value dict
     from pprint import pformat
-    from MAPLEAF.IO.SimDefinition import defaultConfigValues
+    from MAPLEAF.IO import defaultConfigValues
     
     stringResultArray.append(&#34;\n---- Start Default Value Dictionary ----\n&#34;)
     stringResultArray.append(pformat(defaultConfigValues))

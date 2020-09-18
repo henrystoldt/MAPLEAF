@@ -46,7 +46,7 @@ from typing import List
 
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.IO.SimDefinition import SimDefinition, getAbsoluteFilePath
+from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
                                    SingleSimRunner, OptimizingSimRunner)
 
@@ -149,7 +149,7 @@ def isMonteCarloSimulation(simDefinition) -&gt; bool:
 def main(argv: List[str]=None) -&gt; int:
     &#39;&#39;&#39; 
         Main function to run a MAPLEAF simulation. 
-        Expects to be called from the command line, using the argparse parser
+        Expects to be called from the command line, usually using the `mapleaf` command
         
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     &#39;&#39;&#39;
@@ -362,7 +362,7 @@ if __name__ == &#34;__main__&#34;:
 </code></dt>
 <dd>
 <div class="desc"><p>Main function to run a MAPLEAF simulation.
-Expects to be called from the command line, using the argparse parser</p>
+Expects to be called from the command line, usually using the <code>mapleaf</code> command</p>
 <p>For testing purposes, can also pass a list of command line arguments into the argv parameter</p></div>
 <details class="source">
 <summary>
@@ -371,7 +371,7 @@ Expects to be called from the command line, using the argparse parser</p>
 <pre><code class="python">def main(argv: List[str]=None) -&gt; int:
     &#39;&#39;&#39; 
         Main function to run a MAPLEAF simulation. 
-        Expects to be called from the command line, using the argparse parser
+        Expects to be called from the command line, usually using the `mapleaf` command
         
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     &#39;&#39;&#39;

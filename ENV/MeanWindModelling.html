@@ -41,11 +41,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rv_histogram
 
-from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SimDefinition import defaultConfigValues, getAbsoluteFilePath
-from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.IO import SubDictReader, defaultConfigValues, getAbsoluteFilePath
+from MAPLEAF.Motion import Vector, linInterp
 
+__all__ = [ &#34;meanWindModelFactory&#34;, &#34;ConstantWind&#34;, &#34;Hellman&#34;, &#34;InterpolatedWind&#34; ]
 
 # Mean Wind Model Abstract Base Class / Interface Definition
 class MeanWindModel(abc.ABC):
@@ -61,7 +60,7 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
 
     if simDefinition == None:
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
-        return Constant(constWind)
+        return ConstantWind(constWind)
 
     envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
@@ -72,7 +71,7 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
         if not silent:
             print(&#34;Constant ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
 
-        meanWindModel = Constant(meanGroundWind)
+        meanWindModel = ConstantWind(meanGroundWind)
 
     elif meanWindModelType in [ &#34;SampledGroundWindData&#34;, &#34;Hellman&#34; ]:
         def getLocationSampledGroundWindVel():
@@ -110,7 +109,7 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
             meanGroundWind = getLocationSampledGroundWindVel()
             if not silent:
                 print(&#34;Wind is not a function of altitude&#34;)
-            meanWindModel = Constant(meanGroundWind)
+            meanWindModel = ConstantWind(meanGroundWind)
 
         elif meanWindModelType == &#34;Hellman&#34;:
             groundWindModel = envReader.getString(&#34;Hellman.groundWindModel&#34;)
@@ -133,7 +132,7 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
     
     elif meanWindModelType == &#34;CustomWindProfile&#34;:
         meanWindProfileFilePath = envReader.getString(&#34;CustomWindProfile.filePath&#34;)
-        meanWindModel = InterpolatedProfile(windFilePath=meanWindProfileFilePath)
+        meanWindModel = InterpolatedWind(windFilePath=meanWindProfileFilePath)
 
     elif meanWindModelType == &#34;SampledRadioSondeData&#34;:
         # Get locations and location weights
@@ -156,7 +155,7 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
         sampler = RadioSondeDataSampler(silent=silent)
         altitudes, windVectors = sampler.getRadioSondeWindProfile(locations, weights, locationASLAltitudes, launchMonth, radioSondeRandomSeed)
         
-        meanWindModel = InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
+        meanWindModel = InterpolatedWind(windAltitudes=altitudes, winds=windVectors)
 
     else:
         raise ValueError(&#34;Unknown MeanWindModel: {}. Please see SimDefinitionTemplate.txt for available options.&#34;.format(meanWindModelType))
@@ -164,7 +163,7 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
     return meanWindModel
 
 #### Actual Mean Wind Model classes - these are instantiated by meanWindModelFactory ####
-class Constant(MeanWindModel):
+class ConstantWind(MeanWindModel):
     &#39;&#39;&#39; Defines a constant wind speed at all altitudes  &#39;&#39;&#39;
     
     def __init__(self, wind):
@@ -196,7 +195,7 @@ class Hellman(MeanWindModel):
         # Assume initial winds come from a height of 10m
         return self.groundMeanWind * (HellmanAltitude/10)**self.hellmanAlphaCoeff
 
-class InterpolatedProfile(MeanWindModel):
+class InterpolatedWind(MeanWindModel):
     def __init__(self, windAltitudes=[], winds=[], windFilePath=None):
         &#39;&#39;&#39;
             Arguments:
@@ -541,7 +540,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.MeanWindModelling.meanWindModelFactory"><code class="name flex">
-<span>def <span class="ident">meanWindModelFactory</span></span>(<span>simDefinition=None, silent=False) ‑> <a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></span>
+<span>def <span class="ident">meanWindModelFactory</span></span>(<span>simDefinition=None, silent=False) ‑> MAPLEAF.ENV.MeanWindModelling.MeanWindModel</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Instantiates a mean wind model</p></div>
@@ -554,7 +553,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 
     if simDefinition == None:
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
-        return Constant(constWind)
+        return ConstantWind(constWind)
 
     envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
@@ -565,7 +564,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
         if not silent:
             print(&#34;Constant ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
 
-        meanWindModel = Constant(meanGroundWind)
+        meanWindModel = ConstantWind(meanGroundWind)
 
     elif meanWindModelType in [ &#34;SampledGroundWindData&#34;, &#34;Hellman&#34; ]:
         def getLocationSampledGroundWindVel():
@@ -603,7 +602,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
             meanGroundWind = getLocationSampledGroundWindVel()
             if not silent:
                 print(&#34;Wind is not a function of altitude&#34;)
-            meanWindModel = Constant(meanGroundWind)
+            meanWindModel = ConstantWind(meanGroundWind)
 
         elif meanWindModelType == &#34;Hellman&#34;:
             groundWindModel = envReader.getString(&#34;Hellman.groundWindModel&#34;)
@@ -626,7 +625,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
     
     elif meanWindModelType == &#34;CustomWindProfile&#34;:
         meanWindProfileFilePath = envReader.getString(&#34;CustomWindProfile.filePath&#34;)
-        meanWindModel = InterpolatedProfile(windFilePath=meanWindProfileFilePath)
+        meanWindModel = InterpolatedWind(windFilePath=meanWindProfileFilePath)
 
     elif meanWindModelType == &#34;SampledRadioSondeData&#34;:
         # Get locations and location weights
@@ -649,7 +648,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
         sampler = RadioSondeDataSampler(silent=silent)
         altitudes, windVectors = sampler.getRadioSondeWindProfile(locations, weights, locationASLAltitudes, launchMonth, radioSondeRandomSeed)
         
-        meanWindModel = InterpolatedProfile(windAltitudes=altitudes, winds=windVectors)
+        meanWindModel = InterpolatedWind(windAltitudes=altitudes, winds=windVectors)
 
     else:
         raise ValueError(&#34;Unknown MeanWindModel: {}. Please see SimDefinitionTemplate.txt for available options.&#34;.format(meanWindModelType))
@@ -662,8 +661,8 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.Constant"><code class="flex name class">
-<span>class <span class="ident">Constant</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.ConstantWind"><code class="flex name class">
+<span>class <span class="ident">ConstantWind</span></span>
 <span>(</span><span>wind)</span>
 </code></dt>
 <dd>
@@ -672,7 +671,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Constant(MeanWindModel):
+<pre><code class="python">class ConstantWind(MeanWindModel):
     &#39;&#39;&#39; Defines a constant wind speed at all altitudes  &#39;&#39;&#39;
     
     def __init__(self, wind):
@@ -683,12 +682,12 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></li>
+<li>MAPLEAF.ENV.MeanWindModelling.MeanWindModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.Constant.getMeanWind"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.ConstantWind.getMeanWind"><code class="name flex">
 <span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
 </code></dt>
 <dd>
@@ -743,7 +742,7 @@ hellmanAlphaCoeff: Alpha in the Hellman model (1/7 is a common first guess, but 
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></li>
+<li>MAPLEAF.ENV.MeanWindModelling.MeanWindModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -766,8 +765,8 @@ hellmanAlphaCoeff: Alpha in the Hellman model (1/7 is a common first guess, but 
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile"><code class="flex name class">
-<span>class <span class="ident">InterpolatedProfile</span></span>
+<dt id="MAPLEAF.ENV.MeanWindModelling.InterpolatedWind"><code class="flex name class">
+<span>class <span class="ident">InterpolatedWind</span></span>
 <span>(</span><span>windAltitudes=[], winds=[], windFilePath=None)</span>
 </code></dt>
 <dd>
@@ -791,7 +790,7 @@ wz2</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class InterpolatedProfile(MeanWindModel):
+<pre><code class="python">class InterpolatedWind(MeanWindModel):
     def __init__(self, windAltitudes=[], winds=[], windFilePath=None):
         &#39;&#39;&#39;
             Arguments:
@@ -826,12 +825,12 @@ wz2</p>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></li>
+<li>MAPLEAF.ENV.MeanWindModelling.MeanWindModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile.getMeanWind"><code class="name flex">
+<dt id="MAPLEAF.ENV.MeanWindModelling.InterpolatedWind.getMeanWind"><code class="name flex">
 <span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
 </code></dt>
 <dd>
@@ -842,475 +841,6 @@ wz2</p>
 </summary>
 <pre><code class="python">def getMeanWind(self, AGLAltitude):
     return Vector(*linInterp(self.windAltitudes, self.winds, AGLAltitude))</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling.MeanWindModel"><code class="flex name class">
-<span>class <span class="ident">MeanWindModel</span></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Defines the interface for Mean Wind Models</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class MeanWindModel(abc.ABC):
-    &#39;&#39;&#39; Defines the interface for Mean Wind Models &#39;&#39;&#39;
-
-    @abc.abstractmethod
-    def getMeanWind(self, AGLAltitude):
-        pass </code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="MAPLEAF.ENV.MeanWindModelling.Constant" href="#MAPLEAF.ENV.MeanWindModelling.Constant">Constant</a></li>
-<li><a title="MAPLEAF.ENV.MeanWindModelling.Hellman" href="#MAPLEAF.ENV.MeanWindModelling.Hellman">Hellman</a></li>
-<li><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile">InterpolatedProfile</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind"><code class="name flex">
-<span>def <span class="ident">getMeanWind</span></span>(<span>self, AGLAltitude)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abc.abstractmethod
-def getMeanWind(self, AGLAltitude):
-    pass </code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler"><code class="flex name class">
-<span>class <span class="ident">RadioSondeDataSampler</span></span>
-<span>(</span><span>silent=False, monteCarloDataLogger=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Parses data from radio sonde data files from IGRA-2 after they've been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
-IGRA-2 format info: <a href="https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt">https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt</a></p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class RadioSondeDataSampler():
-    &#39;&#39;&#39; 
-        Parses data from radio sonde data files from IGRA-2 after they&#39;ve been post-processed by MAPLEAF/Examples/Wind/filterRadioSondeData.py
-        IGRA-2 format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
-    &#39;&#39;&#39;
-
-    def __init__(self, silent=False, monteCarloDataLogger=None):
-        self.silent = silent
-        self.monteCarloDataLogger = monteCarloDataLogger
-
-    def getRadioSondeWindProfile(self, locations=[&#34;Edmonton&#34;, &#34;Glasgow&#34;], locationWeights=[0.48, 0.52], locationASLAltitudes=[710, 638], launchMonth=None, randomSeed=None):
-        &#39;&#39;&#39;
-            Arguments:
-                locations:              list of location names. Names must match those in radio sonde data file names (ex. &#34;Edmonton&#34; -&gt; &#34;RadioSondeEdmonton_filtered.txt&#34;)
-                locationWeights:        list of numeric values, must add to one. Order should match list of locations.
-                locationASLAltitudes:   list of ASL altitudes (m). Order should match list of locations.
-                launchMonth:            3-letter string (&#34;Jan&#34;, &#34;Feb&#34;, &#34;Mar&#34;, etc...) indicating month from which data is desired. Otherwise &#34;Yearly&#34; or None to select randomly from all months
-                randomSeed:             Pass in the same random seed to pick the same radio sonde profile
-
-            Returns:
-                altitudes:              List of numeric altitudes (meters AGL) 
-                windVectors:            Corresponding list of wind vectors (m/s)
-        &#39;&#39;&#39;
-        # Set random seed if provided
-        random.seed(randomSeed)
-
-        # Pick a location
-        selectedLocation = random.choices(locations, locationWeights, k=1)[0]
-
-        locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
-        # Load radiosonde data for that location
-        radioSondeFilePath = &#34;MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
-        # Convert to absolute file path
-        radioSondeFilePath = getAbsoluteFilePath(radioSondeFilePath)
-        
-        # Read datasets from fille
-        if launchMonth != &#34;Yearly&#34;:
-            datasetStartLines, data = self._readRadioSondeDataFile(radioSondeFilePath, filterByMonth=launchMonth)
-        else:
-            datasetStartLines, data = self._readRadioSondeDataFile(radioSondeFilePath)
-
-        # Pick one of it&#39;s datasets
-        selectedDataset = random.randint(0, len(datasetStartLines)-1)
-        
-        # selectedDataset is an array of strings, header is a string
-        # Example header: #CAM00071119 2000 01 01 12 1117   75 ncdc-gts ncdc-gts  535475 -1141083
-        header, radioSondeData = self._extractRadioSondeDataSet(datasetStartLines, data, selectedDataset)
-        stationID, year, month, day, hour = self._parseRadioSondeHeader(header)
-
-        if not self.silent:
-            if self.monteCarloDataLogger != None:
-                self.monteCarloDataLogger.log(&#34;Wind data from radio sonde dataset: {}, stationID: {}, {}, {}, {}, {}&#34;.format(selectedLocation, stationID, year, month, day, hour))
-            else:
-                print(&#34;Wind data from radio sonde dataset: {}, stationID: {}, {}, {}, {}, {}&#34;.format(selectedLocation, stationID, year, month, day, hour))
-        
-        # Turn data from strings into a numpy array
-        altitudes, windVectors = self._parseRadioSondeData(radioSondeData, locationASLAltitude)
-        return altitudes, windVectors
-
-    def _readRadioSondeDataFile(self, radioSondeFilePath, filterByMonth=None):
-        &#39;&#39;&#39;
-            Arguments:
-                radioSondeFilePath: String File Path to radio sonde data file
-                filterByMonth: 3-letter acronym of month from which radio sonde profiles are desired. Pass in &#34;Yearly&#34; or None to select all months
-
-            Returns: datasetStartlines, data
-                datasetStartlines is a list containing the numbers on which each data set starts - lines not from filterByMonth are ommitted
-                data is a list of strings, each being a line of the original file
-        &#39;&#39;&#39;
-        
-        with open(radioSondeFilePath, &#39;r&#39;) as file:
-            data = file.readlines()
-
-        # Yearly means no filter
-        if filterByMonth == &#34;Yearly&#34;:
-            filterByMonth = None
-
-        # Get Month number
-        if filterByMonth != None:
-            monthList = [ &#34;noZerothMonth&#34;, &#34;Jan&#34;, &#34;Feb&#34;, &#34;Mar&#34;, &#34;Apr&#34;, &#34;May&#34;, &#34;Jun&#34;, &#34;Jul&#34;, &#34;Aug&#34;, &#34;Sep&#34;, &#34;Oct&#34;, &#34;Nov&#34;, &#34;Dec&#34; ]
-            monthNumber = monthList.index(filterByMonth)
-        
-        datasetStartLines = []
-        i = 0
-        while i &lt; len(data):
-            # Radio sonde data header lines start with #
-            # Check that profile month matches the desired month
-            if data[i][0] == &#34;#&#34; and (filterByMonth == None or int(data[i].split()[2]) == monthNumber):
-                datasetStartLines.append(i)
-            i += 1
-        
-        return datasetStartLines, data
-
-    def _extractRadioSondeDataSet(self, datasetStartLines, data, desiredDataSetNumber):
-        &#39;&#39;&#39; Returns header string and list of strings representing data for chosen dataset &#39;&#39;&#39;
-        startLine = datasetStartLines[desiredDataSetNumber]
-        header = data[startLine]
-
-        # Collect the data, starting with the line after the header
-        i = startLine + 1
-        dataset = []
-
-        # Stop at next header or end of file
-            # Don&#39;t go to next dataset start  line, because the start lines from other months are potentially excluded from that list, but still need to be respected here
-        while i &lt; len(data) and data[i][0] != &#34;#&#34;:
-            dataset.append(data[i])
-            i += 1
-
-        return header, dataset
-
-    def _parseRadioSondeHeader(self, headerString):
-        &#39;&#39;&#39;
-            Returns stationID, Year, Month, Day, Hour
-            Example header: #CAM00071119 2000 01 01 12 1117   75 ncdc-gts ncdc-gts  535475 -1141083
-            Further data format info: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
-        &#39;&#39;&#39;
-        
-        data = headerString.split()
-        stationID = data[0][1:]
-        year = int(data[1])
-        month = int(data[2])
-        day = int(data[3])
-        hour = int(data[4])
-        return stationID, year, month, day, hour
-
-    def _parseRadioSondeData(self, data, locationASLAltitude):
-        &#39;&#39;&#39;
-            Returns:
-                altitudes: List of AGL altitudes (m)
-                windVectors: List of corresponding mean wind vectors
-
-            Both returned lists are sorted from lowest to highest altitude
-
-            Further info about radio sonde input data at: https://www1.ncdc.noaa.gov/pub/data/igra/data/igra2-data-format.txt
-            Input data expects that radio sonde data has already been reduced to just the altitude, wind heading and wind speed columsn using MAPLEAF/Examples/Wind/filterRadioSondeData.py
-        &#39;&#39;&#39;
-        result = []
-        for line in data:
-            result.append([ float(x) for x in line.split() ])
-        
-        result = np.array(result)
-        result[:,2] = result[:,2] / 10 # Convert to m/s from m/s *10
-
-        # Sort rows by altitude
-        result = result[result[:,0].argsort()]
-        altitudes = result[:,0] - locationASLAltitude # Convert altitudes to AGL
-
-        # Turn heading and speed into a velocity vector
-        windVectors = []
-        for i in range(len(result)):
-            windDirection = _convertWindHeadingToXYPlaneWindDirection(result[i,1])
-            windVec = windDirection*result[i,2]
-            windVectors.append(np.array((windVec.X, windVec.Y, windVec.Z)))
-
-        return altitudes, windVectors</code></pre>
-</details>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler.getRadioSondeWindProfile"><code class="name flex">
-<span>def <span class="ident">getRadioSondeWindProfile</span></span>(<span>self, locations=['Edmonton', 'Glasgow'], locationWeights=[0.48, 0.52], locationASLAltitudes=[710, 638], launchMonth=None, randomSeed=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="arguments">Arguments</h2>
-<p>locations:
-list of location names. Names must match those in radio sonde data file names (ex. "Edmonton" -&gt; "RadioSondeEdmonton_filtered.txt")
-locationWeights:
-list of numeric values, must add to one. Order should match list of locations.
-locationASLAltitudes:
-list of ASL altitudes (m). Order should match list of locations.
-launchMonth:
-3-letter string ("Jan", "Feb", "Mar", etc&hellip;) indicating month from which data is desired. Otherwise "Yearly" or None to select randomly from all months
-randomSeed:
-Pass in the same random seed to pick the same radio sonde profile</p>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>altitudes</code></dt>
-<dd>
-<pre><code>     List of numeric altitudes (meters AGL)
-</code></pre>
-</dd>
-<dt><code>windVectors</code></dt>
-<dd>
-<pre><code>   Corresponding list of wind vectors (m/s)
-</code></pre>
-</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getRadioSondeWindProfile(self, locations=[&#34;Edmonton&#34;, &#34;Glasgow&#34;], locationWeights=[0.48, 0.52], locationASLAltitudes=[710, 638], launchMonth=None, randomSeed=None):
-    &#39;&#39;&#39;
-        Arguments:
-            locations:              list of location names. Names must match those in radio sonde data file names (ex. &#34;Edmonton&#34; -&gt; &#34;RadioSondeEdmonton_filtered.txt&#34;)
-            locationWeights:        list of numeric values, must add to one. Order should match list of locations.
-            locationASLAltitudes:   list of ASL altitudes (m). Order should match list of locations.
-            launchMonth:            3-letter string (&#34;Jan&#34;, &#34;Feb&#34;, &#34;Mar&#34;, etc...) indicating month from which data is desired. Otherwise &#34;Yearly&#34; or None to select randomly from all months
-            randomSeed:             Pass in the same random seed to pick the same radio sonde profile
-
-        Returns:
-            altitudes:              List of numeric altitudes (meters AGL) 
-            windVectors:            Corresponding list of wind vectors (m/s)
-    &#39;&#39;&#39;
-    # Set random seed if provided
-    random.seed(randomSeed)
-
-    # Pick a location
-    selectedLocation = random.choices(locations, locationWeights, k=1)[0]
-
-    locationASLAltitude = locationASLAltitudes[locations.index(selectedLocation)]
-    # Load radiosonde data for that location
-    radioSondeFilePath = &#34;MAPLEAF/Examples/Wind/RadioSonde{}_filtered.txt&#34;.format(selectedLocation)
-    # Convert to absolute file path
-    radioSondeFilePath = getAbsoluteFilePath(radioSondeFilePath)
-    
-    # Read datasets from fille
-    if launchMonth != &#34;Yearly&#34;:
-        datasetStartLines, data = self._readRadioSondeDataFile(radioSondeFilePath, filterByMonth=launchMonth)
-    else:
-        datasetStartLines, data = self._readRadioSondeDataFile(radioSondeFilePath)
-
-    # Pick one of it&#39;s datasets
-    selectedDataset = random.randint(0, len(datasetStartLines)-1)
-    
-    # selectedDataset is an array of strings, header is a string
-    # Example header: #CAM00071119 2000 01 01 12 1117   75 ncdc-gts ncdc-gts  535475 -1141083
-    header, radioSondeData = self._extractRadioSondeDataSet(datasetStartLines, data, selectedDataset)
-    stationID, year, month, day, hour = self._parseRadioSondeHeader(header)
-
-    if not self.silent:
-        if self.monteCarloDataLogger != None:
-            self.monteCarloDataLogger.log(&#34;Wind data from radio sonde dataset: {}, stationID: {}, {}, {}, {}, {}&#34;.format(selectedLocation, stationID, year, month, day, hour))
-        else:
-            print(&#34;Wind data from radio sonde dataset: {}, stationID: {}, {}, {}, {}, {}&#34;.format(selectedLocation, stationID, year, month, day, hour))
-    
-    # Turn data from strings into a numpy array
-    altitudes, windVectors = self._parseRadioSondeData(radioSondeData, locationASLAltitude)
-    return altitudes, windVectors</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler"><code class="flex name class">
-<span>class <span class="ident">WindRoseDataSampler</span></span>
-<span>(</span><span>silent=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Parses wind rose data files from Iowa State University's Environmental Mesonet.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class WindRoseDataSampler():
-    &#39;&#39;&#39; 
-        Parses wind rose data files from Iowa State University&#39;s Environmental Mesonet.
-    &#39;&#39;&#39;
-
-    def __init__(self, silent=False):
-        self.silent = silent
-
-        # TODO: Generalize extreme winds outside Medecine Hat
-        self.extremeWinds = [ 25, 31, 50 ] # mph = [ 40, 50, 80 ] km/h
-        self.extremeWinds = [ x * 0.44704 for x in self.extremeWinds ] # convert to m/s
-        self.extremeWindProbabilities = [ 0.01, 0.004, 0 ] # Decimal, chance of being at or higher than given wind speed, based on hourly peak gust data for Medecine Hat, AB
-
-    def sampleWindRoses(self, locationsSampled, locationWeights, launchMonth):
-        # Choose a wind rose based on the location weights
-        averagedWindRose = self._getAveragedWindRose( Months=[launchMonth], locations=locationsSampled, locationWeights=locationWeights )
-        speedrvHist = self._createWindSpeedCDF(averagedWindRose)
-        
-        # Choose a wind speed
-        windSpeed = speedrvHist.ppf(random.random())
-        
-        # Construct heading probabilities based on that wind speed, then choose a wind heading
-        heading_rvHist = self._createHeadingCDF(averagedWindRose, windSpeed=windSpeed)
-        windHeading = heading_rvHist.ppf(random.random())
-        windDirectionVector = _convertWindHeadingToXYPlaneWindDirection(windHeading)
-        meanGroundWind = windDirectionVector * windSpeed
-
-        return meanGroundWind
-
-    def _readWindRose(self, filePath):
-        &#39;&#39;&#39;
-            Currently not general, will only work with Wind Rose data from Iowa State University - Iowa Environmental Mesonet
-            http://mesonet.agron.iastate.edu/sites/windrose.phtml?network=WI_ASOS&amp;station=CWA
-        &#39;&#39;&#39;
-        # Read data (Header = Direction,     Calm, 2.0  4.9, 5.0  6.9, 7.0  9.9,10.0 14.9,15.0 19.9,    20.0+)
-        windRose = pd.read_csv(filePath, delimiter=&#34;,&#34;, comment=&#34;#&#34;)
-        # Split direction column into min and max directions: ex. &#34;000-010&#34;
-        directionMinMax = windRose[&#34;Direction&#34;].str.split(&#34;-&#34;, n=1, expand=True)
-        windRose.drop(columns=[&#34;Direction&#34;], inplace=True)
-        # Convert each of the split string data to floats
-        directionMinMax = directionMinMax.astype(float)
-        # Add new direction columns
-        windRose[&#34;direction&#34;] = (directionMinMax[0] + directionMinMax[1]) / 2
-        # Set first direction to 0 degrees instead of 5 (assumed incorrect in windrose file)
-        windRose.iloc[0,-1] = 0
-
-        nameMap = {
-            &#34;     Calm&#34;: 1.0,
-            &#34; 2.0  4.9&#34;: 3.5,
-            &#34; 5.0  6.9&#34;: 6.0,
-            &#34; 7.0  9.9&#34;: 8.5,
-            &#34;10.0 14.9&#34;: 12.5,
-            &#34;15.0 19.9&#34;: 17.5,
-            &#34;    20.0+&#34;: 23.5
-        }
-        windRose.rename(mapper=nameMap, inplace=True, axis=&#39;columns&#39;)
-
-        # Replace empty values in the first column with zeros
-        windRose.replace(r&#39;^\s*$&#39;, 0.0, regex=True, inplace=True)
-        windRose[1.0] = windRose[1.0].astype(float)
-
-        return windRose
-
-    def _getAveragedWindRose(self, Months=[&#34;May&#34;], MonthWeights=[1.0], locations=[&#34;MedecineHat&#34;], locationWeights=[1.0]):
-        windRose = self._readWindRose(getAbsoluteFilePath(&#34;MAPLEAF/Examples/Wind/WindroseAprMedecineHat.txt&#34;))*0.0 # Initialize as zero
-        for i in range(len(Months)):
-            for a in range(len(locations)):
-                windRoseFilePath = &#34;MAPLEAF/Examples/Wind/Windrose{}{}.txt&#34;.format(Months[i], locations[a])
-                windRoseFilePath = getAbsoluteFilePath(windRoseFilePath)
-                windRose += self._readWindRose(windRoseFilePath) * MonthWeights[i] * locationWeights[a]
-
-        return windRose.copy()
-
-    def _createWindSpeedCDF(self, windRose):
-        &#39;&#39;&#39;Calculates wind speed CDF from a windrose (wind rose can be generated using self.readWindRose())&#39;&#39;&#39;
-        # Sum over headings to get probabilities for each speed
-        likelyhoodBySpeed = windRose.sum()
-        likelyhoodBySpeed.drop(index=[&#34;direction&#34;], inplace=True)
-
-        # Normalize to 0-1 probability range
-        totalProb = likelyhoodBySpeed.sum()
-        likelyhoodBySpeed = list(likelyhoodBySpeed / totalProb)
-
-        # Bin boundaries
-        cdfX = [ x * 0.44704 for x in [ 0, 2, 5, 7, 10, 15, 20, 23.5 ] ] # Convert to m/s from mph
-        likelyhoodBySpeed[-1] -= sum(self.extremeWindProbabilities)
-        cdfX += self.extremeWinds
-        likelyhoodBySpeed += self.extremeWindProbabilities
-
-        return rv_histogram((likelyhoodBySpeed, cdfX))
-
-    def _createHeadingCDF(self, windRose, windSpeed=None):
-        &#39;&#39;&#39;
-            Calculates wind heading CDF from a windrose (wind rose can be generated using self.readWindRose())
-            Pass in wind speed in m/s
-        &#39;&#39;&#39;
-        windRose = windRose.set_index(&#34;direction&#34;)
-        windRose.loc[360] = windRose.loc[0]
-        windRose.drop(index=[0], inplace=True)
-        headings = list(windRose.index)
-        headings.insert(0,0)
-        
-        if windSpeed == None:
-            # Sum over all speeds to get overall probabilities for each heading
-            likelyhoodByHeading = list(windRose.sum(axis=1))
-        else:
-            # Eliminate the empty first column, replace it with data from the 3.5 mph column
-            windRose.iloc[:,0] = windRose.iloc[:,1]
-            windRose.rename(columns={1.0:0.0}, inplace=True)
-
-            # Convert from mph to m/s string
-            windRose = windRose.rename(columns=lambda c: str(c * 0.44704))
-            
-            try:
-                # If windSpeed exists already, use it
-                likelyhoodByHeading = list(windRose[str(windSpeed)])
-            except KeyError:
-                #### Linearly interpolate to find wind speed probabilities at the given heading ####
-                # Create new empty column at desired wind speed
-                windRose[str(windSpeed)] = np.nan
-                # Convert back to float names
-                windRose = windRose.rename(columns=lambda c: float(c))
-                # Sort the new column into position
-                windRose = windRose.reindex(sorted(windRose.columns), axis=1)
-                # Interpolate
-                windRose = windRose.interpolate(method=&#34;index&#34;, axis=1, interpolate=True)            
-                # Grab the new column as a list
-                likelyhoodByHeading = list(windRose[windSpeed])
-
-        #TODO: Need to de-rotate these headings by 5 degrees?
-        return rv_histogram((likelyhoodByHeading, headings))</code></pre>
-</details>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler.sampleWindRoses"><code class="name flex">
-<span>def <span class="ident">sampleWindRoses</span></span>(<span>self, locationsSampled, locationWeights, launchMonth)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def sampleWindRoses(self, locationsSampled, locationWeights, launchMonth):
-    # Choose a wind rose based on the location weights
-    averagedWindRose = self._getAveragedWindRose( Months=[launchMonth], locations=locationsSampled, locationWeights=locationWeights )
-    speedrvHist = self._createWindSpeedCDF(averagedWindRose)
-    
-    # Choose a wind speed
-    windSpeed = speedrvHist.ppf(random.random())
-    
-    # Construct heading probabilities based on that wind speed, then choose a wind heading
-    heading_rvHist = self._createHeadingCDF(averagedWindRose, windSpeed=windSpeed)
-    windHeading = heading_rvHist.ppf(random.random())
-    windDirectionVector = _convertWindHeadingToXYPlaneWindDirection(windHeading)
-    meanGroundWind = windDirectionVector * windSpeed
-
-    return meanGroundWind</code></pre>
 </details>
 </dd>
 </dl>
@@ -1343,9 +873,9 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.Constant" href="#MAPLEAF.ENV.MeanWindModelling.Constant">Constant</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.ConstantWind" href="#MAPLEAF.ENV.MeanWindModelling.ConstantWind">ConstantWind</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling.Constant.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.Constant.getMeanWind">getMeanWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.ConstantWind.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.ConstantWind.getMeanWind">getMeanWind</a></code></li>
 </ul>
 </li>
 <li>
@@ -1355,27 +885,9 @@ MAPLEAF
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile">InterpolatedProfile</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedWind" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedWind">InterpolatedWind</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedProfile.getMeanWind">getMeanWind</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel">MeanWindModel</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.MeanWindModel.getMeanWind">getMeanWind</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler" href="#MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler">RadioSondeDataSampler</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler.getRadioSondeWindProfile" href="#MAPLEAF.ENV.MeanWindModelling.RadioSondeDataSampler.getRadioSondeWindProfile">getRadioSondeWindProfile</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler" href="#MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler">WindRoseDataSampler</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler.sampleWindRoses" href="#MAPLEAF.ENV.MeanWindModelling.WindRoseDataSampler.sampleWindRoses">sampleWindRoses</a></code></li>
+<li><code><a title="MAPLEAF.ENV.MeanWindModelling.InterpolatedWind.getMeanWind" href="#MAPLEAF.ENV.MeanWindModelling.InterpolatedWind.getMeanWind">getMeanWind</a></code></li>
 </ul>
 </li>
 </ul>

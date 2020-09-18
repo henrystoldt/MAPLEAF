@@ -32,26 +32,22 @@
 </summary>
 <pre><code class="python">import copy
 import math
-import re
 from collections import namedtuple
-from math import asin, cos, degrees, radians, sqrt
+from math import cos, radians, sqrt
 
 import numpy as np
 
-import MAPLEAF.Motion.Interpolation as Interpolation
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import EnvironmentalConditions
-from MAPLEAF.GNC.ActuatedSystem import ActuatedSystem
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
+from MAPLEAF.GNC import ActuatedSystem
+from MAPLEAF.Motion import (AeroParameters, AngularVelocity, ForceMomentSystem, Interpolation,
+                            Quaternion, Vector)
+from MAPLEAF.Rocket import FixedMass
 from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,
-                                           getFinSliceForce_Supersonic,
-                                           getSubsonicFinNormalForce,
-                                           getSupersonicFinNormalForce)
-from MAPLEAF.Rocket.RocketComponents import FixedMass
+                                               getSubsonicFinNormalForce,
+                                               getSupersonicFinNormalForce)
+from MAPLEAF.Utilities import cacheLastResult
+
+__all__ = [ &#34;FinSet&#34;, &#34;Fin&#34; ]
 
 # This named tuple is used to pass data between a FinSet and its child Fins.
     # All the data in this tuple is used by all Fins in a FinSet to complete an aero calculation.
@@ -324,8 +320,8 @@ class FinSet(FixedMass, ActuatedSystem):
     def _getPreComputedFinAeroData(self, rocketState, environment, CG):
         #General Info ---------------------------------------------------------------------------------------------------------------------
         Aref = self.rocket.Aref
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
-        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroParameters.getDynamicPressure(rocketState, environment)
 
         # Skin Friction Drag -------------------------------------------------------------------------------------------------------------
         
@@ -383,7 +379,7 @@ class FinSet(FixedMass, ActuatedSystem):
         
         totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
 
-        localFrameRocketVelocity = AeroFunctions.getLocalFrameAirVel(rocketState, environment)
+        localFrameRocketVelocity = AeroParameters.getLocalFrameAirVel(rocketState, environment)
         axialPositionRelCG = self.position - CG
         finVelocityDueToRocketPitchYaw = rocketState.angularVelocity.crossProduct(axialPositionRelCG) 
         airVelRelativeToFin = localFrameRocketVelocity - finVelocityDueToRocketPitchYaw # The negative puts it in the wind frame
@@ -401,7 +397,7 @@ class FinSet(FixedMass, ActuatedSystem):
             XF = self.XMACLeadingEdge + 0.25*self.MACLength #As per open rocket documentation
 
         elif Mach &gt;= 2.0:
-            beta = AeroFunctions.getBeta(Mach)
+            beta = AeroParameters.getBeta(Mach)
             CPCalc = lambda AR, B : (AR*B - 0.67) / (2*AR*B - 1) #Eq 3.35 of open rocket documentation (greater than M = 2)
             XF = self.MACLength*CPCalc(self.aspectRatio, beta) + self.XMACLeadingEdge #As per open rocket documentation
 
@@ -497,8 +493,8 @@ class Fin(FixedMass):
                 that are common to all fins in a FinSet (drag calculations mostly). These calculations are performed at the FinSet level.
             Only the parts of the Fin Aero Computation that change from fin to fin (normal force mostly, since different fins can have different angles of attack) are computed here
         &#39;&#39;&#39;
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
-        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroParameters.getDynamicPressure(rocketState, environment)
 
         if finDeflectionAngle == None:
             finDeflectionAngle = self.finAngle # Adjusted by parent finset during each timestep, when the FinSet is controlled
@@ -516,13 +512,13 @@ class Fin(FixedMass):
         unitSpanTangentialAirVelocity = rollAngVel.crossProduct(self.spanwiseDirection)*(-1)
         
         def subsonicNormalForce(Mach): # Subsonic linear method
-            tempBeta = AeroFunctions.getBeta(Mach)
+            tempBeta = AeroParameters.getBeta(Mach)
             CnAlpha = getFinCnAlpha_Subsonic_Barrowman(self.span, self.planformArea, tempBeta, self.midChordSweep)
             return getSubsonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), CnAlpha, self)
 
         def supersonicNormalForce(Mach): # Supersonic Busemann method
             gamma = AeroFunctions.getGamma()
-            tempBeta = AeroFunctions.getBeta(Mach)
+            tempBeta = AeroParameters.getBeta(Mach)
             K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
             return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
 
@@ -630,8 +626,8 @@ class Fin(FixedMass):
                 that are common to all fins in a FinSet (drag calculations mostly). These calculations are performed at the FinSet level.
             Only the parts of the Fin Aero Computation that change from fin to fin (normal force mostly, since different fins can have different angles of attack) are computed here
         &#39;&#39;&#39;
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
-        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroParameters.getDynamicPressure(rocketState, environment)
 
         if finDeflectionAngle == None:
             finDeflectionAngle = self.finAngle # Adjusted by parent finset during each timestep, when the FinSet is controlled
@@ -649,13 +645,13 @@ class Fin(FixedMass):
         unitSpanTangentialAirVelocity = rollAngVel.crossProduct(self.spanwiseDirection)*(-1)
         
         def subsonicNormalForce(Mach): # Subsonic linear method
-            tempBeta = AeroFunctions.getBeta(Mach)
+            tempBeta = AeroParameters.getBeta(Mach)
             CnAlpha = getFinCnAlpha_Subsonic_Barrowman(self.span, self.planformArea, tempBeta, self.midChordSweep)
             return getSubsonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), CnAlpha, self)
 
         def supersonicNormalForce(Mach): # Supersonic Busemann method
             gamma = AeroFunctions.getGamma()
-            tempBeta = AeroFunctions.getBeta(Mach)
+            tempBeta = AeroParameters.getBeta(Mach)
             K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
             return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
 
@@ -997,8 +993,8 @@ class Fin(FixedMass):
     def _getPreComputedFinAeroData(self, rocketState, environment, CG):
         #General Info ---------------------------------------------------------------------------------------------------------------------
         Aref = self.rocket.Aref
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
-        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroParameters.getDynamicPressure(rocketState, environment)
 
         # Skin Friction Drag -------------------------------------------------------------------------------------------------------------
         
@@ -1056,7 +1052,7 @@ class Fin(FixedMass):
         
         totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
 
-        localFrameRocketVelocity = AeroFunctions.getLocalFrameAirVel(rocketState, environment)
+        localFrameRocketVelocity = AeroParameters.getLocalFrameAirVel(rocketState, environment)
         axialPositionRelCG = self.position - CG
         finVelocityDueToRocketPitchYaw = rocketState.angularVelocity.crossProduct(axialPositionRelCG) 
         airVelRelativeToFin = localFrameRocketVelocity - finVelocityDueToRocketPitchYaw # The negative puts it in the wind frame
@@ -1074,7 +1070,7 @@ class Fin(FixedMass):
             XF = self.XMACLeadingEdge + 0.25*self.MACLength #As per open rocket documentation
 
         elif Mach &gt;= 2.0:
-            beta = AeroFunctions.getBeta(Mach)
+            beta = AeroParameters.getBeta(Mach)
             CPCalc = lambda AR, B : (AR*B - 0.67) / (2*AR*B - 1) #Eq 3.35 of open rocket documentation (greater than M = 2)
             XF = self.MACLength*CPCalc(self.aspectRatio, beta) + self.XMACLeadingEdge #As per open rocket documentation
 
@@ -1139,7 +1135,7 @@ class Fin(FixedMass):
 <ul class="hlist">
 <li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
-<li><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="../GNC/ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></li>
+<li><a title="MAPLEAF.GNC.actuatedSystem.ActuatedSystem" href="../GNC/actuatedSystem.html#MAPLEAF.GNC.actuatedSystem.ActuatedSystem">ActuatedSystem</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Methods</h3>
@@ -1271,38 +1267,12 @@ class Fin(FixedMass):
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="../GNC/ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></b></code>:
+<li><code><b><a title="MAPLEAF.GNC.actuatedSystem.ActuatedSystem" href="../GNC/actuatedSystem.html#MAPLEAF.GNC.actuatedSystem.ActuatedSystem">ActuatedSystem</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators" href="../GNC/ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem.initializeActuators">initializeActuators</a></code></li>
+<li><code><a title="MAPLEAF.GNC.actuatedSystem.ActuatedSystem.initializeActuators" href="../GNC/actuatedSystem.html#MAPLEAF.GNC.actuatedSystem.ActuatedSystem.initializeActuators">initializeActuators</a></code></li>
 </ul>
 </li>
 </ul>
-</dd>
-<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData"><code class="flex name class">
-<span>class <span class="ident">PreComputedFinAeroData</span></span>
-<span>(</span><span>finVelWithoutRoll, CPXPos, totalDragCoefficient)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>PreComputedFinAeroData(finVelWithoutRoll, CPXPos, totalDragCoefficient)</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.tuple</li>
-</ul>
-<h3>Instance variables</h3>
-<dl>
-<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.CPXPos"><code class="name">var <span class="ident">CPXPos</span></code></dt>
-<dd>
-<div class="desc"><p>Alias for field number 1</p></div>
-</dd>
-<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.finVelWithoutRoll"><code class="name">var <span class="ident">finVelWithoutRoll</span></code></dt>
-<dd>
-<div class="desc"><p>Alias for field number 0</p></div>
-</dd>
-<dt id="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.totalDragCoefficient"><code class="name">var <span class="ident">totalDragCoefficient</span></code></dt>
-<dd>
-<div class="desc"><p>Alias for field number 2</p></div>
-</dd>
-</dl>
 </dd>
 </dl>
 </section>
@@ -1340,14 +1310,6 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getChord" href="#MAPLEAF.Rocket.Fins.FinSet.getChord">getChord</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getLogHeader" href="#MAPLEAF.Rocket.Fins.FinSet.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Fins.FinSet.plotShape" href="#MAPLEAF.Rocket.Fins.FinSet.plotShape">plotShape</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData">PreComputedFinAeroData</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.CPXPos" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData.CPXPos">CPXPos</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.finVelWithoutRoll" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData.finVelWithoutRoll">finVelWithoutRoll</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Fins.PreComputedFinAeroData.totalDragCoefficient" href="#MAPLEAF.Rocket.Fins.PreComputedFinAeroData.totalDragCoefficient">totalDragCoefficient</a></code></li>
 </ul>
 </li>
 </ul>

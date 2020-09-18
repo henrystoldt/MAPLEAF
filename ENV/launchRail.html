@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.ENV.LaunchRail API documentation</title>
+<title>MAPLEAF.ENV.launchRail API documentation</title>
 <meta name="description" content="Modeling of the effects of a Launch Rail on rocket launches" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -16,14 +16,14 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/ENV/LaunchRail.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/ENV/launchRail.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.ENV.LaunchRail</code></h1>
+<h1 class="title">Module <code>MAPLEAF.ENV.launchRail</code></h1>
 </header>
 <section id="section-intro">
 <p>Modeling of the effects of a Launch Rail on rocket launches</p>
@@ -33,10 +33,10 @@
 </summary>
 <pre><code class="python">&#39;&#39;&#39; Modeling of the effects of a Launch Rail on rocket launches &#39;&#39;&#39;
 
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
+from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
+                            Vector)
+
+__all__ = [ &#34;LaunchRail&#34; ]
 
 class LaunchRail():
     def __init__(self, initialPosition, initialDirection, length, earthRotationRate=0):
@@ -70,7 +70,7 @@ class LaunchRail():
     def applyLaunchTowerForce(self, state, time, unadjustedForce):
         &#39;&#39;&#39;
             If on launch tower, projects forces experienced onto the launch tower directions and sets Moments = 0
-            Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)
+            Returns two values: onTower(Bool), adjustedForce(Motion.ForceMomentSystem)
         &#39;&#39;&#39;
         distanceTravelled = (state.position - self.getPosition(time)).length()
         if distanceTravelled &lt; self.length:
@@ -123,7 +123,7 @@ class LaunchRail():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.ENV.LaunchRail.LaunchRail"><code class="flex name class">
+<dt id="MAPLEAF.ENV.launchRail.LaunchRail"><code class="flex name class">
 <span>class <span class="ident">LaunchRail</span></span>
 <span>(</span><span>initialPosition, initialDirection, length, earthRotationRate=0)</span>
 </code></dt>
@@ -165,7 +165,7 @@ class LaunchRail():
     def applyLaunchTowerForce(self, state, time, unadjustedForce):
         &#39;&#39;&#39;
             If on launch tower, projects forces experienced onto the launch tower directions and sets Moments = 0
-            Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)
+            Returns two values: onTower(Bool), adjustedForce(Motion.ForceMomentSystem)
         &#39;&#39;&#39;
         distanceTravelled = (state.position - self.getPosition(time)).length()
         if distanceTravelled &lt; self.length:
@@ -210,12 +210,12 @@ class LaunchRail():
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.LaunchRail.LaunchRail.applyLaunchTowerForce"><code class="name flex">
+<dt id="MAPLEAF.ENV.launchRail.LaunchRail.applyLaunchTowerForce"><code class="name flex">
 <span>def <span class="ident">applyLaunchTowerForce</span></span>(<span>self, state, time, unadjustedForce)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>If on launch tower, projects forces experienced onto the launch tower directions and sets Moments = 0
-Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)</p></div>
+Returns two values: onTower(Bool), adjustedForce(Motion.ForceMomentSystem)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -223,7 +223,7 @@ Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)</p></di
 <pre><code class="python">def applyLaunchTowerForce(self, state, time, unadjustedForce):
     &#39;&#39;&#39;
         If on launch tower, projects forces experienced onto the launch tower directions and sets Moments = 0
-        Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)
+        Returns two values: onTower(Bool), adjustedForce(Motion.ForceMomentSystem)
     &#39;&#39;&#39;
     distanceTravelled = (state.position - self.getPosition(time)).length()
     if distanceTravelled &lt; self.length:
@@ -242,7 +242,7 @@ Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)</p></di
         return unadjustedForce</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.LaunchRail.LaunchRail.applyLaunchTowerMotionConstraint"><code class="name flex">
+<dt id="MAPLEAF.ENV.launchRail.LaunchRail.applyLaunchTowerMotionConstraint"><code class="name flex">
 <span>def <span class="ident">applyLaunchTowerMotionConstraint</span></span>(<span>self, state, time)</span>
 </code></dt>
 <dd>
@@ -277,7 +277,7 @@ Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)</p></di
         return False, state</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.LaunchRail.LaunchRail.getDirection"><code class="name flex">
+<dt id="MAPLEAF.ENV.launchRail.LaunchRail.getDirection"><code class="name flex">
 <span>def <span class="ident">getDirection</span></span>(<span>self, time)</span>
 </code></dt>
 <dd>
@@ -295,7 +295,7 @@ Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)</p></di
     return rotationSoFar.rotate(self.initialDirection)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.LaunchRail.LaunchRail.getPosition"><code class="name flex">
+<dt id="MAPLEAF.ENV.launchRail.LaunchRail.getPosition"><code class="name flex">
 <span>def <span class="ident">getPosition</span></span>(<span>self, time)</span>
 </code></dt>
 <dd>
@@ -313,7 +313,7 @@ Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)</p></di
     return rotationSoFar.rotate(self.initialPosition)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.LaunchRail.LaunchRail.getVelocity"><code class="name flex">
+<dt id="MAPLEAF.ENV.launchRail.LaunchRail.getVelocity"><code class="name flex">
 <span>def <span class="ident">getVelocity</span></span>(<span>self, time)</span>
 </code></dt>
 <dd>
@@ -353,13 +353,13 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.ENV.LaunchRail.LaunchRail" href="#MAPLEAF.ENV.LaunchRail.LaunchRail">LaunchRail</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.launchRail.LaunchRail" href="#MAPLEAF.ENV.launchRail.LaunchRail">LaunchRail</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.LaunchRail.LaunchRail.applyLaunchTowerForce" href="#MAPLEAF.ENV.LaunchRail.LaunchRail.applyLaunchTowerForce">applyLaunchTowerForce</a></code></li>
-<li><code><a title="MAPLEAF.ENV.LaunchRail.LaunchRail.applyLaunchTowerMotionConstraint" href="#MAPLEAF.ENV.LaunchRail.LaunchRail.applyLaunchTowerMotionConstraint">applyLaunchTowerMotionConstraint</a></code></li>
-<li><code><a title="MAPLEAF.ENV.LaunchRail.LaunchRail.getDirection" href="#MAPLEAF.ENV.LaunchRail.LaunchRail.getDirection">getDirection</a></code></li>
-<li><code><a title="MAPLEAF.ENV.LaunchRail.LaunchRail.getPosition" href="#MAPLEAF.ENV.LaunchRail.LaunchRail.getPosition">getPosition</a></code></li>
-<li><code><a title="MAPLEAF.ENV.LaunchRail.LaunchRail.getVelocity" href="#MAPLEAF.ENV.LaunchRail.LaunchRail.getVelocity">getVelocity</a></code></li>
+<li><code><a title="MAPLEAF.ENV.launchRail.LaunchRail.applyLaunchTowerForce" href="#MAPLEAF.ENV.launchRail.LaunchRail.applyLaunchTowerForce">applyLaunchTowerForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.launchRail.LaunchRail.applyLaunchTowerMotionConstraint" href="#MAPLEAF.ENV.launchRail.LaunchRail.applyLaunchTowerMotionConstraint">applyLaunchTowerMotionConstraint</a></code></li>
+<li><code><a title="MAPLEAF.ENV.launchRail.LaunchRail.getDirection" href="#MAPLEAF.ENV.launchRail.LaunchRail.getDirection">getDirection</a></code></li>
+<li><code><a title="MAPLEAF.ENV.launchRail.LaunchRail.getPosition" href="#MAPLEAF.ENV.launchRail.LaunchRail.getPosition">getPosition</a></code></li>
+<li><code><a title="MAPLEAF.ENV.launchRail.LaunchRail.getVelocity" href="#MAPLEAF.ENV.launchRail.LaunchRail.getVelocity">getVelocity</a></code></li>
 </ul>
 </li>
 </ul>

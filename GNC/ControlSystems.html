@@ -27,24 +27,23 @@
 </header>
 <section id="section-intro">
 <p>Classes that implement air vehicle control systems by tying together a<code><a title="MAPLEAF.GNC.Navigation.Navigator" href="Navigation.html#MAPLEAF.GNC.Navigation.Navigator">Navigator</a></code>, a <code><a title="MAPLEAF.GNC.MomentControllers.MomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.MomentController">MomentController</a></code>, and an <code><a title="MAPLEAF.GNC.Actuators.ActuatorController" href="Actuators.html#MAPLEAF.GNC.Actuators.ActuatorController">ActuatorController</a></code>.<br>
-Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the <code><a title="MAPLEAF.GNC.ActuatedSystem.ActuatedSystem" href="ActuatedSystem.html#MAPLEAF.GNC.ActuatedSystem.ActuatedSystem">ActuatedSystem</a></code> they control.</p>
+Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the <code><a title="MAPLEAF.GNC.ActuatedSystem" href="index.html#MAPLEAF.GNC.ActuatedSystem">ActuatedSystem</a></code> they control.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39; 
 Classes that implement air vehicle control systems by tying together a`MAPLEAF.GNC.Navigation.Navigator`, a `MAPLEAF.GNC.MomentControllers.MomentController`, and an `MAPLEAF.GNC.Actuators.ActuatorController`.  
-Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the `MAPLEAF.GNC.ActuatedSystem.ActuatedSystem` they control.
+Control systems run a simulated control loops between simulation time steps, and then provide new target actuator deflections to the `MAPLEAF.GNC.ActuatedSystem` they control.
 &#39;&#39;&#39;
 
 import abc
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.GNC.MomentControllers import GainScheduledPIDRocketMomentController
-from MAPLEAF.GNC.Navigation import Stabilizer
-from MAPLEAF.Motion.Integration import integratorFactory
-from MAPLEAF.IO.SubDictReader import SubDictReader
+from MAPLEAF.GNC import GainScheduledPIDRocketMomentController, Stabilizer
+from MAPLEAF.IO import SubDictReader
+from MAPLEAF.Motion import integratorFactory
 
+__all__ = [ &#34;RocketControlSystem&#34;, &#34;ControlSystem&#34; ]
 
 class ControlSystem(abc.ABC):
     &#39;&#39;&#39; Interface for control systems &#39;&#39;&#39;
@@ -409,7 +408,7 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 <ul class="hlist">
 <li><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></li>
 <li>abc.ABC</li>
-<li><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></li>
+<li><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -449,9 +448,9 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 <li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired" href="#MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired">runControlLoopIfRequired</a></code></li>
 </ul>
 </li>
-<li><code><b><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></b></code>:
+<li><code><b><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.IO.SubDictReader.SubDictReader.getString" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader.getString">getString</a></code></li>
+<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getString" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader.getString">getString</a></code></li>
 </ul>
 </li>
 </ul>

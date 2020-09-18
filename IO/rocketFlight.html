@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.IO.RocketFlight API documentation</title>
+<title>MAPLEAF.IO.rocketFlight API documentation</title>
 <meta name="description" content="Temporarily holds simulation results.
 Used for creating flight animations." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -17,14 +17,14 @@ Used for creating flight animations." />
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/IO/RocketFlight.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/IO/rocketFlight.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.IO.RocketFlight</code></h1>
+<h1 class="title">Module <code>MAPLEAF.IO.rocketFlight</code></h1>
 </header>
 <section id="section-intro">
 <p>Temporarily holds simulation results.
@@ -40,7 +40,9 @@ Used for creating flight animations.
 
 from math import sqrt
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
+
+__all__ = [ &#34;RocketFlight&#34; ]
 
 class RocketFlight():
     &#39;&#39;&#39; Holds simulation results &#39;&#39;&#39;
@@ -118,7 +120,7 @@ class RocketFlight():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.IO.RocketFlight.RocketFlight"><code class="flex name class">
+<dt id="MAPLEAF.IO.rocketFlight.RocketFlight"><code class="flex name class">
 <span>class <span class="ident">RocketFlight</span></span>
 </code></dt>
 <dd>
@@ -196,7 +198,7 @@ class RocketFlight():
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.IO.RocketFlight.RocketFlight.getApogee"><code class="name flex">
+<dt id="MAPLEAF.IO.rocketFlight.RocketFlight.getApogee"><code class="name flex">
 <span>def <span class="ident">getApogee</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -213,7 +215,7 @@ class RocketFlight():
     return maxAltitude</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.RocketFlight.RocketFlight.getFlightTime"><code class="name flex">
+<dt id="MAPLEAF.IO.rocketFlight.RocketFlight.getFlightTime"><code class="name flex">
 <span>def <span class="ident">getFlightTime</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -226,7 +228,7 @@ class RocketFlight():
     return self.times[-1]</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.RocketFlight.RocketFlight.getLandingLocation"><code class="name flex">
+<dt id="MAPLEAF.IO.rocketFlight.RocketFlight.getLandingLocation"><code class="name flex">
 <span>def <span class="ident">getLandingLocation</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -263,7 +265,7 @@ If the simulation stopped before z = 0 is reached, the last position is returned
         return lastPosition</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.RocketFlight.RocketFlight.getMaxHorizontalVel"><code class="name flex">
+<dt id="MAPLEAF.IO.rocketFlight.RocketFlight.getMaxHorizontalVel"><code class="name flex">
 <span>def <span class="ident">getMaxHorizontalVel</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -281,7 +283,7 @@ If the simulation stopped before z = 0 is reached, the last position is returned
     return maxHorizontalVel</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.RocketFlight.RocketFlight.getMaxSpeed"><code class="name flex">
+<dt id="MAPLEAF.IO.rocketFlight.RocketFlight.getMaxSpeed"><code class="name flex">
 <span>def <span class="ident">getMaxSpeed</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -323,13 +325,13 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.IO.RocketFlight.RocketFlight" href="#MAPLEAF.IO.RocketFlight.RocketFlight">RocketFlight</a></code></h4>
+<h4><code><a title="MAPLEAF.IO.rocketFlight.RocketFlight" href="#MAPLEAF.IO.rocketFlight.RocketFlight">RocketFlight</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.IO.RocketFlight.RocketFlight.getApogee" href="#MAPLEAF.IO.RocketFlight.RocketFlight.getApogee">getApogee</a></code></li>
-<li><code><a title="MAPLEAF.IO.RocketFlight.RocketFlight.getFlightTime" href="#MAPLEAF.IO.RocketFlight.RocketFlight.getFlightTime">getFlightTime</a></code></li>
-<li><code><a title="MAPLEAF.IO.RocketFlight.RocketFlight.getLandingLocation" href="#MAPLEAF.IO.RocketFlight.RocketFlight.getLandingLocation">getLandingLocation</a></code></li>
-<li><code><a title="MAPLEAF.IO.RocketFlight.RocketFlight.getMaxHorizontalVel" href="#MAPLEAF.IO.RocketFlight.RocketFlight.getMaxHorizontalVel">getMaxHorizontalVel</a></code></li>
-<li><code><a title="MAPLEAF.IO.RocketFlight.RocketFlight.getMaxSpeed" href="#MAPLEAF.IO.RocketFlight.RocketFlight.getMaxSpeed">getMaxSpeed</a></code></li>
+<li><code><a title="MAPLEAF.IO.rocketFlight.RocketFlight.getApogee" href="#MAPLEAF.IO.rocketFlight.RocketFlight.getApogee">getApogee</a></code></li>
+<li><code><a title="MAPLEAF.IO.rocketFlight.RocketFlight.getFlightTime" href="#MAPLEAF.IO.rocketFlight.RocketFlight.getFlightTime">getFlightTime</a></code></li>
+<li><code><a title="MAPLEAF.IO.rocketFlight.RocketFlight.getLandingLocation" href="#MAPLEAF.IO.rocketFlight.RocketFlight.getLandingLocation">getLandingLocation</a></code></li>
+<li><code><a title="MAPLEAF.IO.rocketFlight.RocketFlight.getMaxHorizontalVel" href="#MAPLEAF.IO.rocketFlight.RocketFlight.getMaxHorizontalVel">getMaxHorizontalVel</a></code></li>
+<li><code><a title="MAPLEAF.IO.rocketFlight.RocketFlight.getMaxSpeed" href="#MAPLEAF.IO.rocketFlight.RocketFlight.getMaxSpeed">getMaxSpeed</a></code></li>
 </ul>
 </li>
 </ul>

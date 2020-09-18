@@ -6,8 +6,8 @@
 <meta name="generator" content="pdoc 0.9.1" />
 <title>MAPLEAF.Motion API documentation</title>
 <meta name="description" content="Generalized Rigid body motion integration functionality.
-Main class (6Dof) is `MAPLEAF.Motion.RigidBody.RigidBody`.
-Fundamental data types used …" />
+Main class (6Dof) is `MAPLEAF.Motion.RigidBody`.
+Fundamental data types used throughout the …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -29,18 +29,19 @@ Fundamental data types used …" />
 </header>
 <section id="section-intro">
 <p>Generalized Rigid body motion integration functionality.
-Main class (6Dof) is <code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code>.<br>
+Main class (6Dof) is <code><a title="MAPLEAF.Motion.RigidBody" href="#MAPLEAF.Motion.RigidBody">RigidBody</a></code>.<br>
 Fundamental data types used throughout the simulator defined in:</p>
 <ul>
-<li><code><a title="MAPLEAF.Motion.CythonVector.Vector" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></code></li>
-<li><code><a title="MAPLEAF.Motion.CythonQuaternion.Quaternion" href="CythonQuaternion.html#MAPLEAF.Motion.CythonQuaternion.Quaternion">Quaternion</a></code> - represents orientation</li>
-<li><code><a title="MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity" href="CythonAngularVelocity.html#MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity">AngularVelocity</a></code> </li>
-<li><code><a title="MAPLEAF.Motion.Inertia.Inertia" href="Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code> - stores component masses and moments of inertias</li>
-<li><code><a title="MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem" href="ForceMomentSystem.html#MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></code>
+<li><code><a title="MAPLEAF.Motion.Vector" href="#MAPLEAF.Motion.Vector">Vector</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion" href="#MAPLEAF.Motion.Quaternion">Quaternion</a></code> - represents orientation</li>
+<li><code><a title="MAPLEAF.Motion.AngularVelocity" href="#MAPLEAF.Motion.AngularVelocity">AngularVelocity</a></code> </li>
+<li><code><a title="MAPLEAF.Motion.Inertia" href="#MAPLEAF.Motion.Inertia">Inertia</a></code> - stores component masses and moments of inertia</li>
+<li><code><a title="MAPLEAF.Motion.ForceMomentSystem" href="#MAPLEAF.Motion.ForceMomentSystem">ForceMomentSystem</a></code>
 - stores a repositionable force-moment system</li>
 </ul>
 <p>3Dof and 6DoF Rigid body states are composed of these fundamental data types and defined in <code><a title="MAPLEAF.Motion.RigidBodyStates" href="RigidBodyStates.html">MAPLEAF.Motion.RigidBodyStates</a></code></p>
 <p>Generalized constant and adaptive time stepping integrators are defined in <code><a title="MAPLEAF.Motion.Integration" href="Integration.html">MAPLEAF.Motion.Integration</a></code></p>
+<p>MAPLEAF.Motion does not rely on any of MAPLEAF's other packages.</p>
 <p><img alt="" src="https://www.researchgate.net/profile/Alireza_Abbaspour2/publication/326452421/figure/fig1/AS:701040399753217@1544152464477/The-aircraft-coordinate-system-34.jpg"></p>
 <details class="source">
 <summary>
@@ -48,30 +49,50 @@ Fundamental data types used throughout the simulator defined in:</p>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;
 Generalized Rigid body motion integration functionality.
-Main class (6Dof) is `MAPLEAF.Motion.RigidBody.RigidBody`.  
+Main class (6Dof) is `MAPLEAF.Motion.RigidBody`.  
 Fundamental data types used throughout the simulator defined in:
 
-* `CythonVector.Vector`
-* `CythonQuaternion.Quaternion` - represents orientation
-* `CythonAngularVelocity.AngularVelocity` 
-* `Inertia.Inertia` - stores component masses and moments of inertias
-* `ForceMomentSystem.ForceMomentSystem`  - stores a repositionable force-moment system
+* `Vector`
+* `Quaternion` - represents orientation
+* `AngularVelocity` 
+* `Inertia` - stores component masses and moments of inertia
+* `ForceMomentSystem`  - stores a repositionable force-moment system
 
 3Dof and 6DoF Rigid body states are composed of these fundamental data types and defined in `RigidBodyStates`
 
 Generalized constant and adaptive time stepping integrators are defined in `Integration`
 
+MAPLEAF.Motion does not rely on any of MAPLEAF&#39;s other packages.
+
 .. image:: https://www.researchgate.net/profile/Alireza_Abbaspour2/publication/326452421/figure/fig1/AS:701040399753217@1544152464477/The-aircraft-coordinate-system-34.jpg
-&#39;&#39;&#39;</code></pre>
+&#39;&#39;&#39;
+# Make the classes in all submodules importable directly from MAPLEAF.Rocket
+from .CythonVector import *
+from .CythonQuaternion import *
+from .CythonAngularVelocity import *
+from .Integration import *
+from .Interpolation import *
+from .forceMomentSystem import ForceMomentSystem
+from .inertia import *
+from .RigidBodyStates import *
+from .RigidBodies import *
+
+# For some reason CythonVector and company don&#39;t exist down here, so they won&#39;t import when running from MAPLEAF.Motion import *
+subModules = [ Integration, inertia, RigidBodies, RigidBodyStates, Interpolation, forceMomentSystem ]
+
+__all__ = [ &#34;Vector&#34;, &#34;Quaternion&#34;, &#34;AngularVelocity&#34; ]
+
+for subModule in subModules:
+    __all__ += subModule.__all__</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="MAPLEAF.Motion.CompositeObject" href="CompositeObject.html">MAPLEAF.Motion.CompositeObject</a></code></dt>
+<dt><code class="name"><a title="MAPLEAF.Motion.AeroParameters" href="AeroParameters.html">MAPLEAF.Motion.AeroParameters</a></code></dt>
 <dd>
-<div class="desc"><p>Both <code><a title="MAPLEAF.Rocket.Stage.Stage" href="../Rocket/Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> and <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> objects inherit from <code><a title="MAPLEAF.Motion.CompositeObject" href="CompositeObject.html">MAPLEAF.Motion.CompositeObject</a></code>.
-It implements functionality to add forces …</p></div>
+<div class="desc"><p>Defines functions to calculate the Mach and Re numbers, angles of attack, etc&hellip;
+Several have a standardized interface, and are used for control gain …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.CythonAngularVelocity" href="CythonAngularVelocity.html">MAPLEAF.Motion.CythonAngularVelocity</a></code></dt>
 <dd>
@@ -85,17 +106,9 @@ It implements functionality to add forces …</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="MAPLEAF.Motion.ForceMomentSystem" href="ForceMomentSystem.html">MAPLEAF.Motion.ForceMomentSystem</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="MAPLEAF.Motion.Inertia" href="Inertia.html">MAPLEAF.Motion.Inertia</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.Integration" href="Integration.html">MAPLEAF.Motion.Integration</a></code></dt>
 <dd>
-<div class="desc"><p>Defines ODE integrators for constant and adaptive time stepping. Used by the <code><a title="MAPLEAF.Motion.RigidBody" href="RigidBody.html">MAPLEAF.Motion.RigidBody</a></code> classes to integrate rocket motion</p></div>
+<div class="desc"><p>Defines ODE integrators for constant and adaptive time stepping. Used by the <code><a title="MAPLEAF.Motion.RigidBody" href="#MAPLEAF.Motion.RigidBody">RigidBody</a></code> classes to integrate rocket motion</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Motion.Interpolation" href="Interpolation.html">MAPLEAF.Motion.Interpolation</a></code></dt>
 <dd>
@@ -103,7 +116,7 @@ It implements functionality to add forces …</p></div>
 State interpolation used in flight animations.
 Scalar interpolation used for interpolation of …</p></div>
 </dd>
-<dt><code class="name"><a title="MAPLEAF.Motion.RigidBody" href="RigidBody.html">MAPLEAF.Motion.RigidBody</a></code></dt>
+<dt><code class="name"><a title="MAPLEAF.Motion.RigidBodies" href="RigidBodies.html">MAPLEAF.Motion.RigidBodies</a></code></dt>
 <dd>
 <div class="desc"><p>Classes that represent 3- and 6-DoF rigid bodies.
 Rigid body classes contain the logic for calculating rigid body state derivatives, given current …</p></div>
@@ -113,13 +126,1424 @@ Rigid body classes contain the logic for calculating rigid body state derivative
 <div class="desc"><p>Define standard and time-derivative rigid body states.<br>
 These are defined in such a way that, for the purposes of Runge-Kutta motion integration, …</p></div>
 </dd>
+<dt><code class="name"><a title="MAPLEAF.Motion.forceMomentSystem" href="forceMomentSystem.html">MAPLEAF.Motion.forceMomentSystem</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="MAPLEAF.Motion.inertia" href="inertia.html">MAPLEAF.Motion.inertia</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 </dl>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.Motion.calculateCubicInterpCoefficients"><code class="name flex">
+<span>def <span class="ident">calculateCubicInterpCoefficients</span></span>(<span>X1, X2, Y1, Y2, dydx1, dydx2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns coefficients for a cubic polynomial that matches values and derivatives at x1 and x2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dydx1, dydx2):
+    &#39;&#39;&#39; Returns coefficients for a cubic polynomial that matches values and derivatives at x1 and x2 &#39;&#39;&#39;
+    # AMatrix and B, together define the following equations which constrain the cubic interpolation
+    # f(x=x1)       == Y1
+    # f(x=x2)       == Y2
+    # df/dx (x=x1)  == dydx1
+    # df/dx (x=x2)  == dydx2
+    AMatrix = \
+        np.array([  [ 1,    X1, X1**2,  X1**3 ],
+                    [ 1,    X2, X2**2,  X2**3 ],
+                    [ 0,    1,  2*X1, 3*X1**2 ],
+                    [ 0,    1,  2*X2, 3*X2**2 ] ])
+    
+    B = np.array([  [Y1], 
+                    [Y2], 
+                    [dydx1], 
+                    [dydx2]])
+
+    return np.linalg.inv(AMatrix).dot(B)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.cubicInterp"><code class="name flex">
+<span>def <span class="ident">cubicInterp</span></span>(<span>X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
+    dy_dx_x1 = (Y1_plusDx - Y1) / dx
+    dy_dx_x2 = (Y2_plusDx - Y2) / dx
+
+    interpCoeffs = calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dy_dx_x1, dy_dx_x2)
+    return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.integratorFactory"><code class="name flex">
+<span>def <span class="ident">integratorFactory</span></span>(<span>integrationMethod='Euler', simDefinition=None, discardedTimeStepCallback=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a callable integrator object</p>
+<h2 id="inputs">Inputs</h2>
+<ul>
+<li>integrationMethod: (str) Name of integration method: Examples = "Euler", "RK4", "RK23Adaptive", and "RK45Adaptive"</li>
+<li>simDefinition: (<code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) for adaptive integration, provide a simdefinition file with time step adaptation parameters</li>
+<li>discardedTimeStepCallback: (1-argument function reference) for adaptive integration, this function (if provided) is called when a time step is computed,
+but then discarded and re-computed with a smaller timestep to remain below the max estimated error threshold. Used by MAPLEAF to remove
+force calculation logs from those discarded time steps</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def integratorFactory(integrationMethod=&#34;Euler&#34;, simDefinition=None, discardedTimeStepCallback=None):
+    &#39;&#39;&#39; 
+        Returns a callable integrator object
+
+        Inputs:
+            * integrationMethod: (str) Name of integration method: Examples = &#34;Euler&#34;, &#34;RK4&#34;, &#34;RK23Adaptive&#34;, and &#34;RK45Adaptive&#34;
+            * simDefinition: (`MAPLEAF.IO.SimDefinition`) for adaptive integration, provide a simdefinition file with time step adaptation parameters
+            * discardedTimeStepCallback: (1-argument function reference) for adaptive integration, this function (if provided) is called when a time step is computed,
+                but then discarded and re-computed with a smaller timestep to remain below the max estimated error threshold. Used by MAPLEAF to remove
+                force calculation logs from those discarded time steps
+    &#39;&#39;&#39;
+    if &#34;Adapt&#34; in integrationMethod:
+        if simDefinition == None:
+            raise ValueError(&#34;SimDefinition object required to initialize adaptive integrator&#34;)
+
+        from MAPLEAF.IO import SubDictReader
+        adaptDictReader = SubDictReader(&#34;SimControl.TimeStepAdaptation&#34;, simDefinition)
+
+        # Adaptive Integration
+        controller = adaptDictReader.getString(&#34;controller&#34;)
+        if controller == &#34;PID&#34;:
+            PIDCoeffs = [ float(x) for x in adaptDictReader.getString(&#34;PID.coefficients&#34;).split() ]
+            safetyFactor = None
+        elif controller == &#34;elementary&#34;:
+            safetyFactor = adaptDictReader.getFloat(&#34;Elementary.safetyFactor&#34;)
+            PIDCoeffs = None
+
+        targetError = adaptDictReader.getFloat(&#34;targetError&#34;)
+        minFactor = adaptDictReader.getFloat(&#34;minFactor&#34;)
+        maxFactor = adaptDictReader.getFloat(&#34;maxFactor&#34;)
+        maxTimeStep = adaptDictReader.getFloat(&#34;maxTimeStep&#34;)
+        minTimeStep = adaptDictReader.getFloat(&#34;minTimeStep&#34;)
+        
+        return AdaptiveIntegrator(
+            method=integrationMethod, 
+            controller=controller, 
+            targetError=targetError, 
+            maxMinSafetyFactors=[maxFactor, minFactor, safetyFactor], 
+            PIDCoeffs=PIDCoeffs, 
+            maxTimeStep=maxTimeStep, 
+            minTimeStep=minTimeStep, 
+            discardedTimeStepCallback=discardedTimeStepCallback
+        )
+    
+    else:
+        # Constant time step integrator
+        return Integrator(method=integrationMethod)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.interpolateRigidBodyStates"><code class="name flex">
+<span>def <span class="ident">interpolateRigidBodyStates</span></span>(<span>state1, state2, state1Weight)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Linearly interpolates between state 1 and state2.
+state1Weight should be a decimal value between 0 and 1.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def interpolateRigidBodyStates(state1, state2, state1Weight):
+    &#39;&#39;&#39;
+        Linearly interpolates between state 1 and state2.
+        state1Weight should be a decimal value between 0 and 1.
+    &#39;&#39;&#39;
+    state2Weight = 1 - state1Weight
+    
+    # Properties of all rigid body states
+    pos = state1.position*state1Weight + state2.position*state2Weight
+    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
+
+    try:
+        # 6DoF Properties
+        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
+        orientation = state1.orientation * orientationDelta
+        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
+        return RigidBodyState(pos, vel, orientation, angVel)
+
+    except AttributeError:
+        # 3DoF doesn&#39;t include orientation / angVel
+        return RigidBodyState_3DoF(pos, vel)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.linInterp"><code class="name flex">
+<span>def <span class="ident">linInterp</span></span>(<span>X, Y, desiredX)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="arguments">Arguments</h2>
+<p>X: Sorted list or numpy array of numeric x-values
+Y: Sorted list or numpy array of numeric y-values
+desiredX: Numeric x-value, indicating point to interpolate to</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>desiredY</code></dt>
+<dd>The linearly-interpolated y value at x=desiredX</dd>
+</dl>
+<h2 id="notes">Notes</h2>
+<p>Uses binary search (bisect) to locate interpolation interval
+Faster than built-in methods for our application (see test/LinInterpSpeed.py)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def linInterp(X, Y, desiredX):
+    &#39;&#39;&#39;
+        Arguments:
+            X: Sorted list or numpy array of numeric x-values
+            Y: Sorted list or numpy array of numeric y-values
+            desiredX: Numeric x-value, indicating point to interpolate to
+
+        Returns:
+            desiredY: The linearly-interpolated y value at x=desiredX
+
+        Notes:
+            Uses binary search (bisect) to locate interpolation interval
+            Faster than built-in methods for our application (see test/LinInterpSpeed.py)
+    &#39;&#39;&#39;
+    interpPt = bisect(X, desiredX)
+    
+    if interpPt &gt;= len(X):
+        return Y[len(X)-1]
+    elif interpPt &lt; 1:
+        return Y[0]
+    else:
+        lgX = X[interpPt]
+        smX = X[interpPt-1]
+        lgY = Y[interpPt]
+        smY = Y[interpPt-1]
+
+    return (lgY - smY)*(desiredX - smX)/(lgX - smX) + smY</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.linInterpWeights"><code class="name flex">
+<span>def <span class="ident">linInterpWeights</span></span>(<span>X, desiredX)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Expects the list X is sorted
+Returns smallYIndex, smallYWeight, largeYIndex, largeYWeight:
+Ex: X = [ 0, 1, 2, 3 ], desiredX = 0.75
+smallYIndex = 0
+smallYWeight = 0.25
+largeYIndex = 1
+largeYWeight = 0.75</p>
+<pre><code>Then, to calculate the interpolate value:
+    interpVal = Y[smallYIndex]*smallYWeight + Y[largeYIndex]*largeYWeight
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def linInterpWeights(X, desiredX):
+    &#39;&#39;&#39; 
+        Expects the list X is sorted
+        Returns smallYIndex, smallYWeight, largeYIndex, largeYWeight:
+            Ex: X = [ 0, 1, 2, 3 ], desiredX = 0.75
+                smallYIndex = 0
+                smallYWeight = 0.25
+                largeYIndex = 1
+                largeYWeight = 0.75
+
+            Then, to calculate the interpolate value:
+                interpVal = Y[smallYIndex]*smallYWeight + Y[largeYIndex]*largeYWeight
+    &#39;&#39;&#39;
+    interpPt = bisect(X, desiredX)
+
+    #Edge cases
+    if interpPt &gt;= len(X):
+        return 0, 0, -1, 1
+    elif interpPt &lt; 1:
+        return 0, 1, 0, 0
+
+    # Normal cases
+    smallYIndex = interpPt -1
+    largeYIndex = interpPt
+    largeYWeight = (desiredX - X[smallYIndex]) / (X[largeYIndex] - X[smallYIndex])
+    smallYWeight = 1 - largeYWeight
+
+    return smallYIndex, smallYWeight, largeYIndex, largeYWeight</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Motion.AngularVelocity"><code class="flex name class">
+<span>class <span class="ident">AngularVelocity</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Uses a vector to represent an angular velocity</p>
+<p>Initialize from axis-angle by passing in a Vector for axisOfRotation, and a numeric value for angularVel
+Can also pass in the components of a rotationVector, treating this function as <strong>init</strong>(X, Y, Z)</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Motion.CythonVector.Vector" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.AngularVelocity.angVel"><code class="name flex">
+<span>def <span class="ident">angVel</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Motion.AngularVelocity.rotationAxis"><code class="name flex">
+<span>def <span class="ident">rotationAxis</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Motion.AngularVelocity.toQuaternion"><code class="name flex">
+<span>def <span class="ident">toQuaternion</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>After an angular velocity has been multiplied by a timestep (integrated), used to convert it to a Quaternion representing a rotation over a timestep</p></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.Motion.CythonVector.Vector" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.Motion.CythonVector.Vector.X" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector.X">X</a></code></li>
+<li><code><a title="MAPLEAF.Motion.CythonVector.Vector.Y" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector.Y">Y</a></code></li>
+<li><code><a title="MAPLEAF.Motion.CythonVector.Vector.Z" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector.Z">Z</a></code></li>
+<li><code><a title="MAPLEAF.Motion.CythonVector.Vector.angle" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector.angle">angle</a></code></li>
+<li><code><a title="MAPLEAF.Motion.CythonVector.Vector.normalize" href="CythonVector.html#MAPLEAF.Motion.CythonVector.Vector.normalize">normalize</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="MAPLEAF.Motion.ForceMomentSystem"><code class="flex name class">
+<span>class <span class="ident">ForceMomentSystem</span></span>
+<span>(</span><span>force, location=None, moment=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines an applied force-moment pair at a location.
+Can be moved to other locations - recalculates the moment accordingly.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ForceMomentSystem():
+    &#39;&#39;&#39;
+        Defines an applied force-moment pair at a location.
+        Can be moved to other locations - recalculates the moment accordingly.
+    &#39;&#39;&#39;
+    __slots__ = [ &#34;force&#34;, &#34;location&#34;, &#34;moment&#34; ]
+
+    def __init__(self, force, location=None, moment=None):
+        self.force = force
+
+        # Avoids using mutable default values
+        if location == None:
+            location = Vector(0,0,0)
+        self.location = location
+
+        if moment == None:
+            moment = Vector(0,0,0)
+        self.moment = moment
+
+    def __add__(self, force2):
+        &#39;&#39;&#39;
+            New force/moment system is calculated about self.location
+        &#39;&#39;&#39;
+        force2AtPresentLocation = force2.getAt(self.location)
+        newForce = self.force + force2AtPresentLocation.force
+        newMoment = self.moment + force2AtPresentLocation.moment
+        return ForceMomentSystem(newForce, self.location, newMoment)
+
+    def __neg__(self):
+        return ForceMomentSystem(-self.force, self.location, -self.moment)
+
+    def __sub__(self, force2):
+        return self + (-force2)
+
+    def getAt(self, newLocation):
+        &#39;&#39;&#39;
+            Returns a new force object, where the application location has been changed and the applied moment has been updated accordingly
+
+            Moving the force/moment pair application to a new application location does not change the resulting applied force
+            Only the applied moment changes to compensate for the force application location change
+        &#39;&#39;&#39;
+        # Find moment that the old force produces about the new location
+        newToOld = self.location - newLocation
+        momentAppliedAboutNewLocation = newToOld.crossProduct(self.force)
+        # Add it to the previous moment
+        return ForceMomentSystem(self.force, newLocation, self.moment + momentAppliedAboutNewLocation)
+
+    def __str__(self):
+        &#39;&#39;&#39; Return string representation of object (Used by print()) &#39;&#39;&#39;
+        return &#39;Force=({}) At=({}) + Moment=({})&#39;.format(self.force, self.location, self.moment)
+
+    def __eq__(self, force2):
+        return self.force == force2.force and self.location == force2.location and self.moment == force2.moment</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Motion.ForceMomentSystem.force"><code class="name">var <span class="ident">force</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.ForceMomentSystem.location"><code class="name">var <span class="ident">location</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.ForceMomentSystem.moment"><code class="name">var <span class="ident">moment</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.ForceMomentSystem.getAt"><code class="name flex">
+<span>def <span class="ident">getAt</span></span>(<span>self, newLocation)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a new force object, where the application location has been changed and the applied moment has been updated accordingly</p>
+<p>Moving the force/moment pair application to a new application location does not change the resulting applied force
+Only the applied moment changes to compensate for the force application location change</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAt(self, newLocation):
+    &#39;&#39;&#39;
+        Returns a new force object, where the application location has been changed and the applied moment has been updated accordingly
+
+        Moving the force/moment pair application to a new application location does not change the resulting applied force
+        Only the applied moment changes to compensate for the force application location change
+    &#39;&#39;&#39;
+    # Find moment that the old force produces about the new location
+    newToOld = self.location - newLocation
+    momentAppliedAboutNewLocation = newToOld.crossProduct(self.force)
+    # Add it to the previous moment
+    return ForceMomentSystem(self.force, newLocation, self.moment + momentAppliedAboutNewLocation)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.Inertia"><code class="flex name class">
+<span>class <span class="ident">Inertia</span></span>
+<span>(</span><span>MOI, MOICentroidLocation, mass, CG=None, componentLocation=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><ul>
+<li>MOIVector: Ixx, Iyy, Izz
+</li>
+<li>MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Inertia():
+
+    ___slots__ = [ &#34;MOI&#34;, &#34;MOICentroidLocation&#34;, &#34;mass&#34;, &#34;CG&#34; ]
+
+    def __init__(self, MOI, MOICentroidLocation, mass, CG=None, componentLocation=Vector(0,0,0)):
+        &#34;&#34;&#34; 
+            * MOIVector: Ixx, Iyy, Izz  
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
+        &#34;&#34;&#34;
+        self.MOI = MOI
+        self.MOICentroidLocation = MOICentroidLocation + componentLocation
+        self.mass = mass
+        
+        if CG == None:
+            self.CG = MOICentroidLocation + componentLocation
+        else:
+            self.CG = CG + componentLocation
+
+    def checkDefinedAboutCG(self, inertiasList):
+        &#39;&#39;&#39;
+            Called by the functions that add/combine inertias.
+            Checks that every inertia to be added up has MOIs defined about its CG.
+            Throws a ValueError if this is not the case
+        &#39;&#39;&#39;
+        for inertia in inertiasList:
+            if inertia.MOICentroidLocation != inertia.CG:
+                raise ValueError(&#34;At least one of the inertias to be added has an MOI not defined about its CG: {}&#34;.format(inertia))
+
+    def combineInertiasAboutPoint(self, inertiasList, Point):
+        &#34;&#34;&#34;
+            Version of the combineInertias function below, which can combine Inertias about a point which is not coincident with the combined CG of the resulting combined object.
+            This changes the resulting moments of inertia.
+
+            Inputs:
+                inertiasList:   List of other inertia objects. Can also be empty list, then parallel axis theorem is just applied to the present inertia object
+                Point:          Point about which summed inertias will be calculated
+            Returns:
+                New instance of Inertia, with MOI defined about Point
+        &#34;&#34;&#34;    
+        # Initialize variables to hold results
+        totalMass = 0
+        totalCG = Vector(0,0,0)
+        totalMOI = Vector(0,0,0)
+
+        # Add the current object to the list of Inertia objects to be combined
+        if self not in inertiasList:
+            inertiasList.append(self)
+
+        self.checkDefinedAboutCG(inertiasList)
+
+        # Add up all the inertias in the list
+        for inertia in inertiasList:
+            # Add mass and mass-weighted CG
+            totalMass += inertia.mass
+            totalCG += inertia.CG * inertia.mass
+
+            ### Add inertia using parallel axis theorem ###
+            
+            # Add current inertia
+            totalMOI += inertia.MOI
+            # Add adjustment for different axis location
+            distanceFromPoint = Point - inertia.MOICentroidLocation
+            xAxesDistSqr = distanceFromPoint.Y*distanceFromPoint.Y + distanceFromPoint.Z*distanceFromPoint.Z
+            yAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Z*distanceFromPoint.Z
+            zAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Y*distanceFromPoint.Y
+            totalMOI.X += inertia.mass*xAxesDistSqr
+            totalMOI.Y += inertia.mass*yAxesDistSqr
+            totalMOI.Z += inertia.mass*zAxesDistSqr
+
+        # Compute actual CG by dividing out the mass
+        totalCG = totalCG / totalMass
+
+        return Inertia(totalMOI, Point, totalMass, totalCG)
+
+    def combineInertias(self, inertiasList):
+        &#34;&#34;&#34;
+            Combines inertias about the CG of the combined object
+            Each component inertia must be defined about the component&#39;s CG
+        &#34;&#34;&#34;
+        # Add the current object to the list of Inertia objects to be combined
+        if self not in inertiasList:
+            inertiasList.append(self)
+
+        self.checkDefinedAboutCG(inertiasList)
+
+        # Calculate combined CG
+        totalMass = 0
+        totalCG = Vector(0,0,0)
+
+        for inertia in inertiasList:
+            totalMass += inertia.mass
+            totalCG += inertia.CG * inertia.mass # Adding mass-weighted CG
+
+        if totalMass &gt; 0:
+            totalCG = totalCG / totalMass # Compute actual CG by dividing out the total mass
+        else:
+            totalCG = Vector(0,0,0)
+
+        # Calculate combined MOI about combined CG
+        totalMOI = Vector(0,0,0)
+        for inertia in inertiasList:
+            totalMOI += inertia.MOI # Add current inertia
+            # Add adjustment for different axis location - parallel axis theorem
+            distanceFromPoint = totalCG - inertia.MOICentroidLocation
+            xAxesDistSqr = distanceFromPoint.Y*distanceFromPoint.Y + distanceFromPoint.Z*distanceFromPoint.Z
+            yAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Z*distanceFromPoint.Z
+            zAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Y*distanceFromPoint.Y
+            totalMOI.X += inertia.mass*xAxesDistSqr
+            totalMOI.Y += inertia.mass*yAxesDistSqr
+            totalMOI.Z += inertia.mass*zAxesDistSqr
+
+        return Inertia(totalMOI, totalCG, totalMass)
+
+    def __add__(self, inertia2):
+        return self.combineInertias([inertia2])
+
+    def __str__(self):
+        &#39;&#39;&#39; Get string representation, used by str() and print() &#39;&#39;&#39;
+        if self.MOICentroidLocation == self.CG:
+            return &#39;MOI=({}) calculated about CG=({}) Mass=({}) &#39;
+        else:
+            return &#39;MOI=({}) calculated about non-CG Point=({}) CG=({}) Mass=({})&#39;
+
+    def __eq__(self, inertia2):
+        try:
+            c1 = self.MOI == inertia2.MOI
+            c2 = self.MOICentroidLocation == inertia2.MOICentroidLocation
+            c3 = self.mass == inertia2.mass
+            c4 = self.CG == inertia2.CG
+            if c1 and c2 and c3 and c4:
+                return True
+            else:
+                return False
+
+        except AttributeError:
+            return False</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Inertia.checkDefinedAboutCG"><code class="name flex">
+<span>def <span class="ident">checkDefinedAboutCG</span></span>(<span>self, inertiasList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Called by the functions that add/combine inertias.
+Checks that every inertia to be added up has MOIs defined about its CG.
+Throws a ValueError if this is not the case</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def checkDefinedAboutCG(self, inertiasList):
+    &#39;&#39;&#39;
+        Called by the functions that add/combine inertias.
+        Checks that every inertia to be added up has MOIs defined about its CG.
+        Throws a ValueError if this is not the case
+    &#39;&#39;&#39;
+    for inertia in inertiasList:
+        if inertia.MOICentroidLocation != inertia.CG:
+            raise ValueError(&#34;At least one of the inertias to be added has an MOI not defined about its CG: {}&#34;.format(inertia))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Inertia.combineInertias"><code class="name flex">
+<span>def <span class="ident">combineInertias</span></span>(<span>self, inertiasList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Combines inertias about the CG of the combined object
+Each component inertia must be defined about the component's CG</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def combineInertias(self, inertiasList):
+    &#34;&#34;&#34;
+        Combines inertias about the CG of the combined object
+        Each component inertia must be defined about the component&#39;s CG
+    &#34;&#34;&#34;
+    # Add the current object to the list of Inertia objects to be combined
+    if self not in inertiasList:
+        inertiasList.append(self)
+
+    self.checkDefinedAboutCG(inertiasList)
+
+    # Calculate combined CG
+    totalMass = 0
+    totalCG = Vector(0,0,0)
+
+    for inertia in inertiasList:
+        totalMass += inertia.mass
+        totalCG += inertia.CG * inertia.mass # Adding mass-weighted CG
+
+    if totalMass &gt; 0:
+        totalCG = totalCG / totalMass # Compute actual CG by dividing out the total mass
+    else:
+        totalCG = Vector(0,0,0)
+
+    # Calculate combined MOI about combined CG
+    totalMOI = Vector(0,0,0)
+    for inertia in inertiasList:
+        totalMOI += inertia.MOI # Add current inertia
+        # Add adjustment for different axis location - parallel axis theorem
+        distanceFromPoint = totalCG - inertia.MOICentroidLocation
+        xAxesDistSqr = distanceFromPoint.Y*distanceFromPoint.Y + distanceFromPoint.Z*distanceFromPoint.Z
+        yAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Z*distanceFromPoint.Z
+        zAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Y*distanceFromPoint.Y
+        totalMOI.X += inertia.mass*xAxesDistSqr
+        totalMOI.Y += inertia.mass*yAxesDistSqr
+        totalMOI.Z += inertia.mass*zAxesDistSqr
+
+    return Inertia(totalMOI, totalCG, totalMass)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.Inertia.combineInertiasAboutPoint"><code class="name flex">
+<span>def <span class="ident">combineInertiasAboutPoint</span></span>(<span>self, inertiasList, Point)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Version of the combineInertias function below, which can combine Inertias about a point which is not coincident with the combined CG of the resulting combined object.
+This changes the resulting moments of inertia.</p>
+<h2 id="inputs">Inputs</h2>
+<p>inertiasList:
+List of other inertia objects. Can also be empty list, then parallel axis theorem is just applied to the present inertia object
+Point:
+Point about which summed inertias will be calculated</p>
+<h2 id="returns">Returns</h2>
+<p>New instance of Inertia, with MOI defined about Point</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def combineInertiasAboutPoint(self, inertiasList, Point):
+    &#34;&#34;&#34;
+        Version of the combineInertias function below, which can combine Inertias about a point which is not coincident with the combined CG of the resulting combined object.
+        This changes the resulting moments of inertia.
+
+        Inputs:
+            inertiasList:   List of other inertia objects. Can also be empty list, then parallel axis theorem is just applied to the present inertia object
+            Point:          Point about which summed inertias will be calculated
+        Returns:
+            New instance of Inertia, with MOI defined about Point
+    &#34;&#34;&#34;    
+    # Initialize variables to hold results
+    totalMass = 0
+    totalCG = Vector(0,0,0)
+    totalMOI = Vector(0,0,0)
+
+    # Add the current object to the list of Inertia objects to be combined
+    if self not in inertiasList:
+        inertiasList.append(self)
+
+    self.checkDefinedAboutCG(inertiasList)
+
+    # Add up all the inertias in the list
+    for inertia in inertiasList:
+        # Add mass and mass-weighted CG
+        totalMass += inertia.mass
+        totalCG += inertia.CG * inertia.mass
+
+        ### Add inertia using parallel axis theorem ###
+        
+        # Add current inertia
+        totalMOI += inertia.MOI
+        # Add adjustment for different axis location
+        distanceFromPoint = Point - inertia.MOICentroidLocation
+        xAxesDistSqr = distanceFromPoint.Y*distanceFromPoint.Y + distanceFromPoint.Z*distanceFromPoint.Z
+        yAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Z*distanceFromPoint.Z
+        zAxesDistSqr = distanceFromPoint.X*distanceFromPoint.X + distanceFromPoint.Y*distanceFromPoint.Y
+        totalMOI.X += inertia.mass*xAxesDistSqr
+        totalMOI.Y += inertia.mass*yAxesDistSqr
+        totalMOI.Z += inertia.mass*zAxesDistSqr
+
+    # Compute actual CG by dividing out the mass
+    totalCG = totalCG / totalMass
+
+    return Inertia(totalMOI, Point, totalMass, totalCG)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion"><code class="flex name class">
+<span>class <span class="ident">Quaternion</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use objects of this class to store orientation information - direction and rotation
+Elements are: [ scalar, xi, yj, zk ] where scalar, x, y, and z are scalars
+i,j, and k squared = -1
+ij=k ji=-k
+jk=i kj=-i
+ki=j ik=-j</p>
+<p>To define the rotation quaternion between two frames:
+If Q(2) = Q(1) * Q(1-2)
+Q(1)^-1 * Q(2) = Q(1)^-1 * Q(1) * Q(1-2)
+Q(1)^-1 * Q(2) = Q(1-2) ------------- where Q(1-2) defines the rotation from frame 1 to 2 (as defined in the first step)
+Q(2-1) = Q(1-2).conjugate</p>
+<p>Quaternion normalization is not enforced by this class, but quaternions do not represent a rotation unless they are normalized.
+Quaternions are automatically normalized if this class is constructed using the angle/axis terms and if .rotate() is used.</p>
+<p>Future: Could increase rotation performance by ~50% by converting to a rotation matrix
+Only worth it if we rotate many vectors per quaternion</p>
+<p>A positive angle of rotation is clockwise if we are looking down the defined rotation axis</p>
+<p>Class definition in CythonQuaternion.pxd</p>
+<p>Can initialize in one of three ways:
+1. orientation = Quaternion(axisOfRotation=Vector(0,0,1), angle=(pi)) - angle should be in radians
+2. orientation = Quaternion(components=[0,1,0,1]) NOTE: Deprecated - will be removed
+3. orientation = Quaternion(0, 1, 0, 1) - Fastest approach</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Quaternion.Q0"><code class="name">var <span class="ident">Q0</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.Q1"><code class="name">var <span class="ident">Q1</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.Q2"><code class="name">var <span class="ident">Q2</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.Q3"><code class="name">var <span class="ident">Q3</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Quaternion.conjugate"><code class="name flex">
+<span>def <span class="ident">conjugate</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Negate all complex terms - produces an inverse rotation if the quaternion is a unit quaternion</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.dotProduct"><code class="name flex">
+<span>def <span class="ident">dotProduct</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Used to compute the angle parameter in spherical linear interpolation</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.inverse"><code class="name flex">
+<span>def <span class="ident">inverse</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Conjugate divided by self.norm</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.norm"><code class="name flex">
+<span>def <span class="ident">norm</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get the norm of the quaternion</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.normalize"><code class="name flex">
+<span>def <span class="ident">normalize</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create unit quaternion</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.plotRotation"><code class="name flex">
+<span>def <span class="ident">plotRotation</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.rotate"><code class="name flex">
+<span>def <span class="ident">rotate</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Use the quaternion to rotate a vector</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.rotationAngle"><code class="name flex">
+<span>def <span class="ident">rotationAngle</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the angle (radians) by which this quaternion rotates vectors about the rotationAxis</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.rotationAxis"><code class="name flex">
+<span>def <span class="ident">rotationAxis</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the axis about which this quaternion would rotate a vector</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.scaleRotation"><code class="name flex">
+<span>def <span class="ident">scaleRotation</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.slerp"><code class="name flex">
+<span>def <span class="ident">slerp</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Spherical Linear Interpolation - fraction = (0-1) where 0 is self, 1 is quat2</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.toEulerAngles"><code class="name flex">
+<span>def <span class="ident">toEulerAngles</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns Tait-Bryan 3-2-1, z-y-x convention Euler Angles Vector</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Quaternion.toRotationVector"><code class="name flex">
+<span>def <span class="ident">toRotationVector</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBody"><code class="flex name class">
+<span>class <span class="ident">RigidBody</span></span>
+<span>(</span><span>rigidBodyState, forceParam, inertiaParam, integrationMethod='Euler', discardedTimeStepCallback=None, simDefinition=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>6DoF version of RigidBody_3DoF. Calculates angular velocities and accelerations</p>
+<h2 id="interface">Interface</h2>
+<p>Properties:
+.state = RigidBodyState (pos, vel, orientation, angVel)
+.time = currentSimTime</p>
+<p>External functions wrapped by this class
+.forceFunc(time, state)
+.inertiaFunc(time, state)</p>
+<p>Methods
+.timeStep(deltaT)</p>
+<p>Just calls RigidBodyState_3DoF constructor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RigidBody(RigidBody_3DoF):
+    &#34;&#34;&#34;
+        6DoF version of RigidBody_3DoF. Calculates angular velocities and accelerations
+
+        Interface:
+            Properties:
+                .state = RigidBodyState (pos, vel, orientation, angVel)
+                .time = currentSimTime
+            
+            External functions wrapped by this class
+                .forceFunc(time, state)
+                .inertiaFunc(time, state)
+
+            Methods
+                .timeStep(deltaT)
+    &#34;&#34;&#34;
+    #TODO: Account for the effect of CG location changing between time steps?
+    #TODO (Future - for a more detailed final model): Moment of Inertia Tensor required
+
+    def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod=&#34;Euler&#34;, discardedTimeStepCallback=None, simDefinition=None):
+        &#39;&#39;&#39; Just calls RigidBodyState_3DoF constructor &#39;&#39;&#39;
+        super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
+
+    def rigidBodyStateDerivative(self, time, state):
+        # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
+        appliedForce_localFrame = self.forceFunc(time, state)
+        inertia = self.inertiaFunc(time, state)
+
+        # Get CG velocity relative to body geometry
+        dt = 1e-8
+        inertia2 = self.inertiaFunc(time+dt, state)
+        CGVel_local = (inertia2.CG - inertia.CG) / dt
+        CGVel_global = state.orientation.rotate(CGVel_local)
+
+        ### Translation - calculated in global frame ###
+        #Convert from local to global frame
+        fVec_global = state.orientation.rotate(appliedForce_localFrame.force)        
+        linAccel_global = fVec_global / inertia.mass
+
+        ### Rotation - calculated in local frame (Euler equations) ###
+        # convert angular velocity to global frame - to be added to orientation
+        angVel_global = AngularVelocity(*state.orientation.rotate(state.angularVelocity)) # Will be transformed into a quaternion once multiplied by a timestep
+        # Calc angular acceleration (in local frame)
+        moi = inertia.MOI
+        dAngVelDtX = (appliedForce_localFrame.moment.X + (moi.Y - moi.Z) * state.angularVelocity.Y * state.angularVelocity.Z) / moi.X
+        dAngVelDtY = (appliedForce_localFrame.moment.Y + (moi.Z - moi.X) * state.angularVelocity.Z * state.angularVelocity.X) / moi.Y
+        dAngVelDtZ = (appliedForce_localFrame.moment.Z + (moi.X - moi.Y) * state.angularVelocity.X * state.angularVelocity.Y) / moi.Z
+        dAngVelDt = AngularVelocity(dAngVelDtX, dAngVelDtY, dAngVelDtZ)
+
+        return RigidBodyStateDerivative(state.velocity+CGVel_global, linAccel_global, angVel_global, dAngVelDt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF" href="RigidBodies.html#MAPLEAF.Motion.RigidBodies.RigidBody_3DoF">RigidBody_3DoF</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.RigidBody.rigidBodyStateDerivative"><code class="name flex">
+<span>def <span class="ident">rigidBodyStateDerivative</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rigidBodyStateDerivative(self, time, state):
+    # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
+    appliedForce_localFrame = self.forceFunc(time, state)
+    inertia = self.inertiaFunc(time, state)
+
+    # Get CG velocity relative to body geometry
+    dt = 1e-8
+    inertia2 = self.inertiaFunc(time+dt, state)
+    CGVel_local = (inertia2.CG - inertia.CG) / dt
+    CGVel_global = state.orientation.rotate(CGVel_local)
+
+    ### Translation - calculated in global frame ###
+    #Convert from local to global frame
+    fVec_global = state.orientation.rotate(appliedForce_localFrame.force)        
+    linAccel_global = fVec_global / inertia.mass
+
+    ### Rotation - calculated in local frame (Euler equations) ###
+    # convert angular velocity to global frame - to be added to orientation
+    angVel_global = AngularVelocity(*state.orientation.rotate(state.angularVelocity)) # Will be transformed into a quaternion once multiplied by a timestep
+    # Calc angular acceleration (in local frame)
+    moi = inertia.MOI
+    dAngVelDtX = (appliedForce_localFrame.moment.X + (moi.Y - moi.Z) * state.angularVelocity.Y * state.angularVelocity.Z) / moi.X
+    dAngVelDtY = (appliedForce_localFrame.moment.Y + (moi.Z - moi.X) * state.angularVelocity.Z * state.angularVelocity.X) / moi.Y
+    dAngVelDtZ = (appliedForce_localFrame.moment.Z + (moi.X - moi.Y) * state.angularVelocity.X * state.angularVelocity.Y) / moi.Z
+    dAngVelDt = AngularVelocity(dAngVelDtX, dAngVelDtY, dAngVelDtZ)
+
+    return RigidBodyStateDerivative(state.velocity+CGVel_global, linAccel_global, angVel_global, dAngVelDt)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBodyState"><code class="flex name class">
+<span>class <span class="ident">RigidBodyState</span></span>
+<span>(</span><span>position=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, velocity=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, orientation=&lt;MAPLEAF.Motion.CythonQuaternion.Quaternion object&gt;, angularVelocity=&lt;MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity object&gt;)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
+Pos/Vel are expected to be Vectors - Defined with reference to the global frame
+Orientation is expected to be a Quaternion - Defines the rotation from the global inertial reference frame to the rocket's local frame
+(Orientation of the rocket in the global frame)
+Angular Velocity is expected to be an Angular Velocity - Defined with reference to the local frame</p>
+<p>Adding rigidBodyStates adds the vectors and multiplies the quaternions (which adds the rotations they represent)</p>
+<p>Multiplying an rigidBodyState by a scalar scales the vectors and rotation defined by the quaternions
+0.5 *
+= half the vector length, half the rotation size, directions the same</p>
+<p>No other operations are defined</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RigidBodyState():
+    &#34;&#34;&#34; Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
+            Pos/Vel are expected to be Vectors - Defined with reference to the global frame
+            Orientation is expected to be a Quaternion - Defines the rotation from the global inertial reference frame to the rocket&#39;s local frame 
+                (Orientation of the rocket in the global frame)
+            Angular Velocity is expected to be an Angular Velocity - Defined with reference to the local frame
+
+        Adding rigidBodyStates adds the vectors and multiplies the quaternions (which adds the rotations they represent)
+
+        Multiplying an rigidBodyState by a scalar scales the vectors and rotation defined by the quaternions
+            0.5 *  = half the vector length, half the rotation size, directions the same
+
+        No other operations are defined
+    &#34;&#34;&#34;
+    def __init__(self, position=Vector(0,0,0), velocity=Vector(0,0,0), orientation=Quaternion(1,0,0,0), angularVelocity=AngularVelocity(0,0,0)):
+        self.position = position
+        self.velocity = velocity
+        self.orientation = orientation
+        self.angularVelocity = angularVelocity
+    
+    def __add__(self, rigidBodyState2):
+        &#39;&#39;&#39; Used in: initVal {+} (timeStep * slope) &#39;&#39;&#39;
+        newPos = self.position + rigidBodyState2.position
+        newVel = self.velocity + rigidBodyState2.velocity
+        newAngVel = self.angularVelocity + rigidBodyState2.angularVelocity
+        newOrientation = rigidBodyState2.orientation * self.orientation.normalize()
+        
+        return RigidBodyState(newPos, newVel, newOrientation.normalize(), newAngVel)
+
+    def __mul__(self, timeStep):
+        &#39;&#39;&#39;
+            Used in: initVal + timeStep {*} slope
+            Expected to always be multiplied by a scalar
+        &#39;&#39;&#39;
+        timeStep = float(timeStep)
+
+        newPos = self.position * timeStep
+        newVel = self.velocity * timeStep
+        newAngVel = self.angularVelocity * timeStep
+        newOrientation = self.orientation.scaleRotation(timeStep)
+
+        return RigidBodyState(newPos, newVel, newOrientation, newAngVel)
+
+    def __abs__(self):
+        &#39;&#39;&#39; Used to quantify the difference between two RigidBodyStates as a scalar value during error estimation in adaptive time stepping methods &#39;&#39;&#39;
+
+        positionMag = self.position.length() + self.velocity.length()
+        orientationMag = abs(self.orientation.rotationAngle()) + self.angularVelocity.angVel()
+
+        return orientationMag*100 + positionMag
+
+    def __eq__(self, iRBS2):
+        try:
+            properties = [ self.position, self.velocity, self.orientation, self.angularVelocity ]
+            otherProperties = [ iRBS2.position, iRBS2.velocity, iRBS2.orientation, iRBS2.angularVelocity ]
+            return all([ x == y for (x,y) in zip(properties, otherProperties) ])
+        except AttributeError:
+            return False
+
+    ### String Functions ###
+    def getLogHeader(self):
+        return &#34; PositionX(m) PositionY(m) PositionZ(m) VelocityX(m/s) VelocityY(m/s) VelocityZ(m/s) OrientationQuat0 OrientationQuat1 OrientationQuat2 OrientationQuat3 AngularVelocityX(rad/s) AngularVelocityY(rad/s) AngularVelocityZ(rad/s)&#34;
+
+    def __str__(self):
+        &#39;&#39;&#39; Called by print function &#39;&#39;&#39;
+        return &#34; {:&gt;10.3f} {:&gt;10.4f} {:&gt;11.7f} {:&gt;9.4f}&#34;.format(self.position, self.velocity, self.orientation, self.angularVelocity)
+
+    ### Wrapper/Thin functions ###
+    def __neg__(self):
+        return RigidBodyState(self.position*-1, self.velocity*-1, self.orientation.conjugate(), self.angularVelocity*-1)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.RigidBodyState.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; PositionX(m) PositionY(m) PositionZ(m) VelocityX(m/s) VelocityY(m/s) VelocityZ(m/s) OrientationQuat0 OrientationQuat1 OrientationQuat2 OrientationQuat3 AngularVelocityX(rad/s) AngularVelocityY(rad/s) AngularVelocityZ(rad/s)&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBodyStateDerivative"><code class="flex name class">
+<span>class <span class="ident">RigidBodyStateDerivative</span></span>
+<span>(</span><span>velocity, acceleration, angularVelocity, angularAccel)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RigidBodyStateDerivative():
+    def __init__(self, velocity, acceleration, angularVelocity, angularAccel):
+        self.velocity = velocity
+        self.acceleration = acceleration
+        self.angularVelocity = angularVelocity
+        self.angularAccel = angularAccel
+
+    def __add__(self, state2):
+        &#39;&#39;&#39; Used in: initVal {+} (timeStep * slope) &#39;&#39;&#39;
+        newVel = self.velocity + state2.velocity
+        newAccel = self.acceleration + state2.acceleration
+        newAngVel = self.angularVelocity + state2.angularVelocity
+        newAngAccel = self.angularAccel + state2.angularAccel
+        
+        return RigidBodyStateDerivative(newVel, newAccel, newAngVel, newAngAccel)
+
+    def __mul__(self, timeStep):
+        &#39;&#39;&#39;
+            Used in: timeStep {*} slope
+            Expected to always be multiplied by a scalar, timestep
+            Returns integrated change in rigid body state over given time step
+        &#39;&#39;&#39;
+        timeStep = float(timeStep)
+
+        dPos = self.velocity * timeStep
+        dVel = self.acceleration * timeStep
+        dOrientation = (self.angularVelocity * timeStep).toQuaternion()
+        dOrientation.normalize()
+        dAngVel = self.angularAccel * timeStep
+
+        # After integration over a time step, get a regular rigid body state back
+        return RigidBodyState(dPos, dVel, dOrientation, dAngVel)
+
+    def __truediv__(self, invScalar):
+        &#39;&#39;&#39; 
+            Used in (k1 + k4) {/} 2 
+            Does not &#39;integrate&#39; the result to make a rigidBodyState, returns a new rigidBodyStateDerivative
+        &#39;&#39;&#39;
+        invScalar = 1/float(invScalar)
+
+        vel = self.velocity * invScalar
+        accel = self.acceleration * invScalar
+        angVel = self.angularVelocity * invScalar
+        angAccel = self.angularAccel * invScalar
+
+        return RigidBodyStateDerivative(vel, accel, angVel, angAccel)
+
+    def __abs__(self):
+        &#39;&#39;&#39; Used to quantify the difference between two RigidBodyStates as a scalar value during error estimation in adaptive time stepping methods &#39;&#39;&#39;
+
+        # positionMag = self.position.length() + self.velocity.length()
+
+        orientationMag = self.angularVelocity.angVel() + self.angularAccel.angVel()
+
+        return orientationMag*100
+
+    def __eq__(self, state2):
+        try:
+            properties = [ self.velocity, self.acceleration, self.angularVelocity, self.angularAccel ]
+            otherProperties = [ state2.velocity, state2.acceleration, state2.angularVelocity, state2.angularAccel ]
+            return all([ x == y for (x,y) in zip(properties, otherProperties) ])
+        except AttributeError:
+            return False
+
+    ### Wrapper/Thin functions ###
+    def __rmul__(self, scalar):
+        return self * scalar</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBodyStateDerivative_3DoF"><code class="flex name class">
+<span>class <span class="ident">RigidBodyStateDerivative_3DoF</span></span>
+<span>(</span><span>velocity, acceleration)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RigidBodyStateDerivative_3DoF():
+    def __init__(self, velocity, acceleration):
+        self.velocity = velocity
+        self.acceleration = acceleration
+
+    def __add__(self, rigidBodyState2):
+        &#39;&#39;&#39; Used in: initVal {+} timeStep * slope &#39;&#39;&#39;
+        newPos = self.velocity + rigidBodyState2.velocity
+        newVel = self.acceleration + rigidBodyState2.acceleration
+        
+        return RigidBodyStateDerivative_3DoF(newPos, newVel)
+
+    def __mul__(self, timeStep):
+        &#39;&#39;&#39; Used in: initVal + timeStep {*} slope &#39;&#39;&#39;
+        timeStep = float(timeStep)
+        dPos = self.velocity * timeStep
+        dVel = self.acceleration * timeStep
+
+        # After multiplying by a timestep, we get a regular (integrated) rigid body state back
+        return RigidBodyState_3DoF(dPos, dVel)
+
+    def __truediv__(self, invScalar):
+        &#39;&#39;&#39; 
+            Used in (k1 + k4) {/} 2 
+            Does not &#39;integrate&#39; the result to make a rigidBodyState, returns a new rigidBodyStateDerivative
+        &#39;&#39;&#39;
+        invScalar = 1/float(invScalar)
+
+        vel = self.velocity * invScalar
+        accel = self.acceleration * invScalar
+
+        return RigidBodyStateDerivative_3DoF(vel, accel)
+
+    ### Wrapper/Thin functions ###
+    def __rmul__(self, scalar):
+        return self * scalar</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBodyState_3DoF"><code class="flex name class">
+<span>class <span class="ident">RigidBodyState_3DoF</span></span>
+<span>(</span><span>position, velocity)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
+Pos/Vel are expected to be Vectors - Defined with reference to the global frame</p>
+<p>Adding rigidBodyStates adds the vectors</p>
+<p>Multiplying an rigidBodyState by a scalar scales the vectors
+0.5 *
+= half the vector length</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RigidBodyState_3DoF():
+    &#34;&#34;&#34; Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
+            Pos/Vel are expected to be Vectors - Defined with reference to the global frame
+
+        Adding rigidBodyStates adds the vectors
+
+        Multiplying an rigidBodyState by a scalar scales the vectors
+            0.5 *  = half the vector length
+    &#34;&#34;&#34;
+    def __init__(self, position, velocity):
+        self.position = position
+        self.velocity = velocity
+
+    def __add__(self, rigidBodyState2):
+        &#39;&#39;&#39; Used in: initVal {+} timeStep * slope &#39;&#39;&#39;
+        newPos = self.position + rigidBodyState2.position
+        newVel = self.velocity + rigidBodyState2.velocity
+        
+        return RigidBodyState_3DoF(newPos, newVel)
+
+    def __mul__(self, scalar):
+        &#39;&#39;&#39; Used to negate the rigid body state for subtractions &#39;&#39;&#39;
+        scalar = float(scalar)
+        newPos = self.position * scalar
+        newVel = self.velocity * scalar
+
+        return RigidBodyState_3DoF(newPos, newVel)
+
+    def __abs__(self):
+        &#39;&#39;&#39; Used to quantify the difference between two RigidBodyStates as a scalar value during error estimation in adaptive time stepping methods &#39;&#39;&#39;
+        #TODO: Ensure this scales properly with the version in the 6DoF IntegratbleRigidBodyState __abs__ function
+
+        return self.position.length() + self.velocity.length()
+
+    ### String Functions ###
+    def getLogHeader(self):
+        return &#34; PositionX(m) PositionY(m) PositionZ(m) VelocityX(m/s) VelocityY(m/s) VelocityZ(m/s)&#34;
+
+    def __str__(self):
+        &#39;&#39;&#39; Called by print &#39;&#39;&#39;
+        return &#34; {:&gt;10.3f} {:&gt;10.4f}&#34;.format(self.position, self.velocity)
+
+    def __neg__(self):
+        return self*-1</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.RigidBodyState_3DoF.getLogHeader"><code class="name flex">
+<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getLogHeader(self):
+    return &#34; PositionX(m) PositionY(m) PositionZ(m) VelocityX(m/s) VelocityY(m/s) VelocityZ(m/s)&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBody_3DoF"><code class="flex name class">
+<span>class <span class="ident">RigidBody_3DoF</span></span>
+<span>(</span><span>rigidBodyState, forceParam, inertiaParam, startTime=0, integrationMethod='Euler', discardedTimeStepCallback=None, simDefinition=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Interface:</p>
+<h3 id="properties">Properties</h3>
+<p>.state = RigidBodyState (pos, vel, orientation, angVel)
+.time = currentSimTime</p>
+<h3 id="methods">Methods</h3>
+<p>.timeStep(deltaT) -&gt; advances simulation by deltaT</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RigidBody_3DoF:
+    &#34;&#34;&#34;Interface:
+        ### Properties ###
+        .state = RigidBodyState (pos, vel, orientation, angVel)
+        .time = currentSimTime
+        
+        ### Methods ###
+        .timeStep(deltaT) -&gt; advances simulation by deltaT
+    &#34;&#34;&#34;
+    
+    &#39;&#39;&#39; forceParam and inertiaParam should be functions, they will be passed:
+            1) Simulation Time
+            2) RigidBodyState object containing the rigidBody&#39;s Position, Velocity, Orientation and AngularVelocity
+        Functions are expected to return:
+            1) forceParam: A Force object containing the total force and moment applied to the rigidBody at it&#39;s CG location in the local frame of reference
+            2) inertiaParam: An Inertia object containing the mass of the object (other fields ignored)
+                If the rigid body is representing a CompositeObject, pass in a reference to the getMass function here
+    &#39;&#39;&#39;
+    def __init__(self, rigidBodyState, forceParam, inertiaParam, startTime=0, integrationMethod=&#34;Euler&#34;, discardedTimeStepCallback=None, simDefinition=None):
+        self.time = startTime
+        self.state = rigidBodyState
+        
+        self.forceFunc = forceParam
+        self.inertiaFunc = inertiaParam
+          
+        self.integrate = integratorFactory(integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
+
+    def rigidBodyStateDerivative(self, time, state):
+        force = self.forceFunc(time, state).force
+        
+        DposDt = state.velocity
+        DvelDt = force / self.inertiaFunc(time, state)
+
+        return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
+
+    def timeStep(self, deltaT):
+        self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+        self.time += deltaT
+        return timeStepAdaptionFactor, deltaT</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Motion.RigidBodies.RigidBody" href="RigidBodies.html#MAPLEAF.Motion.RigidBodies.RigidBody">RigidBody</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.RigidBody_3DoF.rigidBodyStateDerivative"><code class="name flex">
+<span>def <span class="ident">rigidBodyStateDerivative</span></span>(<span>self, time, state)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rigidBodyStateDerivative(self, time, state):
+    force = self.forceFunc(time, state).force
+    
+    DposDt = state.velocity
+    DvelDt = force / self.inertiaFunc(time, state)
+
+    return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.RigidBody_3DoF.timeStep"><code class="name flex">
+<span>def <span class="ident">timeStep</span></span>(<span>self, deltaT)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def timeStep(self, deltaT):
+    self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+    self.time += deltaT
+    return timeStepAdaptionFactor, deltaT</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.Motion.Vector"><code class="flex name class">
+<span>class <span class="ident">Vector</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Can be initialized by passing in three numeric components or a single string (ex: "(0, 1, 2)" ) containing numeric values separated by ', ' or ' ', or ';', or '; '
+and enclosed by () or {} or [] or no brackets.
+To initialize from an iterable, unpack the iterable into the constructor with an asterisk:
+a = np.array([1,2,3])
+b = Vector(*a)</p></div>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity" href="CythonAngularVelocity.html#MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity">AngularVelocity</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Vector.X"><code class="name">var <span class="ident">X</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Vector.Y"><code class="name">var <span class="ident">Y</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Vector.Z"><code class="name">var <span class="ident">Z</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.Motion.Vector.angle"><code class="name flex">
+<span>def <span class="ident">angle</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the angle between two vectors, always &lt;= 180 degrees</p></div>
+</dd>
+<dt id="MAPLEAF.Motion.Vector.crossProduct"><code class="name flex">
+<span>def <span class="ident">crossProduct</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Motion.Vector.length"><code class="name flex">
+<span>def <span class="ident">length</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.Motion.Vector.normalize"><code class="name flex">
+<span>def <span class="ident">normalize</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a unit vector pointing in the same direction as the current Vector</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -141,16 +1565,120 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="MAPLEAF.Motion.CompositeObject" href="CompositeObject.html">MAPLEAF.Motion.CompositeObject</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AeroParameters" href="AeroParameters.html">MAPLEAF.Motion.AeroParameters</a></code></li>
 <li><code><a title="MAPLEAF.Motion.CythonAngularVelocity" href="CythonAngularVelocity.html">MAPLEAF.Motion.CythonAngularVelocity</a></code></li>
 <li><code><a title="MAPLEAF.Motion.CythonQuaternion" href="CythonQuaternion.html">MAPLEAF.Motion.CythonQuaternion</a></code></li>
 <li><code><a title="MAPLEAF.Motion.CythonVector" href="CythonVector.html">MAPLEAF.Motion.CythonVector</a></code></li>
-<li><code><a title="MAPLEAF.Motion.ForceMomentSystem" href="ForceMomentSystem.html">MAPLEAF.Motion.ForceMomentSystem</a></code></li>
-<li><code><a title="MAPLEAF.Motion.Inertia" href="Inertia.html">MAPLEAF.Motion.Inertia</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Integration" href="Integration.html">MAPLEAF.Motion.Integration</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Interpolation" href="Interpolation.html">MAPLEAF.Motion.Interpolation</a></code></li>
-<li><code><a title="MAPLEAF.Motion.RigidBody" href="RigidBody.html">MAPLEAF.Motion.RigidBody</a></code></li>
+<li><code><a title="MAPLEAF.Motion.RigidBodies" href="RigidBodies.html">MAPLEAF.Motion.RigidBodies</a></code></li>
 <li><code><a title="MAPLEAF.Motion.RigidBodyStates" href="RigidBodyStates.html">MAPLEAF.Motion.RigidBodyStates</a></code></li>
+<li><code><a title="MAPLEAF.Motion.forceMomentSystem" href="forceMomentSystem.html">MAPLEAF.Motion.forceMomentSystem</a></code></li>
+<li><code><a title="MAPLEAF.Motion.inertia" href="inertia.html">MAPLEAF.Motion.inertia</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.calculateCubicInterpCoefficients" href="#MAPLEAF.Motion.calculateCubicInterpCoefficients">calculateCubicInterpCoefficients</a></code></li>
+<li><code><a title="MAPLEAF.Motion.cubicInterp" href="#MAPLEAF.Motion.cubicInterp">cubicInterp</a></code></li>
+<li><code><a title="MAPLEAF.Motion.integratorFactory" href="#MAPLEAF.Motion.integratorFactory">integratorFactory</a></code></li>
+<li><code><a title="MAPLEAF.Motion.interpolateRigidBodyStates" href="#MAPLEAF.Motion.interpolateRigidBodyStates">interpolateRigidBodyStates</a></code></li>
+<li><code><a title="MAPLEAF.Motion.linInterp" href="#MAPLEAF.Motion.linInterp">linInterp</a></code></li>
+<li><code><a title="MAPLEAF.Motion.linInterpWeights" href="#MAPLEAF.Motion.linInterpWeights">linInterpWeights</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Motion.AngularVelocity" href="#MAPLEAF.Motion.AngularVelocity">AngularVelocity</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.AngularVelocity.angVel" href="#MAPLEAF.Motion.AngularVelocity.angVel">angVel</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AngularVelocity.rotationAxis" href="#MAPLEAF.Motion.AngularVelocity.rotationAxis">rotationAxis</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AngularVelocity.toQuaternion" href="#MAPLEAF.Motion.AngularVelocity.toQuaternion">toQuaternion</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.ForceMomentSystem" href="#MAPLEAF.Motion.ForceMomentSystem">ForceMomentSystem</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.ForceMomentSystem.force" href="#MAPLEAF.Motion.ForceMomentSystem.force">force</a></code></li>
+<li><code><a title="MAPLEAF.Motion.ForceMomentSystem.getAt" href="#MAPLEAF.Motion.ForceMomentSystem.getAt">getAt</a></code></li>
+<li><code><a title="MAPLEAF.Motion.ForceMomentSystem.location" href="#MAPLEAF.Motion.ForceMomentSystem.location">location</a></code></li>
+<li><code><a title="MAPLEAF.Motion.ForceMomentSystem.moment" href="#MAPLEAF.Motion.ForceMomentSystem.moment">moment</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.Inertia" href="#MAPLEAF.Motion.Inertia">Inertia</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.Inertia.checkDefinedAboutCG" href="#MAPLEAF.Motion.Inertia.checkDefinedAboutCG">checkDefinedAboutCG</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Inertia.combineInertias" href="#MAPLEAF.Motion.Inertia.combineInertias">combineInertias</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Inertia.combineInertiasAboutPoint" href="#MAPLEAF.Motion.Inertia.combineInertiasAboutPoint">combineInertiasAboutPoint</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.Quaternion" href="#MAPLEAF.Motion.Quaternion">Quaternion</a></code></h4>
+<ul class="two-column">
+<li><code><a title="MAPLEAF.Motion.Quaternion.Q0" href="#MAPLEAF.Motion.Quaternion.Q0">Q0</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.Q1" href="#MAPLEAF.Motion.Quaternion.Q1">Q1</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.Q2" href="#MAPLEAF.Motion.Quaternion.Q2">Q2</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.Q3" href="#MAPLEAF.Motion.Quaternion.Q3">Q3</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.conjugate" href="#MAPLEAF.Motion.Quaternion.conjugate">conjugate</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.dotProduct" href="#MAPLEAF.Motion.Quaternion.dotProduct">dotProduct</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.inverse" href="#MAPLEAF.Motion.Quaternion.inverse">inverse</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.norm" href="#MAPLEAF.Motion.Quaternion.norm">norm</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.normalize" href="#MAPLEAF.Motion.Quaternion.normalize">normalize</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.plotRotation" href="#MAPLEAF.Motion.Quaternion.plotRotation">plotRotation</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.rotate" href="#MAPLEAF.Motion.Quaternion.rotate">rotate</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.rotationAngle" href="#MAPLEAF.Motion.Quaternion.rotationAngle">rotationAngle</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.rotationAxis" href="#MAPLEAF.Motion.Quaternion.rotationAxis">rotationAxis</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.scaleRotation" href="#MAPLEAF.Motion.Quaternion.scaleRotation">scaleRotation</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.slerp" href="#MAPLEAF.Motion.Quaternion.slerp">slerp</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.toEulerAngles" href="#MAPLEAF.Motion.Quaternion.toEulerAngles">toEulerAngles</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Quaternion.toRotationVector" href="#MAPLEAF.Motion.Quaternion.toRotationVector">toRotationVector</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.RigidBody" href="#MAPLEAF.Motion.RigidBody">RigidBody</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.RigidBody.rigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBody.rigidBodyStateDerivative">rigidBodyStateDerivative</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.RigidBodyState" href="#MAPLEAF.Motion.RigidBodyState">RigidBodyState</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.RigidBodyState.getLogHeader" href="#MAPLEAF.Motion.RigidBodyState.getLogHeader">getLogHeader</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.RigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBodyStateDerivative">RigidBodyStateDerivative</a></code></h4>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.RigidBodyStateDerivative_3DoF" href="#MAPLEAF.Motion.RigidBodyStateDerivative_3DoF">RigidBodyStateDerivative_3DoF</a></code></h4>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.RigidBodyState_3DoF" href="#MAPLEAF.Motion.RigidBodyState_3DoF">RigidBodyState_3DoF</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.RigidBodyState_3DoF.getLogHeader" href="#MAPLEAF.Motion.RigidBodyState_3DoF.getLogHeader">getLogHeader</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.RigidBody_3DoF" href="#MAPLEAF.Motion.RigidBody_3DoF">RigidBody_3DoF</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.RigidBody_3DoF.rigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBody_3DoF.rigidBodyStateDerivative">rigidBodyStateDerivative</a></code></li>
+<li><code><a title="MAPLEAF.Motion.RigidBody_3DoF.timeStep" href="#MAPLEAF.Motion.RigidBody_3DoF.timeStep">timeStep</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.Vector" href="#MAPLEAF.Motion.Vector">Vector</a></code></h4>
+<ul class="two-column">
+<li><code><a title="MAPLEAF.Motion.Vector.X" href="#MAPLEAF.Motion.Vector.X">X</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Vector.Y" href="#MAPLEAF.Motion.Vector.Y">Y</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Vector.Z" href="#MAPLEAF.Motion.Vector.Z">Z</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Vector.angle" href="#MAPLEAF.Motion.Vector.angle">angle</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Vector.crossProduct" href="#MAPLEAF.Motion.Vector.crossProduct">crossProduct</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Vector.length" href="#MAPLEAF.Motion.Vector.length">length</a></code></li>
+<li><code><a title="MAPLEAF.Motion.Vector.normalize" href="#MAPLEAF.Motion.Vector.normalize">normalize</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

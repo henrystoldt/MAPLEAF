@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.Motion.RigidBody API documentation</title>
+<title>MAPLEAF.Motion.RigidBodies API documentation</title>
 <meta name="description" content="Classes that represent 3- and 6-DoF rigid bodies.
 Rigid body classes contain the logic for calculating rigid body state derivatives, given current …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -17,14 +17,14 @@ Rigid body classes contain the logic for calculating rigid body state derivative
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Motion/RigidBody.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Motion/RigidBodies.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.Motion.RigidBody</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Motion.RigidBodies</code></h1>
 </header>
 <section id="section-intro">
 <p>Classes that represent 3- and 6-DoF rigid bodies.
@@ -38,14 +38,10 @@ Classes that represent 3- and 6-DoF rigid bodies.
 Rigid body classes contain the logic for calculating rigid body state derivatives, given current applied forces and inertia of the rigid body
 &#34;&#34;&#34;
 
-from collections import namedtuple
+from MAPLEAF.Motion import (AngularVelocity, RigidBodyStateDerivative,
+                            RigidBodyStateDerivative_3DoF, integratorFactory)
 
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.Integration import integratorFactory
-from MAPLEAF.Motion.RigidBodyStates import (RigidBodyState, RigidBodyStateDerivative,
-                             RigidBodyStateDerivative_3DoF)
-from MAPLEAF.Motion.CythonVector import Vector
+__all__ = [ &#34;RigidBody_3DoF&#34;, &#34;RigidBody&#34; ]
 
 #### 3 DoF ####
 class RigidBody_3DoF:
@@ -150,7 +146,7 @@ class RigidBody(RigidBody_3DoF):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.Motion.RigidBody.RigidBody"><code class="flex name class">
+<dt id="MAPLEAF.Motion.RigidBodies.RigidBody"><code class="flex name class">
 <span>class <span class="ident">RigidBody</span></span>
 <span>(</span><span>rigidBodyState, forceParam, inertiaParam, integrationMethod='Euler', discardedTimeStepCallback=None, simDefinition=None)</span>
 </code></dt>
@@ -223,11 +219,11 @@ class RigidBody(RigidBody_3DoF):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Motion.RigidBody.RigidBody_3DoF" href="#MAPLEAF.Motion.RigidBody.RigidBody_3DoF">RigidBody_3DoF</a></li>
+<li><a title="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF" href="#MAPLEAF.Motion.RigidBodies.RigidBody_3DoF">RigidBody_3DoF</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Motion.RigidBody.RigidBody.rigidBodyStateDerivative"><code class="name flex">
+<dt id="MAPLEAF.Motion.RigidBodies.RigidBody.rigidBodyStateDerivative"><code class="name flex">
 <span>def <span class="ident">rigidBodyStateDerivative</span></span>(<span>self, time, state)</span>
 </code></dt>
 <dd>
@@ -267,7 +263,7 @@ class RigidBody(RigidBody_3DoF):
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.Motion.RigidBody.RigidBody_3DoF"><code class="flex name class">
+<dt id="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF"><code class="flex name class">
 <span>class <span class="ident">RigidBody_3DoF</span></span>
 <span>(</span><span>rigidBodyState, forceParam, inertiaParam, startTime=0, integrationMethod='Euler', discardedTimeStepCallback=None, simDefinition=None)</span>
 </code></dt>
@@ -324,11 +320,11 @@ class RigidBody(RigidBody_3DoF):
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></li>
+<li><a title="MAPLEAF.Motion.RigidBodies.RigidBody" href="#MAPLEAF.Motion.RigidBodies.RigidBody">RigidBody</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Motion.RigidBody.RigidBody_3DoF.rigidBodyStateDerivative"><code class="name flex">
+<dt id="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.rigidBodyStateDerivative"><code class="name flex">
 <span>def <span class="ident">rigidBodyStateDerivative</span></span>(<span>self, time, state)</span>
 </code></dt>
 <dd>
@@ -346,7 +342,7 @@ class RigidBody(RigidBody_3DoF):
     return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Motion.RigidBody.RigidBody_3DoF.timeStep"><code class="name flex">
+<dt id="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.timeStep"><code class="name flex">
 <span>def <span class="ident">timeStep</span></span>(<span>self, deltaT)</span>
 </code></dt>
 <dd>
@@ -386,16 +382,16 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code></h4>
+<h4><code><a title="MAPLEAF.Motion.RigidBodies.RigidBody" href="#MAPLEAF.Motion.RigidBodies.RigidBody">RigidBody</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Motion.RigidBody.RigidBody.rigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBody.RigidBody.rigidBodyStateDerivative">rigidBodyStateDerivative</a></code></li>
+<li><code><a title="MAPLEAF.Motion.RigidBodies.RigidBody.rigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBodies.RigidBody.rigidBodyStateDerivative">rigidBodyStateDerivative</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.Motion.RigidBody.RigidBody_3DoF" href="#MAPLEAF.Motion.RigidBody.RigidBody_3DoF">RigidBody_3DoF</a></code></h4>
+<h4><code><a title="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF" href="#MAPLEAF.Motion.RigidBodies.RigidBody_3DoF">RigidBody_3DoF</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Motion.RigidBody.RigidBody_3DoF.rigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBody.RigidBody_3DoF.rigidBodyStateDerivative">rigidBodyStateDerivative</a></code></li>
-<li><code><a title="MAPLEAF.Motion.RigidBody.RigidBody_3DoF.timeStep" href="#MAPLEAF.Motion.RigidBody.RigidBody_3DoF.timeStep">timeStep</a></code></li>
+<li><code><a title="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.rigidBodyStateDerivative" href="#MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.rigidBodyStateDerivative">rigidBodyStateDerivative</a></code></li>
+<li><code><a title="MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.timeStep" href="#MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.timeStep">timeStep</a></code></li>
 </ul>
 </li>
 </ul>

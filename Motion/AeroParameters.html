@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.Motion.AeroParameters API documentation</title>
+<meta name="description" content="Defines functions to calculate the Mach and Re numbers, angles of attack, etc...
+Several have a standardized interface, and are used for control gain …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Motion/AeroParameters.html">
+<link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.Motion.AeroParameters</code></h1>
+</header>
+<section id="section-intro">
+<p>Defines functions to calculate the Mach and Re numbers, angles of attack, etc&hellip;
+Several have a standardized interface, and are used for control gain interpolations in <code><a title="MAPLEAF.GNC" href="../GNC/index.html">MAPLEAF.GNC</a></code></p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39;
+Defines functions to calculate the Mach and Re numbers, angles of attack, etc...
+Several have a standardized interface, and are used for control gain interpolations in `MAPLEAF.GNC`
+&#39;&#39;&#39;
+import math
+
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Utilities import cacheLastResult
+
+
+def getAltitude(state, environment, _=None):
+    return environment.ASLAltitude
+
+@cacheLastResult
+def getMachNumber(state, environment, _=None):
+    # Otherwise compute and cache the result
+    airVel = state.velocity - environment.Wind
+    Ma = airVel.length() / math.sqrt(1.4 * 287 * environment.Temp)    #TODO: Get gamma and R from default dict / config file
+    return Ma
+
+@cacheLastResult
+def getReynoldsNumber(state, environment, length):
+    unitRe = getLocalFrameAirVel(state, environment).length() * environment.Density / environment.DynamicViscosity
+    return unitRe * length
+
+@cacheLastResult
+def getTotalAOA(state, environment, _=None):
+    &#39;&#39;&#39; Returns the **magnitude** of the angle between the local-frame wind vector and longitudinal axis, in degrees &#39;&#39;&#39;
+    localFrameAirVel = getLocalFrameAirVel(state, environment)
+
+    if localFrameAirVel.length() == 0:
+        AOA = 0
+    else:
+        AOA = localFrameAirVel.angle(Vector(0,0,-1))
+
+    return AOA
+
+def getAOA(state, environment, _=None):
+    &#39;&#39;&#39; 
+        Returns angle of attack (between the local Z-X plane and the airspeed vector)
+        Measures rotations about the local +y axis (compared to wind-aligned state)
+    &#39;&#39;&#39;
+    localFrameAirVel = getLocalFrameAirVel(state, environment)
+
+    if localFrameAirVel.length() == 0:
+        return 0
+
+    # Zero out the Y-component (Sideslip component)
+    localFrameAirVel.Y = 0
+    
+    # Compute angle with longitudinal axis
+    if localFrameAirVel.X &gt; 0:
+        return localFrameAirVel.angle(Vector(0,0,-1))
+    else:
+        return -localFrameAirVel.angle(Vector(0,0,-1))
+
+def getAOSS(state, environment, _=None):
+    &#39;&#39;&#39; 
+        Returns angle of sideslip (between the local Z-Y plane and the airspeed vector)
+        Measures rotations about the local +z axis (compared to wind-aligned state)
+    &#39;&#39;&#39;
+    localFrameAirVel = getLocalFrameAirVel(state, environment)
+
+    if localFrameAirVel.length() == 0:
+        return 0
+
+    # Zero out the X-component (AOA component)
+    localFrameAirVel.X = 0
+
+    # Compute angle with longitudinal axis
+    if localFrameAirVel.Y &lt; 0:
+        return localFrameAirVel.angle(Vector(0,0,-1))
+    else:
+        return -localFrameAirVel.angle(Vector(0,0,-1))
+
+@cacheLastResult
+def getRollAngle(state, environment, _=None):
+    &#39;&#39;&#39; 
+        Returns the angular distance between axis about which the rocket rotates to create an angle of attack, and the X-axis, in degrees
+        If the normal force direction is aligned with the y-axis, roll angle = 0
+        If the normal force direction is aligned with the x-axis, roll angle = 90 degrees
+    &#39;&#39;&#39;
+
+    # TODO: Convert this to using radians
+    normalAeroForceDirection = getNormalAeroForceDirection(state, environment)
+    y = normalAeroForceDirection*(-1)
+    if(y.length() &lt; 0.01): #Check for when there is a zero angle of attack (Numerical issue)
+        rollAngle = 0
+    else:
+        rollAngle = math.degrees(math.atan2(-y.Y, y.X))
+        rollAngle = (-1)*rollAngle
+        rollAngle %= 360
+
+    return rollAngle
+
+def getAeroPropertiesList(aeroFunctionList, state, environment):
+    &#39;&#39;&#39;
+        Returns a vector of parameters specified by strings - used for interpolating by user-specified parameters
+
+        aeroFunctionVector:     vector of references to standardized-interface functions below
+        state:                  rocket rigid body state
+        environment:            environmentalConditions named tuple
+    &#39;&#39;&#39;
+    aeroProperties = []
+    for fn in aeroFunctionList:
+        aeroProperties.append(fn(state, environment, 1))
+
+    return aeroProperties
+
+stringToAeroFunctionMap = {
+    # This defines the relationship between strings obtained from sim config files,
+        # To functions that obtain some parameter, often used for interpolation of tabulated properties
+        # Use by control systems, TabulatedAeroForce, and TabulatedInertia objects
+    &#34;Mach&#34;:         getMachNumber,
+    &#34;Altitude&#34;:     getAltitude,
+    &#34;UnitReynolds&#34;: getReynoldsNumber,
+    &#34;TotalAOA&#34;:     getTotalAOA,
+    &#34;RollAngle&#34;:    getRollAngle,
+    &#34;AOA&#34;:          getAOA,
+    &#34;AOSS&#34;:         getAOSS
+}
+
+
+
+#### Other Functions ####
+@cacheLastResult
+def getLocalFrameAirVel(state, environment):
+    &#39;&#39;&#39; Returns the vector representing the motion of freestream air relative to the rocket, in the rocket frame &#39;&#39;&#39;
+    return state.orientation.conjugate().rotate(state.velocity - environment.Wind)*-1
+
+def getAirVelRelativeToVehicle(state, environment):
+    &#39;&#39;&#39; 3DoF version of getLocalFrameAirVel &#39;&#39;&#39;
+    return (state.velocity - environment.Wind) * -1
+
+@cacheLastResult
+def getNormalAeroForceDirection(state, environment):
+    localFrameAirVel = getLocalFrameAirVel(state, environment)
+    if localFrameAirVel[0] == 0.0 and localFrameAirVel[1] == 0.0:
+        # Return random vector if AOA == 0 - force will be zero anyhow
+        return Vector(1,0,0)
+    else:
+        return Vector(localFrameAirVel[0], localFrameAirVel[1], 0).normalize()
+
+@cacheLastResult
+def getDynamicPressure(state, environment):
+    try:
+        velMag = getLocalFrameAirVel(state, environment).length()
+    except AttributeError:
+        #3DoF mode
+        velMag = getAirVelRelativeToVehicle(state, environment).length()
+
+    return velMag*velMag * environment.Density / 2
+
+@cacheLastResult
+def getBeta(Mach):
+    #Define the compressibility factor depending on if we are subsonic or supersonic, if we are at M = 1 we set
+    #the compressibility factor to a hardcoded literal close to zero (equations break if not)
+    if Mach &lt;= 0.9: 
+        return math.sqrt(1 - Mach**2) #Compressibility correction factor for subsonic flow
+    elif Mach &gt;= 1.1:
+        return math.sqrt(Mach**2 - 1) #For supersonic flow
+    else:
+        raise NotImplementedError(&#34;Beta not valid in the range 0.9 &lt; M &lt; 1.1 - goes to infinity&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.Motion.AeroParameters.getAOA"><code class="name flex">
+<span>def <span class="ident">getAOA</span></span>(<span>state, environment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns angle of attack (between the local Z-X plane and the airspeed vector)
+Measures rotations about the local +y axis (compared to wind-aligned state)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAOA(state, environment, _=None):
+    &#39;&#39;&#39; 
+        Returns angle of attack (between the local Z-X plane and the airspeed vector)
+        Measures rotations about the local +y axis (compared to wind-aligned state)
+    &#39;&#39;&#39;
+    localFrameAirVel = getLocalFrameAirVel(state, environment)
+
+    if localFrameAirVel.length() == 0:
+        return 0
+
+    # Zero out the Y-component (Sideslip component)
+    localFrameAirVel.Y = 0
+    
+    # Compute angle with longitudinal axis
+    if localFrameAirVel.X &gt; 0:
+        return localFrameAirVel.angle(Vector(0,0,-1))
+    else:
+        return -localFrameAirVel.angle(Vector(0,0,-1))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.AeroParameters.getAOSS"><code class="name flex">
+<span>def <span class="ident">getAOSS</span></span>(<span>state, environment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns angle of sideslip (between the local Z-Y plane and the airspeed vector)
+Measures rotations about the local +z axis (compared to wind-aligned state)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAOSS(state, environment, _=None):
+    &#39;&#39;&#39; 
+        Returns angle of sideslip (between the local Z-Y plane and the airspeed vector)
+        Measures rotations about the local +z axis (compared to wind-aligned state)
+    &#39;&#39;&#39;
+    localFrameAirVel = getLocalFrameAirVel(state, environment)
+
+    if localFrameAirVel.length() == 0:
+        return 0
+
+    # Zero out the X-component (AOA component)
+    localFrameAirVel.X = 0
+
+    # Compute angle with longitudinal axis
+    if localFrameAirVel.Y &lt; 0:
+        return localFrameAirVel.angle(Vector(0,0,-1))
+    else:
+        return -localFrameAirVel.angle(Vector(0,0,-1))</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.AeroParameters.getAeroPropertiesList"><code class="name flex">
+<span>def <span class="ident">getAeroPropertiesList</span></span>(<span>aeroFunctionList, state, environment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a vector of parameters specified by strings - used for interpolating by user-specified parameters</p>
+<p>aeroFunctionVector:
+vector of references to standardized-interface functions below
+state:
+rocket rigid body state
+environment:
+environmentalConditions named tuple</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAeroPropertiesList(aeroFunctionList, state, environment):
+    &#39;&#39;&#39;
+        Returns a vector of parameters specified by strings - used for interpolating by user-specified parameters
+
+        aeroFunctionVector:     vector of references to standardized-interface functions below
+        state:                  rocket rigid body state
+        environment:            environmentalConditions named tuple
+    &#39;&#39;&#39;
+    aeroProperties = []
+    for fn in aeroFunctionList:
+        aeroProperties.append(fn(state, environment, 1))
+
+    return aeroProperties</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.AeroParameters.getAirVelRelativeToVehicle"><code class="name flex">
+<span>def <span class="ident">getAirVelRelativeToVehicle</span></span>(<span>state, environment)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>3DoF version of getLocalFrameAirVel</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAirVelRelativeToVehicle(state, environment):
+    &#39;&#39;&#39; 3DoF version of getLocalFrameAirVel &#39;&#39;&#39;
+    return (state.velocity - environment.Wind) * -1</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Motion.AeroParameters.getAltitude"><code class="name flex">
+<span>def <span class="ident">getAltitude</span></span>(<span>state, environment)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAltitude(state, environment, _=None):
+    return environment.ASLAltitude</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="MAPLEAF Home" href="https://henrystoldt.github.io/MAPLEAF/">
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png" alt="Logo" width=75/>
+MAPLEAF
+</a>
+</header>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.Motion" href="index.html">MAPLEAF.Motion</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.AeroParameters.getAOA" href="#MAPLEAF.Motion.AeroParameters.getAOA">getAOA</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AeroParameters.getAOSS" href="#MAPLEAF.Motion.AeroParameters.getAOSS">getAOSS</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AeroParameters.getAeroPropertiesList" href="#MAPLEAF.Motion.AeroParameters.getAeroPropertiesList">getAeroPropertiesList</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AeroParameters.getAirVelRelativeToVehicle" href="#MAPLEAF.Motion.AeroParameters.getAirVelRelativeToVehicle">getAirVelRelativeToVehicle</a></code></li>
+<li><code><a title="MAPLEAF.Motion.AeroParameters.getAltitude" href="#MAPLEAF.Motion.AeroParameters.getAltitude">getAltitude</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

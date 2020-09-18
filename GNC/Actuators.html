@@ -41,8 +41,9 @@ from math import e
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Motion import AeroParameters
 
+__all__ = [ &#34;TableInterpolatingActuatorController&#34;, &#34;FirstOrderActuator&#34;, &#34;FirstOrderSystem&#34;, &#34;ActuatorController&#34;, &#34;Actuator&#34; ]
 
 class FirstOrderSystem():
     def __init__(self, responseTime):
@@ -102,7 +103,7 @@ class TableInterpolatingActuatorController(ActuatorController):
                 time:           time at which the moments are requested (time of current control loop execution)
         &#39;&#39;&#39;
         # Construct key vector, starting with non-moment components:
-        keyVector = AeroFunctions.getAeroPropertiesList(self.keyFunctionList, state, environment)
+        keyVector = AeroParameters.getAeroPropertiesList(self.keyFunctionList, state, environment)
         for desiredMoment in desiredMoments:
             keyVector.append(desiredMoment)
 
@@ -499,7 +500,7 @@ Motion does not need to be integrated</p>
                 time:           time at which the moments are requested (time of current control loop execution)
         &#39;&#39;&#39;
         # Construct key vector, starting with non-moment components:
-        keyVector = AeroFunctions.getAeroPropertiesList(self.keyFunctionList, state, environment)
+        keyVector = AeroParameters.getAeroPropertiesList(self.keyFunctionList, state, environment)
         for desiredMoment in desiredMoments:
             keyVector.append(desiredMoment)
 
@@ -536,7 +537,7 @@ time at which the moments are requested (time of current control loop execution)
             time:           time at which the moments are requested (time of current control loop execution)
     &#39;&#39;&#39;
     # Construct key vector, starting with non-moment components:
-    keyVector = AeroFunctions.getAeroPropertiesList(self.keyFunctionList, state, environment)
+    keyVector = AeroParameters.getAeroPropertiesList(self.keyFunctionList, state, environment)
     for desiredMoment in desiredMoments:
         keyVector.append(desiredMoment)
 

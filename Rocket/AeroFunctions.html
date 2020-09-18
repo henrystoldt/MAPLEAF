@@ -41,201 +41,14 @@ Functions to calculate parameters relevant to aerodynamic calculations -
 Used throughout the aeordynamics functions
 &#39;&#39;&#39;
 
+#TODO: This file needs to be split up neatly
+
 import math
-from functools import wraps
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Quaternion,
+                            Vector)
+from MAPLEAF.Utilities import cacheLastResult
 
-#### Function decorators ####
-def cacheLastResult(func):
-    &#39;&#39;&#39;
-        Function decorator that caches that function&#39;s last return value.
-            Could use @functools.lru_cache(maxsize=1) to achieve the same behavior, but probably slower
-    &#39;&#39;&#39;
-    cache = dict()
-    cache[1] = [] # Cache last argument list here
-    cache[2] = None # Cache last result here
-
-    def memoized_func(*args):
-        # Return cached result if available
-        if cache[1] == args:
-            return cache[2]
-        
-        # Compute and cache result
-        result = func(*args)
-        cache[1] = args
-        cache[2] = result
-        return result
-
-    return memoized_func
-
-def logForceResult(func):
-    def loggedAeroFunction(*args):
-        aeroForce = func(*args)
-        
-        # Log to force evaluation log
-        rocketComponent = args[0]
-        rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-        
-        return aeroForce
-    return loggedAeroFunction
-
-
-
-#### Functions with standardized interfaces - used for interpolating ####
-def getAltitude(state, environment, _=None):
-    return environment.ASLAltitude
-
-@cacheLastResult
-def getMachNumber(state, environment, _=None):
-    # Otherwise compute and cache the result
-    airVel = state.velocity - environment.Wind
-    Ma = airVel.length() / math.sqrt(1.4 * 287 * environment.Temp)    #TODO: Get gamma and R from default dict / config file
-    return Ma
-
-@cacheLastResult
-def getReynoldsNumber(state, environment, length):
-    unitRe = getLocalFrameAirVel(state, environment).length() * environment.Density / environment.DynamicViscosity
-    return unitRe * length
-
-@cacheLastResult
-def getTotalAOA(state, environment, _=None):
-    &#39;&#39;&#39; Returns the **magnitude** of the angle between the local-frame wind vector and longitudinal axis, in degrees &#39;&#39;&#39;
-    localFrameAirVel = getLocalFrameAirVel(state, environment)
-
-    if localFrameAirVel.length() == 0:
-        AOA = 0
-    else:
-        AOA = localFrameAirVel.angle(Vector(0,0,-1))
-
-    return AOA
-
-def getAOA(state, environment, _=None):
-    &#39;&#39;&#39; 
-        Returns angle of attack (between the local Z-X plane and the airspeed vector)
-        Measures rotations about the local +y axis (compared to wind-aligned state)
-    &#39;&#39;&#39;
-    localFrameAirVel = getLocalFrameAirVel(state, environment)
-
-    if localFrameAirVel.length() == 0:
-        return 0
-
-    # Zero out the Y-component (Sideslip component)
-    localFrameAirVel.Y = 0
-    
-    # Compute angle with longitudinal axis
-    if localFrameAirVel.X &gt; 0:
-        return localFrameAirVel.angle(Vector(0,0,-1))
-    else:
-        return -localFrameAirVel.angle(Vector(0,0,-1))
-
-def getAOSS(state, environment, _=None):
-    &#39;&#39;&#39; 
-        Returns angle of sideslip (between the local Z-Y plane and the airspeed vector)
-        Measures rotations about the local +z axis (compared to wind-aligned state)
-    &#39;&#39;&#39;
-    localFrameAirVel = getLocalFrameAirVel(state, environment)
-
-    if localFrameAirVel.length() == 0:
-        return 0
-
-    # Zero out the X-component (AOA component)
-    localFrameAirVel.X = 0
-
-    # Compute angle with longitudinal axis
-    if localFrameAirVel.Y &lt; 0:
-        return localFrameAirVel.angle(Vector(0,0,-1))
-    else:
-        return -localFrameAirVel.angle(Vector(0,0,-1))
-
-@cacheLastResult
-def getRollAngle(state, environment, _=None):
-    &#39;&#39;&#39; 
-        Returns the angular distance between axis about which the rocket rotates to create an angle of attack, and the X-axis, in degrees
-        If the normal force direction is aligned with the y-axis, roll angle = 0
-        If the normal force direction is aligned with the x-axis, roll angle = 90 degrees
-    &#39;&#39;&#39;
-
-    # TODO: Convert this to using radians
-    normalAeroForceDirection = getNormalAeroForceDirection(state, environment)
-    y = normalAeroForceDirection*(-1)
-    if(y.length() &lt; 0.01): #Check for when there is a zero angle of attack (Numerical issue)
-        rollAngle = 0
-    else:
-        rollAngle = math.degrees(math.atan2(-y.Y, y.X))
-        rollAngle = (-1)*rollAngle
-        rollAngle %= 360
-
-    return rollAngle
-
-def getAeroPropertiesList(aeroFunctionList, state, environment):
-    &#39;&#39;&#39;
-        Returns a vector of parameters specified by strings - used for interpolating by user-specified parameters
-
-        aeroFunctionVector:     vector of references to standardized-interface functions below
-        state:                  rocket rigid body state
-        environment:            environmentalConditions named tuple
-    &#39;&#39;&#39;
-    aeroProperties = []
-    for fn in aeroFunctionList:
-        aeroProperties.append(fn(state, environment, 1))
-
-    return aeroProperties
-
-stringToAeroFunctionMap = {
-    # This defines the relationship between strings obtained from sim config files,
-        # To functions that obtain some parameter, often used for interpolation of tabulated properties
-        # Use by control systems, TabulatedAeroForce, and TabulatedInertia objects
-    &#34;Mach&#34;:         getMachNumber,
-    &#34;Altitude&#34;:     getAltitude,
-    &#34;UnitReynolds&#34;: getReynoldsNumber,
-    &#34;TotalAOA&#34;:     getTotalAOA,
-    &#34;RollAngle&#34;:    getRollAngle,
-    &#34;AOA&#34;:          getAOA,
-    &#34;AOSS&#34;:         getAOSS
-}
-
-
-
-#### Other Functions ####
-@cacheLastResult
-def getLocalFrameAirVel(state, environment):
-    &#39;&#39;&#39; Returns the vector representing the motion of freestream air relative to the rocket, in the rocket frame &#39;&#39;&#39;
-    return state.orientation.conjugate().rotate(state.velocity - environment.Wind)*-1
-
-def getAirVelRelativeToVehicle(state, environment):
-    &#39;&#39;&#39; 3DoF version of getLocalFrameAirVel &#39;&#39;&#39;
-    return (state.velocity - environment.Wind) * -1
-
-@cacheLastResult
-def getNormalAeroForceDirection(state, environment):
-    localFrameAirVel = getLocalFrameAirVel(state, environment)
-    if localFrameAirVel[0] == 0.0 and localFrameAirVel[1] == 0.0:
-        # Return random vector if AOA == 0 - force will be zero anyhow
-        return Vector(1,0,0)
-    else:
-        return Vector(localFrameAirVel[0], localFrameAirVel[1], 0).normalize()
-
-@cacheLastResult
-def getDynamicPressure(state, environment):
-    try:
-        velMag = getLocalFrameAirVel(state, environment).length()
-    except AttributeError:
-        #3DoF mode
-        velMag = getAirVelRelativeToVehicle(state, environment).length()
-
-    return velMag*velMag * environment.Density / 2
-
-@cacheLastResult
-def getBeta(Mach):
-    #Define the compressibility factor depending on if we are subsonic or supersonic, if we are at M = 1 we set
-    #the compressibility factor to a hardcoded literal close to zero (equations break if not)
-    if Mach &lt;= 0.9: 
-        return math.sqrt(1 - Mach**2) #Compressibility correction factor for subsonic flow
-    elif Mach &gt;= 1.1:
-        return math.sqrt(Mach**2 - 1) #For supersonic flow
-    else:
-        raise NotImplementedError(&#34;Beta not valid in the range 0.9 &lt; M &lt; 1.1 - goes to infinity&#34;)
 
 def _getCPZ(componentForces) -&gt; int:
     normalForce = Vector(componentForces.force.X, componentForces.force.Y, 0)
@@ -251,7 +64,6 @@ def _getCPZ(componentForces) -&gt; int:
     momentComponent = componentForces.moment * momentAxis
 
     return componentForces.location.Z - momentComponent/normalForceMagnitude
-
 
 
 #### Constants ####
@@ -311,7 +123,7 @@ def getSkinFrictionCoefficient(state, environment, length, Mach, surfaceRoughnes
         Outputs:
           * Returns the skin friction coefficient normalized by **wetted area**, must be converted to be normalized by cross-sectional area before summing with other coefficients.
     &#39;&#39;&#39;
-    Re = getReynoldsNumber(state, environment, length)
+    Re = AeroParameters.getReynoldsNumber(state, environment, length)
     smoothSurface = (surfaceRoughness == 0) # True or False
 
     if smoothSurface:
@@ -374,7 +186,7 @@ def getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(state, environ
     avgRadius = (wettedArea / length) / (2*math.pi)
     rollingSurfaceVel = avgRadius * state.angularVelocity.Z
     # Assume velocities are perpendicular
-    airVel = getLocalFrameAirVel(state, environment).length()
+    airVel = AeroParameters.getLocalFrameAirVel(state, environment).length()
     # Use total velocity to redimensionalize coefficient
     totalVelSquared = airVel**2 + rollingSurfaceVel**2
 
@@ -429,7 +241,7 @@ def getBluntBodyCd_ZeroBaseDrag(Mach):
 @cacheLastResult
 def getDragToAxialForceFactor(AOA):
     &#39;&#39;&#39; Expected input is radians angle of attack - converts dragCoefficient to axialForceCoefficient: openRocket documentation pg. 53 &#39;&#39;&#39;
-    # Angle of attack will not be negative if obtained from getTotalAOA above
+    # Angle of attack will not be negative if obtained from getTotalAOA in AeroParameters
         # But can be negative when fins are calculating their angles of attack, hence the abs()
     AOA = math.degrees(abs(AOA))
 
@@ -439,6 +251,60 @@ def getDragToAxialForceFactor(AOA):
     else:
         return 0.000006684*AOA**3 - 0.0010727204*AOA**2 + 0.030677323*AOA + 1.055660807
 
+
+#### Creating ForceMomentSystems from Coefficients ####
+def forceFromCdCN(rocketState, environment, Cd, CN, CPLocation, refArea, moment=None):
+    &#39;&#39;&#39; 
+        Convenience function for Barrowman Aero methods
+        Initialize ForceMomentSystem from aerodynamic coefficients Cd and CN
+        Cd should NOT already be adjusted for angle of attack 
+        Moment should be a dimensional moment vector
+    &#39;&#39;&#39;
+    angleOfAttack = AeroParameters.getTotalAOA(rocketState, environment)
+    q = AeroParameters.getDynamicPressure(rocketState, environment)
+
+    #### Axial Force ####
+    CA = getDragToAxialForceFactor(angleOfAttack) * Cd
+    axialForce = Vector(0, 0, -CA) #Axial force is in the negative Z-direction 
+
+    #### Normal Force ####
+    normalForce = AeroParameters.getNormalAeroForceDirection(rocketState, environment) * CN
+
+    totalForce = (axialForce + normalForce) * refArea * q
+    return ForceMomentSystem(totalForce, CPLocation, moment)
+
+def forceFromCoefficients(rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLocation, refArea, refLength):
+    &#39;&#39;&#39; Initialize ForceMomentSystem from all aerodynamic coefficients &#39;&#39;&#39;
+    q = AeroParameters.getDynamicPressure(rocketState, environment)
+    if q == 0.0:
+        # No force without dynamic pressure
+        return ForceMomentSystem(Vector(0,0,0))
+    nonDimConstant = q * refArea
+
+    #### Drag ####
+    localFrameAirVel = AeroParameters.getLocalFrameAirVel(rocketState, environment)
+    dragDirection = localFrameAirVel.normalize()
+    dragForce = dragDirection * Cd
+
+    #### Lift ####
+    # Find the lift force direction
+        # Lift force will be in the same plane as the normalForceDirection &amp; rocketFrameAirVel vectors
+        # But, the lift force will be perpendicular to rocketFraeAirVel, whereas the normalForceDirection might form an acute angle with it
+        # Rotate the normal force direction vector until it&#39;s perpendicular with rocketFrameAirVel
+    normalForceDir = AeroParameters.getNormalAeroForceDirection(rocketState, environment)
+    rotAxis = localFrameAirVel.crossProduct(normalForceDir)
+    angle = math.pi/2 - localFrameAirVel.angle(normalForceDir)
+    rotatorQuat = Quaternion(rotAxis, angle)
+    liftDirection = rotatorQuat.rotate(normalForceDir)
+    liftForce = liftDirection * Cl
+
+    # Combine and redimensionalize
+    totalForce = (dragForce + liftForce) * nonDimConstant
+
+    #### Moments ####
+    moments = Vector(CMx, CMy, CMz) * nonDimConstant * refLength
+
+    return ForceMomentSystem(totalForce, CPLocation, moments)
 
 
 #### Barrowman ####
@@ -507,238 +373,80 @@ AOA expected in radians</p></div>
     return Vector(topLocation.X, topLocation.Y, topLocation.Z - CpDistanceFromTop)  # For body tubes</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.cacheLastResult"><code class="name flex">
-<span>def <span class="ident">cacheLastResult</span></span>(<span>func)</span>
+<dt id="MAPLEAF.Rocket.AeroFunctions.forceFromCdCN"><code class="name flex">
+<span>def <span class="ident">forceFromCdCN</span></span>(<span>rocketState, environment, Cd, CN, CPLocation, refArea, moment=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Function decorator that caches that function's last return value.
-Could use @functools.lru_cache(maxsize=1) to achieve the same behavior, but probably slower</p></div>
+<div class="desc"><p>Convenience function for Barrowman Aero methods
+Initialize ForceMomentSystem from aerodynamic coefficients Cd and CN
+Cd should NOT already be adjusted for angle of attack
+Moment should be a dimensional moment vector</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cacheLastResult(func):
-    &#39;&#39;&#39;
-        Function decorator that caches that function&#39;s last return value.
-            Could use @functools.lru_cache(maxsize=1) to achieve the same behavior, but probably slower
-    &#39;&#39;&#39;
-    cache = dict()
-    cache[1] = [] # Cache last argument list here
-    cache[2] = None # Cache last result here
-
-    def memoized_func(*args):
-        # Return cached result if available
-        if cache[1] == args:
-            return cache[2]
-        
-        # Compute and cache result
-        result = func(*args)
-        cache[1] = args
-        cache[2] = result
-        return result
-
-    return memoized_func</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getAOA"><code class="name flex">
-<span>def <span class="ident">getAOA</span></span>(<span>state, environment)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns angle of attack (between the local Z-X plane and the airspeed vector)
-Measures rotations about the local +y axis (compared to wind-aligned state)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getAOA(state, environment, _=None):
+<pre><code class="python">def forceFromCdCN(rocketState, environment, Cd, CN, CPLocation, refArea, moment=None):
     &#39;&#39;&#39; 
-        Returns angle of attack (between the local Z-X plane and the airspeed vector)
-        Measures rotations about the local +y axis (compared to wind-aligned state)
+        Convenience function for Barrowman Aero methods
+        Initialize ForceMomentSystem from aerodynamic coefficients Cd and CN
+        Cd should NOT already be adjusted for angle of attack 
+        Moment should be a dimensional moment vector
     &#39;&#39;&#39;
-    localFrameAirVel = getLocalFrameAirVel(state, environment)
+    angleOfAttack = AeroParameters.getTotalAOA(rocketState, environment)
+    q = AeroParameters.getDynamicPressure(rocketState, environment)
 
-    if localFrameAirVel.length() == 0:
-        return 0
+    #### Axial Force ####
+    CA = getDragToAxialForceFactor(angleOfAttack) * Cd
+    axialForce = Vector(0, 0, -CA) #Axial force is in the negative Z-direction 
 
-    # Zero out the Y-component (Sideslip component)
-    localFrameAirVel.Y = 0
-    
-    # Compute angle with longitudinal axis
-    if localFrameAirVel.X &gt; 0:
-        return localFrameAirVel.angle(Vector(0,0,-1))
-    else:
-        return -localFrameAirVel.angle(Vector(0,0,-1))</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getAOSS"><code class="name flex">
-<span>def <span class="ident">getAOSS</span></span>(<span>state, environment)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns angle of sideslip (between the local Z-Y plane and the airspeed vector)
-Measures rotations about the local +z axis (compared to wind-aligned state)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getAOSS(state, environment, _=None):
-    &#39;&#39;&#39; 
-        Returns angle of sideslip (between the local Z-Y plane and the airspeed vector)
-        Measures rotations about the local +z axis (compared to wind-aligned state)
-    &#39;&#39;&#39;
-    localFrameAirVel = getLocalFrameAirVel(state, environment)
+    #### Normal Force ####
+    normalForce = AeroParameters.getNormalAeroForceDirection(rocketState, environment) * CN
 
-    if localFrameAirVel.length() == 0:
-        return 0
+    totalForce = (axialForce + normalForce) * refArea * q
+    return ForceMomentSystem(totalForce, CPLocation, moment)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.AeroFunctions.forceFromCoefficients"><code class="name flex">
+<span>def <span class="ident">forceFromCoefficients</span></span>(<span>rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLocation, refArea, refLength)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initialize ForceMomentSystem from all aerodynamic coefficients</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forceFromCoefficients(rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLocation, refArea, refLength):
+    &#39;&#39;&#39; Initialize ForceMomentSystem from all aerodynamic coefficients &#39;&#39;&#39;
+    q = AeroParameters.getDynamicPressure(rocketState, environment)
+    if q == 0.0:
+        # No force without dynamic pressure
+        return ForceMomentSystem(Vector(0,0,0))
+    nonDimConstant = q * refArea
 
-    # Zero out the X-component (AOA component)
-    localFrameAirVel.X = 0
+    #### Drag ####
+    localFrameAirVel = AeroParameters.getLocalFrameAirVel(rocketState, environment)
+    dragDirection = localFrameAirVel.normalize()
+    dragForce = dragDirection * Cd
 
-    # Compute angle with longitudinal axis
-    if localFrameAirVel.Y &lt; 0:
-        return localFrameAirVel.angle(Vector(0,0,-1))
-    else:
-        return -localFrameAirVel.angle(Vector(0,0,-1))</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getAeroPropertiesList"><code class="name flex">
-<span>def <span class="ident">getAeroPropertiesList</span></span>(<span>aeroFunctionList, state, environment)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns a vector of parameters specified by strings - used for interpolating by user-specified parameters</p>
-<p>aeroFunctionVector:
-vector of references to standardized-interface functions below
-state:
-rocket rigid body state
-environment:
-environmentalConditions named tuple</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getAeroPropertiesList(aeroFunctionList, state, environment):
-    &#39;&#39;&#39;
-        Returns a vector of parameters specified by strings - used for interpolating by user-specified parameters
+    #### Lift ####
+    # Find the lift force direction
+        # Lift force will be in the same plane as the normalForceDirection &amp; rocketFrameAirVel vectors
+        # But, the lift force will be perpendicular to rocketFraeAirVel, whereas the normalForceDirection might form an acute angle with it
+        # Rotate the normal force direction vector until it&#39;s perpendicular with rocketFrameAirVel
+    normalForceDir = AeroParameters.getNormalAeroForceDirection(rocketState, environment)
+    rotAxis = localFrameAirVel.crossProduct(normalForceDir)
+    angle = math.pi/2 - localFrameAirVel.angle(normalForceDir)
+    rotatorQuat = Quaternion(rotAxis, angle)
+    liftDirection = rotatorQuat.rotate(normalForceDir)
+    liftForce = liftDirection * Cl
 
-        aeroFunctionVector:     vector of references to standardized-interface functions below
-        state:                  rocket rigid body state
-        environment:            environmentalConditions named tuple
-    &#39;&#39;&#39;
-    aeroProperties = []
-    for fn in aeroFunctionList:
-        aeroProperties.append(fn(state, environment, 1))
+    # Combine and redimensionalize
+    totalForce = (dragForce + liftForce) * nonDimConstant
 
-    return aeroProperties</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getAirVelRelativeToVehicle"><code class="name flex">
-<span>def <span class="ident">getAirVelRelativeToVehicle</span></span>(<span>state, environment)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>3DoF version of getLocalFrameAirVel</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getAirVelRelativeToVehicle(state, environment):
-    &#39;&#39;&#39; 3DoF version of getLocalFrameAirVel &#39;&#39;&#39;
-    return (state.velocity - environment.Wind) * -1</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getAltitude"><code class="name flex">
-<span>def <span class="ident">getAltitude</span></span>(<span>state, environment)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getAltitude(state, environment, _=None):
-    return environment.ASLAltitude</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getBaseDragCoefficient"><code class="name flex">
-<span>def <span class="ident">getBaseDragCoefficient</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getBeta"><code class="name flex">
-<span>def <span class="ident">getBeta</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getBluntBodyCd_ZeroBaseDrag"><code class="name flex">
-<span>def <span class="ident">getBluntBodyCd_ZeroBaseDrag</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getCylinderCrossFlowCd_ZeroBaseDrag"><code class="name flex">
-<span>def <span class="ident">getCylinderCrossFlowCd_ZeroBaseDrag</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
+    #### Moments ####
+    moments = Vector(CMx, CMy, CMz) * nonDimConstant * refLength
+
+    return ForceMomentSystem(totalForce, CPLocation, moments)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment"><code class="name flex">
@@ -763,7 +471,7 @@ environmentalConditions named tuple</p></div>
     avgRadius = (wettedArea / length) / (2*math.pi)
     rollingSurfaceVel = avgRadius * state.angularVelocity.Z
     # Assume velocities are perpendicular
-    airVel = getLocalFrameAirVel(state, environment).length()
+    airVel = AeroParameters.getLocalFrameAirVel(state, environment).length()
     # Use total velocity to redimensionalize coefficient
     totalVelSquared = airVel**2 + rollingSurfaceVel**2
 
@@ -777,48 +485,6 @@ environmentalConditions named tuple</p></div>
         rollDampingMoment = Vector(0,0, -rollDampingForce*avgRadius)
     
     return skinFrictionDragCoefficient, rollDampingMoment</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getDragToAxialForceFactor"><code class="name flex">
-<span>def <span class="ident">getDragToAxialForceFactor</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getDynamicPressure"><code class="name flex">
-<span>def <span class="ident">getDynamicPressure</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.AeroFunctions.getGamma"><code class="name flex">
@@ -847,174 +513,6 @@ environmentalConditions named tuple</p></div>
     return 0.287</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getLocalFrameAirVel"><code class="name flex">
-<span>def <span class="ident">getLocalFrameAirVel</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getMachNumber"><code class="name flex">
-<span>def <span class="ident">getMachNumber</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getNormalAeroForceDirection"><code class="name flex">
-<span>def <span class="ident">getNormalAeroForceDirection</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getReynoldsNumber"><code class="name flex">
-<span>def <span class="ident">getReynoldsNumber</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getRollAngle"><code class="name flex">
-<span>def <span class="ident">getRollAngle</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getSkinFrictionCoefficient"><code class="name flex">
-<span>def <span class="ident">getSkinFrictionCoefficient</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.getTotalAOA"><code class="name flex">
-<span>def <span class="ident">getTotalAOA</span></span>(<span>*args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroFunctions.logForceResult"><code class="name flex">
-<span>def <span class="ident">logForceResult</span></span>(<span>func)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def logForceResult(func):
-    def loggedAeroFunction(*args):
-        aeroForce = func(*args)
-        
-        # Log to force evaluation log
-        rocketComponent = args[0]
-        rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-        
-        return aeroForce
-    return loggedAeroFunction</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -1041,29 +539,11 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.AeroFunctions.Barrowman_GetCN" href="#MAPLEAF.Rocket.AeroFunctions.Barrowman_GetCN">Barrowman_GetCN</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.AeroFunctions.Barrowman_GetCPLocation" href="#MAPLEAF.Rocket.AeroFunctions.Barrowman_GetCPLocation">Barrowman_GetCPLocation</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.cacheLastResult" href="#MAPLEAF.Rocket.AeroFunctions.cacheLastResult">cacheLastResult</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getAOA" href="#MAPLEAF.Rocket.AeroFunctions.getAOA">getAOA</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getAOSS" href="#MAPLEAF.Rocket.AeroFunctions.getAOSS">getAOSS</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getAeroPropertiesList" href="#MAPLEAF.Rocket.AeroFunctions.getAeroPropertiesList">getAeroPropertiesList</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getAirVelRelativeToVehicle" href="#MAPLEAF.Rocket.AeroFunctions.getAirVelRelativeToVehicle">getAirVelRelativeToVehicle</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getAltitude" href="#MAPLEAF.Rocket.AeroFunctions.getAltitude">getAltitude</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getBaseDragCoefficient" href="#MAPLEAF.Rocket.AeroFunctions.getBaseDragCoefficient">getBaseDragCoefficient</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getBeta" href="#MAPLEAF.Rocket.AeroFunctions.getBeta">getBeta</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getBluntBodyCd_ZeroBaseDrag" href="#MAPLEAF.Rocket.AeroFunctions.getBluntBodyCd_ZeroBaseDrag">getBluntBodyCd_ZeroBaseDrag</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getCylinderCrossFlowCd_ZeroBaseDrag" href="#MAPLEAF.Rocket.AeroFunctions.getCylinderCrossFlowCd_ZeroBaseDrag">getCylinderCrossFlowCd_ZeroBaseDrag</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.AeroFunctions.forceFromCdCN" href="#MAPLEAF.Rocket.AeroFunctions.forceFromCdCN">forceFromCdCN</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.AeroFunctions.forceFromCoefficients" href="#MAPLEAF.Rocket.AeroFunctions.forceFromCoefficients">forceFromCoefficients</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment" href="#MAPLEAF.Rocket.AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment">getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getDragToAxialForceFactor" href="#MAPLEAF.Rocket.AeroFunctions.getDragToAxialForceFactor">getDragToAxialForceFactor</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getDynamicPressure" href="#MAPLEAF.Rocket.AeroFunctions.getDynamicPressure">getDynamicPressure</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.AeroFunctions.getGamma" href="#MAPLEAF.Rocket.AeroFunctions.getGamma">getGamma</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.AeroFunctions.getGasConstant" href="#MAPLEAF.Rocket.AeroFunctions.getGasConstant">getGasConstant</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getLocalFrameAirVel" href="#MAPLEAF.Rocket.AeroFunctions.getLocalFrameAirVel">getLocalFrameAirVel</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getMachNumber" href="#MAPLEAF.Rocket.AeroFunctions.getMachNumber">getMachNumber</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getNormalAeroForceDirection" href="#MAPLEAF.Rocket.AeroFunctions.getNormalAeroForceDirection">getNormalAeroForceDirection</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getReynoldsNumber" href="#MAPLEAF.Rocket.AeroFunctions.getReynoldsNumber">getReynoldsNumber</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getRollAngle" href="#MAPLEAF.Rocket.AeroFunctions.getRollAngle">getRollAngle</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getSkinFrictionCoefficient" href="#MAPLEAF.Rocket.AeroFunctions.getSkinFrictionCoefficient">getSkinFrictionCoefficient</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.getTotalAOA" href="#MAPLEAF.Rocket.AeroFunctions.getTotalAOA">getTotalAOA</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroFunctions.logForceResult" href="#MAPLEAF.Rocket.AeroFunctions.logForceResult">logForceResult</a></code></li>
 </ul>
 </li>
 </ul>

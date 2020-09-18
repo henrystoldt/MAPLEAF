@@ -38,9 +38,11 @@ Define standard and time-derivative rigid body states.
 These are defined in such a way that, for the purposes of Runge-Kutta motion integration, they can be treated like scalars.
 &#39;&#39;&#39;
 
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import Quaternion
+from MAPLEAF.Motion import AngularVelocity
+
+__all__ = [ &#34;RigidBodyState_3DoF&#34;, &#34;RigidBodyStateDerivative_3DoF&#34;, &#34;RigidBodyState&#34;, &#34;RigidBodyStateDerivative&#34;, &#34;interpolateRigidBodyStates&#34; ]
 
 class RigidBodyState_3DoF():
     &#34;&#34;&#34; Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
@@ -261,7 +263,29 @@ class RigidBodyStateDerivative():
 
     ### Wrapper/Thin functions ###
     def __rmul__(self, scalar):
-        return self * scalar</code></pre>
+        return self * scalar
+
+def interpolateRigidBodyStates(state1, state2, state1Weight):
+    &#39;&#39;&#39;
+        Linearly interpolates between state 1 and state2.
+        state1Weight should be a decimal value between 0 and 1.
+    &#39;&#39;&#39;
+    state2Weight = 1 - state1Weight
+    
+    # Properties of all rigid body states
+    pos = state1.position*state1Weight + state2.position*state2Weight
+    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
+
+    try:
+        # 6DoF Properties
+        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
+        orientation = state1.orientation * orientationDelta
+        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
+        return RigidBodyState(pos, vel, orientation, angVel)
+
+    except AttributeError:
+        # 3DoF doesn&#39;t include orientation / angVel
+        return RigidBodyState_3DoF(pos, vel)</code></pre>
 </details>
 </section>
 <section>
@@ -269,6 +293,42 @@ class RigidBodyStateDerivative():
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.Motion.RigidBodyStates.interpolateRigidBodyStates"><code class="name flex">
+<span>def <span class="ident">interpolateRigidBodyStates</span></span>(<span>state1, state2, state1Weight)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Linearly interpolates between state 1 and state2.
+state1Weight should be a decimal value between 0 and 1.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def interpolateRigidBodyStates(state1, state2, state1Weight):
+    &#39;&#39;&#39;
+        Linearly interpolates between state 1 and state2.
+        state1Weight should be a decimal value between 0 and 1.
+    &#39;&#39;&#39;
+    state2Weight = 1 - state1Weight
+    
+    # Properties of all rigid body states
+    pos = state1.position*state1Weight + state2.position*state2Weight
+    vel = state1.velocity*state1Weight + state2.velocity*state2Weight
+
+    try:
+        # 6DoF Properties
+        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
+        orientation = state1.orientation * orientationDelta
+        angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
+        return RigidBodyState(pos, vel, orientation, angVel)
+
+    except AttributeError:
+        # 3DoF doesn&#39;t include orientation / angVel
+        return RigidBodyState_3DoF(pos, vel)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -602,6 +662,11 @@ MAPLEAF
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="MAPLEAF.Motion" href="index.html">MAPLEAF.Motion</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.Motion.RigidBodyStates.interpolateRigidBodyStates" href="#MAPLEAF.Motion.RigidBodyStates.interpolateRigidBodyStates">interpolateRigidBodyStates</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

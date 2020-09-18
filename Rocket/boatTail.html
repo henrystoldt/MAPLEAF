@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.Rocket.BoatTail API documentation</title>
+<title>MAPLEAF.Rocket.boatTail API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -16,14 +16,14 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/BoatTail.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/boatTail.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.Rocket.BoatTail</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Rocket.boatTail</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -31,14 +31,16 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import math
-from typing import List
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, FixedMass
-from MAPLEAF.Rocket.Nosecone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
+from MAPLEAF.Motion import AeroParameters, ForceMomentSystem, Vector
+from MAPLEAF.Rocket import BodyComponent, FixedMass
+from MAPLEAF.Rocket.noseCone import (computeSubsonicPolyCoeffs,
+                                     computeTransonicPolyCoeffs,
+                                     getSupersonicPressureDragCoeff_Hoerner)
+from MAPLEAF.Utilities import logForceResult
+
+__all__ = [ &#34;Transition&#34;, &#34;BoatTail&#34; ]
 
 class Transition(FixedMass, BodyComponent):
     &#39;&#39;&#39; Models a conical diameter transition (growing or shrinking) &#39;&#39;&#39;
@@ -48,10 +50,10 @@ class Transition(FixedMass, BodyComponent):
             Two possible sets of inputs:  
             1. Initialization as a regular, dictionary-defined rocket component:  
                 * args = (componentDictReader, rocket, stage)  
-                * Expected classes: (`MAPLEAF.IO.SubDictReader.SubDictReader`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`)  
+                * Expected classes: (`MAPLEAF.IO.SubDictReader`, `MAPLEAF.Rocket.Rocket`, `MAPLEAF.Rocket.Stage`)  
             2. Manual initialization:  
                 * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)  
-                * Expected classes: (float, float, float, `MAPLEAF.Motion.CythonVector.Vector`, `MAPLEAF.Motion.Inertia.Inertia`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`, str, float)  
+                * Expected classes: (float, float, float, `MAPLEAF.Motion.Vector`, `MAPLEAF.Motion.Inertia`, `MAPLEAF.Rocket.Rocket`, `MAPLEAF.Rocket.Stage`, str, float)  
         &#39;&#39;&#39;
         if len(args) == 3:
             # Classic initialization from componentDictReader
@@ -155,11 +157,11 @@ class Transition(FixedMass, BodyComponent):
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
         #### Normal Force ####
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
 
         #### Pressure Drag ####
@@ -197,7 +199,7 @@ class Transition(FixedMass, BodyComponent):
         Cd = Cd_pressure + skinFrictionDragCoefficient
 
         #### Assemble &amp; return final force object ####
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
 
     def getMaxDiameter(self):
         return max(self.startDiameter, self.endDiameter)
@@ -216,11 +218,11 @@ class BoatTail(Transition):
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
         #### Normal Force ####
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
 
         #### Pressure Drag ####
@@ -245,7 +247,7 @@ class BoatTail(Transition):
         Cd = Cd_pressure + skinFrictionDragCoefficient
 
         #### Assemble &amp; return final force object ####
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
+        return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
 </details>
 </section>
 <section>
@@ -257,7 +259,7 @@ class BoatTail(Transition):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.Rocket.BoatTail.BoatTail"><code class="flex name class">
+<dt id="MAPLEAF.Rocket.boatTail.BoatTail"><code class="flex name class">
 <span>class <span class="ident">BoatTail</span></span>
 <span>(</span><span>*args)</span>
 </code></dt>
@@ -268,10 +270,10 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <p>Two possible sets of inputs:<br>
 1. Initialization as a regular, dictionary-defined rocket component:<br>
 * args = (componentDictReader, rocket, stage)<br>
-* Expected classes: (<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>)<br>
+* Expected classes: (<code><a title="MAPLEAF.IO.SubDictReader" href="../IO/index.html#MAPLEAF.IO.SubDictReader">SubDictReader</a></code>, <code><a title="MAPLEAF.Rocket.Rocket" href="index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code>)<br>
 2. Manual initialization:<br>
 * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)<br>
-* Expected classes: (float, float, float, <code><a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></code>, <code><a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>, str, float)</p></div>
+* Expected classes: (float, float, float, <code><a title="MAPLEAF.Motion.Vector" href="../Motion/index.html#MAPLEAF.Motion.Vector">Vector</a></code>, <code><a title="MAPLEAF.Motion.Inertia" href="../Motion/index.html#MAPLEAF.Motion.Inertia">Inertia</a></code>, <code><a title="MAPLEAF.Rocket.Rocket" href="index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code>, str, float)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -287,11 +289,11 @@ Modelled like a Transition object, but accounts for base drag.</p>
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
         #### Normal Force ####
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
 
         #### Pressure Drag ####
@@ -316,11 +318,11 @@ Modelled like a Transition object, but accounts for base drag.</p>
         Cd = Cd_pressure + skinFrictionDragCoefficient
 
         #### Assemble &amp; return final force object ####
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
+        return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Rocket.BoatTail.Transition" href="#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></li>
+<li><a title="MAPLEAF.Rocket.boatTail.Transition" href="#MAPLEAF.Rocket.boatTail.Transition">Transition</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.BodyComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent">BodyComponent</a></li>
@@ -328,14 +330,14 @@ Modelled like a Transition object, but accounts for base drag.</p>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.BoatTail.BoatTail.canConnectToComponentBelow"><code class="name">var <span class="ident">canConnectToComponentBelow</span></code></dt>
+<dt id="MAPLEAF.Rocket.boatTail.BoatTail.canConnectToComponentBelow"><code class="name">var <span class="ident">canConnectToComponentBelow</span></code></dt>
 <dd>
 <div class="desc"><p>Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.BoatTail.BoatTail.getAeroForce"><code class="name flex">
+<dt id="MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce"><code class="name flex">
 <span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
@@ -357,17 +359,17 @@ Modelled like a Transition object, but accounts for base drag.</p>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="MAPLEAF.Rocket.BoatTail.Transition" href="#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></b></code>:
+<li><code><b><a title="MAPLEAF.Rocket.boatTail.Transition" href="#MAPLEAF.Rocket.boatTail.Transition">Transition</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getBottomInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getMaxDiameter" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getRadius" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius">getRadius</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getTopInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getBottomInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getMaxDiameter" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getRadius" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getRadius">getRadius</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getTopInterfaceLocation" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
 </ul>
 </li>
 </ul>
 </dd>
-<dt id="MAPLEAF.Rocket.BoatTail.Transition"><code class="flex name class">
+<dt id="MAPLEAF.Rocket.boatTail.Transition"><code class="flex name class">
 <span>class <span class="ident">Transition</span></span>
 <span>(</span><span>*args)</span>
 </code></dt>
@@ -376,10 +378,10 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <p>Two possible sets of inputs:<br>
 1. Initialization as a regular, dictionary-defined rocket component:<br>
 * args = (componentDictReader, rocket, stage)<br>
-* Expected classes: (<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>)<br>
+* Expected classes: (<code><a title="MAPLEAF.IO.SubDictReader" href="../IO/index.html#MAPLEAF.IO.SubDictReader">SubDictReader</a></code>, <code><a title="MAPLEAF.Rocket.Rocket" href="index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code>)<br>
 2. Manual initialization:<br>
 * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)<br>
-* Expected classes: (float, float, float, <code><a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></code>, <code><a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code>, <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code>, str, float)</p></div>
+* Expected classes: (float, float, float, <code><a title="MAPLEAF.Motion.Vector" href="../Motion/index.html#MAPLEAF.Motion.Vector">Vector</a></code>, <code><a title="MAPLEAF.Motion.Inertia" href="../Motion/index.html#MAPLEAF.Motion.Inertia">Inertia</a></code>, <code><a title="MAPLEAF.Rocket.Rocket" href="index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code>, <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code>, str, float)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -392,10 +394,10 @@ Modelled like a Transition object, but accounts for base drag.</p>
             Two possible sets of inputs:  
             1. Initialization as a regular, dictionary-defined rocket component:  
                 * args = (componentDictReader, rocket, stage)  
-                * Expected classes: (`MAPLEAF.IO.SubDictReader.SubDictReader`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`)  
+                * Expected classes: (`MAPLEAF.IO.SubDictReader`, `MAPLEAF.Rocket.Rocket`, `MAPLEAF.Rocket.Stage`)  
             2. Manual initialization:  
                 * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)  
-                * Expected classes: (float, float, float, `MAPLEAF.Motion.CythonVector.Vector`, `MAPLEAF.Motion.Inertia.Inertia`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`, str, float)  
+                * Expected classes: (float, float, float, `MAPLEAF.Motion.Vector`, `MAPLEAF.Motion.Inertia`, `MAPLEAF.Rocket.Rocket`, `MAPLEAF.Rocket.Stage`, str, float)  
         &#39;&#39;&#39;
         if len(args) == 3:
             # Classic initialization from componentDictReader
@@ -499,11 +501,11 @@ Modelled like a Transition object, but accounts for base drag.</p>
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
         #### Normal Force ####
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
 
         #### Pressure Drag ####
@@ -541,7 +543,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
         Cd = Cd_pressure + skinFrictionDragCoefficient
 
         #### Assemble &amp; return final force object ####
-        return ForceMomentSystem.fromCoefficients(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
+        return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)
 
     def getMaxDiameter(self):
         return max(self.startDiameter, self.endDiameter)
@@ -558,11 +560,11 @@ Modelled like a Transition object, but accounts for base drag.</p>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Rocket.BoatTail.BoatTail" href="#MAPLEAF.Rocket.BoatTail.BoatTail">BoatTail</a></li>
+<li><a title="MAPLEAF.Rocket.boatTail.BoatTail" href="#MAPLEAF.Rocket.boatTail.BoatTail">BoatTail</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.BoatTail.Transition.getAeroForce"><code class="name flex">
+<dt id="MAPLEAF.Rocket.boatTail.Transition.getAeroForce"><code class="name flex">
 <span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
@@ -581,7 +583,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
     return aeroForce</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.BoatTail.Transition.plotShape"><code class="name flex">
+<dt id="MAPLEAF.Rocket.boatTail.Transition.plotShape"><code class="name flex">
 <span>def <span class="ident">plotShape</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -653,17 +655,17 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.Rocket.BoatTail.BoatTail" href="#MAPLEAF.Rocket.BoatTail.BoatTail">BoatTail</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.boatTail.BoatTail" href="#MAPLEAF.Rocket.boatTail.BoatTail">BoatTail</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.BoatTail.BoatTail.canConnectToComponentBelow" href="#MAPLEAF.Rocket.BoatTail.BoatTail.canConnectToComponentBelow">canConnectToComponentBelow</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.BoatTail.BoatTail.getAeroForce" href="#MAPLEAF.Rocket.BoatTail.BoatTail.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.BoatTail.canConnectToComponentBelow" href="#MAPLEAF.Rocket.boatTail.BoatTail.canConnectToComponentBelow">canConnectToComponentBelow</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce" href="#MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce">getAeroForce</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.Rocket.BoatTail.Transition" href="#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.boatTail.Transition" href="#MAPLEAF.Rocket.boatTail.Transition">Transition</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.getAeroForce" href="#MAPLEAF.Rocket.BoatTail.Transition.getAeroForce">getAeroForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.BoatTail.Transition.plotShape" href="#MAPLEAF.Rocket.BoatTail.Transition.plotShape">plotShape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getAeroForce" href="#MAPLEAF.Rocket.boatTail.Transition.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.plotShape" href="#MAPLEAF.Rocket.boatTail.Transition.plotShape">plotShape</a></code></li>
 </ul>
 </li>
 </ul>

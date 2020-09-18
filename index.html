@@ -40,8 +40,9 @@ title="MAPLEAF" height=125 style="padding-right: 10px;"/>
 <img alt="Python3" src="https://img.shields.io/badge/python-3.6+-brightgreen">
 <a align="center" href="https://lbesson.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
-<p>The <code><a title="MAPLEAF.Main" href="Main.html">MAPLEAF.Main</a></code> module is the entry point for running a simulation.<br>
-The <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">MAPLEAF.Rocket.Rocket</a></code> class is the main class responsible for coordinating the modelling of a Rocket.</p>
+<p>Simulation entry point: <code><a title="MAPLEAF.Main.main" href="Main.html#MAPLEAF.Main.main">main()</a></code>.<br>
+<code><a title="MAPLEAF.Main.main" href="Main.html#MAPLEAF.Main.main">main()</a></code> will initialize one of the classes in <code><a title="MAPLEAF.SimulationRunners" href="SimulationRunners.html">MAPLEAF.SimulationRunners</a></code> to drive/manage the simulation.
+The simulation runner will then initialize an instance of <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code>, which coordinates the modelling of a Rocket.</p>
 <p>See <a href="https://github.com/henrystoldt/MAPLEAF/blob/master/README.md">README.md</a> for info about:
 </p>
 <ul>
@@ -78,8 +79,9 @@ The <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">MAPLEAF.Roc
   &lt;a align=&#34;center&#34; href=&#34;https://lbesson.mit-license.org/&#34;&gt;&lt;img alt=&#34;MIT License&#34; src=&#34;https://img.shields.io/badge/License-MIT-blue.svg&#34;&gt;&lt;/a&gt;
 &lt;/p&gt;
 
-The `MAPLEAF.Main` module is the entry point for running a simulation.  
-The `MAPLEAF.Rocket.Rocket` class is the main class responsible for coordinating the modelling of a Rocket.
+Simulation entry point: `MAPLEAF.Main.main`.  
+`MAPLEAF.Main.main` will initialize one of the classes in `MAPLEAF.SimulationRunners` to drive/manage the simulation.
+The simulation runner will then initialize an instance of `MAPLEAF.Rocket.Rocket`, which coordinates the modelling of a Rocket.
 
 See [README.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README.md) for info about:  
 
@@ -105,8 +107,8 @@ __pdoc__ = {
 <dl>
 <dt><code class="name"><a title="MAPLEAF.ENV" href="ENV/index.html">MAPLEAF.ENV</a></code></dt>
 <dd>
-<div class="desc"><p>Environmental modelling: main class is <code><a title="MAPLEAF.ENV.Environment.Environment" href="ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>.
-<code><a title="MAPLEAF.ENV.Environment.Environment" href="ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code> wraps the atmospheric models, …</p></div>
+<div class="desc"><p>Environmental modelling: main class is <code><a title="MAPLEAF.ENV.Environment" href="ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code>.
+<code><a title="MAPLEAF.ENV.Environment" href="ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code> wraps the atmospheric models, gravity models, mean wind …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.GNC" href="GNC/index.html">MAPLEAF.GNC</a></code></dt>
 <dd>
@@ -125,17 +127,21 @@ If MAPLEAF has been installed with pip, this script is accessible through the 'm
 <dt><code class="name"><a title="MAPLEAF.Motion" href="Motion/index.html">MAPLEAF.Motion</a></code></dt>
 <dd>
 <div class="desc"><p>Generalized Rigid body motion integration functionality.
-Main class (6Dof) is <code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="Motion/RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code>.<br>
-Fundamental data types used …</p></div>
+Main class (6Dof) is <code><a title="MAPLEAF.Motion.RigidBody" href="Motion/index.html#MAPLEAF.Motion.RigidBody">RigidBody</a></code>.<br>
+Fundamental data types used throughout the …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.Rocket" href="Rocket/index.html">MAPLEAF.Rocket</a></code></dt>
 <dd>
 <div class="desc"><p>Code specific to modelling Rockets.<br>
-Main class is <code><a title="MAPLEAF.Rocket.Rocket" href="Rocket/Rocket.html">MAPLEAF.Rocket.Rocket</a></code> …</p></div>
+Main class is <code><a title="MAPLEAF.Rocket" href="Rocket/index.html">MAPLEAF.Rocket</a></code> …</p></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.SimulationRunners" href="SimulationRunners.html">MAPLEAF.SimulationRunners</a></code></dt>
 <dd>
-<div class="desc"><p>Defines a basic single simulation runner <code>SingleSimRunner</code>, as well as more specialized child classes that run several simulations in one go …</p></div>
+<div class="desc"><p>Defines a basic single simulation runner <code>SingleSimRunner</code>, as well as more specialized classes that run several simulations in one go …</p></div>
+</dd>
+<dt><code class="name"><a title="MAPLEAF.Utilities" href="Utilities.html">MAPLEAF.Utilities</a></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 </section>
@@ -167,6 +173,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Motion" href="Motion/index.html">MAPLEAF.Motion</a></code></li>
 <li><code><a title="MAPLEAF.Rocket" href="Rocket/index.html">MAPLEAF.Rocket</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners" href="SimulationRunners.html">MAPLEAF.SimulationRunners</a></code></li>
+<li><code><a title="MAPLEAF.Utilities" href="Utilities.html">MAPLEAF.Utilities</a></code></li>
 </ul>
 </li>
 </ul>

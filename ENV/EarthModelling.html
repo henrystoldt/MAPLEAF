@@ -34,16 +34,16 @@
 <pre><code class="python">&#39;&#39;&#39; These classes model the earth&#39;s gravity and perform some coordinate transformations between the global inertial frame and the ENU/launch tower frame &#39;&#39;&#39;
 
 from abc import ABC, abstractmethod
-from math import atan2, cos, degrees, radians, sin, sqrt, pi
+from math import atan2, cos, degrees, pi, radians, sin, sqrt
 from typing import Union
 
 import numpy as np
 
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
-from MAPLEAF.IO.SimDefinition import getAbsoluteFilePath
+from MAPLEAF.IO import getAbsoluteFilePath
+from MAPLEAF.Motion import (Inertia, Quaternion, RigidBodyState,
+                            RigidBodyState_3DoF, Vector)
+
+__all__ = [ &#34;earthModelFactory&#34;, &#34;NoEarth&#34;, &#34;FlatEarth&#34;, &#34;SphericalEarth&#34;, &#34;WGS84&#34; ]
 
 class EarthModel(ABC):
     &#39;&#39;&#39; Interface for all earth models &#39;&#39;&#39;
@@ -88,7 +88,7 @@ class EarthModel(ABC):
         return
 
 def earthModelFactory(envDictReader=None) -&gt; EarthModel:
-    &#39;&#39;&#39; Provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`). If none is provided, returns a FlatEarth model &#39;&#39;&#39;
+    &#39;&#39;&#39; Provide an envDictReader (`MAPLEAF.IO.SubDictReader`). If none is provided, returns a FlatEarth model &#39;&#39;&#39;
     if envDictReader == None:
         return FlatEarth()
 
@@ -99,7 +99,7 @@ def earthModelFactory(envDictReader=None) -&gt; EarthModel:
     elif earthModel == &#34;Round&#34;:
         return SphericalEarth()
     elif earthModel == &#34;WGS84&#34;:
-        return WGS84Earth()
+        return WGS84()
     elif earthModel == &#34;None&#34;:
         return NoEarth()
     else:
@@ -259,7 +259,7 @@ class SphericalEarth(EarthModel):
         except AttributeError: # 3DoF Case
             return RigidBodyState_3DoF(globalFramePosition, globalFrameVelocity)             
 
-class WGS84Earth(SphericalEarth):
+class WGS84(SphericalEarth):
     &#39;&#39;&#39; 
         Models a rotating, ellipsoid earth, with non-uniform gravity 
         Inherits the getInertialToENUFrameRotation function from SphericalEarth, otherwise overrides everything
@@ -411,16 +411,16 @@ class WGS84Earth(SphericalEarth):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.EarthModelling.earthModelFactory"><code class="name flex">
-<span>def <span class="ident">earthModelFactory</span></span>(<span>envDictReader=None) ‑> <a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></span>
+<span>def <span class="ident">earthModelFactory</span></span>(<span>envDictReader=None) ‑> MAPLEAF.ENV.EarthModelling.EarthModel</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>). If none is provided, returns a FlatEarth model</p></div>
+<div class="desc"><p>Provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../IO/index.html#MAPLEAF.IO.SubDictReader">SubDictReader</a></code>). If none is provided, returns a FlatEarth model</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def earthModelFactory(envDictReader=None) -&gt; EarthModel:
-    &#39;&#39;&#39; Provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`). If none is provided, returns a FlatEarth model &#39;&#39;&#39;
+    &#39;&#39;&#39; Provide an envDictReader (`MAPLEAF.IO.SubDictReader`). If none is provided, returns a FlatEarth model &#39;&#39;&#39;
     if envDictReader == None:
         return FlatEarth()
 
@@ -431,7 +431,7 @@ class WGS84Earth(SphericalEarth):
     elif earthModel == &#34;Round&#34;:
         return SphericalEarth()
     elif earthModel == &#34;WGS84&#34;:
-        return WGS84Earth()
+        return WGS84()
     elif earthModel == &#34;None&#34;:
         return NoEarth()
     else:
@@ -443,169 +443,6 @@ class WGS84Earth(SphericalEarth):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel"><code class="flex name class">
-<span>class <span class="ident">EarthModel</span></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Interface for all earth models</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class EarthModel(ABC):
-    &#39;&#39;&#39; Interface for all earth models &#39;&#39;&#39;
-    # All earth models will have these default values
-    rotationRate = 0
-
-    @abstractmethod
-    def getGravityForce(self, inertia: Inertia, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Vector:
-        &#39;&#39;&#39; Return gravity force vector in the global inertial frame &#39;&#39;&#39;
-        return
-
-    @abstractmethod
-    def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quaternion:
-        &#39;&#39;&#39; 
-            Return Quaternion defining the rotation from the global inertial frame 
-            to the North-East-Up frame defined on the surface under the air vehicle&#39;s position
-        &#39;&#39;&#39;
-        return
-
-    def getInertialToNEDFrameRotation(self, x, y, z):
-        inertialToENURotation = self.getInertialToENUFrameRotation(x, y, z)
-        ENUToNED = Quaternion(axisOfRotation=Vector(1,1,0), angle=pi)
-        return inertialToENURotation * ENUToNED
-
-    @abstractmethod
-    def getAltitude(self, x: float, y: float, z: float) -&gt; float:
-        &#39;&#39;&#39; Given the aircraft coordinates in the global inertial frame, should return the altitude above SEA level (ASL) - to be used in wind calculations &#39;&#39;&#39;
-        return
-
-    def convertIntoGlobalFrame(self, 
-        launchTowerFrameState: Union[RigidBodyState, RigidBodyState_3DoF], 
-        latitude: float, 
-        longitude: float, 
-    ) -&gt; Union[RigidBodyState, RigidBodyState_3DoF]:
-        &#39;&#39;&#39; 
-            Should take a RigidBodyState defined in the launch tower frame (fixed to the earth&#39;s surface), where 
-            position.Z has been redefined relative to sea level (instead of ground-level), and convert it into
-            the global inertial frame.
-            Exception is the Angular Velocity, since it is defined in the vehicle&#39;s local frame. If the earth model is
-                rotating, add the earth&#39;s angular velocity to it (after conversion into the local frame)
-        &#39;&#39;&#39;
-        return</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>abc.ABC</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="MAPLEAF.ENV.EarthModelling.NoEarth" href="#MAPLEAF.ENV.EarthModelling.NoEarth">NoEarth</a></li>
-<li><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth">SphericalEarth</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel.rotationRate"><code class="name">var <span class="ident">rotationRate</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel.convertIntoGlobalFrame"><code class="name flex">
-<span>def <span class="ident">convertIntoGlobalFrame</span></span>(<span>self, launchTowerFrameState: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>], latitude: float, longitude: float) ‑> Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Should take a RigidBodyState defined in the launch tower frame (fixed to the earth's surface), where
-position.Z has been redefined relative to sea level (instead of ground-level), and convert it into
-the global inertial frame.
-Exception is the Angular Velocity, since it is defined in the vehicle's local frame. If the earth model is
-rotating, add the earth's angular velocity to it (after conversion into the local frame)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def convertIntoGlobalFrame(self, 
-    launchTowerFrameState: Union[RigidBodyState, RigidBodyState_3DoF], 
-    latitude: float, 
-    longitude: float, 
-) -&gt; Union[RigidBodyState, RigidBodyState_3DoF]:
-    &#39;&#39;&#39; 
-        Should take a RigidBodyState defined in the launch tower frame (fixed to the earth&#39;s surface), where 
-        position.Z has been redefined relative to sea level (instead of ground-level), and convert it into
-        the global inertial frame.
-        Exception is the Angular Velocity, since it is defined in the vehicle&#39;s local frame. If the earth model is
-            rotating, add the earth&#39;s angular velocity to it (after conversion into the local frame)
-    &#39;&#39;&#39;
-    return</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude"><code class="name flex">
-<span>def <span class="ident">getAltitude</span></span>(<span>self, x: float, y: float, z: float) ‑> float</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Given the aircraft coordinates in the global inertial frame, should return the altitude above SEA level (ASL) - to be used in wind calculations</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def getAltitude(self, x: float, y: float, z: float) -&gt; float:
-    &#39;&#39;&#39; Given the aircraft coordinates in the global inertial frame, should return the altitude above SEA level (ASL) - to be used in wind calculations &#39;&#39;&#39;
-    return</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel.getGravityForce"><code class="name flex">
-<span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia: <a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a>, state: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]) ‑> <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return gravity force vector in the global inertial frame</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def getGravityForce(self, inertia: Inertia, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Vector:
-    &#39;&#39;&#39; Return gravity force vector in the global inertial frame &#39;&#39;&#39;
-    return</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToENUFrameRotation"><code class="name flex">
-<span>def <span class="ident">getInertialToENUFrameRotation</span></span>(<span>self, x: float, y: float, z: float) ‑> <a title="MAPLEAF.Motion.CythonQuaternion.Quaternion" href="../Motion/CythonQuaternion.html#MAPLEAF.Motion.CythonQuaternion.Quaternion">Quaternion</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return Quaternion defining the rotation from the global inertial frame
-to the North-East-Up frame defined on the surface under the air vehicle's position</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abstractmethod
-def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quaternion:
-    &#39;&#39;&#39; 
-        Return Quaternion defining the rotation from the global inertial frame 
-        to the North-East-Up frame defined on the surface under the air vehicle&#39;s position
-    &#39;&#39;&#39;
-    return</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToNEDFrameRotation"><code class="name flex">
-<span>def <span class="ident">getInertialToNEDFrameRotation</span></span>(<span>self, x, y, z)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getInertialToNEDFrameRotation(self, x, y, z):
-    inertialToENURotation = self.getInertialToENUFrameRotation(x, y, z)
-    ENUToNED = Quaternion(axisOfRotation=Vector(1,1,0), angle=pi)
-    return inertialToENURotation * ENUToNED</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 <dt id="MAPLEAF.ENV.EarthModelling.FlatEarth"><code class="flex name class">
 <span>class <span class="ident">FlatEarth</span></span>
 </code></dt>
@@ -632,7 +469,7 @@ def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quat
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="MAPLEAF.ENV.EarthModelling.NoEarth" href="#MAPLEAF.ENV.EarthModelling.NoEarth">NoEarth</a></li>
-<li><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></li>
+<li>MAPLEAF.ENV.EarthModelling.EarthModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
@@ -670,8 +507,8 @@ def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quat
 <li><code><b><a title="MAPLEAF.ENV.EarthModelling.NoEarth" href="#MAPLEAF.ENV.EarthModelling.NoEarth">NoEarth</a></b></code>:
 <ul class="hlist">
 <li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.NoEarth.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getAltitude" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude">getAltitude</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getAltitude" href="#MAPLEAF.ENV.EarthModelling.NoEarth.getAltitude">getAltitude</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.NoEarth.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
 </ul>
 </li>
 </ul>
@@ -705,7 +542,7 @@ def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quat
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></li>
+<li>MAPLEAF.ENV.EarthModelling.EarthModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Subclasses</h3>
@@ -743,17 +580,47 @@ def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quat
     return launchTowerFrameState</code></pre>
 </details>
 </dd>
+<dt id="MAPLEAF.ENV.EarthModelling.NoEarth.getAltitude"><code class="name flex">
+<span>def <span class="ident">getAltitude</span></span>(<span>self, x, y, z)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given the aircraft coordinates in the global inertial frame, should return the altitude above SEA level (ASL) - to be used in wind calculations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAltitude(self, x, y, z):
+    return z</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.EarthModelling.NoEarth.getGravityForce"><code class="name flex">
+<span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia, state)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return gravity force vector in the global inertial frame</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getGravityForce(self, inertia, state):
+    return self.noForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.EarthModelling.NoEarth.getInertialToENUFrameRotation"><code class="name flex">
+<span>def <span class="ident">getInertialToENUFrameRotation</span></span>(<span>self, x, y, z)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return Quaternion defining the rotation from the global inertial frame
+to the North-East-Up frame defined on the surface under the air vehicle's position</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getInertialToENUFrameRotation(self, x, y, z):
+    return self.noRotation</code></pre>
+</details>
+</dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></b></code>:
-<ul class="hlist">
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude">getAltitude</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getGravityForce" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getGravityForce">getGravityForce</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 <dt id="MAPLEAF.ENV.EarthModelling.SphericalEarth"><code class="flex name class">
 <span>class <span class="ident">SphericalEarth</span></span>
@@ -888,12 +755,12 @@ def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quat
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></li>
+<li>MAPLEAF.ENV.EarthModelling.EarthModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth">WGS84Earth</a></li>
+<li><a title="MAPLEAF.ENV.EarthModelling.WGS84" href="#MAPLEAF.ENV.EarthModelling.WGS84">WGS84</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -934,6 +801,55 @@ def getInertialToENUFrameRotation(self, x: float, y: float, z: float) -&gt; Quat
     height = sqrt(x*x + y*y + z*z) - self.radius
     
     return degrees(lat), degrees(lon), height</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.ENV.EarthModelling.SphericalEarth.convertIntoGlobalFrame"><code class="name flex">
+<span>def <span class="ident">convertIntoGlobalFrame</span></span>(<span>self, launchTowerFrameState, lat, lon)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Should take a RigidBodyState defined in the launch tower frame (fixed to the earth's surface), where
+position.Z has been redefined relative to sea level (instead of ground-level), and convert it into
+the global inertial frame.
+Exception is the Angular Velocity, since it is defined in the vehicle's local frame. If the earth model is
+rotating, add the earth's angular velocity to it (after conversion into the local frame)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convertIntoGlobalFrame(self, launchTowerFrameState, lat, lon):
+    ### Position ###
+    height = launchTowerFrameState.position.Z # ASL altitude
+    globalFramePosition = Vector(*self.geodeticToCartesian(lat, lon, height))
+    
+    ### Velocity ###
+    # Find orientation of launch tower frame relative to global frame
+    launchTowerToGlobalFrame = self.getInertialToENUFrameRotation(*globalFramePosition)
+
+    # Rotate velocity accordingly
+    rotatedVelocity = launchTowerToGlobalFrame.rotate(launchTowerFrameState.velocity)
+    # Add earth&#39;s surface velocity
+    earthAngVel = Vector(0, 0, self.rotationRate)
+    velocityDueToEarthRotation = earthAngVel.crossProduct(globalFramePosition)
+    globalFrameVelocity = rotatedVelocity + velocityDueToEarthRotation
+
+    try:  # 6DoF Case           
+        ### Orientation ###
+        globalFrameOrientation = launchTowerToGlobalFrame * launchTowerFrameState.orientation
+
+        ### Angular Velocity ###
+        # Angular velocity is defined in the vehicle&#39;s local frame, so the conversion needs to go the other way
+        earthAngVel_RocketFrame = globalFrameOrientation.conjugate().rotate(earthAngVel)
+        localFrame_adjustedAngVel = launchTowerFrameState.angularVelocity + earthAngVel_RocketFrame
+
+        return RigidBodyState( 
+            globalFramePosition, 
+            globalFrameVelocity, 
+            globalFrameOrientation, 
+            localFrame_adjustedAngVel
+            )
+    
+    except AttributeError: # 3DoF Case
+        return RigidBodyState_3DoF(globalFramePosition, globalFrameVelocity)             </code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.ENV.EarthModelling.SphericalEarth.geodeticToCartesian"><code class="name flex">
@@ -999,6 +915,21 @@ height: (float) ASL (usually m)</p>
     return x, y, z</code></pre>
 </details>
 </dd>
+<dt id="MAPLEAF.ENV.EarthModelling.SphericalEarth.getAltitude"><code class="name flex">
+<span>def <span class="ident">getAltitude</span></span>(<span>self, x, y, z)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given the aircraft coordinates in the global inertial frame, should return the altitude above SEA level (ASL) - to be used in wind calculations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getAltitude(self, x, y, z):
+    # Height is independent of the earth&#39;s rotation
+    _, __, height = self.cartesianToGeodetic(x, y, z)
+    return height</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.ENV.EarthModelling.SphericalEarth.getGravityForce"><code class="name flex">
 <span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia, state)</span>
 </code></dt>
@@ -1051,18 +982,9 @@ height: (float) ASL (usually m)</p>
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></b></code>:
-<ul class="hlist">
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.EarthModel.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude">getAltitude</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth"><code class="flex name class">
-<span>class <span class="ident">WGS84Earth</span></span>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84"><code class="flex name class">
+<span>class <span class="ident">WGS84</span></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Models a rotating, ellipsoid earth, with non-uniform gravity
@@ -1071,7 +993,7 @@ Inherits the getInertialToENUFrameRotation function from SphericalEarth, otherwi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class WGS84Earth(SphericalEarth):
+<pre><code class="python">class WGS84(SphericalEarth):
     &#39;&#39;&#39; 
         Models a rotating, ellipsoid earth, with non-uniform gravity 
         Inherits the getInertialToENUFrameRotation function from SphericalEarth, otherwise overrides everything
@@ -1217,39 +1139,39 @@ Inherits the getInertialToENUFrameRotation function from SphericalEarth, otherwi
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth">SphericalEarth</a></li>
-<li><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></li>
+<li>MAPLEAF.ENV.EarthModelling.EarthModel</li>
 <li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.a"><code class="name">var <span class="ident">a</span></code></dt>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.a"><code class="name">var <span class="ident">a</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.b"><code class="name">var <span class="ident">b</span></code></dt>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.b"><code class="name">var <span class="ident">b</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.e2"><code class="name">var <span class="ident">e2</span></code></dt>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.e2"><code class="name">var <span class="ident">e2</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.eP"><code class="name">var <span class="ident">eP</span></code></dt>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.eP"><code class="name">var <span class="ident">eP</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.eP2"><code class="name">var <span class="ident">eP2</span></code></dt>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.eP2"><code class="name">var <span class="ident">eP2</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.f"><code class="name">var <span class="ident">f</span></code></dt>
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.f"><code class="name">var <span class="ident">f</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.cartesianToGeodetic"><code class="name flex">
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.cartesianToGeodetic"><code class="name flex">
 <span>def <span class="ident">cartesianToGeodetic</span></span>(<span>self, x, y, z, timeOffset=0)</span>
 </code></dt>
 <dd>
@@ -1301,7 +1223,7 @@ Method adapted from: <a href="https://en.wikipedia.org/wiki/Geographic_coordinat
     return degrees(lat), degrees(lon), h</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.cartesianToSpherical"><code class="name flex">
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.cartesianToSpherical"><code class="name flex">
 <span>def <span class="ident">cartesianToSpherical</span></span>(<span>self, x, y, z, timeOffset=0)</span>
 </code></dt>
 <dd>
@@ -1325,7 +1247,7 @@ Method adapted from: <a href="https://en.wikipedia.org/wiki/Geographic_coordinat
     return degrees(lat), degrees(lon), height</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.geodeticToCartesian"><code class="name flex">
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.geodeticToCartesian"><code class="name flex">
 <span>def <span class="ident">geodeticToCartesian</span></span>(<span>self, lat, lon, height, timeOffset=0)</span>
 </code></dt>
 <dd>
@@ -1401,7 +1323,7 @@ At timeOffset=0, this inertial frame is aligned with the standard earth-centered
     return x, y, z</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.getGravityForce"><code class="name flex">
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.getGravityForce"><code class="name flex">
 <span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia, state)</span>
 </code></dt>
 <dd>
@@ -1436,7 +1358,7 @@ Method from NESC-RP-12-00770, Volume II, pg.51, Eqn 29-31</p></div>
     return Vector(xForce, yForce, zForce)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.EarthModelling.WGS84Earth.sphericalToCartesian"><code class="name flex">
+<dt id="MAPLEAF.ENV.EarthModelling.WGS84.sphericalToCartesian"><code class="name flex">
 <span>def <span class="ident">sphericalToCartesian</span></span>(<span>self, lat, lon, height, timeOffset=0)</span>
 </code></dt>
 <dd>
@@ -1504,8 +1426,8 @@ height: (float) ASL (usually m)</p>
 <ul class="hlist">
 <li><code><b><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth">SphericalEarth</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.EarthModel.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.getAltitude" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude">getAltitude</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.getAltitude" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.getAltitude">getAltitude</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
 </ul>
 </li>
@@ -1539,17 +1461,6 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel" href="#MAPLEAF.ENV.EarthModelling.EarthModel">EarthModel</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.EarthModel.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getAltitude">getAltitude</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getGravityForce" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getGravityForce">getGravityForce</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToNEDFrameRotation" href="#MAPLEAF.ENV.EarthModelling.EarthModel.getInertialToNEDFrameRotation">getInertialToNEDFrameRotation</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.EarthModel.rotationRate" href="#MAPLEAF.ENV.EarthModelling.EarthModel.rotationRate">rotationRate</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="MAPLEAF.ENV.EarthModelling.FlatEarth" href="#MAPLEAF.ENV.EarthModelling.FlatEarth">FlatEarth</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.ENV.EarthModelling.FlatEarth.GM" href="#MAPLEAF.ENV.EarthModelling.FlatEarth.GM">GM</a></code></li>
@@ -1560,6 +1471,9 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth" href="#MAPLEAF.ENV.EarthModelling.NoEarth">NoEarth</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.NoEarth.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getAltitude" href="#MAPLEAF.ENV.EarthModelling.NoEarth.getAltitude">getAltitude</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getGravityForce" href="#MAPLEAF.ENV.EarthModelling.NoEarth.getGravityForce">getGravityForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.NoEarth.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.noForce" href="#MAPLEAF.ENV.EarthModelling.NoEarth.noForce">noForce</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.noRotation" href="#MAPLEAF.ENV.EarthModelling.NoEarth.noRotation">noRotation</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.NoEarth.rotationRate" href="#MAPLEAF.ENV.EarthModelling.NoEarth.rotationRate">rotationRate</a></code></li>
@@ -1570,7 +1484,9 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.GM" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.GM">GM</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.cartesianToGeodetic" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.cartesianToGeodetic">cartesianToGeodetic</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.convertIntoGlobalFrame" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.convertIntoGlobalFrame">convertIntoGlobalFrame</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.geodeticToCartesian" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.geodeticToCartesian">geodeticToCartesian</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.getAltitude" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.getAltitude">getAltitude</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.getGravityForce" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.getGravityForce">getGravityForce</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.getInertialToENUFrameRotation" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.getInertialToENUFrameRotation">getInertialToENUFrameRotation</a></code></li>
 <li><code><a title="MAPLEAF.ENV.EarthModelling.SphericalEarth.radius" href="#MAPLEAF.ENV.EarthModelling.SphericalEarth.radius">radius</a></code></li>
@@ -1578,19 +1494,19 @@ MAPLEAF
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth">WGS84Earth</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.EarthModelling.WGS84" href="#MAPLEAF.ENV.EarthModelling.WGS84">WGS84</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.a" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.a">a</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.b" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.b">b</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.cartesianToGeodetic" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.cartesianToGeodetic">cartesianToGeodetic</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.cartesianToSpherical" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.cartesianToSpherical">cartesianToSpherical</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.e2" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.e2">e2</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.eP" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.eP">eP</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.eP2" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.eP2">eP2</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.f" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.f">f</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.geodeticToCartesian" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.geodeticToCartesian">geodeticToCartesian</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.getGravityForce" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.getGravityForce">getGravityForce</a></code></li>
-<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84Earth.sphericalToCartesian" href="#MAPLEAF.ENV.EarthModelling.WGS84Earth.sphericalToCartesian">sphericalToCartesian</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.a" href="#MAPLEAF.ENV.EarthModelling.WGS84.a">a</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.b" href="#MAPLEAF.ENV.EarthModelling.WGS84.b">b</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.cartesianToGeodetic" href="#MAPLEAF.ENV.EarthModelling.WGS84.cartesianToGeodetic">cartesianToGeodetic</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.cartesianToSpherical" href="#MAPLEAF.ENV.EarthModelling.WGS84.cartesianToSpherical">cartesianToSpherical</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.e2" href="#MAPLEAF.ENV.EarthModelling.WGS84.e2">e2</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.eP" href="#MAPLEAF.ENV.EarthModelling.WGS84.eP">eP</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.eP2" href="#MAPLEAF.ENV.EarthModelling.WGS84.eP2">eP2</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.f" href="#MAPLEAF.ENV.EarthModelling.WGS84.f">f</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.geodeticToCartesian" href="#MAPLEAF.ENV.EarthModelling.WGS84.geodeticToCartesian">geodeticToCartesian</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.getGravityForce" href="#MAPLEAF.ENV.EarthModelling.WGS84.getGravityForce">getGravityForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.EarthModelling.WGS84.sphericalToCartesian" href="#MAPLEAF.ENV.EarthModelling.WGS84.sphericalToCartesian">sphericalToCartesian</a></code></li>
 </ul>
 </li>
 </ul>

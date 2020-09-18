@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.ENV.Environment API documentation</title>
-<meta name="description" content="Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket.Rocket`" />
+<title>MAPLEAF.ENV.environment API documentation</title>
+<meta name="description" content="Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket`" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -16,41 +16,35 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/ENV/Environment.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/ENV/environment.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.ENV.Environment</code></h1>
+<h1 class="title">Module <code>MAPLEAF.ENV.environment</code></h1>
 </header>
 <section id="section-intro">
-<p>Main wrapper and data classes that tie together all of the environmental models and are queried by instances of <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="../Rocket/Rocket.html#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code></p>
+<p>Main wrapper and data classes that tie together all of the environmental models and are queried by instances of <code><a title="MAPLEAF.Rocket.Rocket" href="../Rocket/index.html#MAPLEAF.Rocket.Rocket">Rocket</a></code></p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#39;&#39;&#39; Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket.Rocket` &#39;&#39;&#39;
+<pre><code class="python">&#39;&#39;&#39; Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket` &#39;&#39;&#39;
 
 import math
 from collections import namedtuple
 from typing import Union
 
-import numpy as np
+from MAPLEAF.ENV import (LaunchRail, atmosphericModelFactory,
+                         earthModelFactory, meanWindModelFactory,
+                         turbulenceModelFactory)
+from MAPLEAF.IO import SubDictReader, defaultConfigValues
+from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
+                            RigidBodyState, RigidBodyState_3DoF, Vector)
 
-from MAPLEAF.ENV.AtmosphereModelling import atmosphericModelFactory
-from MAPLEAF.ENV.EarthModelling import earthModelFactory
-from MAPLEAF.ENV.LaunchRail import LaunchRail
-from MAPLEAF.ENV.MeanWindModelling import meanWindModelFactory
-from MAPLEAF.ENV.TurbulenceModelling import turbulenceModelFactory
-from MAPLEAF.IO.SimDefinition import defaultConfigValues
-from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
+__all__ = [ &#34;EnvironmentalConditions&#34;, &#34;Environment&#34; ]
 
 # This named tuple is the object used to return information from the Environmental models to the rocket
     # It is subsequently passed to all rocket objects, who use it in their calculations if they have
@@ -243,8 +237,8 @@ class Environment():
     def getGravityForce(self, inertia, state) -&gt; ForceMomentSystem:
         &#39;&#39;&#39;
             Inputs:
-                inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
-                state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+                inertia: (`MAPLEAF.Motion.Inertia`)
+                state:   (`MAPLEAF.Motion.RigidBodyState`/`MAPLEAF.Motion.RigidBodyState_3DoF`)
 
             Returns:
                 gravityForce: (ForceMomentSystem) defined in the rocket&#39;s local frame
@@ -270,7 +264,7 @@ class Environment():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.ENV.Environment.Environment"><code class="flex name class">
+<dt id="MAPLEAF.ENV.environment.Environment"><code class="flex name class">
 <span>class <span class="ident">Environment</span></span>
 <span>(</span><span>simDefinition=None, silent=False)</span>
 </code></dt>
@@ -456,8 +450,8 @@ single interface for communication with flight vehicles</p>
     def getGravityForce(self, inertia, state) -&gt; ForceMomentSystem:
         &#39;&#39;&#39;
             Inputs:
-                inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
-                state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+                inertia: (`MAPLEAF.Motion.Inertia`)
+                state:   (`MAPLEAF.Motion.RigidBodyState`/`MAPLEAF.Motion.RigidBodyState_3DoF`)
 
             Returns:
                 gravityForce: (ForceMomentSystem) defined in the rocket&#39;s local frame
@@ -475,7 +469,7 @@ single interface for communication with flight vehicles</p>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.ENV.Environment.Environment.applyLaunchRailMotionConstraints"><code class="name flex">
+<dt id="MAPLEAF.ENV.environment.Environment.applyLaunchRailMotionConstraints"><code class="name flex">
 <span>def <span class="ident">applyLaunchRailMotionConstraints</span></span>(<span>self, state, time)</span>
 </code></dt>
 <dd>
@@ -499,7 +493,7 @@ single interface for communication with flight vehicles</p>
     return adjustedState</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.Environment.applyLaunchTowerForce"><code class="name flex">
+<dt id="MAPLEAF.ENV.environment.Environment.applyLaunchTowerForce"><code class="name flex">
 <span>def <span class="ident">applyLaunchTowerForce</span></span>(<span>self, state, time, unadjustedForce)</span>
 </code></dt>
 <dd>
@@ -516,7 +510,7 @@ single interface for communication with flight vehicles</p>
     return self.launchRail.applyLaunchTowerForce(state, time, unadjustedForce)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.Environment.convertInitialStateToGlobalFrame"><code class="name flex">
+<dt id="MAPLEAF.ENV.environment.Environment.convertInitialStateToGlobalFrame"><code class="name flex">
 <span>def <span class="ident">convertInitialStateToGlobalFrame</span></span>(<span>self, initialStateInLaunchTowerFrame)</span>
 </code></dt>
 <dd>
@@ -563,7 +557,7 @@ but for a rotating earth model, this modifies every part of the rigid body state
     return self.earthModel.convertIntoGlobalFrame(initialStateInLaunchTowerFrame, self.launchSiteLatitude, self.launchSiteLongitude)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.Environment.convertStateToENUFrame"><code class="name flex">
+<dt id="MAPLEAF.ENV.environment.Environment.convertStateToENUFrame"><code class="name flex">
 <span>def <span class="ident">convertStateToENUFrame</span></span>(<span>self, globalFrameState: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]) ‑> Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]</span>
 </code></dt>
 <dd>
@@ -588,8 +582,8 @@ but for a rotating earth model, this modifies every part of the rigid body state
         return RigidBodyState_3DoF(position, velocity)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.Environment.getAirProperties"><code class="name flex">
-<span>def <span class="ident">getAirProperties</span></span>(<span>self, position: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>, time=None) ‑> <a title="MAPLEAF.ENV.Environment.EnvironmentalConditions" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions">EnvironmentalConditions</a></span>
+<dt id="MAPLEAF.ENV.environment.Environment.getAirProperties"><code class="name flex">
+<span>def <span class="ident">getAirProperties</span></span>(<span>self, position: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>, time=None) ‑> <a title="MAPLEAF.ENV.environment.EnvironmentalConditions" href="#MAPLEAF.ENV.environment.EnvironmentalConditions">EnvironmentalConditions</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Pass in a vector representing the aircraft's position in the global inertial frame of reference</p></div>
@@ -634,14 +628,14 @@ but for a rotating earth model, this modifies every part of the rigid body state
     )</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.Environment.getGravityForce"><code class="name flex">
-<span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia, state) ‑> <a title="MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem" href="../Motion/ForceMomentSystem.html#MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+<dt id="MAPLEAF.ENV.environment.Environment.getGravityForce"><code class="name flex">
+<span>def <span class="ident">getGravityForce</span></span>(<span>self, inertia, state) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="inputs">Inputs</h2>
-<p>inertia: (<code><a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></code>)
+<p>inertia: (<code><a title="MAPLEAF.Motion.Inertia" href="../Motion/index.html#MAPLEAF.Motion.Inertia">Inertia</a></code>)
 state:
-(<code><a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a></code>/<code><a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a></code>)</p>
+(<code><a title="MAPLEAF.Motion.RigidBodyState" href="../Motion/index.html#MAPLEAF.Motion.RigidBodyState">RigidBodyState</a></code>/<code><a title="MAPLEAF.Motion.RigidBodyState_3DoF" href="../Motion/index.html#MAPLEAF.Motion.RigidBodyState_3DoF">RigidBodyState_3DoF</a></code>)</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>gravityForce</code></dt>
@@ -654,8 +648,8 @@ state:
 <pre><code class="python">def getGravityForce(self, inertia, state) -&gt; ForceMomentSystem:
     &#39;&#39;&#39;
         Inputs:
-            inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
-            state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+            inertia: (`MAPLEAF.Motion.Inertia`)
+            state:   (`MAPLEAF.Motion.RigidBodyState`/`MAPLEAF.Motion.RigidBodyState_3DoF`)
 
         Returns:
             gravityForce: (ForceMomentSystem) defined in the rocket&#39;s local frame
@@ -672,7 +666,7 @@ state:
     return ForceMomentSystem(gravityForce, inertia.CG)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.Environment.getWind"><code class="name flex">
+<dt id="MAPLEAF.ENV.environment.Environment.getWind"><code class="name flex">
 <span>def <span class="ident">getWind</span></span>(<span>self, AGLElevation, time=None)</span>
 </code></dt>
 <dd>
@@ -695,7 +689,7 @@ state:
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions"><code class="flex name class">
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions"><code class="flex name class">
 <span>class <span class="ident">EnvironmentalConditions</span></span>
 <span>(</span><span>ASLAltitude, Temp, Pressure, Density, DynamicViscosity, Wind, MeanWind, TurbWind)</span>
 </code></dt>
@@ -707,35 +701,35 @@ state:
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.ASLAltitude"><code class="name">var <span class="ident">ASLAltitude</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.ASLAltitude"><code class="name">var <span class="ident">ASLAltitude</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 0</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Density"><code class="name">var <span class="ident">Density</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.Density"><code class="name">var <span class="ident">Density</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 3</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.DynamicViscosity"><code class="name">var <span class="ident">DynamicViscosity</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.DynamicViscosity"><code class="name">var <span class="ident">DynamicViscosity</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 4</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.MeanWind"><code class="name">var <span class="ident">MeanWind</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.MeanWind"><code class="name">var <span class="ident">MeanWind</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 6</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Pressure"><code class="name">var <span class="ident">Pressure</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.Pressure"><code class="name">var <span class="ident">Pressure</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 2</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Temp"><code class="name">var <span class="ident">Temp</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.Temp"><code class="name">var <span class="ident">Temp</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 1</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.TurbWind"><code class="name">var <span class="ident">TurbWind</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.TurbWind"><code class="name">var <span class="ident">TurbWind</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 7</p></div>
 </dd>
-<dt id="MAPLEAF.ENV.Environment.EnvironmentalConditions.Wind"><code class="name">var <span class="ident">Wind</span></code></dt>
+<dt id="MAPLEAF.ENV.environment.EnvironmentalConditions.Wind"><code class="name">var <span class="ident">Wind</span></code></dt>
 <dd>
 <div class="desc"><p>Alias for field number 5</p></div>
 </dd>
@@ -764,28 +758,28 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.ENV.Environment.Environment" href="#MAPLEAF.ENV.Environment.Environment">Environment</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.environment.Environment" href="#MAPLEAF.ENV.environment.Environment">Environment</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.applyLaunchRailMotionConstraints" href="#MAPLEAF.ENV.Environment.Environment.applyLaunchRailMotionConstraints">applyLaunchRailMotionConstraints</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.applyLaunchTowerForce" href="#MAPLEAF.ENV.Environment.Environment.applyLaunchTowerForce">applyLaunchTowerForce</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.convertInitialStateToGlobalFrame" href="#MAPLEAF.ENV.Environment.Environment.convertInitialStateToGlobalFrame">convertInitialStateToGlobalFrame</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.convertStateToENUFrame" href="#MAPLEAF.ENV.Environment.Environment.convertStateToENUFrame">convertStateToENUFrame</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.getAirProperties" href="#MAPLEAF.ENV.Environment.Environment.getAirProperties">getAirProperties</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.getGravityForce" href="#MAPLEAF.ENV.Environment.Environment.getGravityForce">getGravityForce</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.Environment.getWind" href="#MAPLEAF.ENV.Environment.Environment.getWind">getWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.applyLaunchRailMotionConstraints" href="#MAPLEAF.ENV.environment.Environment.applyLaunchRailMotionConstraints">applyLaunchRailMotionConstraints</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.applyLaunchTowerForce" href="#MAPLEAF.ENV.environment.Environment.applyLaunchTowerForce">applyLaunchTowerForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.convertInitialStateToGlobalFrame" href="#MAPLEAF.ENV.environment.Environment.convertInitialStateToGlobalFrame">convertInitialStateToGlobalFrame</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.convertStateToENUFrame" href="#MAPLEAF.ENV.environment.Environment.convertStateToENUFrame">convertStateToENUFrame</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.getAirProperties" href="#MAPLEAF.ENV.environment.Environment.getAirProperties">getAirProperties</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.getGravityForce" href="#MAPLEAF.ENV.environment.Environment.getGravityForce">getGravityForce</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.Environment.getWind" href="#MAPLEAF.ENV.environment.Environment.getWind">getWind</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions">EnvironmentalConditions</a></code></h4>
+<h4><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions" href="#MAPLEAF.ENV.environment.EnvironmentalConditions">EnvironmentalConditions</a></code></h4>
 <ul class="two-column">
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.ASLAltitude" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.ASLAltitude">ASLAltitude</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Density" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Density">Density</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.DynamicViscosity" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.DynamicViscosity">DynamicViscosity</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.MeanWind" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.MeanWind">MeanWind</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Pressure" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Pressure">Pressure</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Temp" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Temp">Temp</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.TurbWind" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.TurbWind">TurbWind</a></code></li>
-<li><code><a title="MAPLEAF.ENV.Environment.EnvironmentalConditions.Wind" href="#MAPLEAF.ENV.Environment.EnvironmentalConditions.Wind">Wind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.ASLAltitude" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.ASLAltitude">ASLAltitude</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.Density" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.Density">Density</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.DynamicViscosity" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.DynamicViscosity">DynamicViscosity</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.MeanWind" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.MeanWind">MeanWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.Pressure" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.Pressure">Pressure</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.Temp" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.Temp">Temp</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.TurbWind" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.TurbWind">TurbWind</a></code></li>
+<li><code><a title="MAPLEAF.ENV.environment.EnvironmentalConditions.Wind" href="#MAPLEAF.ENV.environment.EnvironmentalConditions.Wind">Wind</a></code></li>
 </ul>
 </li>
 </ul>

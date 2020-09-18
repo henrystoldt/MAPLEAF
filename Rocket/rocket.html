@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.Rocket.Rocket API documentation</title>
+<title>MAPLEAF.Rocket.rocket API documentation</title>
 <meta name="description" content="`Rocket ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to
 simulate the flight of a single rocket or …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -17,19 +17,19 @@ simulate the flight of a single rocket or …" />
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/Rocket.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/rocket.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.Rocket.Rocket</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Rocket.rocket</code></h1>
 </header>
 <section id="section-intro">
-<p><code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a> ties together the code in </code>MAPLEAF.GNC<code>, </code>MAPLEAF.Rocket<code>, </code>MAPLEAF.Motion<code>, and </code>MAPLEAF.ENV` to
-simulate the flight of a single rocket or dropped rocket stage (<code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> always only represents a single rigid body at a time).
-New instances of <code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code> are created by <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code> to represent dropped stages.</p>
+<p><code><a title="MAPLEAF.Rocket.rocket.Rocket" href="#MAPLEAF.Rocket.rocket.Rocket">Rocket</a> ties together the code in </code>MAPLEAF.GNC<code>, </code>MAPLEAF.Rocket<code>, </code>MAPLEAF.Motion<code>, and </code>MAPLEAF.ENV` to
+simulate the flight of a single rocket or dropped rocket stage (<code><a title="MAPLEAF.Rocket.rocket.Rocket" href="#MAPLEAF.Rocket.rocket.Rocket">Rocket</a></code> always only represents a single rigid body at a time).
+New instances of <code><a title="MAPLEAF.Rocket.rocket.Rocket" href="#MAPLEAF.Rocket.rocket.Rocket">Rocket</a></code> are created by <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code> to represent dropped stages.</p>
 <p><img alt="" src="https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG"></p>
 <details class="source">
 <summary>
@@ -44,66 +44,52 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.SingleSimRun
 &#34;&#34;&#34;
 
 import math
-import re
-from distutils.util import strtobool
 
 import matplotlib.pyplot as plt
-import numpy
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import Environment, EnvironmentalConditions
-from MAPLEAF.GNC.ControlSystems import RocketControlSystem
+from MAPLEAF.ENV import Environment, EnvironmentalConditions
+from MAPLEAF.GNC import RocketControlSystem
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
-from MAPLEAF.IO.SimDefinition import SimDefinition
-from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.CythonAngularVelocity import AngularVelocity
-from MAPLEAF.Motion.CompositeObject import CompositeObject
-from MAPLEAF.Motion.CythonQuaternion import Quaternion
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBody import RigidBody, RigidBody_3DoF
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
-from MAPLEAF.Rocket.BoatTail import BoatTail
-from MAPLEAF.Rocket.Bodytube import Bodytube
-from MAPLEAF.Rocket.Fins import FinSet
-from MAPLEAF.Rocket.Motor import Motor
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.RocketComponents import BodyComponent, PlanarInterface
-from MAPLEAF.Rocket.SimEventDetector import SimEventDetector
-from MAPLEAF.Rocket.Stage import Stage
+from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
+                            Quaternion, RigidBody, RigidBody_3DoF,
+                            RigidBodyState, RigidBodyState_3DoF, Vector)
+from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
+                            PlanarInterface, SimEventDetector, Stage)
+from MAPLEAF.Rocket.CompositeObject import CompositeObject
 
+__all__ = [ &#34;Rocket&#34; ]
 
 class Rocket(CompositeObject):
     &#39;&#39;&#39;
-        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage.Stage` objects.
+        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage` objects.
         New instances of this class are also created to model the flight of dropped stages.
     &#39;&#39;&#39;
     #### Initialization ####
     def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
         &#39;&#39;&#39;
             Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.Main.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
             This will return a Rocket initialized on the pad with all its stages, ready for flight.
 
             If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
 
             Inputs:
 
-            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
+            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.  
-            * simRunner:            (`MAPLEAF.Main.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
-            * environment:          (`MAPLEAF.ENV.Environment.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
+            * simRunner:            (`MAPLEAF.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
+            * environment:          (`MAPLEAF.ENV.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
         &#39;&#39;&#39;
         self.rocketDictReader = rocketDictReader
         self.simDefinition = rocketDictReader.simDefinition
 
         self.simRunner = simRunner
-        &#39;&#39;&#39; Parent instance of `MAPLEAF.Main.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
+        &#39;&#39;&#39; Parent instance of `MAPLEAF.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
         
         self.environment = environment
-        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment` &#39;&#39;&#39;
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment` &#39;&#39;&#39;
         if self.environment == None:
             # If no environment is passed in, create one
             self.environment = Environment(self.simDefinition, silent=silent)
@@ -118,30 +104,30 @@ class Rocket(CompositeObject):
 
         self.stages = []
         &#39;&#39;&#39;
-            A list of `MAPLEAF.Rocket.Stage.Stage` objects that make up the rocket, ordered from top to bottom.  
-            Populated by `Rocket._initializeStages`.
+            A list of `MAPLEAF.Rocket.Stage` objects that make up the rocket, ordered from top to bottom.  
+            Populated by `_initializeStages`.
         &#39;&#39;&#39;
 
         self.recoverySystem = None
         &#39;&#39;&#39;
             Reference to the current Rocket&#39;s (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.  
-            Set in `MAPLEAF.Rocket.RecoverySystem.RecoverySystem.__init__`
+            Set in `MAPLEAF.Rocket.RecoverySystem.__init__`
         &#39;&#39;&#39;
 
         self.rigidBody = None            
         &#39;&#39;&#39; 
-            (`MAPLEAF.Motion.RigidBody.RigidBody` or `MAPLEAF.Motion.RigidBody.RigidBody_3DoF`) Responsible for motion integration.  
-            Set in `Rocket._initializeRigidBody()`.
+            (`MAPLEAF.Motion.RigidBody` or `MAPLEAF.Motion.RigidBody_3DoF`) Responsible for motion integration.  
+            Set in `_initializeRigidBody()`.
         &#39;&#39;&#39;
 
         self.isUnderChute = False
-        &#39;&#39;&#39; (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()` &#39;&#39;&#39;
+        &#39;&#39;&#39; (bool) Controlled by `MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage()` &#39;&#39;&#39;
 
         self.mainChuteDeployTime = None
-        &#39;&#39;&#39; (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()`  &#39;&#39;&#39;
+        &#39;&#39;&#39; (float) Filled in during flight by `MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage()`  &#39;&#39;&#39;
         
         self.engineShutOffTime = None
-        &#39;&#39;&#39; (float) Filled in by `MAPLEAF.Rocket.Motor.Motor.__init__()` upon initialization &#39;&#39;&#39;
+        &#39;&#39;&#39; (float) Filled in by `MAPLEAF.Rocket.Propulsion.TabulatedMotor.__init__()` upon initialization &#39;&#39;&#39;
 
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool(&#34;Environment.turbulenceOffWhenUnderChute&#34;)
         &#39;&#39;&#39; (bool) &#39;&#39;&#39;
@@ -160,7 +146,7 @@ class Rocket(CompositeObject):
         self.targetLocation = None
 
         self.simEventDetector = SimEventDetector(self) 
-        &#39;&#39;&#39; (`MAPLEAF.Rocket.SimEventDetector.SimEventDetector`) Used to trigger things like recovery systems and staging &#39;&#39;&#39;
+        &#39;&#39;&#39; (`MAPLEAF.Rocket.SimEventDetector`) Used to trigger things like recovery systems and staging &#39;&#39;&#39;
 
         self.eventTimeStep = rocketDictReader.getFloat(&#34;SimControl.TimeStepAdaptation.eventTimingAccuracy&#34;)
         &#39;&#39;&#39; If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value &#39;&#39;&#39;
@@ -502,10 +488,10 @@ class Rocket(CompositeObject):
         ### Component Forces ###
         if not self.isUnderChute:
             # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
-            Mach = AeroFunctions.getMachNumber(state, environment)
-            unitRe = AeroFunctions.getReynoldsNumber(state, environment, 1.0)
-            AOA = AeroFunctions.getTotalAOA(state, environment)
-            rollAngle = AeroFunctions.getRollAngle(state, environment)
+            Mach = AeroParameters.getMachNumber(state, environment)
+            unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
+            AOA = AeroParameters.getTotalAOA(state, environment)
+            rollAngle = AeroParameters.getRollAngle(state, environment)
 
             # Log current rocket / flight conditions
             self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle))
@@ -572,7 +558,7 @@ class Rocket(CompositeObject):
         &#39;&#39;&#39;
             Tells the simulation to take a time step of size dt.  
 
-            Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+            Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
 
             Returns:
                 * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
@@ -640,21 +626,21 @@ class Rocket(CompositeObject):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket"><code class="flex name class">
+<dt id="MAPLEAF.Rocket.rocket.Rocket"><code class="flex name class">
 <span>class <span class="ident">Rocket</span></span>
 <span>(</span><span>rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Class used to represent a single flying rigid body composed of <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> objects.
+<div class="desc"><p>Class used to represent a single flying rigid body composed of <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code> objects.
 New instances of this class are also created to model the flight of dropped stages.</p>
 <p>Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-To get a single Rocket object, initialize a SingleSimRunner and call <code>MAPLEAF.Main.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()</code>.<br>
+To get a single Rocket object, initialize a SingleSimRunner and call <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation">SingleSimRunner.prepRocketForSingleSimulation()</a></code>.<br>
 This will return a Rocket initialized on the pad with all its stages, ready for flight.</p>
 <p>If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.</p>
 <p>Inputs:</p>
 <ul>
 <li>rocketDictReader:
-(<code><a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a></code>) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.
+(<code><a title="MAPLEAF.IO.SubDictReader" href="../IO/index.html#MAPLEAF.IO.SubDictReader">SubDictReader</a></code>) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.
 </li>
 <li>silent:
 (bool) controls console output
@@ -663,9 +649,9 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.
 </li>
 <li>simRunner:
-(<code>MAPLEAF.Main.SimulationRunners.SingleSimRunner</code>) reference to the current simulation driver/runner</li>
+(<code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code>) reference to the current simulation driver/runner</li>
 <li>environment:
-(<code><a title="MAPLEAF.ENV.Environment.Environment" href="../ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code>) environment model from which the rocket will retrieve atmospheric properties and wind speeds</li>
+(<code><a title="MAPLEAF.ENV.Environment" href="../ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code>) environment model from which the rocket will retrieve atmospheric properties and wind speeds</li>
 </ul></div>
 <details class="source">
 <summary>
@@ -673,34 +659,34 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 </summary>
 <pre><code class="python">class Rocket(CompositeObject):
     &#39;&#39;&#39;
-        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage.Stage` objects.
+        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage` objects.
         New instances of this class are also created to model the flight of dropped stages.
     &#39;&#39;&#39;
     #### Initialization ####
     def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
         &#39;&#39;&#39;
             Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.Main.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
             This will return a Rocket initialized on the pad with all its stages, ready for flight.
 
             If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
 
             Inputs:
 
-            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
+            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.  
-            * simRunner:            (`MAPLEAF.Main.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
-            * environment:          (`MAPLEAF.ENV.Environment.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
+            * simRunner:            (`MAPLEAF.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
+            * environment:          (`MAPLEAF.ENV.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
         &#39;&#39;&#39;
         self.rocketDictReader = rocketDictReader
         self.simDefinition = rocketDictReader.simDefinition
 
         self.simRunner = simRunner
-        &#39;&#39;&#39; Parent instance of `MAPLEAF.Main.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
+        &#39;&#39;&#39; Parent instance of `MAPLEAF.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
         
         self.environment = environment
-        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment.Environment` &#39;&#39;&#39;
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment` &#39;&#39;&#39;
         if self.environment == None:
             # If no environment is passed in, create one
             self.environment = Environment(self.simDefinition, silent=silent)
@@ -715,30 +701,30 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 
         self.stages = []
         &#39;&#39;&#39;
-            A list of `MAPLEAF.Rocket.Stage.Stage` objects that make up the rocket, ordered from top to bottom.  
-            Populated by `Rocket._initializeStages`.
+            A list of `MAPLEAF.Rocket.Stage` objects that make up the rocket, ordered from top to bottom.  
+            Populated by `_initializeStages`.
         &#39;&#39;&#39;
 
         self.recoverySystem = None
         &#39;&#39;&#39;
             Reference to the current Rocket&#39;s (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.  
-            Set in `MAPLEAF.Rocket.RecoverySystem.RecoverySystem.__init__`
+            Set in `MAPLEAF.Rocket.RecoverySystem.__init__`
         &#39;&#39;&#39;
 
         self.rigidBody = None            
         &#39;&#39;&#39; 
-            (`MAPLEAF.Motion.RigidBody.RigidBody` or `MAPLEAF.Motion.RigidBody.RigidBody_3DoF`) Responsible for motion integration.  
-            Set in `Rocket._initializeRigidBody()`.
+            (`MAPLEAF.Motion.RigidBody` or `MAPLEAF.Motion.RigidBody_3DoF`) Responsible for motion integration.  
+            Set in `_initializeRigidBody()`.
         &#39;&#39;&#39;
 
         self.isUnderChute = False
-        &#39;&#39;&#39; (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()` &#39;&#39;&#39;
+        &#39;&#39;&#39; (bool) Controlled by `MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage()` &#39;&#39;&#39;
 
         self.mainChuteDeployTime = None
-        &#39;&#39;&#39; (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage()`  &#39;&#39;&#39;
+        &#39;&#39;&#39; (float) Filled in during flight by `MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage()`  &#39;&#39;&#39;
         
         self.engineShutOffTime = None
-        &#39;&#39;&#39; (float) Filled in by `MAPLEAF.Rocket.Motor.Motor.__init__()` upon initialization &#39;&#39;&#39;
+        &#39;&#39;&#39; (float) Filled in by `MAPLEAF.Rocket.Propulsion.TabulatedMotor.__init__()` upon initialization &#39;&#39;&#39;
 
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool(&#34;Environment.turbulenceOffWhenUnderChute&#34;)
         &#39;&#39;&#39; (bool) &#39;&#39;&#39;
@@ -757,7 +743,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         self.targetLocation = None
 
         self.simEventDetector = SimEventDetector(self) 
-        &#39;&#39;&#39; (`MAPLEAF.Rocket.SimEventDetector.SimEventDetector`) Used to trigger things like recovery systems and staging &#39;&#39;&#39;
+        &#39;&#39;&#39; (`MAPLEAF.Rocket.SimEventDetector`) Used to trigger things like recovery systems and staging &#39;&#39;&#39;
 
         self.eventTimeStep = rocketDictReader.getFloat(&#34;SimControl.TimeStepAdaptation.eventTimingAccuracy&#34;)
         &#39;&#39;&#39; If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value &#39;&#39;&#39;
@@ -1099,10 +1085,10 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         ### Component Forces ###
         if not self.isUnderChute:
             # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
-            Mach = AeroFunctions.getMachNumber(state, environment)
-            unitRe = AeroFunctions.getReynoldsNumber(state, environment, 1.0)
-            AOA = AeroFunctions.getTotalAOA(state, environment)
-            rollAngle = AeroFunctions.getRollAngle(state, environment)
+            Mach = AeroParameters.getMachNumber(state, environment)
+            unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
+            AOA = AeroParameters.getTotalAOA(state, environment)
+            rollAngle = AeroParameters.getRollAngle(state, environment)
 
             # Log current rocket / flight conditions
             self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle))
@@ -1169,7 +1155,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         &#39;&#39;&#39;
             Tells the simulation to take a time step of size dt.  
 
-            Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+            Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
 
             Returns:
                 * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
@@ -1229,99 +1215,99 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="../Motion/CompositeObject.html#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></li>
+<li><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject">CompositeObject</a></li>
 </ul>
 <h3>Instance variables</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.Aref"><code class="name">var <span class="ident">Aref</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.Aref"><code class="name">var <span class="ident">Aref</span></code></dt>
 <dd>
 <div class="desc"><p>Reference area for force and moment coefficients.
 Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
 Always based on the maximum body tube diameter in the fully-assembled rocket.</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag"><code class="name">var <span class="ident">addZeroLengthBoatTailsToAccountForBaseDrag</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag"><code class="name">var <span class="ident">addZeroLengthBoatTailsToAccountForBaseDrag</span></code></dt>
 <dd>
 <div class="desc"><p>Controls whether zero-length boat tails are automatically added to the bottom of rockets without them, to make sure base drag is accounted for</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.bodyTubeDiameter"><code class="name">var <span class="ident">bodyTubeDiameter</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.bodyTubeDiameter"><code class="name">var <span class="ident">bodyTubeDiameter</span></code></dt>
 <dd>
 <div class="desc"><p>(float) Holds maximum constant-size body tube diameter, from bodytube components in stages</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
 <dd>
 <div class="desc"><p>None for uncontrolled rockets. <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> for controlled rockets</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.engineShutOffTime"><code class="name">var <span class="ident">engineShutOffTime</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.engineShutOffTime"><code class="name">var <span class="ident">engineShutOffTime</span></code></dt>
 <dd>
-<div class="desc"><p>(float) Filled in by <code><a title="MAPLEAF.Rocket.Motor.Motor" href="Motor.html#MAPLEAF.Rocket.Motor.Motor">Motor</a></code> upon initialization</p></div>
+<div class="desc"><p>(float) Filled in by <code><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor" href="Propulsion.html#MAPLEAF.Rocket.Propulsion.TabulatedMotor">TabulatedMotor</a></code> upon initialization</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.environment"><code class="name">var <span class="ident">environment</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.environment"><code class="name">var <span class="ident">environment</span></code></dt>
 <dd>
-<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment.Environment" href="../ENV/Environment.html#MAPLEAF.ENV.Environment.Environment">Environment</a></code></p></div>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment" href="../ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code></p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.eventTimeStep"><code class="name">var <span class="ident">eventTimeStep</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.eventTimeStep"><code class="name">var <span class="ident">eventTimeStep</span></code></dt>
 <dd>
 <div class="desc"><p>If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.finenessRatio"><code class="name">var <span class="ident">finenessRatio</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.finenessRatio"><code class="name">var <span class="ident">finenessRatio</span></code></dt>
 <dd>
 <div class="desc"><p>Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.fullyTurbulentBL"><code class="name">var <span class="ident">fullyTurbulentBL</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.fullyTurbulentBL"><code class="name">var <span class="ident">fullyTurbulentBL</span></code></dt>
 <dd>
 <div class="desc"><p>Controls whether skin friction is solved assuming a fully turbulent BL or using laminar/transitional flow at lower Reynolds numbers</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.isUnderChute"><code class="name">var <span class="ident">isUnderChute</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.isUnderChute"><code class="name">var <span class="ident">isUnderChute</span></code></dt>
 <dd>
-<div class="desc"><p>(bool) Controlled by <code><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
+<div class="desc"><p>(bool) Controlled by <code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage" href="Recovery.html#MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.mainChuteDeployTime"><code class="name">var <span class="ident">mainChuteDeployTime</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.mainChuteDeployTime"><code class="name">var <span class="ident">mainChuteDeployTime</span></code></dt>
 <dd>
-<div class="desc"><p>(float) Filled in during flight by <code><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
+<div class="desc"><p>(float) Filled in during flight by <code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage" href="Recovery.html#MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.recoverySystem"><code class="name">var <span class="ident">recoverySystem</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.recoverySystem"><code class="name">var <span class="ident">recoverySystem</span></code></dt>
 <dd>
 <div class="desc"><p>Reference to the current Rocket's (which can represent a dropped stage) recovery system. Only a single recovery system is allowed per stage.<br>
-Set in <code><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem">RecoverySystem</a></code></p></div>
+Set in <code><a title="MAPLEAF.Rocket.RecoverySystem" href="index.html#MAPLEAF.Rocket.RecoverySystem">RecoverySystem</a></code></p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.rigidBody"><code class="name">var <span class="ident">rigidBody</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.rigidBody"><code class="name">var <span class="ident">rigidBody</span></code></dt>
 <dd>
-<div class="desc"><p>(<code><a title="MAPLEAF.Motion.RigidBody.RigidBody" href="../Motion/RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody">RigidBody</a></code> or <code><a title="MAPLEAF.Motion.RigidBody.RigidBody_3DoF" href="../Motion/RigidBody.html#MAPLEAF.Motion.RigidBody.RigidBody_3DoF">RigidBody_3DoF</a></code>) Responsible for motion integration.<br>
-Set in <code>Rocket._initializeRigidBody()</code>.</p></div>
+<div class="desc"><p>(<code><a title="MAPLEAF.Motion.RigidBody" href="../Motion/index.html#MAPLEAF.Motion.RigidBody">RigidBody</a></code> or <code><a title="MAPLEAF.Motion.RigidBody_3DoF" href="../Motion/index.html#MAPLEAF.Motion.RigidBody_3DoF">RigidBody_3DoF</a></code>) Responsible for motion integration.<br>
+Set in <code>_initializeRigidBody()</code>.</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.silent"><code class="name">var <span class="ident">silent</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.silent"><code class="name">var <span class="ident">silent</span></code></dt>
 <dd>
 <div class="desc"><p>Controls output to console</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.simEventDetector"><code class="name">var <span class="ident">simEventDetector</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.simEventDetector"><code class="name">var <span class="ident">simEventDetector</span></code></dt>
 <dd>
-<div class="desc"><p>(<code><a title="MAPLEAF.Rocket.SimEventDetector.SimEventDetector" href="SimEventDetector.html#MAPLEAF.Rocket.SimEventDetector.SimEventDetector">SimEventDetector</a></code>) Used to trigger things like recovery systems and staging</p></div>
+<div class="desc"><p>(<code><a title="MAPLEAF.Rocket.SimEventDetector" href="index.html#MAPLEAF.Rocket.SimEventDetector">SimEventDetector</a></code>) Used to trigger things like recovery systems and staging</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.simRunner"><code class="name">var <span class="ident">simRunner</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.simRunner"><code class="name">var <span class="ident">simRunner</span></code></dt>
 <dd>
-<div class="desc"><p>Parent instance of <code>MAPLEAF.Main.SimulationRunners.SingleSimRunner</code> (or derivative sim runner). This is usually the object that has created the current instance of Rocket.</p></div>
+<div class="desc"><p>Parent instance of <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code> (or derivative sim runner). This is usually the object that has created the current instance of Rocket.</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.stage"><code class="name">var <span class="ident">stage</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.stage"><code class="name">var <span class="ident">stage</span></code></dt>
 <dd>
 <div class="desc"><p>If controls whether the whole rocket is initialized (if == None), or a single stage is initialized (Integer stage number)</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.stages"><code class="name">var <span class="ident">stages</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.stages"><code class="name">var <span class="ident">stages</span></code></dt>
 <dd>
-<div class="desc"><p>A list of <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code> objects that make up the rocket, ordered from top to bottom.<br>
-Populated by <code>Rocket._initializeStages</code>.</p></div>
+<div class="desc"><p>A list of <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code> objects that make up the rocket, ordered from top to bottom.<br>
+Populated by <code>_initializeStages</code>.</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.surfaceRoughness"><code class="name">var <span class="ident">surfaceRoughness</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.surfaceRoughness"><code class="name">var <span class="ident">surfaceRoughness</span></code></dt>
 <dd>
 <div class="desc"><p>Default surface roughness for all rocket components</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.turbulenceOffWhenUnderChute"><code class="name">var <span class="ident">turbulenceOffWhenUnderChute</span></code></dt>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.turbulenceOffWhenUnderChute"><code class="name">var <span class="ident">turbulenceOffWhenUnderChute</span></code></dt>
 <dd>
 <div class="desc"><p>(bool)</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.appendToForceLogLine"><code class="name flex">
+<dt id="MAPLEAF.Rocket.rocket.Rocket.appendToForceLogLine"><code class="name flex">
 <span>def <span class="ident">appendToForceLogLine</span></span>(<span>self, txt: str)</span>
 </code></dt>
 <dd>
@@ -1338,7 +1324,7 @@ Populated by <code>Rocket._initializeStages</code>.</p></div>
         pass # Force logging not set up for this sim</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.getLength"><code class="name flex">
+<dt id="MAPLEAF.Rocket.rocket.Rocket.getLength"><code class="name flex">
 <span>def <span class="ident">getLength</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -1358,7 +1344,7 @@ Populated by <code>Rocket._initializeStages</code>.</p></div>
     return totalLength</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.plotShape"><code class="name flex">
+<dt id="MAPLEAF.Rocket.rocket.Rocket.plotShape"><code class="name flex">
 <span>def <span class="ident">plotShape</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -1394,13 +1380,13 @@ Populated by <code>Rocket._initializeStages</code>.</p></div>
     plt.show()</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.Rocket.timeStep"><code class="name flex">
+<dt id="MAPLEAF.Rocket.rocket.Rocket.timeStep"><code class="name flex">
 <span>def <span class="ident">timeStep</span></span>(<span>self, dt: float)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Tells the simulation to take a time step of size dt.
 </p>
-<p>Usually called by functions like <code>MAPLEAF.Main.SingleSimRunner.runSingleSimulation()</code></p>
+<p>Usually called by functions like <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation">SingleSimRunner.runSingleSimulation()</a></code></p>
 <h2 id="returns">Returns</h2>
 <ul>
 <li>timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)</li>
@@ -1415,7 +1401,7 @@ Populated by <code>Rocket._initializeStages</code>.</p></div>
     &#39;&#39;&#39;
         Tells the simulation to take a time step of size dt.  
 
-        Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+        Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
 
         Returns:
             * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
@@ -1449,9 +1435,9 @@ Populated by <code>Rocket._initializeStages</code>.</p></div>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="MAPLEAF.Motion.CompositeObject.CompositeObject" href="../Motion/CompositeObject.html#MAPLEAF.Motion.CompositeObject.CompositeObject">CompositeObject</a></b></code>:
+<li><code><b><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject">CompositeObject</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia" href="../Motion/CompositeObject.html#MAPLEAF.Motion.CompositeObject.CompositeObject.recomputeFixedMassInertia">recomputeFixedMassInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia">recomputeFixedMassInertia</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1479,32 +1465,32 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.Rocket.Rocket.Rocket" href="#MAPLEAF.Rocket.Rocket.Rocket">Rocket</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.rocket.Rocket" href="#MAPLEAF.Rocket.rocket.Rocket">Rocket</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.Aref" href="#MAPLEAF.Rocket.Rocket.Rocket.Aref">Aref</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.Rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.bodyTubeDiameter" href="#MAPLEAF.Rocket.Rocket.Rocket.bodyTubeDiameter">bodyTubeDiameter</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.Rocket.Rocket.controlSystem">controlSystem</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.Rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.environment" href="#MAPLEAF.Rocket.Rocket.Rocket.environment">environment</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.eventTimeStep" href="#MAPLEAF.Rocket.Rocket.Rocket.eventTimeStep">eventTimeStep</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.finenessRatio" href="#MAPLEAF.Rocket.Rocket.Rocket.finenessRatio">finenessRatio</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.fullyTurbulentBL" href="#MAPLEAF.Rocket.Rocket.Rocket.fullyTurbulentBL">fullyTurbulentBL</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.getLength" href="#MAPLEAF.Rocket.Rocket.Rocket.getLength">getLength</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.isUnderChute" href="#MAPLEAF.Rocket.Rocket.Rocket.isUnderChute">isUnderChute</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.mainChuteDeployTime" href="#MAPLEAF.Rocket.Rocket.Rocket.mainChuteDeployTime">mainChuteDeployTime</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.plotShape" href="#MAPLEAF.Rocket.Rocket.Rocket.plotShape">plotShape</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.recoverySystem" href="#MAPLEAF.Rocket.Rocket.Rocket.recoverySystem">recoverySystem</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.rigidBody" href="#MAPLEAF.Rocket.Rocket.Rocket.rigidBody">rigidBody</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.silent" href="#MAPLEAF.Rocket.Rocket.Rocket.silent">silent</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.simEventDetector" href="#MAPLEAF.Rocket.Rocket.Rocket.simEventDetector">simEventDetector</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.simRunner" href="#MAPLEAF.Rocket.Rocket.Rocket.simRunner">simRunner</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.stage" href="#MAPLEAF.Rocket.Rocket.Rocket.stage">stage</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.stages" href="#MAPLEAF.Rocket.Rocket.Rocket.stages">stages</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.surfaceRoughness" href="#MAPLEAF.Rocket.Rocket.Rocket.surfaceRoughness">surfaceRoughness</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.timeStep" href="#MAPLEAF.Rocket.Rocket.Rocket.timeStep">timeStep</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.Rocket.turbulenceOffWhenUnderChute" href="#MAPLEAF.Rocket.Rocket.Rocket.turbulenceOffWhenUnderChute">turbulenceOffWhenUnderChute</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.Aref" href="#MAPLEAF.Rocket.rocket.Rocket.Aref">Aref</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.bodyTubeDiameter" href="#MAPLEAF.Rocket.rocket.Rocket.bodyTubeDiameter">bodyTubeDiameter</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.rocket.Rocket.controlSystem">controlSystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.environment" href="#MAPLEAF.Rocket.rocket.Rocket.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.eventTimeStep" href="#MAPLEAF.Rocket.rocket.Rocket.eventTimeStep">eventTimeStep</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.finenessRatio" href="#MAPLEAF.Rocket.rocket.Rocket.finenessRatio">finenessRatio</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.fullyTurbulentBL" href="#MAPLEAF.Rocket.rocket.Rocket.fullyTurbulentBL">fullyTurbulentBL</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.getLength" href="#MAPLEAF.Rocket.rocket.Rocket.getLength">getLength</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.isUnderChute" href="#MAPLEAF.Rocket.rocket.Rocket.isUnderChute">isUnderChute</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.mainChuteDeployTime" href="#MAPLEAF.Rocket.rocket.Rocket.mainChuteDeployTime">mainChuteDeployTime</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.plotShape" href="#MAPLEAF.Rocket.rocket.Rocket.plotShape">plotShape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.recoverySystem" href="#MAPLEAF.Rocket.rocket.Rocket.recoverySystem">recoverySystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.rigidBody" href="#MAPLEAF.Rocket.rocket.Rocket.rigidBody">rigidBody</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.silent" href="#MAPLEAF.Rocket.rocket.Rocket.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.simEventDetector" href="#MAPLEAF.Rocket.rocket.Rocket.simEventDetector">simEventDetector</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.simRunner" href="#MAPLEAF.Rocket.rocket.Rocket.simRunner">simRunner</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.stage" href="#MAPLEAF.Rocket.rocket.Rocket.stage">stage</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.stages" href="#MAPLEAF.Rocket.rocket.Rocket.stages">stages</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.surfaceRoughness" href="#MAPLEAF.Rocket.rocket.Rocket.surfaceRoughness">surfaceRoughness</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.timeStep" href="#MAPLEAF.Rocket.rocket.Rocket.timeStep">timeStep</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.turbulenceOffWhenUnderChute" href="#MAPLEAF.Rocket.rocket.Rocket.turbulenceOffWhenUnderChute">turbulenceOffWhenUnderChute</a></code></li>
 </ul>
 </li>
 </ul>

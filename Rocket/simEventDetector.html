@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.Rocket.SimEventDetector API documentation</title>
+<title>MAPLEAF.Rocket.simEventDetector API documentation</title>
 <meta name="description" content="Generalized event detector (Apogee, motor burnout etc...) for a single vehicle.
 Used to trigger stage separations and recovery system deployments." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -17,14 +17,14 @@ Used to trigger stage separations and recovery system deployments." />
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/SimEventDetector.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/Rocket/simEventDetector.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.Rocket.SimEventDetector</code></h1>
+<h1 class="title">Module <code>MAPLEAF.Rocket.simEventDetector</code></h1>
 </header>
 <section id="section-intro">
 <p>Generalized event detector (Apogee, motor burnout etc&hellip;) for a single vehicle.<br>
@@ -43,6 +43,8 @@ Used to trigger stage separations and recovery system deployments.
 
 from enum import Enum
 from typing import Tuple
+
+__all__ = [ &#34;EventTypes&#34;, &#34;SimEventDetector&#34; ]
 
 class EventTypes(Enum):
     Apogee = &#34;apogee&#34;
@@ -203,7 +205,7 @@ class SimEventDetector():
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.Rocket.SimEventDetector.EventTypes"><code class="flex name class">
+<dt id="MAPLEAF.Rocket.simEventDetector.EventTypes"><code class="flex name class">
 <span>class <span class="ident">EventTypes</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
 </code></dt>
@@ -226,29 +228,29 @@ class SimEventDetector():
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.SimEventDetector.EventTypes.Apogee"><code class="name">var <span class="ident">Apogee</span></code></dt>
+<dt id="MAPLEAF.Rocket.simEventDetector.EventTypes.Apogee"><code class="name">var <span class="ident">Apogee</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.Rocket.SimEventDetector.EventTypes.AscendingThroughAltitude"><code class="name">var <span class="ident">AscendingThroughAltitude</span></code></dt>
+<dt id="MAPLEAF.Rocket.simEventDetector.EventTypes.AscendingThroughAltitude"><code class="name">var <span class="ident">AscendingThroughAltitude</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.Rocket.SimEventDetector.EventTypes.DescendingThroughAltitude"><code class="name">var <span class="ident">DescendingThroughAltitude</span></code></dt>
+<dt id="MAPLEAF.Rocket.simEventDetector.EventTypes.DescendingThroughAltitude"><code class="name">var <span class="ident">DescendingThroughAltitude</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.Rocket.SimEventDetector.EventTypes.MotorBurnout"><code class="name">var <span class="ident">MotorBurnout</span></code></dt>
+<dt id="MAPLEAF.Rocket.simEventDetector.EventTypes.MotorBurnout"><code class="name">var <span class="ident">MotorBurnout</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="MAPLEAF.Rocket.SimEventDetector.EventTypes.TimeReached"><code class="name">var <span class="ident">TimeReached</span></code></dt>
+<dt id="MAPLEAF.Rocket.simEventDetector.EventTypes.TimeReached"><code class="name">var <span class="ident">TimeReached</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.Rocket.SimEventDetector.SimEventDetector"><code class="flex name class">
+<dt id="MAPLEAF.Rocket.simEventDetector.SimEventDetector"><code class="flex name class">
 <span>class <span class="ident">SimEventDetector</span></span>
 <span>(</span><span>rocket)</span>
 </code></dt>
@@ -402,7 +404,7 @@ class SimEventDetector():
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.SimEventDetector.SimEventDetector.subscribeToEvent"><code class="name flex">
+<dt id="MAPLEAF.Rocket.simEventDetector.SimEventDetector.subscribeToEvent"><code class="name flex">
 <span>def <span class="ident">subscribeToEvent</span></span>(<span>self, eventType, callbackFunction, eventTriggerValue=None, triggerDelay=0)</span>
 </code></dt>
 <dd>
@@ -453,7 +455,7 @@ triggerDelay:
     self.triggerDelays.append(triggerDelay)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.SimEventDetector.SimEventDetector.triggerEvents"><code class="name flex">
+<dt id="MAPLEAF.Rocket.simEventDetector.SimEventDetector.triggerEvents"><code class="name flex">
 <span>def <span class="ident">triggerEvents</span></span>(<span>self) ‑> Tuple[float, bool]</span>
 </code></dt>
 <dd>
@@ -544,20 +546,20 @@ MAPLEAF
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.Rocket.SimEventDetector.EventTypes" href="#MAPLEAF.Rocket.SimEventDetector.EventTypes">EventTypes</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.simEventDetector.EventTypes" href="#MAPLEAF.Rocket.simEventDetector.EventTypes">EventTypes</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.EventTypes.Apogee" href="#MAPLEAF.Rocket.SimEventDetector.EventTypes.Apogee">Apogee</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.EventTypes.AscendingThroughAltitude" href="#MAPLEAF.Rocket.SimEventDetector.EventTypes.AscendingThroughAltitude">AscendingThroughAltitude</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.EventTypes.DescendingThroughAltitude" href="#MAPLEAF.Rocket.SimEventDetector.EventTypes.DescendingThroughAltitude">DescendingThroughAltitude</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.EventTypes.MotorBurnout" href="#MAPLEAF.Rocket.SimEventDetector.EventTypes.MotorBurnout">MotorBurnout</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.EventTypes.TimeReached" href="#MAPLEAF.Rocket.SimEventDetector.EventTypes.TimeReached">TimeReached</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.EventTypes.Apogee" href="#MAPLEAF.Rocket.simEventDetector.EventTypes.Apogee">Apogee</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.EventTypes.AscendingThroughAltitude" href="#MAPLEAF.Rocket.simEventDetector.EventTypes.AscendingThroughAltitude">AscendingThroughAltitude</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.EventTypes.DescendingThroughAltitude" href="#MAPLEAF.Rocket.simEventDetector.EventTypes.DescendingThroughAltitude">DescendingThroughAltitude</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.EventTypes.MotorBurnout" href="#MAPLEAF.Rocket.simEventDetector.EventTypes.MotorBurnout">MotorBurnout</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.EventTypes.TimeReached" href="#MAPLEAF.Rocket.simEventDetector.EventTypes.TimeReached">TimeReached</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="MAPLEAF.Rocket.SimEventDetector.SimEventDetector" href="#MAPLEAF.Rocket.SimEventDetector.SimEventDetector">SimEventDetector</a></code></h4>
+<h4><code><a title="MAPLEAF.Rocket.simEventDetector.SimEventDetector" href="#MAPLEAF.Rocket.simEventDetector.SimEventDetector">SimEventDetector</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.SimEventDetector.subscribeToEvent" href="#MAPLEAF.Rocket.SimEventDetector.SimEventDetector.subscribeToEvent">subscribeToEvent</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.SimEventDetector.SimEventDetector.triggerEvents" href="#MAPLEAF.Rocket.SimEventDetector.SimEventDetector.triggerEvents">triggerEvents</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.SimEventDetector.subscribeToEvent" href="#MAPLEAF.Rocket.simEventDetector.SimEventDetector.subscribeToEvent">subscribeToEvent</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.simEventDetector.SimEventDetector.triggerEvents" href="#MAPLEAF.Rocket.simEventDetector.SimEventDetector.triggerEvents">triggerEvents</a></code></li>
 </ul>
 </li>
 </ul>

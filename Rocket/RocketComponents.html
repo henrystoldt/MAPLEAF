@@ -47,35 +47,31 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.ENV.Environment import EnvironmentalConditions
-from MAPLEAF.Motion.Interpolation import linInterp
-from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Motion.CythonVector import Vector
-from MAPLEAF.Motion.ForceMomentSystem import ForceMomentSystem
-from MAPLEAF.Motion.Inertia import Inertia
-from MAPLEAF.Motion.RigidBodyStates import RigidBodyState, RigidBodyState_3DoF
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
+from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Inertia,
+                            RigidBodyState, Vector, linInterp)
+from MAPLEAF.Utilities import logForceResult
 
+__all__ = [ &#34;RocketComponent&#34;, &#34;BodyComponent&#34;, &#34;PlanarInterface&#34;, &#34;FixedMass&#34;, &#34;FixedForce&#34;, &#34;AeroForce&#34;, &#34;AeroDamping&#34;, &#34;TabulatedAeroForce&#34;, &#34;TabulatedInertia&#34;, &#34;FractionalJetDamping&#34; ]
 
 class RocketComponent(ABC):
     &#39;&#39;&#39; Interface definition for rocket components &#39;&#39;&#39;
     @abstractmethod
-    def __init__(self, componentDictReader: SubDictReader, rocket, stage):
+    def __init__(self, componentDictReader, rocket, stage):
         return
 
     @abstractmethod
-    def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Inertia:
+    def getInertia(self, time, state) -&gt; Inertia:
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -&gt; ForceMomentSystem:
+    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
         return
 
 class BodyComponent(ABC):
     &#39;&#39;&#39; 
         Class that defines interface for axisymmetric body components.
         Contains logic for detecting adjacent body components &amp; defining interfaces with them 
-        Examples: `MAPLEAF.Rocket.Nosecone.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
+        Examples: `MAPLEAF.Rocket.NoseCone`, `MAPLEAF.Rocket.Stage`
     &#39;&#39;&#39;
     # Override these attributes in child classes to change whether they can connect to components above/below them
     canConnectToComponentAbove = True
@@ -264,7 +260,7 @@ class AeroForce(RocketComponent):
 
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
-        return ForceMomentSystem.fromAllCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
@@ -289,7 +285,7 @@ class AeroDamping(AeroForce):
     
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
-        airspeed = max(AeroFunctions.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+        airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
         localFrameAngularVelocity = Vector(*state.angularVelocity)
@@ -298,7 +294,7 @@ class AeroDamping(AeroForce):
         xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
         momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
 
-        return ForceMomentSystem.fromAllCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)
 
 class TabulatedAeroForce(AeroForce):
     &#39;&#39;&#39; A zero-inertia component with aerodynamic coefficients that are tabulated according to one or more parameters (ex. AOA) &#39;&#39;&#39;
@@ -327,14 +323,14 @@ class TabulatedAeroForce(AeroForce):
         i = 0
         while i &lt; len(columnNames):
             col = columnNames[i]
-            if col in AeroFunctions.stringToAeroFunctionMap:
-                self.parameterFunctions.append(AeroFunctions.stringToAeroFunctionMap[col])
+            if col in AeroParameters.stringToAeroFunctionMap:
+                self.parameterFunctions.append(AeroParameters.stringToAeroFunctionMap[col])
             else:
                 break
             i += 1
 
         # Continue parsing column names - aero coefficient names now            
-        # This is the ordering expected by ForceMomentSystem.fromAllCoefficients
+        # This is the ordering expected by AeroFunctions.forceFromCoefficients
         aeroCoeffStrings = [ &#34;CD&#34;, &#34;CL&#34;, &#34;CMx&#34;, &#34;CMy&#34;, &#34;CMz&#34; ]
         self.aeroCoeffIndices = [] # Provides mapping between value column position in interpolation table &amp; position in output aero coefficient list (ordered like aeroCoeffStrings above)
         while i &lt; len(columnNames):
@@ -345,7 +341,7 @@ class TabulatedAeroForce(AeroForce):
                 
             else:
                 raise ValueError(&#34;ERROR: One of the following columns: {} did not match any of the expected columns names: Keys: {}, values: {}. \
-                    Or was in the wrong order. All key columns must come BEFORE value columns.&#34;.format(columnNames, AeroFunctions.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
+                    Or was in the wrong order. All key columns must come BEFORE value columns.&#34;.format(columnNames, AeroParameters.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
             i += 1
 
         # Load the data table to be interpolated
@@ -359,12 +355,12 @@ class TabulatedAeroForce(AeroForce):
             # Create n-dimensional interpolation function for aero coefficients
             self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
         else:
-            # Save to use with MAPLEAF.Motion.Interpolation.linInterp
+            # Save to use with MAPLEAF.Motion.linInterp
             self.keys = [ key[0] for key in keys ]
             self.values = aeroCoefficients
 
     def _getAeroCoefficients(self, state, environment):
-        keys = AeroFunctions.getAeroPropertiesList(self.parameterFunctions, state, environment)
+        keys = AeroParameters.getAeroPropertiesList(self.parameterFunctions, state, environment)
 
         if len(keys) &gt; 1:
             # Multi-dimensional linear interpolation
@@ -383,7 +379,7 @@ class TabulatedAeroForce(AeroForce):
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
-        return ForceMomentSystem.fromAllCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
@@ -500,7 +496,7 @@ class FractionalJetDamping(RocketComponent):
     
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
-        airspeed = max(AeroFunctions.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+        airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
         localFrameAngularVelocity = Vector(*state.angularVelocity)
@@ -509,7 +505,7 @@ class FractionalJetDamping(RocketComponent):
         xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
         momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
 
-        return ForceMomentSystem.fromAllCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)</code></pre>
+        return AeroFunctions.forceFromCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -583,7 +579,7 @@ class FractionalJetDamping(RocketComponent):
 
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
-        return ForceMomentSystem.fromAllCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
@@ -660,7 +656,7 @@ class FractionalJetDamping(RocketComponent):
 <dd>
 <div class="desc"><p>Class that defines interface for axisymmetric body components.
 Contains logic for detecting adjacent body components &amp; defining interfaces with them
-Examples: <code><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></code>, <code><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></code></p></div>
+Examples: <code><a title="MAPLEAF.Rocket.NoseCone" href="index.html#MAPLEAF.Rocket.NoseCone">NoseCone</a></code>, <code><a title="MAPLEAF.Rocket.Stage" href="index.html#MAPLEAF.Rocket.Stage">Stage</a></code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -669,7 +665,7 @@ Examples: <code><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#
     &#39;&#39;&#39; 
         Class that defines interface for axisymmetric body components.
         Contains logic for detecting adjacent body components &amp; defining interfaces with them 
-        Examples: `MAPLEAF.Rocket.Nosecone.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
+        Examples: `MAPLEAF.Rocket.NoseCone`, `MAPLEAF.Rocket.Stage`
     &#39;&#39;&#39;
     # Override these attributes in child classes to change whether they can connect to components above/below them
     canConnectToComponentAbove = True
@@ -712,10 +708,10 @@ Examples: <code><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Rocket.BoatTail.Transition" href="BoatTail.html#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></li>
-<li><a title="MAPLEAF.Rocket.Bodytube.Bodytube" href="Bodytube.html#MAPLEAF.Rocket.Bodytube.Bodytube">Bodytube</a></li>
-<li><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></li>
-<li><a title="MAPLEAF.Rocket.Stage.Stage" href="Stage.html#MAPLEAF.Rocket.Stage.Stage">Stage</a></li>
+<li><a title="MAPLEAF.Rocket.boatTail.Transition" href="boatTail.html#MAPLEAF.Rocket.boatTail.Transition">Transition</a></li>
+<li><a title="MAPLEAF.Rocket.bodyTube.BodyTube" href="bodyTube.html#MAPLEAF.Rocket.bodyTube.BodyTube">BodyTube</a></li>
+<li><a title="MAPLEAF.Rocket.noseCone.NoseCone" href="noseCone.html#MAPLEAF.Rocket.noseCone.NoseCone">NoseCone</a></li>
+<li><a title="MAPLEAF.Rocket.stage.Stage" href="stage.html#MAPLEAF.Rocket.stage.Stage">Stage</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -958,12 +954,12 @@ Implements functionality to read/store inertia and position info from sim defini
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Rocket.BoatTail.Transition" href="BoatTail.html#MAPLEAF.Rocket.BoatTail.Transition">Transition</a></li>
-<li><a title="MAPLEAF.Rocket.Bodytube.Bodytube" href="Bodytube.html#MAPLEAF.Rocket.Bodytube.Bodytube">Bodytube</a></li>
 <li><a title="MAPLEAF.Rocket.Fins.Fin" href="Fins.html#MAPLEAF.Rocket.Fins.Fin">Fin</a></li>
 <li><a title="MAPLEAF.Rocket.Fins.FinSet" href="Fins.html#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></li>
-<li><a title="MAPLEAF.Rocket.Nosecone.Nosecone" href="Nosecone.html#MAPLEAF.Rocket.Nosecone.Nosecone">Nosecone</a></li>
-<li><a title="MAPLEAF.Rocket.RecoverySystem.RecoverySystem" href="RecoverySystem.html#MAPLEAF.Rocket.RecoverySystem.RecoverySystem">RecoverySystem</a></li>
+<li><a title="MAPLEAF.Rocket.Recovery.RecoverySystem" href="Recovery.html#MAPLEAF.Rocket.Recovery.RecoverySystem">RecoverySystem</a></li>
+<li><a title="MAPLEAF.Rocket.boatTail.Transition" href="boatTail.html#MAPLEAF.Rocket.boatTail.Transition">Transition</a></li>
+<li><a title="MAPLEAF.Rocket.bodyTube.BodyTube" href="bodyTube.html#MAPLEAF.Rocket.bodyTube.BodyTube">BodyTube</a></li>
+<li><a title="MAPLEAF.Rocket.noseCone.NoseCone" href="noseCone.html#MAPLEAF.Rocket.noseCone.NoseCone">NoseCone</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1284,7 +1280,7 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent"><code class="flex name class">
 <span>class <span class="ident">RocketComponent</span></span>
-<span>(</span><span>componentDictReader: <a title="MAPLEAF.IO.SubDictReader.SubDictReader" href="../IO/SubDictReader.html#MAPLEAF.IO.SubDictReader.SubDictReader">SubDictReader</a>, rocket, stage)</span>
+<span>(</span><span>componentDictReader, rocket, stage)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Interface definition for rocket components</p></div>
@@ -1295,15 +1291,15 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <pre><code class="python">class RocketComponent(ABC):
     &#39;&#39;&#39; Interface definition for rocket components &#39;&#39;&#39;
     @abstractmethod
-    def __init__(self, componentDictReader: SubDictReader, rocket, stage):
+    def __init__(self, componentDictReader, rocket, stage):
         return
 
     @abstractmethod
-    def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Inertia:
+    def getInertia(self, time, state) -&gt; Inertia:
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -&gt; ForceMomentSystem:
+    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
         return</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1312,7 +1308,7 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.Rocket.Motor.Motor" href="Motor.html#MAPLEAF.Rocket.Motor.Motor">Motor</a></li>
+<li><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor" href="Propulsion.html#MAPLEAF.Rocket.Propulsion.TabulatedMotor">TabulatedMotor</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.FixedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce">FixedForce</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></li>
@@ -1322,7 +1318,7 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>], time: float, environmentalConditions: <a title="MAPLEAF.ENV.Environment.EnvironmentalConditions" href="../ENV/Environment.html#MAPLEAF.ENV.Environment.EnvironmentalConditions">EnvironmentalConditions</a>, rocketCG: <a title="MAPLEAF.Motion.CythonVector.Vector" href="../Motion/CythonVector.html#MAPLEAF.Motion.CythonVector.Vector">Vector</a>) ‑> <a title="MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem" href="../Motion/ForceMomentSystem.html#MAPLEAF.Motion.ForceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1331,12 +1327,12 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], time: float, environmentalConditions: EnvironmentalConditions, rocketCG: Vector) -&gt; ForceMomentSystem:
+def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
     return</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent.getInertia"><code class="name flex">
-<span>def <span class="ident">getInertia</span></span>(<span>self, time: float, state: Union[<a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState">RigidBodyState</a>, <a title="MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF" href="../Motion/RigidBodyStates.html#MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF">RigidBodyState_3DoF</a>]) ‑> <a title="MAPLEAF.Motion.Inertia.Inertia" href="../Motion/Inertia.html#MAPLEAF.Motion.Inertia.Inertia">Inertia</a></span>
+<span>def <span class="ident">getInertia</span></span>(<span>self, time, state) ‑> <a title="MAPLEAF.Motion.inertia.Inertia" href="../Motion/inertia.html#MAPLEAF.Motion.inertia.Inertia">Inertia</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1345,7 +1341,7 @@ def getAeroForce(self, rocketState: Union[RigidBodyState, RigidBodyState_3DoF], 
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3DoF]) -&gt; Inertia:
+def getInertia(self, time, state) -&gt; Inertia:
     return</code></pre>
 </details>
 </dd>
@@ -1388,14 +1384,14 @@ def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3D
         i = 0
         while i &lt; len(columnNames):
             col = columnNames[i]
-            if col in AeroFunctions.stringToAeroFunctionMap:
-                self.parameterFunctions.append(AeroFunctions.stringToAeroFunctionMap[col])
+            if col in AeroParameters.stringToAeroFunctionMap:
+                self.parameterFunctions.append(AeroParameters.stringToAeroFunctionMap[col])
             else:
                 break
             i += 1
 
         # Continue parsing column names - aero coefficient names now            
-        # This is the ordering expected by ForceMomentSystem.fromAllCoefficients
+        # This is the ordering expected by AeroFunctions.forceFromCoefficients
         aeroCoeffStrings = [ &#34;CD&#34;, &#34;CL&#34;, &#34;CMx&#34;, &#34;CMy&#34;, &#34;CMz&#34; ]
         self.aeroCoeffIndices = [] # Provides mapping between value column position in interpolation table &amp; position in output aero coefficient list (ordered like aeroCoeffStrings above)
         while i &lt; len(columnNames):
@@ -1406,7 +1402,7 @@ def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3D
                 
             else:
                 raise ValueError(&#34;ERROR: One of the following columns: {} did not match any of the expected columns names: Keys: {}, values: {}. \
-                    Or was in the wrong order. All key columns must come BEFORE value columns.&#34;.format(columnNames, AeroFunctions.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
+                    Or was in the wrong order. All key columns must come BEFORE value columns.&#34;.format(columnNames, AeroParameters.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
             i += 1
 
         # Load the data table to be interpolated
@@ -1420,12 +1416,12 @@ def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3D
             # Create n-dimensional interpolation function for aero coefficients
             self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
         else:
-            # Save to use with MAPLEAF.Motion.Interpolation.linInterp
+            # Save to use with MAPLEAF.Motion.linInterp
             self.keys = [ key[0] for key in keys ]
             self.values = aeroCoefficients
 
     def _getAeroCoefficients(self, state, environment):
-        keys = AeroFunctions.getAeroPropertiesList(self.parameterFunctions, state, environment)
+        keys = AeroParameters.getAeroPropertiesList(self.parameterFunctions, state, environment)
 
         if len(keys) &gt; 1:
             # Multi-dimensional linear interpolation
@@ -1444,7 +1440,7 @@ def getInertia(self, time: float, state: Union[RigidBodyState, RigidBodyState_3D
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
-        return ForceMomentSystem.fromAllCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
+        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
         return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>

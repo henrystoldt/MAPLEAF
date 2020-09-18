@@ -35,28 +35,25 @@
 In charge of initializing rocket components. Add new components to `stringNameToClassMap` to make them instantiate themselves when included in a Rocket
 &#39;&#39;&#39;
 
-from MAPLEAF.IO.SubDictReader import SubDictReader
-from MAPLEAF.Rocket.BoatTail import BoatTail, Transition
-from MAPLEAF.Rocket.Bodytube import Bodytube
-from MAPLEAF.Rocket.Fins import FinSet
-from MAPLEAF.Rocket.Motor import Motor
-from MAPLEAF.Rocket.Nosecone import Nosecone
-from MAPLEAF.Rocket.RecoverySystem import RecoverySystem
-from MAPLEAF.Rocket.RocketComponents import (AeroDamping, AeroForce, FixedForce,
-                                         FixedMass, FractionalJetDamping,
-                                         TabulatedAeroForce, TabulatedInertia)
-    
+from MAPLEAF.IO import SubDictReader
+from MAPLEAF.Rocket import (
+    AeroDamping, AeroForce, BoatTail, BodyTube, FinSet, FixedForce, FixedMass,
+    FractionalJetDamping, NoseCone, RecoverySystem, TabulatedAeroForce,
+    TabulatedInertia, TabulatedMotor, Transition)
+
+__all__ = [ &#34;stringNameToClassMap&#34;, &#34;rocketComponentFactory&#34; ]
+
 stringNameToClassMap = {
     &#34;AeroDamping&#34;:          AeroDamping,
     &#34;AeroForce&#34;:            AeroForce,
     &#34;BoatTail&#34;:             BoatTail,
-    &#34;Bodytube&#34;:             Bodytube,
+    &#34;Bodytube&#34;:             BodyTube,
     &#34;FinSet&#34;:               FinSet,
     &#34;Force&#34;:                FixedForce,
     &#34;FractionalJetDamping&#34;: FractionalJetDamping,
     &#34;Mass&#34;:                 FixedMass,
-    &#34;Motor&#34;:                Motor,
-    &#34;Nosecone&#34;:             Nosecone,
+    &#34;Motor&#34;:                TabulatedMotor,
+    &#34;Nosecone&#34;:             NoseCone,
     &#34;RecoverySystem&#34;:       RecoverySystem,
     &#34;TabulatedAeroForce&#34;:   TabulatedAeroForce,
     &#34;TabulatedInertia&#34;:     TabulatedInertia,

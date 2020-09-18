@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.1" />
-<title>MAPLEAF.IO.SimDefinition API documentation</title>
+<title>MAPLEAF.IO.simDefinition API documentation</title>
 <meta name="description" content="Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of
 default values for simulation …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -17,14 +17,14 @@ default values for simulation …" />
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 <style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/IO/SimDefinition.html">
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/IO/simDefinition.html">
 <link rel="icon" href="https://pdoc3.github.io/pdoc/logo.png">
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>MAPLEAF.IO.SimDefinition</code></h1>
+<h1 class="title">Module <code>MAPLEAF.IO.simDefinition</code></h1>
 </header>
 <section id="section-intro">
 <p>Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of
@@ -47,7 +47,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Union
 
-from MAPLEAF.Motion.CythonVector import Vector
+from MAPLEAF.Motion import Vector
+
+__all__ = [ &#34;defaultConfigValues&#34;, &#34;SimDefinition&#34;, &#34;getAbsoluteFilePath&#34; ]
 
 #################### Default value dictionary  #########################
 defaultConfigValues = {
@@ -207,10 +209,10 @@ class SimDefinition():
         &#39;&#39;&#39; Main dictionary of values, usually populated from a simulation definition file &#39;&#39;&#39;
 
         self.defaultDict = None
-        &#39;&#39;&#39; Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `MAPLEAF.IO.SimDefinition.defaultConfigValues` &#39;&#39;&#39;
+        &#39;&#39;&#39; Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `defaultConfigValues` &#39;&#39;&#39;
         
         self.monteCarloLogger = None 
-        &#39;&#39;&#39; Filled in by  Main.runMonteCarloSimulation() if running  Monte Carlo simulation. Type: `IO.Logging.MonteCarloLogger` &#39;&#39;&#39;
+        &#39;&#39;&#39; Filled in by  Main.runMonteCarloSimulation() if running  Monte Carlo simulation. Type: `MAPLEAF.IO.Logging.MonteCarloLogger` &#39;&#39;&#39;
 
         # Assign default dictionary
         if defaultDict == None:
@@ -883,7 +885,7 @@ def getAbsoluteFilePath(relativePath: str) -&gt; str:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="MAPLEAF.IO.SimDefinition.getAbsoluteFilePath"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.getAbsoluteFilePath"><code class="name flex">
 <span>def <span class="ident">getAbsoluteFilePath</span></span>(<span>relativePath: str) ‑> str</span>
 </code></dt>
 <dd>
@@ -911,158 +913,12 @@ Returns original relativePath if an absolute path is not found</p></div>
         return relativePath</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.getImmediateSubKey"><code class="name flex">
-<span>def <span class="ident">getImmediateSubKey</span></span>(<span>parent, child)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Takes the parent key, adds one level of the child key:
-</p>
-<h2 id="example">Example</h2>
-<pre><code class="python-repl">&gt;&gt;&gt; getImmediateSubKey('Rocket', 'Rocket.Sustainer.name')
-'Rocket.Sustainer'
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getImmediateSubKey(parent, child):
-    &#34;&#34;&#34; 
-        Takes the parent key, adds one level of the child key:  
-
-        ## Example
-        &gt;&gt;&gt; getImmediateSubKey(&#39;Rocket&#39;, &#39;Rocket.Sustainer.name&#39;)
-        &#39;Rocket.Sustainer&#39;
-    &#34;&#34;&#34;
-    if not isSubKey(parent, child):
-        raise ValueError(&#34;{} is not a subkey of {}&#34;.format(child, parent))
-
-    parentKeyPlusOneLevel, _ = splitKeyAtLevel(child, getKeyLevel(parent)+1)
-    return parentKeyPlusOneLevel</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.IO.SimDefinition.getKeyLevel"><code class="name flex">
-<span>def <span class="ident">getKeyLevel</span></span>(<span>key: str) ‑> int</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Sums the number of dots in the key </p>
-<h2 id="example">Example</h2>
-<pre><code>getKeyLevel("Rocket") -&gt; 0  
-getKeyLevel("Rocket.name") -&gt; 1
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getKeyLevel(key:str) -&gt; int:
-    &#34;&#34;&#34;
-        Sums the number of dots in the key 
-        ## Example 
-            getKeyLevel(&#34;Rocket&#34;) -&gt; 0  
-            getKeyLevel(&#34;Rocket.name&#34;) -&gt; 1
-    &#34;&#34;&#34;
-    if len(key) == 0:
-        return -1
-    else:
-        return len(key.split(&#39;.&#39;))-1</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.IO.SimDefinition.getParentKeyAtLevel"><code class="name flex">
-<span>def <span class="ident">getParentKeyAtLevel</span></span>(<span>key: str, desiredLevel: int) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><pre><code class="python-repl">&gt;&gt;&gt; getParentKeyAtLevel('Rocket.Sustainer.Nosecone.mass', 0)
-'Rocket'
-&gt;&gt;&gt; getParentKeyAtLevel('Rocket.Sustainer.Nosecone.mass', 1)
-'Rocket.Sustainer'
-&gt;&gt;&gt; getParentKeyAtLevel('Rocket.Sustainer.Nosecone.mass', 2)
-'Rocket.Sustainer.Nosecone'
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getParentKeyAtLevel(key:str, desiredLevel:int) -&gt; str:
-    &#34;&#34;&#34;
-        &gt;&gt;&gt; getParentKeyAtLevel(&#39;Rocket.Sustainer.Nosecone.mass&#39;, 0)
-        &#39;Rocket&#39;
-        &gt;&gt;&gt; getParentKeyAtLevel(&#39;Rocket.Sustainer.Nosecone.mass&#39;, 1)
-        &#39;Rocket.Sustainer&#39;
-        &gt;&gt;&gt; getParentKeyAtLevel(&#39;Rocket.Sustainer.Nosecone.mass&#39;, 2)
-        &#39;Rocket.Sustainer.Nosecone&#39;
-    &#34;&#34;&#34;
-    desiredParts = key.split(&#39;.&#39;)[0:desiredLevel+1]
-    return &#39;.&#39;.join(desiredParts)</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.IO.SimDefinition.isSubKey"><code class="name flex">
-<span>def <span class="ident">isSubKey</span></span>(<span>potentialParent: str, potentialChild: str) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="example">Example</h2>
-<p><code>isSubKey("Rocket", "Rocket.name")</code> -&gt; True
-<code>isSubKey("SimControl", "Rocket.name")</code> -&gt; False</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def isSubKey(potentialParent:str, potentialChild:str) -&gt; bool:
-    &#34;&#34;&#34;
-        ## Example 
-        `isSubKey(&#34;Rocket&#34;, &#34;Rocket.name&#34;)` -&gt; True
-        `isSubKey(&#34;SimControl&#34;, &#34;Rocket.name&#34;)` -&gt; False
-    &#34;&#34;&#34;
-    pLength = len(potentialParent)
-    cLength = len(potentialChild)
-
-    if cLength &lt;= pLength:
-        return False
-    elif potentialChild[:pLength] == potentialParent:
-        return True
-    else:
-        return False</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.IO.SimDefinition.splitKeyAtLevel"><code class="name flex">
-<span>def <span class="ident">splitKeyAtLevel</span></span>(<span>key: str, prefixLevel: int) ‑> Tuple[str]</span>
-</code></dt>
-<dd>
-<div class="desc"><p>0 &lt;= level &lt;= getKeyLevel(key)</p>
-<h3 id="example">Example</h3>
-<pre><code class="python-repl">&gt;&gt;&gt; splitKeyAtLevel(&quot;Rocket&quot;, 0)
-('Rocket', '')
-&gt;&gt;&gt; splitKeyAtLevel(&quot;Rocket.Sustainer&quot;, 0)
-('Rocket', 'Sustainer')
-&gt;&gt;&gt; splitKeyAtLevel(&quot;Rocket.Sustainer.position&quot;, 1)
-('Rocket.Sustainer', 'position')
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def splitKeyAtLevel(key:str, prefixLevel:int) -&gt; Tuple[str]:
-    &#39;&#39;&#39; 
-        0 &lt;= level &lt;= getKeyLevel(key)
-        ### Example
-        &gt;&gt;&gt; splitKeyAtLevel(&#34;Rocket&#34;, 0)
-        (&#39;Rocket&#39;, &#39;&#39;)
-        &gt;&gt;&gt; splitKeyAtLevel(&#34;Rocket.Sustainer&#34;, 0)
-        (&#39;Rocket&#39;, &#39;Sustainer&#39;)
-        &gt;&gt;&gt; splitKeyAtLevel(&#34;Rocket.Sustainer.position&#34;, 1)
-        (&#39;Rocket.Sustainer&#39;, &#39;position&#39;)
-    &#39;&#39;&#39;
-    n = prefixLevel + 1
-    keyNames = key.split(&#39;.&#39;)
-    prefix = &#34;.&#34;.join(keyNames[:n])
-    suffix = &#34;.&#34;.join(keyNames[n:])
-    return prefix, suffix</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition"><code class="flex name class">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition"><code class="flex name class">
 <span>class <span class="ident">SimDefinition</span></span>
 <span>(</span><span>fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None)</span>
 </code></dt>
@@ -1120,10 +976,10 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
         &#39;&#39;&#39; Main dictionary of values, usually populated from a simulation definition file &#39;&#39;&#39;
 
         self.defaultDict = None
-        &#39;&#39;&#39; Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `MAPLEAF.IO.SimDefinition.defaultConfigValues` &#39;&#39;&#39;
+        &#39;&#39;&#39; Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `defaultConfigValues` &#39;&#39;&#39;
         
         self.monteCarloLogger = None 
-        &#39;&#39;&#39; Filled in by  Main.runMonteCarloSimulation() if running  Monte Carlo simulation. Type: `IO.Logging.MonteCarloLogger` &#39;&#39;&#39;
+        &#39;&#39;&#39; Filled in by  Main.runMonteCarloSimulation() if running  Monte Carlo simulation. Type: `MAPLEAF.IO.Logging.MonteCarloLogger` &#39;&#39;&#39;
 
         # Assign default dictionary
         if defaultDict == None:
@@ -1701,32 +1557,32 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
 </details>
 <h3>Instance variables</h3>
 <dl>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.defaultDict"><code class="name">var <span class="ident">defaultDict</span></code></dt>
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.defaultDict"><code class="name">var <span class="ident">defaultDict</span></code></dt>
 <dd>
-<div class="desc"><p>Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to <code>MAPLEAF.IO.SimDefinition.defaultConfigValues</code></p></div>
+<div class="desc"><p>Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to <code>defaultConfigValues</code></p></div>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.dict"><code class="name">var <span class="ident">dict</span></code></dt>
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.dict"><code class="name">var <span class="ident">dict</span></code></dt>
 <dd>
 <div class="desc"><p>Main dictionary of values, usually populated from a simulation definition file</p></div>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.disableDistributionSampling"><code class="name">var <span class="ident">disableDistributionSampling</span></code></dt>
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.disableDistributionSampling"><code class="name">var <span class="ident">disableDistributionSampling</span></code></dt>
 <dd>
 <div class="desc"><p>Boolean - controls whether parameters which have standard deviations specified are actually sampled from a normal distribution. If True, the mean value is always returned. Chief use case for disabling sampling: Checking simulation convergence as the time step / target error is decreased.</p></div>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.monteCarloLogger"><code class="name">var <span class="ident">monteCarloLogger</span></code></dt>
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.monteCarloLogger"><code class="name">var <span class="ident">monteCarloLogger</span></code></dt>
 <dd>
 <div class="desc"><p>Filled in by
 Main.runMonteCarloSimulation() if running
-Monte Carlo simulation. Type: <code>IO.Logging.MonteCarloLogger</code></p></div>
+Monte Carlo simulation. Type: <code><a title="MAPLEAF.IO.Logging.MonteCarloLogger" href="Logging.html#MAPLEAF.IO.Logging.MonteCarloLogger">MonteCarloLogger</a></code></p></div>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.silent"><code class="name">var <span class="ident">silent</span></code></dt>
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.silent"><code class="name">var <span class="ident">silent</span></code></dt>
 <dd>
 <div class="desc"><p>Boolean, controls console output</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.findKeysContaining"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.findKeysContaining"><code class="name flex">
 <span>def <span class="ident">findKeysContaining</span></span>(<span>self, keyContains: List[str]) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -1764,7 +1620,7 @@ Monte Carlo simulation. Type: <code>IO.Logging.MonteCarloLogger</code></p></div>
         return None</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.getImmediateSubDicts"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.getImmediateSubDicts"><code class="name flex">
 <span>def <span class="ident">getImmediateSubDicts</span></span>(<span>self, key: str) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -1805,7 +1661,7 @@ Monte Carlo simulation. Type: <code>IO.Logging.MonteCarloLogger</code></p></div>
     return list(subDictionaries)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.getImmediateSubKeys"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.getImmediateSubKeys"><code class="name flex">
 <span>def <span class="ident">getImmediateSubKeys</span></span>(<span>self, key: str) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -1844,7 +1700,7 @@ Monte Carlo simulation. Type: <code>IO.Logging.MonteCarloLogger</code></p></div>
     return list(results)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.getSubKeys"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.getSubKeys"><code class="name flex">
 <span>def <span class="ident">getSubKeys</span></span>(<span>self, key: str) ‑> List[str]</span>
 </code></dt>
 <dd>
@@ -1873,7 +1729,7 @@ Monte Carlo simulation. Type: <code>IO.Logging.MonteCarloLogger</code></p></div>
     return subKeys</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.getValue"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.getValue"><code class="name flex">
 <span>def <span class="ident">getValue</span></span>(<span>self, key: str) ‑> str</span>
 </code></dt>
 <dd>
@@ -1974,7 +1830,7 @@ For repeatable sampling, set the value "MonteCarlo.randomSeed" in the file loade
     return stringValue</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.printDefaultValuesUsed"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.printDefaultValuesUsed"><code class="name flex">
 <span>def <span class="ident">printDefaultValuesUsed</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -1995,7 +1851,7 @@ For repeatable sampling, set the value "MonteCarlo.randomSeed" in the file loade
         print(&#34;\nIf this was not intended, override the default values by adding the above information to your simulation definition file.\n&#34;)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.printUnusedKeys"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.printUnusedKeys"><code class="name flex">
 <span>def <span class="ident">printUnusedKeys</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -2018,7 +1874,7 @@ Prints a list of those to the console.</p></div>
         print(&#34;&#34;)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.removeKey"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.removeKey"><code class="name flex">
 <span>def <span class="ident">removeKey</span></span>(<span>self, key: str)</span>
 </code></dt>
 <dd>
@@ -2035,7 +1891,7 @@ Prints a list of those to the console.</p></div>
         return None</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.setIfAbsent"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.setIfAbsent"><code class="name flex">
 <span>def <span class="ident">setIfAbsent</span></span>(<span>self, key: str, value)</span>
 </code></dt>
 <dd>
@@ -2050,7 +1906,7 @@ Prints a list of those to the console.</p></div>
         self.setValue(key, value)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.setValue"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.setValue"><code class="name flex">
 <span>def <span class="ident">setValue</span></span>(<span>self, key: str, value) ‑> NoneType</span>
 </code></dt>
 <dd>
@@ -2069,7 +1925,7 @@ Prints a list of those to the console.</p></div>
     self.dict[key] = value</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.IO.SimDefinition.SimDefinition.writeToFile"><code class="name flex">
+<dt id="MAPLEAF.IO.simDefinition.SimDefinition.writeToFile"><code class="name flex">
 <span>def <span class="ident">writeToFile</span></span>(<span>self, fileName: str, writeHeader=True) ‑> NoneType</span>
 </code></dt>
 <dd>
@@ -2168,36 +2024,31 @@ MAPLEAF
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="two-column">
-<li><code><a title="MAPLEAF.IO.SimDefinition.getAbsoluteFilePath" href="#MAPLEAF.IO.SimDefinition.getAbsoluteFilePath">getAbsoluteFilePath</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.getImmediateSubKey" href="#MAPLEAF.IO.SimDefinition.getImmediateSubKey">getImmediateSubKey</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.getKeyLevel" href="#MAPLEAF.IO.SimDefinition.getKeyLevel">getKeyLevel</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.getParentKeyAtLevel" href="#MAPLEAF.IO.SimDefinition.getParentKeyAtLevel">getParentKeyAtLevel</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.isSubKey" href="#MAPLEAF.IO.SimDefinition.isSubKey">isSubKey</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.splitKeyAtLevel" href="#MAPLEAF.IO.SimDefinition.splitKeyAtLevel">splitKeyAtLevel</a></code></li>
+<ul class="">
+<li><code><a title="MAPLEAF.IO.simDefinition.getAbsoluteFilePath" href="#MAPLEAF.IO.simDefinition.getAbsoluteFilePath">getAbsoluteFilePath</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition" href="#MAPLEAF.IO.SimDefinition.SimDefinition">SimDefinition</a></code></h4>
+<h4><code><a title="MAPLEAF.IO.simDefinition.SimDefinition" href="#MAPLEAF.IO.simDefinition.SimDefinition">SimDefinition</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.defaultDict" href="#MAPLEAF.IO.SimDefinition.SimDefinition.defaultDict">defaultDict</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.dict" href="#MAPLEAF.IO.SimDefinition.SimDefinition.dict">dict</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.disableDistributionSampling" href="#MAPLEAF.IO.SimDefinition.SimDefinition.disableDistributionSampling">disableDistributionSampling</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.findKeysContaining" href="#MAPLEAF.IO.SimDefinition.SimDefinition.findKeysContaining">findKeysContaining</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.getImmediateSubDicts" href="#MAPLEAF.IO.SimDefinition.SimDefinition.getImmediateSubDicts">getImmediateSubDicts</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.getImmediateSubKeys" href="#MAPLEAF.IO.SimDefinition.SimDefinition.getImmediateSubKeys">getImmediateSubKeys</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.getSubKeys" href="#MAPLEAF.IO.SimDefinition.SimDefinition.getSubKeys">getSubKeys</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.getValue" href="#MAPLEAF.IO.SimDefinition.SimDefinition.getValue">getValue</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.monteCarloLogger" href="#MAPLEAF.IO.SimDefinition.SimDefinition.monteCarloLogger">monteCarloLogger</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.printDefaultValuesUsed" href="#MAPLEAF.IO.SimDefinition.SimDefinition.printDefaultValuesUsed">printDefaultValuesUsed</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.printUnusedKeys" href="#MAPLEAF.IO.SimDefinition.SimDefinition.printUnusedKeys">printUnusedKeys</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.removeKey" href="#MAPLEAF.IO.SimDefinition.SimDefinition.removeKey">removeKey</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.setIfAbsent" href="#MAPLEAF.IO.SimDefinition.SimDefinition.setIfAbsent">setIfAbsent</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.setValue" href="#MAPLEAF.IO.SimDefinition.SimDefinition.setValue">setValue</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.silent" href="#MAPLEAF.IO.SimDefinition.SimDefinition.silent">silent</a></code></li>
-<li><code><a title="MAPLEAF.IO.SimDefinition.SimDefinition.writeToFile" href="#MAPLEAF.IO.SimDefinition.SimDefinition.writeToFile">writeToFile</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.defaultDict" href="#MAPLEAF.IO.simDefinition.SimDefinition.defaultDict">defaultDict</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.dict" href="#MAPLEAF.IO.simDefinition.SimDefinition.dict">dict</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.disableDistributionSampling" href="#MAPLEAF.IO.simDefinition.SimDefinition.disableDistributionSampling">disableDistributionSampling</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.findKeysContaining" href="#MAPLEAF.IO.simDefinition.SimDefinition.findKeysContaining">findKeysContaining</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.getImmediateSubDicts" href="#MAPLEAF.IO.simDefinition.SimDefinition.getImmediateSubDicts">getImmediateSubDicts</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.getImmediateSubKeys" href="#MAPLEAF.IO.simDefinition.SimDefinition.getImmediateSubKeys">getImmediateSubKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.getSubKeys" href="#MAPLEAF.IO.simDefinition.SimDefinition.getSubKeys">getSubKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.getValue" href="#MAPLEAF.IO.simDefinition.SimDefinition.getValue">getValue</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.monteCarloLogger" href="#MAPLEAF.IO.simDefinition.SimDefinition.monteCarloLogger">monteCarloLogger</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.printDefaultValuesUsed" href="#MAPLEAF.IO.simDefinition.SimDefinition.printDefaultValuesUsed">printDefaultValuesUsed</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.printUnusedKeys" href="#MAPLEAF.IO.simDefinition.SimDefinition.printUnusedKeys">printUnusedKeys</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.removeKey" href="#MAPLEAF.IO.simDefinition.SimDefinition.removeKey">removeKey</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.setIfAbsent" href="#MAPLEAF.IO.simDefinition.SimDefinition.setIfAbsent">setIfAbsent</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.setValue" href="#MAPLEAF.IO.simDefinition.SimDefinition.setValue">setValue</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.silent" href="#MAPLEAF.IO.simDefinition.SimDefinition.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.IO.simDefinition.SimDefinition.writeToFile" href="#MAPLEAF.IO.simDefinition.SimDefinition.writeToFile">writeToFile</a></code></li>
 </ul>
 </li>
 </ul>
