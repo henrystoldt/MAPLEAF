@@ -660,28 +660,41 @@ class MonteCarloSimRunner(SingleSimRunner):
             logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
             print("Wrote Monte Carlo Log to: {}".format(logPath))
 
+
 def runParallelMonteCarloSim(simDefinition):
-    # TODO: Finish implementation, make parallelism optional
+    ''' Parallel simulations are using ray, which only work with Linux and Mac. Windows support is in Alpha '''
+
     # No plotting for monte carlo sims
     simDefinition.setValue("SimControl.plot", "None")
     simDefinition.setValue("SimControl.RocketPlot", "Off")
 
+    # Start ray workers
     import ray
     ray.init()
 
-    RemoteSimRunner = ray.remote(SingleSimRunner)
+    # Define a remote version of SingleSimRunner    
+    @ray.remote
+    class RemoteSimRunner(SingleSimRunner):
 
-    runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
-    runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
+        @ray.method(num_return_vals=2)
+        def runSingleSimulation(self):
+            return super().runSingleSimulation()
 
+    # Instantiate sim runners, run sims
+    runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
     f1 = runner1.runSingleSimulation.remote()
-    f2 = runner2.runSingleSimulation.remote()
-    
+
+    # runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
+    # f2 = runner2.runSingleSimulation.remote()
+
+    # Get and output results
     results = ray.get(f1)
-    results2 = ray.get(f2)
+    # results2 = ray.get(f2)
 
     print("1: {}".format(results))
-    print("2: {}".format(results2))
+    # print("2: {}".format(results2))
+
+    ray.shutdown()
 
 class OptimizingSimRunner():
     '''
