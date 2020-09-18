@@ -3,7 +3,7 @@
 #Created by: Henry Stoldt
 #February 2019
 '''
-Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized child classes that run several simulations in one go.
+Defines a basic single simulation runner `SingleSimRunner`, as well as more specialized classes that run several simulations in one go.
 
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 '''
@@ -31,12 +31,12 @@ class SingleSimRunner():
             Inputs:
                 
                 * simDefinitionFilePath:  (string) path to simulation definition file  
-                * fW:                     (`MAPLEAF.IO.SimDefinition.SimDefinition`) object that's already loaded and parsed the desired sim definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition`) object that's already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         '''
 
         self.simDefinition = None
-        ''' Instance of `MAPLEAF.IO.SimDefinition.SimDefinition`. Defines the current simulation '''
+        ''' Instance of `MAPLEAF.IO.SimDefinition`. Defines the current simulation '''
 
         # Load simulation definition file - have to do this before creating the environment from it
         if simDefinition == None and simDefinitionFilePath != None:

@@ -13,8 +13,9 @@
   <a align="center" href="https://lbesson.mit-license.org/"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
 
-The `MAPLEAF.Main` module is the entry point for running a simulation.  
-The `MAPLEAF.Rocket.Rocket` class is the main class responsible for coordinating the modelling of a Rocket.
+Simulation entry point: `MAPLEAF.Main.main`.  
+`MAPLEAF.Main.main` will initialize one of the classes in `MAPLEAF.SimulationRunners` to drive/manage the simulation.
+The simulation runner will then initialize an instance of `MAPLEAF.Rocket.Rocket`, which coordinates the modelling of a Rocket.
 
 See [README.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README.md) for info about:  
 

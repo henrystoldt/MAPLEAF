@@ -18,10 +18,10 @@ class Transition(FixedMass, BodyComponent):
             Two possible sets of inputs:  
             1. Initialization as a regular, dictionary-defined rocket component:  
                 * args = (componentDictReader, rocket, stage)  
-                * Expected classes: (`MAPLEAF.IO.SubDictReader.SubDictReader`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`)  
+                * Expected classes: (`MAPLEAF.IO.SubDictReader`, `MAPLEAF.Rocket.Rocket`, `MAPLEAF.Rocket.Stage`)  
             2. Manual initialization:  
                 * args = (startDiameter, endDiameter, length, position, inertia, rocket, stage, name, surfaceRoughness)  
-                * Expected classes: (float, float, float, `MAPLEAF.Motion.CythonVector.Vector`, `MAPLEAF.Motion.Inertia.Inertia`, `MAPLEAF.Rocket.Rocket.Rocket`, `MAPLEAF.Rocket.Stage.Stage`, str, float)  
+                * Expected classes: (float, float, float, `MAPLEAF.Motion.Vector`, `MAPLEAF.Motion.Inertia`, `MAPLEAF.Rocket.Rocket`, `MAPLEAF.Rocket.Stage`, str, float)  
         '''
         if len(args) == 3:
             # Classic initialization from componentDictReader

@@ -25,7 +25,7 @@ __all__ = [ "Rocket" ]
 
 class Rocket(CompositeObject):
     '''
-        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage.Stage` objects.
+        Class used to represent a single flying rigid body composed of `MAPLEAF.Rocket.Stage` objects.
         New instances of this class are also created to model the flight of dropped stages.
     '''
     #### Initialization ####
@@ -39,7 +39,7 @@ class Rocket(CompositeObject):
 
             Inputs:
 
-            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader.SubDictReader`) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.  
+            * rocketDictReader:     (`MAPLEAF.IO.SubDictReader`) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.  
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n >= 1.  
             * simRunner:            (`MAPLEAF.Main.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
@@ -67,7 +67,7 @@ class Rocket(CompositeObject):
 
         self.stages = []
         '''
-            A list of `MAPLEAF.Rocket.Stage.Stage` objects that make up the rocket, ordered from top to bottom.  
+            A list of `MAPLEAF.Rocket.Stage` objects that make up the rocket, ordered from top to bottom.  
             Populated by `Rocket._initializeStages`.
         '''
 
@@ -79,7 +79,7 @@ class Rocket(CompositeObject):
 
         self.rigidBody = None            
         ''' 
-            (`MAPLEAF.Motion.RigidBody.RigidBody` or `MAPLEAF.Motion.RigidBody.RigidBody_3DoF`) Responsible for motion integration.  
+            (`MAPLEAF.Motion.RigidBody` or `MAPLEAF.Motion.RigidBody_3DoF`) Responsible for motion integration.  
             Set in `Rocket._initializeRigidBody()`.
         '''
 
@@ -109,7 +109,7 @@ class Rocket(CompositeObject):
         self.targetLocation = None
 
         self.simEventDetector = SimEventDetector(self) 
-        ''' (`MAPLEAF.Rocket.SimEventDetector.SimEventDetector`) Used to trigger things like recovery systems and staging '''
+        ''' (`MAPLEAF.Rocket.SimEventDetector`) Used to trigger things like recovery systems and staging '''
 
         self.eventTimeStep = rocketDictReader.getFloat("SimControl.TimeStepAdaptation.eventTimingAccuracy")
         ''' If using an adaptive time stepping method, the time step will be overridden near non-time-deterministic discrete events, possibly all the way down to this minimum value '''

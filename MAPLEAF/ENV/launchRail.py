@@ -37,7 +37,7 @@ class LaunchRail():
     def applyLaunchTowerForce(self, state, time, unadjustedForce):
         '''
             If on launch tower, projects forces experienced onto the launch tower directions and sets Moments = 0
-            Returns two values: onTower(Bool), adjustedForce(Motion.RigidBody.Force)
+            Returns two values: onTower(Bool), adjustedForce(Motion.ForceMomentSystem)
         '''
         distanceTravelled = (state.position - self.getPosition(time)).length()
         if distanceTravelled < self.length:

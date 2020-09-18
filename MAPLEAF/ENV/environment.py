@@ -1,4 +1,4 @@
-''' Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket.Rocket` '''
+''' Main wrapper and data classes that tie together all of the environmental models and are queried by instances of `MAPLEAF.Rocket.Rocket` '''
 
 import math
 from collections import namedtuple
@@ -204,8 +204,8 @@ class Environment():
     def getGravityForce(self, inertia, state) -> ForceMomentSystem:
         '''
             Inputs:
-                inertia: (`MAPLEAF.Motion.Inertia.Inertia`)
-                state:   (`MAPLEAF.Motion.RigidBodyStates.RigidBodyState`/`MAPLEAF.Motion.RigidBodyStates.RigidBodyState_3DoF`)
+                inertia: (`MAPLEAF.Motion.Inertia`)
+                state:   (`MAPLEAF.Motion.RigidBodyState`/`MAPLEAF.Motion.RigidBodyState_3DoF`)
 
             Returns:
                 gravityForce: (ForceMomentSystem) defined in the rocket's local frame

@@ -30,7 +30,7 @@ class AtmosphericModel(abc.ABC):
 def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -> AtmosphericModel:
     ''' 
         Provide either an atmosphericModel name ('USStandardAtmosphere' is only option right now that doesn't require additional info,
-            or provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`)
+            or provide an envDictReader (`MAPLEAF.IO.SubDictReader`)
     '''
     if atmosphericModel == None:
         atmosphericModel = envDictReader.getString("AtmosphericPropertiesModel")

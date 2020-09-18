@@ -36,7 +36,7 @@ class BodyComponent(ABC):
     ''' 
         Class that defines interface for axisymmetric body components.
         Contains logic for detecting adjacent body components & defining interfaces with them 
-        Examples: `MAPLEAF.Rocket.Nosecone`, `MAPLEAF.Rocket.Stage.Stage`
+        Examples: `MAPLEAF.Rocket.NoseCone`, `MAPLEAF.Rocket.Stage`
     '''
     # Override these attributes in child classes to change whether they can connect to components above/below them
     canConnectToComponentAbove = True

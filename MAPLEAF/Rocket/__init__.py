@@ -1,4 +1,4 @@
-'''
+r'''
 Code specific to modelling Rockets.  
 Main class is `Rocket.Rocket`.
 
@@ -12,24 +12,28 @@ The interface all rocket components are expected to implement is defined by the 
 
 .. image:: https://airandspace.si.edu/sites/default/files/images/NASAJSC2002-01598h.jpg
 
-## Approximate Surface Roughnesses from (Barrowman, 1967, Table 4-1) (micrometers)
-Mirror:                               0
-Glass:                                0.1
-Finished/Polished surface:            0.5
-Aircraft-type sheet-metal surface:    2
-Optimum paint-sprayed surfaces:       5
-Planed wooden boards:                 15
-Paint in aircraft mass production:    20
-Steel plating: bare:                  50
-Smooth cement:                        50
-Surface with asphalt-type coating:    100
-Dip-galvanized metal surface:         150
-Incorrectly sprayed paint:            200
-Natural cast-iron surface:            250
-Raw wooden boards:                    500
-Average concrete:                     1000
+MAPLEAF.Rocket relies on (in order of coupling) `MAPLEAF.Motion`, `MAPLEAF.ENV`, `MAPLEAF.IO`, and `MAPLEAF.GNC`
 
-MAPLEAF.Rocket relies on (in order of importance) MAPLEAF.Motion, MAPLEAF.ENV, MAPLEAF.IO, and MAPLEAF.GNC
+### Approximate Material Roughnesses
+| Material                           | Roughness ( \(\mu m\) )                                        |
+|------------------------------------|-------------------------------------------------------|
+| Mirror:                            | 0                                                     |
+| Glass:                             | 0.1                                                   |
+| Finished/Polished surface:         | 0.5                                                   |
+| Aircraft-type sheet-metal surface: | 2                                                     |
+| Optimum paint-sprayed surfaces:    | 5                                                     |
+| Planed wooden boards:              | 15                                                    |
+| Paint in aircraft mass production: | 20                                                    |
+| Steel plating: bare:               | 50                                                    |
+| Smooth cement:                     | 50                                                    |
+| Surface with asphalt-type coating: | 100                                                   |
+| Dip-galvanized metal surface:      | 150                                                   |
+| Incorrectly sprayed paint:         | 200                                                   |
+| Natural cast-iron surface:         | 250                                                   |
+| Raw wooden boards:                 | 500                                                   |
+| Average concrete:                  | 1000                                                  |
+
+(From Barrowman, 1967, Table 4-1)  
 
 '''
 # Make the classes in all submodules importable directly from MAPLEAF.Rocket

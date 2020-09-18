@@ -41,7 +41,7 @@ def integratorFactory(integrationMethod="Euler", simDefinition=None, discardedTi
 
         Inputs:
             * integrationMethod: (str) Name of integration method: Examples = "Euler", "RK4", "RK23Adaptive", and "RK45Adaptive"
-            * simDefinition: (`MAPLEAF.IO.SimDefinition.SimDefinition`) for adaptive integration, provide a simdefinition file with time step adaptation parameters
+            * simDefinition: (`MAPLEAF.IO.SimDefinition`) for adaptive integration, provide a simdefinition file with time step adaptation parameters
             * discardedTimeStepCallback: (1-argument function reference) for adaptive integration, this function (if provided) is called when a time step is computed,
                 but then discarded and re-computed with a smaller timestep to remain below the max estimated error threshold. Used by MAPLEAF to remove
                 force calculation logs from those discarded time steps

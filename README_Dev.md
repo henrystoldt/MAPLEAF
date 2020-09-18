@@ -85,9 +85,9 @@ Project is currently set up to auto-generate documentation from module-, class-,
 [Live documentation](https://henrystoldt.github.io/MAPLEAF/) is updated by a GitHub Action every time the master branch is updated.  
 
 To run a local, live html documentation server (see changes to the documentation live):  
-`$ pdoc --http : ./MAPLEAF`  - then navigate to `localhost:[PORT NUMBER HERE (default 8080)]` in a web browser  
+`$ pdoc --http : ./MAPLEAF --template-dir ./Resources/DocTemplate`  - then navigate to `localhost:[PORT NUMBER HERE (default 8080)]` in a web browser  
 To generate static html docs  
-`$ pdoc --html --output-dir docs ./MAPLEAF`  
+`$ pdoc --html --output-dir docs ./MAPLEAF --template-dir ./Resources/DocTemplate`  
 
 ## Generating class/package Resources (Linux)
 1. `$ sudo apt install graphviz`

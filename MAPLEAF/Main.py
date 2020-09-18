@@ -97,7 +97,7 @@ def findSimDefinitionFile(providedPath):
 def main(argv: List[str]=None) -> int:
     ''' 
         Main function to run a MAPLEAF simulation. 
-        Expects to be called from the command line, using the argparse parser
+        Expects to be called from the command line, usually using the `mapleaf` command
         
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     '''

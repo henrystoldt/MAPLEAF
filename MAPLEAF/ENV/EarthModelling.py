@@ -55,7 +55,7 @@ class EarthModel(ABC):
         return
 
 def earthModelFactory(envDictReader=None) -> EarthModel:
-    ''' Provide an envDictReader (`MAPLEAF.IO.SubDictReader.SubDictReader`). If none is provided, returns a FlatEarth model '''
+    ''' Provide an envDictReader (`MAPLEAF.IO.SubDictReader`). If none is provided, returns a FlatEarth model '''
     if envDictReader == None:
         return FlatEarth()
 
