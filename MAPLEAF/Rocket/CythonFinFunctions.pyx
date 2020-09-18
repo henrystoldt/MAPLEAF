@@ -2,7 +2,7 @@
 
 ''' Cython functions to speed up the `MAPLEAF.Rocket.FinSet` aerodynamic model '''
 
-from MAPLEAF.Motion cimport Vector
+from MAPLEAF.Motion.CythonVector cimport Vector
 from libc.math cimport asin, abs
 from libcpp.vector cimport vector
 from math import isnan

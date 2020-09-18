@@ -669,12 +669,10 @@ def runParallelMonteCarloSim(simDefinition):
     import ray
     ray.init()
 
-    global SingleSimRunner
+    RemoteSimRunner = ray.remote(SingleSimRunner)
 
-    SingleSimRunner = ray.remote(SingleSimRunner)
-
-    runner1 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
-    runner2 = SingleSimRunner.remote(simDefinition=simDefinition, silent=True)
+    runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True, num_return_vals=3)
+    runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
 
     f1 = runner1.runSingleSimulation.remote()
     f2 = runner2.runSingleSimulation.remote()
