@@ -1,7 +1,7 @@
 
 import math
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from . import AeroFunctions
 from MAPLEAF.Motion import AeroParameters, Vector
 from MAPLEAF.Rocket import BodyComponent, FixedMass
 from MAPLEAF.Utilities import logForceResult

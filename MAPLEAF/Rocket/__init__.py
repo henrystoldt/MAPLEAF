@@ -51,7 +51,7 @@ from .rocket import *
 
 subModules = [ RocketComponents, simEventDetector, boatTail, bodyTube, Fins, Propulsion, Recovery, noseCone, stage, rocket, RocketComponentFactory ]
 
-__all__ = []
+__all__ = [ ]
 
 for subModule in subModules:
     __all__ += subModule.__all__

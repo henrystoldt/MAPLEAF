@@ -660,7 +660,6 @@ class MonteCarloSimRunner(SingleSimRunner):
             logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
             print("Wrote Monte Carlo Log to: {}".format(logPath))
 
-
 def runParallelMonteCarloSim(simDefinition):
     ''' Parallel simulations are using ray, which only work with Linux and Mac. Windows support is in Alpha '''
 
@@ -683,16 +682,15 @@ def runParallelMonteCarloSim(simDefinition):
     # Instantiate sim runners, run sims
     runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
     f1 = runner1.runSingleSimulation.remote()
-
-    # runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
-    # f2 = runner2.runSingleSimulation.remote()
+    runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
+    f2 = runner2.runSingleSimulation.remote()
 
     # Get and output results
     results = ray.get(f1)
-    # results2 = ray.get(f2)
+    results2 = ray.get(f2)
 
-    print("1: {}".format(results))
-    # print("2: {}".format(results2))
+    print("\n1: {}\n".format(results))
+    print("\n2: {}\n".format(results2))
 
     ray.shutdown()
 

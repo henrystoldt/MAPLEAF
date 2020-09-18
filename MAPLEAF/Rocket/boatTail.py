@@ -1,6 +1,6 @@
 import math
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from . import AeroFunctions
 from MAPLEAF.Motion import AeroParameters, ForceMomentSystem, Vector
 from MAPLEAF.Rocket import BodyComponent, FixedMass
 from MAPLEAF.Rocket.noseCone import (computeSubsonicPolyCoeffs,
