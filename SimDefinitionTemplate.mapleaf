@@ -62,9 +62,68 @@
         # X: Radial axis 1
         # Y: Radial axis 2
 
+#### Units ####
+    # Unless stated otherwise, all units are SI
+        # Position/length:      m
+        # Time:                 s
+        # Velocity:             m/s
+        # Acceleration:         m/s^2
+        # Angle:                deg (user-facing), rad (in code)
+        # Angular Velocity:     rad/s
+        # Mass:                 kg
+        # Moment of Inertia     kg*m^2
+        # Pressure:             Pa
+        # Viscosity:            Pa*s
+        # Density:              kg/m^3
+
 #### All possible options to define simulations ####
 
+Optimization{
+    ### Specify Optimization runs ###
+
+    # Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
+        # The 'MonteCarlo' dictionary is disregarded when this one is present (no batch runs to calculate cost function)
+        # However, if any parameters with _stdDev entries are present, their values are still sampled probabilistically each time the Optimizer runs a simulation
+    
+    # Specify either:
+        # 1. A Python function, of these variables:
+                # flightTime, apogee, maxSpeed, maxHorizontalVel #TODO: dryWeight, takeoffWeight
+                # can also use any math function
+            # costFunction                      0.5*(apogee-1e5) + 0.5*math.sqrt(dryWeight)
+        # 2. OR a custom function, which gets passed an array of log file paths (str)
+            # Number of log file paths received depends on SimControl.loggingLevel
+            # costFunction                      [PathToModule]:[FunctionName]
+    costFunction                                MAPLEAF.MyCustomCodeFile:MyCustomCostFunction
+    
+    IndependentVariables{
+        # Define all the variables that the Optimizer is free to change (Must be scalar parameters in the Sim Definition file)
+        # paramName                             Min Value   <       Path.To.Parameter             < Max Value
+        bodyLength                              0           < Rocket.SecondStage.BodyTube.length  < 10
+    }
+    
+    DependentVariables{
+        # Define values of variables that are functions of the independent variables
+        # Delimit computations with exclamation marks
+        # Can use any math function, and the names of independent variables
+        Rocket.SecondStage.BoatTail.length      !sqrt(bodyLength*0.01)! # For bodyLength = 1, this = '0.1'
+        Rocket.SecondStage.BoatTail.position    (0 0 !-2.75 + bodyLength - 3.5538!) # For bodyLength = 3.5538, this = '(0 0 -2.75)'
+    }
+
+    ParticleSwarm{
+        # More info:  https://pyswarms.readthedocs.io/en/latest/api/pyswarms.single.html#module-pyswarms.single.global_best
+        nParticles                              20
+        nIterations                             50
+
+        cognitiveParam                          0.5 # aka c1        
+        socialParam                             0.6 # aka c2        
+        inertiaParam                            0.9 # aka w
+    }           
+
+    showConvergencePlot                         True
+}
+
 MonteCarlo{
+    ### Make MAPLEAF run a probabilistic simulation several times in a row, and output a summary of results ###
     randomSeed      458623 # (optional) for repeatability
     numberRuns      10
     
@@ -80,6 +139,8 @@ MonteCarlo{
 }
 
 SimControl{
+    ### Controls termination conditions, outputs, and time discretization ###
+
     # Control simulation termination condition for main rocket (top stage)
     EndCondition            Altitude # Altitude, Time, Apogee
     EndConditionValue       0 # m ASL or sec (not required if EndCondition = Apogee)
@@ -143,6 +204,7 @@ SimControl{
 }
 
 Environment{
+    ### Define models of the physical environment ###
 
     LaunchSite{
         elevation               0 #m, Relative to sea level - Impacts the acceleration of gravity at launch        
@@ -269,6 +331,7 @@ Environment{
     # Average concrete:                     1000
 
 Rocket{   
+    ### Define the air vehicle here ###
     name                VeryComplicatedRocket_UsingEveryPossibleOption      
 
     ## Initial kinematic state ##
