@@ -12,9 +12,9 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Motion import (
-    ForceMomentSystem, Inertia, RigidBodyState, Vector, linInterp)
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
+from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Inertia,
+                            RigidBodyState, Vector, linInterp)
+from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
 
@@ -250,7 +250,7 @@ class AeroDamping(AeroForce):
     
     @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
-        airspeed = max(AeroFunctions.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+        airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
         localFrameAngularVelocity = Vector(*state.angularVelocity)
@@ -288,8 +288,8 @@ class TabulatedAeroForce(AeroForce):
         i = 0
         while i < len(columnNames):
             col = columnNames[i]
-            if col in AeroFunctions.stringToAeroFunctionMap:
-                self.parameterFunctions.append(AeroFunctions.stringToAeroFunctionMap[col])
+            if col in AeroParameters.stringToAeroFunctionMap:
+                self.parameterFunctions.append(AeroParameters.stringToAeroFunctionMap[col])
             else:
                 break
             i += 1
@@ -306,7 +306,7 @@ class TabulatedAeroForce(AeroForce):
                 
             else:
                 raise ValueError("ERROR: One of the following columns: {} did not match any of the expected columns names: Keys: {}, values: {}. \
-                    Or was in the wrong order. All key columns must come BEFORE value columns.".format(columnNames, AeroFunctions.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
+                    Or was in the wrong order. All key columns must come BEFORE value columns.".format(columnNames, AeroParameters.stringToAeroFunctionMap.keys(), aeroCoeffStrings))
             i += 1
 
         # Load the data table to be interpolated
@@ -325,7 +325,7 @@ class TabulatedAeroForce(AeroForce):
             self.values = aeroCoefficients
 
     def _getAeroCoefficients(self, state, environment):
-        keys = AeroFunctions.getAeroPropertiesList(self.parameterFunctions, state, environment)
+        keys = AeroParameters.getAeroPropertiesList(self.parameterFunctions, state, environment)
 
         if len(keys) > 1:
             # Multi-dimensional linear interpolation

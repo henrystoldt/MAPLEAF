@@ -5,18 +5,15 @@ from math import cos, radians, sqrt
 
 import numpy as np
 
-import MAPLEAF.Motion as Interpolation
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.GNC import ActuatedSystem
-from MAPLEAF.Motion import AngularVelocity
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Rocket.AeroFunctions import cacheLastResult
-from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,
-                                           getSubsonicFinNormalForce,
-                                           getSupersonicFinNormalForce)
+from MAPLEAF.Motion import (AeroParameters, AngularVelocity, ForceMomentSystem, Interpolation,
+                            Quaternion, Vector)
 from MAPLEAF.Rocket import FixedMass
+from MAPLEAF.Rocket.CythonFinFunctions import (getFinSliceAngleOfAttack,
+                                               getSubsonicFinNormalForce,
+                                               getSupersonicFinNormalForce)
+from MAPLEAF.Utilities import cacheLastResult
 
 __all__ = [ "FinSet", "Fin" ]
 
@@ -291,8 +288,8 @@ class FinSet(FixedMass, ActuatedSystem):
     def _getPreComputedFinAeroData(self, rocketState, environment, CG):
         #General Info ---------------------------------------------------------------------------------------------------------------------
         Aref = self.rocket.Aref
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
-        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroParameters.getDynamicPressure(rocketState, environment)
 
         # Skin Friction Drag -------------------------------------------------------------------------------------------------------------
         
@@ -350,7 +347,7 @@ class FinSet(FixedMass, ActuatedSystem):
         
         totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
 
-        localFrameRocketVelocity = AeroFunctions.getLocalFrameAirVel(rocketState, environment)
+        localFrameRocketVelocity = AeroParameters.getLocalFrameAirVel(rocketState, environment)
         axialPositionRelCG = self.position - CG
         finVelocityDueToRocketPitchYaw = rocketState.angularVelocity.crossProduct(axialPositionRelCG) 
         airVelRelativeToFin = localFrameRocketVelocity - finVelocityDueToRocketPitchYaw # The negative puts it in the wind frame
@@ -368,7 +365,7 @@ class FinSet(FixedMass, ActuatedSystem):
             XF = self.XMACLeadingEdge + 0.25*self.MACLength #As per open rocket documentation
 
         elif Mach >= 2.0:
-            beta = AeroFunctions.getBeta(Mach)
+            beta = AeroParameters.getBeta(Mach)
             CPCalc = lambda AR, B : (AR*B - 0.67) / (2*AR*B - 1) #Eq 3.35 of open rocket documentation (greater than M = 2)
             XF = self.MACLength*CPCalc(self.aspectRatio, beta) + self.XMACLeadingEdge #As per open rocket documentation
 
@@ -464,8 +461,8 @@ class Fin(FixedMass):
                 that are common to all fins in a FinSet (drag calculations mostly). These calculations are performed at the FinSet level.
             Only the parts of the Fin Aero Computation that change from fin to fin (normal force mostly, since different fins can have different angles of attack) are computed here
         '''
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
-        dynamicPressure = AeroFunctions.getDynamicPressure(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
+        dynamicPressure = AeroParameters.getDynamicPressure(rocketState, environment)
 
         if finDeflectionAngle == None:
             finDeflectionAngle = self.finAngle # Adjusted by parent finset during each timestep, when the FinSet is controlled
@@ -483,13 +480,13 @@ class Fin(FixedMass):
         unitSpanTangentialAirVelocity = rollAngVel.crossProduct(self.spanwiseDirection)*(-1)
         
         def subsonicNormalForce(Mach): # Subsonic linear method
-            tempBeta = AeroFunctions.getBeta(Mach)
+            tempBeta = AeroParameters.getBeta(Mach)
             CnAlpha = getFinCnAlpha_Subsonic_Barrowman(self.span, self.planformArea, tempBeta, self.midChordSweep)
             return getSubsonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), CnAlpha, self)
 
         def supersonicNormalForce(Mach): # Supersonic Busemann method
             gamma = AeroFunctions.getGamma()
-            tempBeta = AeroFunctions.getBeta(Mach)
+            tempBeta = AeroParameters.getBeta(Mach)
             K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
             return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
 

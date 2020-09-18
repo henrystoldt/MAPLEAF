@@ -11,9 +11,9 @@ import math
 import unittest
 from math import radians
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.IO import SimDefinition, SubDictReader
-from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
+from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Quaternion,
+                            RigidBodyState, Vector)
 from MAPLEAF.Rocket import FinSet, Rocket
 from MAPLEAF.Rocket.CythonFinFunctions import getFinSliceAngleOfAttack
 
@@ -99,7 +99,7 @@ class TestFinSet(unittest.TestCase):
         rocketState = RigidBodyState(Vector(0,0,0), vel, orientation, angVel)
         CG = self.rocket2.getCG(0, rocketState)
 
-        rocketVelocity = AeroFunctions.getLocalFrameAirVel(rocketState, self.currentConditions)
+        rocketVelocity = AeroParameters.getLocalFrameAirVel(rocketState, self.currentConditions)
 
         # Add fin velocities due to motion of the rocket
         velocityDueToRocketPitchYaw = rocketState.angularVelocity.crossProduct(fin1.position - CG)*(-1) #The negative puts it in the wind frame

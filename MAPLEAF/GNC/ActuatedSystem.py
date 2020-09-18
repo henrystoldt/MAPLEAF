@@ -5,7 +5,7 @@ Rocket component classes need to inherit from this class to become controllable 
 
 import abc
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Motion import AeroParameters
 from MAPLEAF.GNC import (FirstOrderActuator,
                          TableInterpolatingActuatorController)
 
@@ -58,7 +58,7 @@ class ActuatedSystem(abc.ABC):
                 if "Desired" not in deflectionKeyColumns[i]:
                     raise ValueError("'Desired' columns such as DesiredMx must come last in deflectionKeyColumns")
 
-            deflectionKeyFunctionVector = [ AeroFunctions.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
+            deflectionKeyFunctionVector = [ AeroParameters.stringToAeroFunctionMap[key] for key in noDesiredKeys ]
 
             self.actuatorController = TableInterpolatingActuatorController(deflectionTablePath, len(deflectionKeyColumns), deflectionKeyFunctionVector, actuatorList)
         else:

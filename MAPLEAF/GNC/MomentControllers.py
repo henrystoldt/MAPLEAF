@@ -6,7 +6,7 @@ import abc
 
 import numpy as np
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Motion import AeroParameters
 from MAPLEAF.GNC import GainScheduledPIDController
 
 __all__ = [ "GainScheduledPIDRocketMomentController", "MomentController" ]
@@ -23,7 +23,7 @@ class GainScheduledPIDRocketMomentController(MomentController, GainScheduledPIDC
             Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
             Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt
         '''
-        self.keyFunctionList = [ AeroFunctions.stringToAeroFunctionMap[x] for x in keyColumnNames ]
+        self.keyFunctionList = [ AeroParameters.stringToAeroFunctionMap[x] for x in keyColumnNames ]
         nKeyColumns = len(keyColumnNames)
         GainScheduledPIDController.__init__(self, gainTableFilePath, nKeyColumns, PCol=nKeyColumns, DCol=nKeyColumns+5)
         
@@ -51,6 +51,6 @@ class GainScheduledPIDRocketMomentController(MomentController, GainScheduledPIDC
                 dt:                 (numeric) time since last execution of the control system
         '''
         orientationError = self._getOrientationError(rocketState, targetOrientation)
-        gainKeyList = AeroFunctions.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
+        gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
         self.updateCoefficientsFromGainTable(gainKeyList)
         return self.getNewSetPoint(orientationError, dt)

@@ -2,10 +2,9 @@ import math
 
 import numpy as np
 
-import MAPLEAF.Motion as Interpolation
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Rocket import BodyComponent, FixedMass
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
+from MAPLEAF.Motion import AeroParameters, Interpolation
+from MAPLEAF.Rocket import AeroFunctions, BodyComponent, FixedMass
+from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "NoseCone" ]
 
@@ -175,11 +174,11 @@ class NoseCone(FixedMass, BodyComponent):
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
 
         # Normal Force --------------------------------------------------------------------------------
         # TODO: Account for rate of pitch/yaw rotation in AOA calculation? Or do separate Pitch/Yaw damping moments?
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         normalForceCoefficient = AeroFunctions.Barrowman_GetCN(AOA, Aref, 0, self.baseArea)
 
         # Drag Force ---------------------------------------------------------------------------------------------

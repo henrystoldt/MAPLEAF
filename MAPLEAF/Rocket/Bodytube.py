@@ -2,9 +2,9 @@
 import math
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion import AeroParameters, Vector
 from MAPLEAF.Rocket import BodyComponent, FixedMass
+from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "BodyTube" ]
 
@@ -38,14 +38,14 @@ class BodyTube(FixedMass, BodyComponent):
         Aref = self.rocket.Aref
 
         # Normal Force ----------------------------------------------------------------------------------------
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         # Niskanen Eqn 3.26 - originally from Galejs
         normalForceCoefficient = 1.1 * (math.sin(AOA))**2
         normalForceCoefficient *= self.planformArea / Aref
 
         # Drag -----------------------------------------------------------------------------------------------
         # Skin Friction
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach, self.surfaceRoughness, \
             self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
         

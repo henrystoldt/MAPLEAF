@@ -8,7 +8,7 @@ from math import e
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Motion import AeroParameters
 
 __all__ = [ "TableInterpolatingActuatorController", "FirstOrderActuator", "FirstOrderSystem", "ActuatorController", "Actuator" ]
 
@@ -70,7 +70,7 @@ class TableInterpolatingActuatorController(ActuatorController):
                 time:           time at which the moments are requested (time of current control loop execution)
         '''
         # Construct key vector, starting with non-moment components:
-        keyVector = AeroFunctions.getAeroPropertiesList(self.keyFunctionList, state, environment)
+        keyVector = AeroParameters.getAeroPropertiesList(self.keyFunctionList, state, environment)
         for desiredMoment in desiredMoments:
             keyVector.append(desiredMoment)
 

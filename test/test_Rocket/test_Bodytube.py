@@ -37,7 +37,7 @@ class TestBodyTube(unittest.TestCase):
     #     bodyTube = self.rocket.stages[0].getComponentsOfType(Bodytube)[0]
 
     #     aeroForce = bodyTube.getAeroForce(self.rocketState1, time, self.currentConditions, self.rocket.getCG(0, self.rocketState1))
-    #     normalForceDirection = AeroFunctions.getNormalAeroForceDirection(self.rocketState1, self.currentConditions)
+    #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState1, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 0
     #     axialForceHandCalc = 86.86005
@@ -52,7 +52,7 @@ class TestBodyTube(unittest.TestCase):
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 4)
     
     #     aeroForce = bodyTube.getAeroForce(self.rocketState2, time, self.currentConditions, self.rocket.getCG(0, self.rocketState2))
-    #     normalForceDirection = AeroFunctions.getNormalAeroForceDirection(self.rocketState2, self.currentConditions)
+    #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState2, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 9.820304
     #     axialForceHandCalc = 87.857221
@@ -67,7 +67,7 @@ class TestBodyTube(unittest.TestCase):
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 6)
 
     #     aeroForce = bodyTube.getAeroForce(self.rocketState3, time, self.currentConditions, self.rocket.getCG(0, self.rocketState3))
-    #     normalForceDirection = AeroFunctions.getNormalAeroForceDirection(self.rocketState3, self.currentConditions)
+    #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState3, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 61.3769010
     #     axialForceHandCalc = 483.10726

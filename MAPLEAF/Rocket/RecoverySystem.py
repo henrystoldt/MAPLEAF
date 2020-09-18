@@ -1,8 +1,6 @@
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
+from MAPLEAF.Motion import AeroParameters, ForceMomentSystem, Vector
 from MAPLEAF.Rocket import EventTypes, FixedMass
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
+from MAPLEAF.Utilities import logForceResult
 
 __pdoc__ = {
     'RecoverySystem._deployNextStage': True
@@ -61,8 +59,8 @@ class RecoverySystem(FixedMass):
             return ForceMomentSystem(Vector(0,0,0))
         else:
             # 3DoF force-only aero
-            airVel = AeroFunctions.getAirVelRelativeToVehicle(rocketState, environment)
-            dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroFunctions.getDynamicPressure(rocketState, environment)
+            airVel = AeroParameters.getAirVelRelativeToVehicle(rocketState, environment)
+            dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroParameters.getDynamicPressure(rocketState, environment)
             totalForce = airVel.normalize() * dragForceMagnitude
             return ForceMomentSystem(totalForce)
 

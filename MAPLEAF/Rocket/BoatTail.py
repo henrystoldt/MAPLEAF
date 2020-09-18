@@ -1,11 +1,12 @@
 import math
 
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
-from MAPLEAF.Rocket.AeroFunctions import logForceResult
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
+from MAPLEAF.Motion import AeroParameters, ForceMomentSystem, Vector
 from MAPLEAF.Rocket import BodyComponent, FixedMass
-from MAPLEAF.Rocket.noseCone import computeSubsonicPolyCoeffs, computeTransonicPolyCoeffs, getSupersonicPressureDragCoeff_Hoerner
+from MAPLEAF.Rocket.noseCone import (computeSubsonicPolyCoeffs,
+                                     computeTransonicPolyCoeffs,
+                                     getSupersonicPressureDragCoeff_Hoerner)
+from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "Transition", "BoatTail" ]
 
@@ -124,11 +125,11 @@ class Transition(FixedMass, BodyComponent):
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
         #### Normal Force ####
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
 
         #### Pressure Drag ####
@@ -185,11 +186,11 @@ class BoatTail(Transition):
 
     @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
-        Mach = AeroFunctions.getMachNumber(rocketState, environment)
+        Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
         #### Normal Force ####
-        AOA = AeroFunctions.getTotalAOA(rocketState, environment)
+        AOA = AeroParameters.getTotalAOA(rocketState, environment)
         CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
 
         #### Pressure Drag ####

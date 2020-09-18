@@ -10,16 +10,15 @@ import math
 
 import matplotlib.pyplot as plt
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
-from MAPLEAF.Motion import (AngularVelocity, Inertia, Quaternion, RigidBody,
-                            RigidBody_3DoF, RigidBodyState,
-                            RigidBodyState_3DoF, Vector)
-from MAPLEAF.Rocket import (BoatTail, BodyComponent, PlanarInterface,
-                            SimEventDetector, Stage)
+from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
+                            Quaternion, RigidBody, RigidBody_3DoF,
+                            RigidBodyState, RigidBodyState_3DoF, Vector)
+from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
+                            PlanarInterface, SimEventDetector, Stage)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
 
 __all__ = [ "Rocket" ]
@@ -452,10 +451,10 @@ class Rocket(CompositeObject):
         ### Component Forces ###
         if not self.isUnderChute:
             # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
-            Mach = AeroFunctions.getMachNumber(state, environment)
-            unitRe = AeroFunctions.getReynoldsNumber(state, environment, 1.0)
-            AOA = AeroFunctions.getTotalAOA(state, environment)
-            rollAngle = AeroFunctions.getRollAngle(state, environment)
+            Mach = AeroParameters.getMachNumber(state, environment)
+            unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
+            AOA = AeroParameters.getTotalAOA(state, environment)
+            rollAngle = AeroParameters.getRollAngle(state, environment)
 
             # Log current rocket / flight conditions
             self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle))

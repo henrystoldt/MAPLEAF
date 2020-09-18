@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
+from MAPLEAF.Motion import AeroParameters
 from MAPLEAF.GNC import (FirstOrderActuator, FirstOrderSystem,
                            TableInterpolatingActuatorController)
 
@@ -30,7 +30,7 @@ class TestTableInterpActuatorControlAndPointAtTarget(unittest.TestCase):
             actuator = FirstOrderActuator(0.1)
             self.actuatorList.append(actuator)
 
-        keyFnVector = [ AeroFunctions.getMachNumber, AeroFunctions.getAltitude ]
+        keyFnVector = [ AeroParameters.getMachNumber, AeroParameters.getAltitude ]
         self.interpActuatorController = TableInterpolatingActuatorController("MAPLEAF/Examples/TabulatedData/testFinDeflectionLaw.txt", 5, keyFnVector, self.actuatorList)
 
     def test_interpDeflectionTargets(self):
