@@ -32,7 +32,7 @@ class Rocket(CompositeObject):
     def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
         '''
             Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.Main.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
             This will return a Rocket initialized on the pad with all its stages, ready for flight.
 
             If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
@@ -42,14 +42,14 @@ class Rocket(CompositeObject):
             * rocketDictReader:     (`MAPLEAF.IO.SubDictReader`) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.  
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n >= 1.  
-            * simRunner:            (`MAPLEAF.Main.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
+            * simRunner:            (`MAPLEAF.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
             * environment:          (`MAPLEAF.ENV.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
         '''
         self.rocketDictReader = rocketDictReader
         self.simDefinition = rocketDictReader.simDefinition
 
         self.simRunner = simRunner
-        ''' Parent instance of `MAPLEAF.Main.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. '''
+        ''' Parent instance of `MAPLEAF.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. '''
         
         self.environment = environment
         ''' Instance of `MAPLEAF.ENV.Environment` '''
@@ -68,7 +68,7 @@ class Rocket(CompositeObject):
         self.stages = []
         '''
             A list of `MAPLEAF.Rocket.Stage` objects that make up the rocket, ordered from top to bottom.  
-            Populated by `Rocket._initializeStages`.
+            Populated by `_initializeStages`.
         '''
 
         self.recoverySystem = None
@@ -80,17 +80,17 @@ class Rocket(CompositeObject):
         self.rigidBody = None            
         ''' 
             (`MAPLEAF.Motion.RigidBody` or `MAPLEAF.Motion.RigidBody_3DoF`) Responsible for motion integration.  
-            Set in `Rocket._initializeRigidBody()`.
+            Set in `_initializeRigidBody()`.
         '''
 
         self.isUnderChute = False
-        ''' (bool) Controlled by `MAPLEAF.Rocket.RecoverySystem._deployNextStage()` '''
+        ''' (bool) Controlled by `MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage()` '''
 
         self.mainChuteDeployTime = None
-        ''' (float) Filled in during flight by `MAPLEAF.Rocket.RecoverySystem._deployNextStage()`  '''
+        ''' (float) Filled in during flight by `MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage()`  '''
         
         self.engineShutOffTime = None
-        ''' (float) Filled in by `MAPLEAF.Rocket.Motor.__init__()` upon initialization '''
+        ''' (float) Filled in by `MAPLEAF.Rocket.Propulsion.TabulatedMotor.__init__()` upon initialization '''
 
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool("Environment.turbulenceOffWhenUnderChute")
         ''' (bool) '''
@@ -521,7 +521,7 @@ class Rocket(CompositeObject):
         '''
             Tells the simulation to take a time step of size dt.  
 
-            Usually called by functions like `MAPLEAF.Main.SingleSimRunner.runSingleSimulation()`
+            Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
 
             Returns:
                 * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)

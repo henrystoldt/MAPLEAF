@@ -1,6 +1,6 @@
 r'''
 Code specific to modelling Rockets.  
-Main class is `Rocket.Rocket`.
+Main class is `Rocket`.
 
 Other files define models for specific rocket components or stages.  
 In general the responsibility of rocket component classes is to model:
@@ -43,13 +43,13 @@ from .boatTail import *
 from .bodyTube import *
 from .Fins import *
 from .Propulsion import *
-from .recoverySystem import *
+from .Recovery import *
 from .noseCone import *
 from .RocketComponentFactory import *
 from .stage import *
 from .rocket import *
 
-subModules = [ RocketComponents, simEventDetector, boatTail, bodyTube, Fins, Propulsion, recoverySystem, noseCone, stage, rocket, RocketComponentFactory ]
+subModules = [ RocketComponents, simEventDetector, boatTail, bodyTube, Fins, Propulsion, Recovery, noseCone, stage, rocket, RocketComponentFactory ]
 
 __all__ = []
 

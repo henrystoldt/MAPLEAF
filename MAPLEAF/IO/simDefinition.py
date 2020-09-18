@@ -174,7 +174,7 @@ class SimDefinition():
         ''' Main dictionary of values, usually populated from a simulation definition file '''
 
         self.defaultDict = None
-        ''' Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `MAPLEAF.IO.simDefinition.defaultConfigValues` '''
+        ''' Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `defaultConfigValues` '''
         
         self.monteCarloLogger = None 
         ''' Filled in by  Main.runMonteCarloSimulation() if running  Monte Carlo simulation. Type: `MAPLEAF.IO.Logging.MonteCarloLogger` '''
