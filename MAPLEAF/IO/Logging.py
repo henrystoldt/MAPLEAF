@@ -115,7 +115,7 @@ def getSystemInfo(printToConsole=False):
         # Add current git status
         currentCommit = check_output(['git', 'rev-parse', 'HEAD']).decode()[:-1]
         currentBranch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode()[:-1]
-        result.append("# RocketSimulator, branch: {}, latest commit: {}".format(currentBranch, currentCommit))
+        result.append("# MAPLEAF, branch: {}, latest commit: {}".format(currentBranch, currentCommit))
     except:
         result.append("# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads")
     

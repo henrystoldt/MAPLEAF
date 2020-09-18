@@ -11,12 +11,14 @@ Defines a basic single simulation runner `SingleSimRunner`, as well as more spec
 import importlib
 import math
 import os
+import random
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
 from typing import List
 
 import matplotlib.pyplot as plt
+import ray
 from tqdm import tqdm
 
 from MAPLEAF.ENV import Environment
@@ -61,7 +63,7 @@ class SingleSimRunner():
 
         self.computeStageDropPaths = strtobool(self.simDefinition.getValue("SimControl.StageDropPaths.compute"))
 
-    def runSingleSimulation(self):
+    def runSingleSimulation(self, rocket=None):
         ''' 
             Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
 
@@ -72,7 +74,8 @@ class SingleSimRunner():
         simDefinition = self.simDefinition
 
         # Initialize the rocket + environment models and simulation logging
-        rocket = self.prepRocketForSingleSimulation() # Initialize rocket on launch pad, with all stages attached
+        if rocket == None:
+            rocket = self.prepRocketForSingleSimulation() # Initialize rocket on launch pad, with all stages attached
         self.rocketStages = [ rocket ] # In this array, 'stage' means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
@@ -450,6 +453,16 @@ class SingleSimRunner():
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
 
+@ray.remote
+class RemoteSimRunner(SingleSimRunner):
+    ''' 
+        Exactly the same as SingleSimRunner, except the class itself, and its .runSingleSimulation method are decorated with ray.remote()
+        to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
+    '''
+    @ray.method(num_return_vals=2)
+    def runSingleSimulation(self):
+        return super().runSingleSimulation()
+
 class WindTunnelRunner(SingleSimRunner):
     def __init__(self, parameterToSweepKey="Rocket.velocity", parameterValueList=["(0 0 100)", "(0 0 200)", "(0 0 300)"], simDefinitionFilePath=None, fW=None, silent=False, smoothLine='False'):
         self.parameterToSweepKey = parameterToSweepKey
@@ -571,128 +584,112 @@ class WindTunnelRunner(SingleSimRunner):
         self.stageFlightPaths = [ RocketFlight() ]
         return super()._postSingleSimCleanup(simDefinition)
 
-#TODO: MonteCarloSimRunner -> runMonteCarloSimulation (function)
-class MonteCarloSimRunner(SingleSimRunner):
-    '''
-        Runs a simulation repeatedly, always resampling parameters that have a specfified normal distribution in the simulation definition
-    '''
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
-        SingleSimRunner.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    # Load simulation definition file - have to do this before creating the environment from it
+    if simDefinition == None and simDefinitionFilePath != None:
+        simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+    elif simDefinition == None:
+        raise ValueError(""" Insufficient information to initialize a Simulation.
+            Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+            If both are provided, the SimDefinition is used.""")
     
-    def _reInitializeEnvironment(self):
-        '''
-            Aside from normally-distributed parameters defined in the sim definition file, the environment can have their own probabilistic wind values.
-            Therefore, we need to re-initialize the environment (and thereby re-sample any probability distributions) before each individual simulation in a monte carlo run
-        '''
-        self.environment = Environment(self.simDefinition, silent=self.silent)
-
-    def runMonteCarloSimulation(self):
-        ''' Pass in SimDefinition with simulation definition loaded '''
-        
-        simDefinition = self.simDefinition
-
-        # Make sure plots don't show after each sim
-        simDefinition.setValue("SimControl.plot", "None")
-        simDefinition.setValue("SimControl.RocketPlot", "Off")
-
-        # Set up saving key results
-        resultsToOutput = simDefinition.getValue("MonteCarlo.output")
-        landingLocations = []
-        apogees = []
-        maxSpeeds = []
-        flightTimes = []
-        maxHorizontalVels = []
-        flights = []
-
-        #### Set up Logging ####
-        mCLogger = Logging.MonteCarloLogger()
-        simDefinition.monteCarloLogger = mCLogger # SimDefinition needs to have a reference to the monte carlo log to log whenever it samples a variable
-
-        nRuns = int(simDefinition.getValue("MonteCarlo.numberRuns"))
-
-        mCLogger.log("")
-        mCLogger.log("Running Monte Carlo Simulation: {} runs".format(nRuns))                
-        
-        ### Run simulations ###
-        for i in range(nRuns):
-            # Start monte carlo log entry for this sim
-            mCLogger.log("\nMonte Carlo Run #{}".format(i+1))
-            
-            # Run sim
-            self._reInitializeEnvironment()
-            stageFlightPaths, _ = self.runSingleSimulation()
-            flight = stageFlightPaths[0]
-            
-            # Save results
-            landingLocations.append(flight.getLandingLocation())
-            apogees.append(flight.getApogee())
-            maxSpeeds.append(flight.getMaxSpeed())
-            flightTimes.append(flight.getFlightTime())
-            maxHorizontalVels.append(flight.getMaxHorizontalVel())
-            
-            if "flightPaths" in resultsToOutput:
-                flight = Plotting._keepNTimeSteps(flight, 900) # Limit the number of time steps saved to avoid wasting memory
-                flights.append(flight)
-
-        ### Plot/Output results ###
-        mCLogger.log("")
-        mCLogger.log("Monte Carlo results:")
-
-        if "landingLocations" in resultsToOutput:
-            Plotting.plotAndSummarizeVectorResult(landingLocations, name="Landing location", monteCarloLogger=mCLogger)
-        if "apogees" in resultsToOutput:
-            Plotting.plotAndSummarizeScalarResult(apogees, name="Apogee", monteCarloLogger=mCLogger)
-        if "maxSpeeds" in resultsToOutput:
-            Plotting.plotAndSummarizeScalarResult(maxSpeeds, name="Max speed", monteCarloLogger=mCLogger)
-        if "flightTimes" in resultsToOutput:
-            Plotting.plotAndSummarizeScalarResult(flightTimes, name="Flight time", monteCarloLogger=mCLogger)
-        if "maxHorizontalVels" in resultsToOutput:
-            Plotting.plotAndSummarizeScalarResult(maxHorizontalVels, name="Max horizontal speed", monteCarloLogger=mCLogger)
-        if "flightPaths" in resultsToOutput:
-            Plotting.plotFlightPaths_NoEarth(flights)
-
-        
-        if resultsToOutput != "None" and len(resultsToOutput) > 0:
-            dotIndex = simDefinition.fileName.rfind('.')
-            extensionFreeSimDefFileName = simDefinition.fileName[0:dotIndex]
-            logFilePath = extensionFreeSimDefFileName + "_monteCarloLog_run"
-
-            logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
-            print("Wrote Monte Carlo Log to: {}".format(logPath))
-
-def runParallelMonteCarloSim(simDefinition):
-    ''' Parallel simulations are using ray, which only work with Linux and Mac. Windows support is in Alpha '''
-
-    # No plotting for monte carlo sims
+    # Make sure plots don't show after each sim
     simDefinition.setValue("SimControl.plot", "None")
     simDefinition.setValue("SimControl.RocketPlot", "Off")
+    try:
+        randomSeed = simDefinition.getValue("MonteCarlo.randomSeed")
+    except KeyError:
+        randomSeed = random.randrange(1e7)
+    rng = random.Random(randomSeed)    
+    
+    # Set arrays to save key results
+    resultsToOutput = simDefinition.getValue("MonteCarlo.output")
+    landingLocations = []
+    apogees = []
+    maxSpeeds = []
+    flightTimes = []
+    maxHorizontalVels = []
+    flights = []
 
-    # Start ray workers
-    import ray
-    ray.init()
+    def postProcess(rayObject):
+        # Get sim results
+        stagePaths = ray.get(rayObject)
+        
+        # Save results from the top stage
+        flight = stagePaths[0]
 
-    # Define a remote version of SingleSimRunner    
-    @ray.remote
-    class RemoteSimRunner(SingleSimRunner):
+        landingLocations.append(flight.getLandingLocation())
+        apogees.append(flight.getApogee())
+        maxSpeeds.append(flight.getMaxSpeed())
+        flightTimes.append(flight.getFlightTime())
+        maxHorizontalVels.append(flight.getMaxHorizontalVel())
+        
+        if "flightPaths" in resultsToOutput:
+            flight = Plotting._keepNTimeSteps(flight, 900) # Limit the number of time steps saved to avoid wasting memory
+            flights.append(flight)
 
-        @ray.method(num_return_vals=2)
-        def runSingleSimulation(self):
-            return super().runSingleSimulation()
+    #### Set up Logging ####
+    mCLogger = Logging.MonteCarloLogger()
+    simDefinition.monteCarloLogger = mCLogger # SimDefinition needs to have a reference to the monte carlo log to log whenever it samples a variable
 
-    # Instantiate sim runners, run sims
-    runner1 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
-    f1 = runner1.runSingleSimulation.remote()
-    runner2 = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
-    f2 = runner2.runSingleSimulation.remote()
+    nRuns = int(simDefinition.getValue("MonteCarlo.numberRuns"))     
 
-    # Get and output results
-    results = ray.get(f1)
-    results2 = ray.get(f2)
+    ### Run simulations ###
+    import psutil
+    nProcesses = psutil.cpu_count(logical=True)
 
-    print("\n1: {}\n".format(results))
-    print("\n2: {}\n".format(results2))
+    runningJobs = []
+
+    ray.init(num_cpus=nProcesses)
+
+    # Start simulations
+    for i in range(nRuns):
+        # Make sure each copy of simDefinition has a different, but repeatable random seed
+        newRandomSeed = rng.randrange(1e7)
+        simDefinition.rng = random.Random(newRandomSeed)
+
+        # Start sim
+        simRunner = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
+        flightPathsFuture, logPathsFuture = simRunner.runSingleSimulation.remote()
+        runningJobs.append(flightPathsFuture)
+
+        # Don't start more sims than there are processes available
+        if i > nProcesses:
+            completedJobs, runningJobs = ray.wait(runningJobs)
+            for completedJob in completedJobs:
+                # Save results
+                postProcess(completedJob)
+
+    # Wait for remaining sims to complete
+    for remainingJob in runningJobs:
+        postProcess(remainingJob)
 
     ray.shutdown()
+
+    ### Plot/Output results ###
+    mCLogger.log("")
+    mCLogger.log("Monte Carlo results:")
+
+    if "landingLocations" in resultsToOutput:
+        Plotting.plotAndSummarizeVectorResult(landingLocations, name="Landing location", monteCarloLogger=mCLogger)
+    if "apogees" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(apogees, name="Apogee", monteCarloLogger=mCLogger)
+    if "maxSpeeds" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(maxSpeeds, name="Max speed", monteCarloLogger=mCLogger)
+    if "flightTimes" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(flightTimes, name="Flight time", monteCarloLogger=mCLogger)
+    if "maxHorizontalVels" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(maxHorizontalVels, name="Max horizontal speed", monteCarloLogger=mCLogger)
+    if "flightPaths" in resultsToOutput:
+        Plotting.plotFlightPaths_NoEarth(flights)
+
+    if resultsToOutput != "None" and len(resultsToOutput) > 0:
+        dotIndex = simDefinition.fileName.rfind('.')
+        extensionFreeSimDefFileName = simDefinition.fileName[0:dotIndex]
+        logFilePath = extensionFreeSimDefFileName + "_monteCarloLog_run"
+
+        logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
+        print("Wrote Monte Carlo Log to: {}".format(logPath))
 
 class OptimizingSimRunner():
     '''

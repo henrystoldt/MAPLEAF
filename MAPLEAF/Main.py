@@ -12,7 +12,7 @@ from typing import List
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, runMonteCarloSimulation,
                                    SingleSimRunner, OptimizingSimRunner)
 
 
@@ -143,8 +143,7 @@ def main(argv: List[str]=None) -> int:
 
     # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
-        mCSimRunner = MonteCarloSimRunner(simDefinition=simDef, silent=args.silent)
-        mCSimRunner.runMonteCarloSimulation()
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent)
 
     # Convergence Sim
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
