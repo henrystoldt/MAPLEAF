@@ -2,7 +2,7 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Optimization{
-    costFunction        1/apogee if (apogee > 0) else -apogee
+    costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
 
     IndependentVariables{
         bodyWeight      0.01 < Rocket.Sustainer.UpperBodyTube.mass < 0.2

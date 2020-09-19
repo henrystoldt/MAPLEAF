@@ -36,7 +36,6 @@ def logForceResult(func):
 
 def evalExpression(statement: str, additionalVars={}):
     globalVars = {
-        '__builtins__': None, # Restrict access to builtins
         'math': math # Make math functions available
     }
 
