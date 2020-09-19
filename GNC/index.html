@@ -1050,8 +1050,8 @@ def getTargetOrientation(self, rocketState, targetState, time):
             # Since a discrete update rate has been specified, we need to ensure that the simulation time step is an integer divisor of the control system time step
             
             # Disable adaptive time stepping during the ascent portion of the flight (if it&#39;s enabled)
-            timeStepController = self.controlSystemDictReader.getString(&#34;SimControl.TimeStepAdaptation.controller&#34;)
-            if timeStepController != &#34;constant&#34;:
+            timeDiscretization = self.controlSystemDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
+            if &#34;Adaptive&#34; in timeDiscretization:
                 print(&#34;WARNING: Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate&#34;)
                 print(&#34;Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.&#34;)
                 print(&#34;Switching to RK4 time stepping&#34;)
