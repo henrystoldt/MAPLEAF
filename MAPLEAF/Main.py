@@ -47,6 +47,13 @@ def buildParser() -> argparse.ArgumentParser:
             a plotDefinitionString - works the same way the SimControl.plot entries work"
     )
     parser.add_argument(
+        "--nCores",
+        type=int,
+        nargs=1,
+        default=[1],
+        help="Set this to a number > 1 to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray's Windows support has exited alpha, or use only on Linux/Mac."
+    )
+    parser.add_argument(
         "--silent", 
         action='store_true', 
         help="If present, simulation(s) are run w/o outputting to console - which can be significantly faster on some setups"
@@ -138,12 +145,12 @@ def main(argv: List[str]=None) -> int:
     #### Run simulation(s) ####
     # Optimization
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
         optSimRunner.runOptimization()
 
     # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
-        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent)
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
     # Convergence Sim
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 

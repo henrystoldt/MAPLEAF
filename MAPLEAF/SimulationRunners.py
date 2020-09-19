@@ -584,8 +584,98 @@ class WindTunnelRunner(SingleSimRunner):
         self.stageFlightPaths = [ RocketFlight() ]
         return super()._postSingleSimCleanup(simDefinition)
 
-def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False):
-    # Load simulation definition file - have to do this before creating the environment from it
+def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
+    if nCores > 1:
+        return _runMonteCarloSimulation_Parallel(simDefinitionFilePath, simDefinition, silent, nCores)
+    else:
+        return _runMonteCarloSimulation_SingleThreaded(simDefinitionFilePath, simDefinition, silent)
+
+def _runMonteCarloSimulation_SingleThreaded(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    # Load simulation definition file
+    if simDefinition == None and simDefinitionFilePath != None:
+        simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+    elif simDefinition == None:
+        raise ValueError(""" Insufficient information to initialize a Simulation.
+            Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+            If both are provided, the SimDefinition is used.""")
+
+    # Make sure plots don't show after each sim
+    simDefinition.setValue("SimControl.plot", "None")
+    simDefinition.setValue("SimControl.RocketPlot", "Off")
+
+    # Set up saving key results
+    resultsToOutput = simDefinition.getValue("MonteCarlo.output")
+    landingLocations = []
+    apogees = []
+    maxSpeeds = []
+    flightTimes = []
+    maxHorizontalVels = []
+    flights = []
+
+    #### Set up Logging ####
+    mCLogger = Logging.MonteCarloLogger()
+    simDefinition.monteCarloLogger = mCLogger # SimDefinition needs to have a reference to the monte carlo log to log whenever it samples a variable
+
+    nRuns = int(simDefinition.getValue("MonteCarlo.numberRuns"))
+
+    mCLogger.log("")
+    mCLogger.log("Running Monte Carlo Simulation: {} runs".format(nRuns))                
+    
+    ### Run simulations ###
+    for i in range(nRuns):
+        # Start monte carlo log entry for this sim
+        mCLogger.log("\nMonte Carlo Run #{}".format(i+1))
+        
+        # Run sim
+        simRunner = SingleSimRunner(simDefinition=simDefinition, silent=True)
+        stageFlightPaths, _ = simRunner.runSingleSimulation()
+        Logging.removeLogger() # Remove the logger created by simmRunner #TODO Logging needs improvement
+        
+        flight = stageFlightPaths[0]
+        
+        # Save results
+        landingLocations.append(flight.getLandingLocation())
+        apogees.append(flight.getApogee())
+        maxSpeeds.append(flight.getMaxSpeed())
+        flightTimes.append(flight.getFlightTime())
+        maxHorizontalVels.append(flight.getMaxHorizontalVel())
+        
+        if "flightPaths" in resultsToOutput:
+            flight = Plotting._keepNTimeSteps(flight, 900) # Limit the number of time steps saved to avoid wasting memory
+            flights.append(flight)
+
+    ### Plot/Output results ###
+    mCLogger.log("")
+    mCLogger.log("Monte Carlo results:")
+
+    if "landingLocations" in resultsToOutput:
+        Plotting.plotAndSummarizeVectorResult(landingLocations, name="Landing location", monteCarloLogger=mCLogger)
+    if "apogees" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(apogees, name="Apogee", monteCarloLogger=mCLogger)
+    if "maxSpeeds" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(maxSpeeds, name="Max speed", monteCarloLogger=mCLogger)
+    if "flightTimes" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(flightTimes, name="Flight time", monteCarloLogger=mCLogger)
+    if "maxHorizontalVels" in resultsToOutput:
+        Plotting.plotAndSummarizeScalarResult(maxHorizontalVels, name="Max horizontal speed", monteCarloLogger=mCLogger)
+    if "flightPaths" in resultsToOutput:
+        Plotting.plotFlightPaths_NoEarth(flights)
+
+    
+    if resultsToOutput != "None" and len(resultsToOutput) > 0:
+        dotIndex = simDefinition.fileName.rfind('.')
+        extensionFreeSimDefFileName = simDefinition.fileName[0:dotIndex]
+        logFilePath = extensionFreeSimDefFileName + "_monteCarloLog_run"
+
+        logPath = mCLogger.writeToFile(fileBaseName=logFilePath)
+        print("Wrote Monte Carlo Log to: {}".format(logPath))
+
+def _runMonteCarloSimulation_Parallel(simDefinitionFilePath=None, simDefinition=None, silent=False, nProcesses=1):
+    '''
+        Runs a probabilistic simulation a several times, collects and displays average results for common parameters
+        Parallelized using [ray](https://github.com/ray-project/ray)
+    '''
+    # Load simulation definition file
     if simDefinition == None and simDefinitionFilePath != None:
         simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
     elif simDefinition == None:
@@ -635,15 +725,22 @@ def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, sile
     nRuns = int(simDefinition.getValue("MonteCarlo.numberRuns"))     
 
     ### Run simulations ###
-    import psutil
-    nProcesses = psutil.cpu_count(logical=True)
+    # TODO: Adapt this to work on a cluster
+        # Reminder that ray must be initialized separately on a cluster, before running ray.init()
+        # https://docs.ray.io/en/latest/cluster/index.html
 
-    runningJobs = []
-
-    ray.init(num_cpus=nProcesses)
+    ray.init()
 
     # Start simulations
+    runningJobs = []
     for i in range(nRuns):
+        # Don't start more sims than there are processes available
+        if i >= nProcesses:
+            completedJobs, runningJobs = ray.wait(runningJobs)
+            for completedJob in completedJobs:
+                # Save results
+                postProcess(completedJob)
+
         # Make sure each copy of simDefinition has a different, but repeatable random seed
         newRandomSeed = rng.randrange(1e7)
         simDefinition.rng = random.Random(newRandomSeed)
@@ -652,13 +749,6 @@ def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, sile
         simRunner = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
         flightPathsFuture, logPathsFuture = simRunner.runSingleSimulation.remote()
         runningJobs.append(flightPathsFuture)
-
-        # Don't start more sims than there are processes available
-        if i > nProcesses:
-            completedJobs, runningJobs = ray.wait(runningJobs)
-            for completedJob in completedJobs:
-                # Save results
-                postProcess(completedJob)
 
     # Wait for remaining sims to complete
     for remainingJob in runningJobs:
@@ -697,10 +787,13 @@ class OptimizingSimRunner():
         Configurable using the top-level 'Optimization' dictionary in .mapleaf files
     '''
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
-        ''' Reads optimization dict, intializes variable vectors, constraints etc. '''
-
-        print("Particle Swarm Optimization")
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nProcesses=1):
+        ''' 
+            Pass in nProcesses > 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
+            At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
+        '''
+        self.silent = silent
+        self.nProcesses = nProcesses
         
         # Store / load simulation definition
         if simDefinition == None and simDefinitionFilePath != None:
@@ -710,6 +803,9 @@ class OptimizingSimRunner():
         else:
             raise ValueError(""" Insufficient information. Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
                 If both are provided, the SimDefinition is used.""")
+
+        if not silent:
+            print("Particle Swarm Optimization")
 
         # Ensure no output is produced during each cost function evaluation
         self.simDefinition.setValue("SimControl.plot", "None")
@@ -757,11 +853,12 @@ class OptimizingSimRunner():
             minVals.append(float(minVal))
             maxVals.append(float(maxVal))
 
-        # Output setup to console
-        print("Independent Variables: ")
-        for i in range(len(varNames)):
-            print("{} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
-        print("")
+        if not self.silent:
+            # Output setup to console
+            print("Independent Variables: ")
+            for i in range(len(varNames)):
+                print("{} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
+            print("")
 
         return varKeys, varNames, minVals, maxVals
 
@@ -785,11 +882,12 @@ class OptimizingSimRunner():
             depVarNames.append(depVarKey)
             depVarDefinitions.append(self.simDefinition.getValue(depVar))
 
-        # Output results to console
-        print("Dependent variables:")
-        for i in range(len(depVarNames)):
-            print("{} = {}".format(depVarNames[i], depVarDefinitions[i]))
-        print("")
+        if not self.silent:
+            # Output results to console
+            print("Dependent variables:")
+            for i in range(len(depVarNames)):
+                print("{} = {}".format(depVarNames[i], depVarDefinitions[i]))
+            print("")
 
         return depVarNames, depVarDefinitions
 
@@ -816,22 +914,28 @@ class OptimizingSimRunner():
 
         showConvergence = pSwarmReader.getBool("Optimization.showConvergencePlot")
 
-        print("Optimization Parameters:")
-        print("{} Particles".format(nParticles))
-        print("{} Iterations".format(nIterations))
-        print("c1 = {}, c2 = {}, w = {}\n".format(c1, c2, w))
-        
-        costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")
-        print("Cost Function:")
-        print(costFunctionDefinition + "\n")
+        if not self.silent:
+            print("Optimization Parameters:")
+            print("{} Particles".format(nParticles))
+            print("{} Iterations".format(nIterations))
+            print("c1 = {}, c2 = {}, w = {}\n".format(c1, c2, w))
+            
+            costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")
+            print("Cost Function:")
+            print(costFunctionDefinition + "\n")
 
         return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
-        self.optimizer.optimize(self.computeCostFunction, iters=self.nIterations)
-
+        if self.nProcesses > 1:
+            ray.init()
+            self.optimizer.optimize(self.computeCostFunction_Parallel, iters=self.nIterations)
+            ray.shutdown()
+        
+        else:
+            self.optimizer.optimize(self.computeCostFunction_SingleThreaded, iters=self.nIterations)
         
         if self.showConvergence:
             print("Showing optimization convergence plot")
@@ -841,7 +945,82 @@ class OptimizingSimRunner():
             plot_cost_history(self.optimizer.cost_history)
             plt.show()
 
-    def computeCostFunction(self, trialSolutions: List[List[float]]) -> float:
+    def computeCostFunction_Parallel(self, trialSolutions: List[List[float]]) -> float:
+        ''' Given a values the independent variable, returns the cost function value '''
+        import psutil
+        nProcesses = psutil.cpu_count(logical=True)
+
+        results = []
+
+        costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")
+
+        def postProcess(rayFlightPathsID, rayLogPathsID):
+            if ":" in costFunctionDefinition:
+                # Get log file paths results
+                logFilePaths = ray.get(rayLogPathsID)
+
+                # Cost function is expected to be a custom function defined in an importable module
+                modulePath, funcName = costFunctionDefinition.split(':')
+
+                customModule = importlib.import_module(modulePath)
+                customCostFunction = getattr(customModule, funcName)
+
+                # Call the user's custom function, passing in the paths to all log files from the present run
+                # User's function is expected to return a scalar value           
+                results.append(float( customCostFunction(logFilePaths) ))
+
+            else:
+                # Get flight path results
+                stageFlights = ray.get(rayFlightPathsID)
+
+                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+                topStageFlight = stageFlights[0]
+                varVals = {
+                    "flightTime":   topStageFlight.getFlightTime(),
+                    "apogee":       topStageFlight.getApogee(),
+                    "maxSpeed":     topStageFlight.getMaxSpeed(),
+                    "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
+                }
+                results.append(evalExpression(costFunctionDefinition, varVals))
+
+        flightPathFutures = []
+        logPathFutures = []
+        
+        nSims = len(trialSolutions)
+        for i in range(nSims):
+            # Don't start more sims than we have cores
+            if i >= nProcesses:
+                # Post-process sims in order to ensure order of results matches order of inputs
+                index = i-nProcesses
+                postProcess(flightPathFutures[index], logPathFutures[index])
+
+            indVarValues = trialSolutions[i]
+
+            # Create new sim definition
+            simDef = deepcopy(self.simDefinition)
+            
+            # Update variable values
+            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+            self._updateDependentVariableValues(simDef, varDict)
+
+            # Run the simulation
+            simRunner = RemoteSimRunner.remote(simDefinition=simDef, silent=True)
+            rayFlightPathsID, rayLogPathsID = simRunner.runSingleSimulation.remote()
+            
+            # Save futures
+            flightPathFutures.append(rayFlightPathsID)
+            logPathFutures.append(rayLogPathsID)
+
+        # Post process remaining sims
+        nRemaining = min(nSims, nProcesses)
+        if nRemaining > 0:
+            for i in range(nRemaining):
+                index = i - nRemaining
+                postProcess(flightPathFutures[index], logPathFutures[index])
+
+        return results
+
+    def computeCostFunction_SingleThreaded(self, trialSolutions: List[List[float]]) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         results = []
         for indVarValues in trialSolutions:
@@ -882,7 +1061,7 @@ class OptimizingSimRunner():
                 results.append(evalExpression(costFunctionDefinition, varVals))
 
         return results
-            
+
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         ''' 
             Updates simDefinition with the independent variable values
@@ -1227,5 +1406,5 @@ class ConvergenceSimRunner(SingleSimRunner):
             self.simDefinition.setValue("SimControl.EndConditionValue", str(endTime))
 
 if __name__ == "__main__":
-    simDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
-    runParallelMonteCarloSim(simDef)
+    simDef = SimDefinition("MAPLEAF/Examples/Simulations/MonteCarlo.mapleaf")
+    runMonteCarloSimulation(simDefinition=simDef)

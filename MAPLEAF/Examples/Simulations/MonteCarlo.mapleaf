@@ -4,7 +4,7 @@
 
 MonteCarlo{
     # randomSeed  2394781
-    numberRuns       32
+    numberRuns       10
     
     # landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flightPaths - specify one or more
     # output      landingLocations apogees flightPaths

@@ -127,7 +127,7 @@ MonteCarlo{
     randomSeed      458623 # (optional) for repeatability
     numberRuns      10
     
-    # landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flightPaths - specify one or more
+    # None, landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flightPaths - specify one or more
     # Summary of these result(s) will be plotted and outputted to the console after the run.
         # Flight paths will only be plotted. Retrieve these from individual simulation logs if desired.
     output          landingLocations apogees maxSpeeds
