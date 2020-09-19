@@ -68,7 +68,6 @@ def logForceResult(func):
 
 def evalExpression(statement: str, additionalVars={}):
     globalVars = {
-        &#39;__builtins__&#39;: None, # Restrict access to builtins
         &#39;math&#39;: math # Make math functions available
     }
 
@@ -126,7 +125,6 @@ Could use @functools.lru_cache(maxsize=1) to achieve the same behavior, but prob
 </summary>
 <pre><code class="python">def evalExpression(statement: str, additionalVars={}):
     globalVars = {
-        &#39;__builtins__&#39;: None, # Restrict access to builtins
         &#39;math&#39;: math # Make math functions available
     }
 

@@ -247,6 +247,7 @@ class SimDefinition():
             
             if not silent and containsProbabilisticValues:
                 print(&#34;Monte Carlo random seed: {}&#34;.format(randomSeed))
+                
             self.rng = random.Random(randomSeed)
             &#39;&#39;&#39; Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. &#39;&#39;&#39;
 
@@ -1014,6 +1015,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
             
             if not silent and containsProbabilisticValues:
                 print(&#34;Monte Carlo random seed: {}&#34;.format(randomSeed))
+                
             self.rng = random.Random(randomSeed)
             &#39;&#39;&#39; Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. &#39;&#39;&#39;
 

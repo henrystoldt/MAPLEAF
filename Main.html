@@ -47,7 +47,7 @@ from typing import List
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, MonteCarloSimRunner,
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, runMonteCarloSimulation,
                                    SingleSimRunner, OptimizingSimRunner)
 
 
@@ -80,6 +80,13 @@ def buildParser() -&gt; argparse.ArgumentParser:
         default=[], 
         help=&#34;Instead of a path to a sim definition file, provide a path to a log file from a previous simulation. Also provide \
             a plotDefinitionString - works the same way the SimControl.plot entries work&#34;
+    )
+    parser.add_argument(
+        &#34;--nCores&#34;,
+        type=int,
+        nargs=1,
+        default=[1],
+        help=&#34;Set this to a number &gt; 1 to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
     )
     parser.add_argument(
         &#34;--silent&#34;, 
@@ -173,13 +180,12 @@ def main(argv: List[str]=None) -&gt; int:
     #### Run simulation(s) ####
     # Optimization
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
         optSimRunner.runOptimization()
 
     # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
-        mCSimRunner = MonteCarloSimRunner(simDefinition=simDef, silent=args.silent)
-        mCSimRunner.runMonteCarloSimulation()
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
     # Convergence Sim
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
@@ -250,6 +256,13 @@ if __name__ == &#34;__main__&#34;:
         default=[], 
         help=&#34;Instead of a path to a sim definition file, provide a path to a log file from a previous simulation. Also provide \
             a plotDefinitionString - works the same way the SimControl.plot entries work&#34;
+    )
+    parser.add_argument(
+        &#34;--nCores&#34;,
+        type=int,
+        nargs=1,
+        default=[1],
+        help=&#34;Set this to a number &gt; 1 to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
     )
     parser.add_argument(
         &#34;--silent&#34;, 
@@ -395,13 +408,12 @@ Expects to be called from the command line, usually using the <code>mapleaf</cod
     #### Run simulation(s) ####
     # Optimization
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
         optSimRunner.runOptimization()
 
     # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
-        mCSimRunner = MonteCarloSimRunner(simDefinition=simDef, silent=args.silent)
-        mCSimRunner.runMonteCarloSimulation()
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
     # Convergence Sim
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
