@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       MonteCarloSimRunner,
-                                       OptimizingSimRunner, SingleSimRunner)
+                                       OptimizingSimRunner, SingleSimRunner,
+                                       runMonteCarloSimulation)
 from MAPLEAF.Utilities import evalExpression
 
 
@@ -75,8 +75,7 @@ class TestSimRunners(unittest.TestCase):
         test.testUtilities.setUpSimDefForMinimalRunCheck_MonteCarlo(mCSimDef)
 
         #### Run Monte Carlo Simulations ####
-        mCSR = MonteCarloSimRunner(simDefinition=mCSimDef, silent=True)
-        mCSR.runMonteCarloSimulation()
+        runMonteCarloSimulation(simDefinition=mCSimDef, silent=True)
 
     def test_Optimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
