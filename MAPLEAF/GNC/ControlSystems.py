@@ -81,8 +81,8 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             # Since a discrete update rate has been specified, we need to ensure that the simulation time step is an integer divisor of the control system time step
             
             # Disable adaptive time stepping during the ascent portion of the flight (if it's enabled)
-            timeStepController = self.controlSystemDictReader.getString("SimControl.TimeStepAdaptation.controller")
-            if timeStepController != "constant":
+            timeDiscretization = self.controlSystemDictReader.getString("SimControl.timeDiscretization")
+            if "Adaptive" in timeDiscretization:
                 print("WARNING: Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate")
                 print("Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.")
                 print("Switching to RK4 time stepping")
