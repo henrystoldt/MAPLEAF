@@ -50,7 +50,7 @@ SimControl{
 
 ![Folded Sim Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinitionFile_Folded.PNG?raw=true)
 
-The possible top level dictionaries are 'Monte Carlo', 'SimControl', 'Environment', and 'Rocket'.
+The possible top level dictionaries are 'Optimization', 'MonteCarlo', 'SimControl', 'Environment', and 'Rocket'.
 Of these, only the 'Rocket' dictionary is strictly required to run a simulation, and defines the rocket's initial position/velocity and the inertial/aerodynamic/control models used to simulate it.  
 The rocket is defined by nested subdictionaries, where the first level of nesting defines the rocket's stage(s) and the second level defines the component(s) in each stage:
 

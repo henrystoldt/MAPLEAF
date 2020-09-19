@@ -17,11 +17,13 @@
 1. Clone this repository
 2. Install Python 3.6+
     - (Linux only): Install corresponding Python3.X-dev package
-    - (Optional) - [create dedicated Python environment](#create-python-virtual-environment-with-virtualenvwrapper):  
+    - (Windows): Install Visual Studio build tools (search for 'Build Tools for Visual Studio' [here](https://visualstudio.microsoft.com/downloads/))
+    - (Optional) - [create dedicated Python environment](#create-python-virtual-environment-with-virtualenvwrapper)  
 3. Install MAPLEAF: `$ pip install -e .` (needs to be run from the cloned repository)
     - Just like a normal pip install, but changes made to MAPLEAF's code will take effect without reinstalling
 4. (Optional) To be able to do a lot of the things described below, install the packages in requirements_Dev.txt:  
-    `$ pip install -r requirements_Dev.txt`
+    `$ pip install -r requirements_Dev.txt`  
+    Installing Mayavi can be problematic, if using Python 3.8+, try installing the latest version directly from git `$ python3 -m pip install git+https://github.com/enthought/mayavi.git`, or check out [mayavi's documentation](https://github.com/enthought/mayavi) for further assisstance
 
 ## Running Unit Tests
 **Note:** The Tests Github action runs these tests after every commit to master
@@ -47,7 +49,7 @@ All regression and V&V tests are defined in [test/regressionTesting/testDefiniti
 3. `$ source ~/.bashrc`
 
 ## Create Python virtual environment with virtualenvwrapper:
-1. Install virtualenvwrapper (see above)
+1. [Install virtualenvwrapper](#install-virtualenvwrapper-(linux))
 2. Create environment: `$ mkvirtualenv -a ~/Documents/rocketSimulator -r ~/Documents/rocketSimulator/requirements_Dev.txt MAPLEAF`  
 3. Environment will be automatically activated. To re-activate in the future: `$ workon MAPLEAF`  
 4. To deactivate: `$ deactivate`  
