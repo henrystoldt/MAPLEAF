@@ -70,7 +70,6 @@ class SingleSimRunner():
         self.rocketStages = [ rocket ] # In this array, 'stage' means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
-        progressBar = None
         if simDefinition.getValue("SimControl.EndCondition") == "Time":
             endTime = float(simDefinition.getValue("SimControl.EndConditionValue"))
             progressBar = tqdm(total=endTime+0.01)
@@ -79,91 +78,77 @@ class SingleSimRunner():
                 self.logger.continueWritingToTerminal = False
             except AttributeError:
                 pass # Logging not set up for this sim
+        else:
+            progressBar = None
 
         #### Main Loop Setup #### 
-        #TODO: Perhaps it would be nicer to move some of this info into the Rocket class instead of keeping it all here
         self.dts = [ float(simDefinition.getValue("SimControl.timeStep")) ]    # (Initial) time step size
-        self.terminationConditionDetectorFunctions = [ self._getSimEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
-        self.stageFlightPaths = [ self._setUpSimulationResultCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+        self.endDetectors = [ self._getEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+        self.stageFlightPaths = [ self._setUpCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
 
         if(rocket.hardwareInTheLoopControl == "yes"):
             print("Setting up hardware in the loop interface")
             rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
 
         #### Main Loop ####
-        i = 0
-        while i < len(self.rocketStages):
+        stageIndex = 0
+        while stageIndex < len(self.rocketStages):
 
-            if i > 0:
-                print("Computing stage {} drop path".format(i))
+            if stageIndex > 0:
+                print("Computing stage {} drop path".format(stageIndex))
 
-            endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+            endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
                 
             while not endSimulation:
-                # Take time step
+                # Take a time step
                 try:
-                    if lastTimeStepDt != None:
-                        self.dts[i] = lastTimeStepDt
+                    if FinalTimeStepDt != None:
+                        self.dts[stageIndex] = FinalTimeStepDt
 
-                    timeStepAdjustmentFactor, self.dts[i] = self.rocketStages[i].timeStep(self.dts[i])
+                    timeStepAdjustmentFactor, self.dts[stageIndex] = self.rocketStages[stageIndex].timeStep(self.dts[stageIndex])
 
-                    if i == 0:
+                    if stageIndex == 0:
                         try:
-                            progressBar.update(self.dts[i])
+                            progressBar.update(self.dts[stageIndex])
                         except AttributeError:
-                            # No progress bar defined b/c 'Time' is not the simulation end condition
                             pass
                 except:
-                    # Simulation has crashed
-                    # Try to create log files and plot sim results even though we've encountered an error
-                    print("ERROR: Simulation Crashed, Aborting")
-                    print("Attempting to save log files and show plots")
-                    self._postSingleSimCleanup(simDefinition)
+                    self._handleSimulationCrash()
 
-                    # Try to print out the stack trace
-                    print("Attempting to show stack trace")
-                    import traceback
-                    tb = traceback.format_exc()
-                    print(tb)
-
-                    print("Exiting")
-                    sys.exit()
-
-                # Adjust time step: timeStepAdjustmentFactor == 1 for non-adaptive time stepping
-                self.dts[i] *= timeStepAdjustmentFactor
+                # Adjust time step
+                self.dts[stageIndex] *= timeStepAdjustmentFactor
 
                 # HIL
-                if(self.rocketStages[i].hardwareInTheLoopControl == "yes"):
+                if(self.rocketStages[stageIndex].hardwareInTheLoopControl == "yes"):
                     rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
 
                 # Cache states for flight animation
-                time = self.rocketStages[i].rigidBody.time
-                self.stageFlightPaths[i].times.append(time)
-                self.stageFlightPaths[i].rigidBodyStates.append(self.rocketStages[i].rigidBody.state)
-                if self.rocketStages[i].controlSystem != None:
+                time = self.rocketStages[stageIndex].rigidBody.time
+                self.stageFlightPaths[stageIndex].times.append(time)
+                self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
+                if self.rocketStages[stageIndex].controlSystem != None:
                     try:
-                        for a in range(len(self.rocketStages[i].controlSystem.controlledSystem.actuatorList)):
-                            self.stageFlightPaths[i].actuatorDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
-                            self.stageFlightPaths[i].actuatorTargetDefls[a].append(self.rocketStages[i].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                        for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
+                            self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                            self.stageFlightPaths[stageIndex].actuatorTargetDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
                     except AttributeError:
                         # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn't have canards
                         pass
 
-                # Check whether we should break out of loop    
-                endSimulation, lastTimeStepDt = self.terminationConditionDetectorFunctions[i](self.dts[i])
+                # Check whether we should end the simulation, or take a modified-size final time step    
+                endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            self.rocketStages[i]._runControlSystemAndLogStartingState(0.0)
+            self.rocketStages[stageIndex]._runControlSystemAndLogStartingState(0.0)
 
             # Move on to next (dropped) stage
-            i += 1
+            stageIndex += 1
 
             try:
                 progressBar.close()
                 
                 if not self.silent:
-                    # Actually editing a MAPLEAF.IO.Logging.Logger object here
-                    sys.stdout.continueWritingToTerminal = True
+                    sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
             except AttributeError:
                 pass
 
@@ -256,7 +241,7 @@ class SingleSimRunner():
                 
                 self.forceEvaluationLog.append(header)
 
-    def _getSimEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
+    def _getEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
         ''' 
             Returns a function, which returns a boolean value and Union[None, float], indicating whether the 
                 simulation endpoint has been reached. When close to the end of a sim, the second value returned is the recommended
@@ -301,7 +286,7 @@ class SingleSimRunner():
         else:
             return EndTimeReached
 
-    def _setUpSimulationResultCachingForFlightAnimation(self, rocket):
+    def _setUpCachingForFlightAnimation(self, rocket):
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
@@ -327,7 +312,7 @@ class SingleSimRunner():
             self.rocketStages.append(newDetachedStage)
 
             # New sim termination condition function
-            self.terminationConditionDetectorFunctions.append(self._getSimEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+            self.endDetectors.append(self._getEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
             self.dts.append(self.dts[0])
             
             # Duplicate existing flight object
@@ -356,6 +341,21 @@ class SingleSimRunner():
             # Remove that number of rows from the end of the force evaluation log
             for i in range(numDerivativeEvals):
                 self.forceEvaluationLog.pop(-1)
+
+    def _handleSimulationCrash(self):
+        ''' After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace '''
+        print("ERROR: Simulation Crashed, Aborting")
+        print("Attempting to save log files and show plots")
+        self._postSingleSimCleanup(self.simDefinition)
+
+        # Try to print out the stack trace
+        print("Attempting to show stack trace")
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
+        print("Exiting")
+        sys.exit()
 
     #### Post-sim ####
     def _postSingleSimCleanup(self, simDefinition):

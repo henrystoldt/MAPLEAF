@@ -181,8 +181,8 @@ class TestRocket(unittest.TestCase):
         # Set up simRunner so it's able to create the detached (dropped) stage
         stagingSimRunner.rocketStages = [twoStageRocket]
         stagingSimRunner.dts = [ 0.05 ]
-        stagingSimRunner.terminationConditionDetectorFunctions = [ stagingSimRunner._getSimEndDetectorFunction(twoStageRocket, stagingSimRunner.simDefinition) ]
-        stagingSimRunner.stageFlightPaths = [ stagingSimRunner._setUpSimulationResultCachingForFlightAnimation(twoStageRocket) ]
+        stagingSimRunner.endDetectors = [ stagingSimRunner._getEndDetectorFunction(twoStageRocket, stagingSimRunner.simDefinition) ]
+        stagingSimRunner.stageFlightPaths = [ stagingSimRunner._setUpCachingForFlightAnimation(twoStageRocket) ]
 
         # Trigger stage separation
         twoStageRocket._stageSeparation()
@@ -223,8 +223,8 @@ class TestRocket(unittest.TestCase):
         # Initialize properties in the simRunner required for stage separation. These are normally created in simRunner._runSingleSimulation
         stagingSimRunner.rocketStages = [ twoStageRocket ]
         stagingSimRunner.dts = [ 0.011 ]
-        stagingSimRunner.terminationConditionDetectorFunctions = [ stagingSimRunner._getSimEndDetectorFunction(twoStageRocket, stagingSimRunner.simDefinition) ]
-        stagingSimRunner.stageFlightPaths = [ stagingSimRunner._setUpSimulationResultCachingForFlightAnimation(twoStageRocket) ]
+        stagingSimRunner.endDetectors = [ stagingSimRunner._getEndDetectorFunction(twoStageRocket, stagingSimRunner.simDefinition) ]
+        stagingSimRunner.stageFlightPaths = [ stagingSimRunner._setUpCachingForFlightAnimation(twoStageRocket) ]
 
         # Set separation delay, take first time step
         twoStageRocket.rigidBody.time = 4.99 # 0.01 seconds before motor burnout (5 seconds)
