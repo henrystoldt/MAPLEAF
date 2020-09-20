@@ -188,11 +188,10 @@ class SingleSimRunner():
 
         if stage == None:
             self._setUpSingleSimLogging()
-            self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
-            
-            # Add data table headers to logs
             self._createLogDataTableHeaders(rocket)
 
+            self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+            
         return rocket
 
     def _setUpSingleSimLogging(self):

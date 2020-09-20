@@ -1,12 +1,11 @@
 import importlib
 from copy import deepcopy
-from typing import List
 
 import matplotlib.pyplot as plt
 import ray
 
 from MAPLEAF.IO import SimDefinition, SubDictReader
-from MAPLEAF.SimulationRunners import RemoteSimRunner, SingleSimRunner
+from MAPLEAF.SimulationRunners import RemoteSimRunner, SingleSimRunner, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
 __all__ = [ "OptimizingSimRunner" ]
@@ -17,27 +16,19 @@ class OptimizingSimRunner():
         Configurable using the top-level 'Optimization' dictionary in .mapleaf files
     '''
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nProcesses=1):
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
         ''' 
             Pass in nProcesses > 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
             At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
         '''
         self.silent = silent
-        self.nProcesses = nProcesses
-        
-        # Store / load simulation definition
-        if simDefinition == None and simDefinitionFilePath != None:
-            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file from filePath
-        elif simDefinition != None:
-            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
-        else:
-            raise ValueError(""" Insufficient information. Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
-                If both are provided, the SimDefinition is used.""")
+        self.nCores = nCores
+        self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
 
         if not silent:
             print("Particle Swarm Optimization")
 
-        # Ensure no output is produced during each cost function evaluation
+        # Ensure no output is produced during each simulation (cost function evaluation)
         self.simDefinition.setValue("SimControl.plot", "None")
         self.simDefinition.setValue("SimControl.RocketPlot", "Off")
 
@@ -105,7 +96,6 @@ class OptimizingSimRunner():
         depVarNames = []
         depVarDefinitions = []
 
-
         for depVar in self.simDefinition.getSubKeys("Optimization.DependentVariables"):
             # Value expected: [paramName]  [paramDefinitionString]
             depVarKey = depVar.replace("Optimization.DependentVariables.", "")
@@ -157,29 +147,8 @@ class OptimizingSimRunner():
         return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
-    def runOptimization(self):
-        ''' Run the Optimization and show convergence history '''
-        if self.nProcesses > 1:
-            ray.init()
-            self.optimizer.optimize(self.computeCostFunction_Parallel, iters=self.nIterations)
-            ray.shutdown()
-        
-        else:
-            self.optimizer.optimize(self.computeCostFunction_SingleThreaded, iters=self.nIterations)
-        
-        if self.showConvergence:
-            print("Showing optimization convergence plot")
-
-            # Show optimization history
-            from pyswarms.utils.plotters import plot_cost_history
-            plot_cost_history(self.optimizer.cost_history)
-            plt.show()
-
-    def computeCostFunction_Parallel(self, trialSolutions: List[List[float]]) -> float:
+    def _computeCostFunction_Parallel(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
-        import psutil
-        nProcesses = psutil.cpu_count(logical=True)
-
         results = []
 
         costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")
@@ -219,9 +188,9 @@ class OptimizingSimRunner():
         nSims = len(trialSolutions)
         for i in range(nSims):
             # Don't start more sims than we have cores
-            if i >= nProcesses:
+            if i >= self.nCores:
                 # Post-process sims in order to ensure order of results matches order of inputs
-                index = i-nProcesses
+                index = i-self.nCores
                 postProcess(flightPathFutures[index], logPathFutures[index])
 
             indVarValues = trialSolutions[i]
@@ -242,7 +211,7 @@ class OptimizingSimRunner():
             logPathFutures.append(rayLogPathsID)
 
         # Post process remaining sims
-        nRemaining = min(nSims, nProcesses)
+        nRemaining = min(nSims, self.nCores)
         if nRemaining > 0:
             for i in range(nRemaining):
                 index = i - nRemaining
@@ -250,7 +219,7 @@ class OptimizingSimRunner():
 
         return results
 
-    def computeCostFunction_SingleThreaded(self, trialSolutions: List[List[float]]) -> float:
+    def _computeCostFunction_SingleThreaded(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         results = []
         for indVarValues in trialSolutions:
@@ -322,3 +291,22 @@ class OptimizingSimRunner():
             # Re-combine strings, save result
             depValue = "".join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
+
+    #### Main Function ####
+    def runOptimization(self):
+        ''' Run the Optimization and show convergence history '''
+        if self.nCores > 1:
+            ray.init()
+            self.optimizer.optimize(self._computeCostFunction_Parallel, iters=self.nIterations)
+            ray.shutdown()
+        
+        else:
+            self.optimizer.optimize(self._computeCostFunction_SingleThreaded, iters=self.nIterations)
+        
+        if self.showConvergence:
+            print("Showing optimization convergence plot")
+
+            # Show optimization history
+            from pyswarms.utils.plotters import plot_cost_history
+            plot_cost_history(self.optimizer.cost_history)
+            plt.show()

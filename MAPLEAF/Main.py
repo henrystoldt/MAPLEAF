@@ -12,8 +12,9 @@ from typing import List
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, runMonteCarloSimulation,
-                                   SingleSimRunner, OptimizingSimRunner)
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
+                                       OptimizingSimRunner, SingleSimRunner,
+                                       runMonteCarloSimulation)
 
 
 def buildParser() -> argparse.ArgumentParser:
@@ -126,14 +127,14 @@ def main(argv: List[str]=None) -> int:
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     '''
     startTime = time.time()
-    parser = buildParser()
 
+    # Parse command line call, check for errors
+    parser = buildParser()
     args = parser.parse_args(argv)
-    
     checkForMutuallyExclusiveArgs(args)    
 
-    # Check if we actually just want to plot a column from a log file, and not run a whole simulation
     if len(args.plotFromLog):
+        # Just plot a column from a log file, and not run a whole simulation
         Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
         print("Exiting")
         sys.exit()
@@ -143,16 +144,13 @@ def main(argv: List[str]=None) -> int:
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
-    # Optimization
     if isOptimizationProblem(simDef):
         optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
         optSimRunner.runOptimization()
 
-    # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
-    # Convergence Sim
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
         cSimRunner = ConvergenceSimRunner(simDefinition=simDef, silent=args.silent)
         if args.converge:
@@ -162,8 +160,8 @@ def main(argv: List[str]=None) -> int:
         elif args.compareAdaptiveIntegrationSchemes:
             cSimRunner.compareAdaptiveIntegrationSchemes(convergenceResultFilePath='adaptiveConvergenceResult.csv')
     
-    # Regular, single simulation  
     else: 
+        # Run a regular, single simulation  
         simRunner = SingleSimRunner(simDefinition=simDef, silent=args.silent)
         simRunner.runSingleSimulation()
 
