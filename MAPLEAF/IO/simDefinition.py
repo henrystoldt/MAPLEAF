@@ -632,8 +632,9 @@ class SimDefinition():
                 # If so, get the part of the key that is the immediate child of currentPath
                 immediateSubkey = getImmediateSubKey(key, potentialChildKey)
                 
-                # If we haven't got it already, save it
-                results.add(immediateSubkey)
+                if immediateSubkey in self.dict:
+                    # If we haven't got it already, save it
+                    results.add(immediateSubkey)
 
         return list(results)
 

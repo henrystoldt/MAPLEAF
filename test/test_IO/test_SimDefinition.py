@@ -139,7 +139,7 @@ class TestSimDefinition(unittest.TestCase):
 
     def test_getImmediateSubkeys(self):
         result = self.simDef.getImmediateSubKeys("Dictionary1")
-        expectedResult = [ "Dictionary1.SubDictionary1", "Dictionary1.key2", "Dictionary1.key1"  ]
+        expectedResult = [ "Dictionary1.key2", "Dictionary1.key1"  ]
         self.assertEqual(len(result), len(expectedResult))
         for i in range(len(result)):
             self.assertTrue(result[i] in expectedResult)
