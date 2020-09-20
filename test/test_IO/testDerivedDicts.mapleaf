@@ -15,7 +15,6 @@ Dictionary1{
 }
 
 Dictionary2{
-
     # Create dictionaries using others as a starting point
         # Can only derive from dictionaries defined before/above the derived one
     !create SubDictionary2 from Dictionary1.SubDictionary1{
@@ -35,5 +34,4 @@ Dictionary2{
         # Add/override values like in a normal dictionary
         key5            value5
     }
-    
 }
