@@ -15,7 +15,20 @@ from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
-__all__ = [ "SingleSimRunner", "RemoteSimRunner", "WindTunnelRunner" ]
+__all__ = [ "SingleSimRunner", "RemoteSimRunner", "WindTunnelRunner", "loadSimDefinition" ]
+
+def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    ''' Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input '''
+    if simDefinition == None and simDefinitionFilePath != None:
+        return SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+
+    elif simDefinition != None:
+        return simDefinition # Use the SimDefinition that was passed in
+
+    else:
+        raise ValueError(""" Insufficient information to initialize a SingleSimRunner.
+            Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+            If both are provided, the SimDefinition is used.""")
 
 class SingleSimRunner():
 
@@ -27,18 +40,8 @@ class SingleSimRunner():
                 * fW:                     (`MAPLEAF.IO.SimDefinition`) object that's already loaded and parsed the desired sim definition file  
                 * silent:                 (bool) toggles optional outputs to the console  
         '''
-        self.simDefinition = None
+        self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
         ''' Instance of `MAPLEAF.IO.SimDefinition`. Defines the current simulation '''
-
-        # Load simulation definition file - have to do this before creating the environment from it
-        if simDefinition == None and simDefinitionFilePath != None:
-            self.simDefinition = SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
-        elif simDefinition != None:
-            self.simDefinition = simDefinition # Use the SimDefinition that was passed in
-        else:
-            raise ValueError(""" Insufficient information to initialize a SingleSimRunner.
-                Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
-                If both are provided, the SimDefinition is used.""")
 
         self.environment = Environment(self.simDefinition, silent=silent)
         ''' Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner '''
