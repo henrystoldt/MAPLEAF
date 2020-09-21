@@ -224,7 +224,7 @@ class Rocket(CompositeObject):
                 self._getAppliedForce, 
                 self.getInertia, 
                 integrationMethod=timeDisc, 
-                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForPreviousTimeStep, 
                 simDefinition=self.simDefinition
             )
         else:
@@ -566,7 +566,7 @@ class Rocket(CompositeObject):
                 self.getMass, 
                 startTime=self.rigidBody.time, 
                 integrationMethod=originalTimeDiscretization, 
-                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForPreviousTimeStep, 
                 simDefinition=self.simDefinition
             )
         else:

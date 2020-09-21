@@ -154,7 +154,7 @@ class SingleSimRunner():
 
         print("Simulation Complete")
 
-        logFilePaths = self._postSingleSimCleanup(simDefinition)
+        logFilePaths = self._postProcessing(simDefinition)
 
         return self.stageFlightPaths, logFilePaths
 
@@ -172,14 +172,14 @@ class SingleSimRunner():
             rocket.plotShape()  # Reference to this simRunner used to add to logs
 
         if stage == None:
-            self._setUpSingleSimLogging()
+            self._setUpLogging()
             self._createLogDataTableHeaders(rocket)
 
             self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
             
         return rocket
 
-    def _setUpSingleSimLogging(self):
+    def _setUpLogging(self):
         self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
 
         if  self.loggingLevel > 0:
@@ -330,7 +330,7 @@ class SingleSimRunner():
         except AttributeError:
             pass # Force logging not desired/set up for this simulation
 
-    def discardForceLogsForLastTimeStep(self, integrator):
+    def discardForceLogsForPreviousTimeStep(self, integrator):
         if self.loggingLevel >= 2:
             # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
             if integrator.method == "RK12Adaptive":
@@ -346,7 +346,7 @@ class SingleSimRunner():
         ''' After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace '''
         print("ERROR: Simulation Crashed, Aborting")
         print("Attempting to save log files and show plots")
-        self._postSingleSimCleanup(self.simDefinition)
+        self._postProcessing(self.simDefinition)
 
         # Try to print out the stack trace
         print("Attempting to show stack trace")
@@ -358,7 +358,7 @@ class SingleSimRunner():
         sys.exit()
 
     #### Post-sim ####
-    def _postSingleSimCleanup(self, simDefinition):
+    def _postProcessing(self, simDefinition):
         simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
 
         # Log results
@@ -538,7 +538,7 @@ class WindTunnelRunner(SingleSimRunner):
                 rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
         # Write Logs to file
-        logFilePaths = self._postSingleSimCleanup(self.simDefinition)
+        logFilePaths = self._postProcessing(self.simDefinition)
 
         # Because no time steps were taken, the main simulation log will not contain any plottable, tabular data.
             # Remove it from logFilePaths
@@ -557,19 +557,19 @@ class WindTunnelRunner(SingleSimRunner):
         self.environment = Environment(self.simDefinition, silent=self.silent)
         return super().createRocket()
 
-    def _setUpSingleSimLogging(self):
+    def _setUpLogging(self):
         # Override to ensure that logs aren't re-initialized for every simulation.
             # mainSimulationLog will only be absent the first time this function is run
             # Want to keep all the force data in a single log file
         if not hasattr(self, 'mainSimulationLog'):
-            return super()._setUpSingleSimLogging()
+            return super()._setUpLogging()
 
     def _createLogDataTableHeaders(self, rocket):
         # Prevent the log headers from being re-generated over and over
         if self.forceEvaluationLog == []:
             return super()._createLogDataTableHeaders(rocket)
 
-    def _postSingleSimCleanup(self, simDefinition):
+    def _postProcessing(self, simDefinition):
         # Create an empty flight path to prevent errors in the parent function)
         self.stageFlightPaths = [ RocketFlight() ]
-        return super()._postSingleSimCleanup(simDefinition)
+        return super()._postProcessing(simDefinition)
