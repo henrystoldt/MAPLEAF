@@ -2,8 +2,8 @@
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png" alt="Logo"
-    title="MAPLEAF" height=125 style="padding-right: 10px;"/>
-  <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
+    title="MAPLEAF" height=150 style="padding-right: 10px;"/>
+  <h1 align="center">Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
 </p>
 
 <p align="center">
