@@ -105,11 +105,11 @@ class RigidBodyState():
 
         No other operations are defined
     """
-    def __init__(self, position=Vector(0,0,0), velocity=Vector(0,0,0), orientation=Quaternion(1,0,0,0), angularVelocity=AngularVelocity(0,0,0)):
-        self.position = position
-        self.velocity = velocity
-        self.orientation = orientation
-        self.angularVelocity = angularVelocity
+    def __init__(self, position=None, velocity=None, orientation=None, angularVelocity=None):
+        self.position = Vector(0,0,0) if (position == None) else position
+        self.velocity = Vector(0,0,0) if (position == None) else velocity
+        self.orientation = Quaternion(1,0,0,0) if (position == None) else orientation
+        self.angularVelocity = AngularVelocity(0,0,0) if (position == None) else angularVelocity
     
     def __add__(self, rigidBodyState2):
         ''' Used in: initVal {+} (timeStep * slope) '''
