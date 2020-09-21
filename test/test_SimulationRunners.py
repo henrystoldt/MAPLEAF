@@ -48,7 +48,7 @@ class TestSimRunners(unittest.TestCase):
         simDefinition.setValue("SimControl.loggingLevel", "2")
         simDefinition.fileName = "test/tempTestFileasdf.mapleaf"
         simRunner = SingleSimRunner(simDefinition=simDefinition, silent=True) # Not silent so we can capture main sim log
-        rocket = simRunner.prepRocketForSingleSimulation()
+        rocket = simRunner.createRocket()
 
         forcesLogHeaderItemCount = len(simRunner.forceEvaluationLog[0].split())
         mainLogHeaderItemCount = len(simRunner.mainSimulationLog[-1].split())
@@ -136,7 +136,7 @@ class TestSimRunners(unittest.TestCase):
         simDef.setValue("SimControl.timeDiscretization", "RK45Adaptive")
         simDef.setValue("SimControl.TimeStepAdaptation.controller", "PID")
         simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        rocket = simRunner.createRocket()
 
         # 6-DoF time step
         rocket.timeStep(0.05)
@@ -150,7 +150,7 @@ class TestSimRunners(unittest.TestCase):
         # Smoke test
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        rocket = simRunner.createRocket()
 
         # 6-DoF time step
         rocket.timeStep(0.05)

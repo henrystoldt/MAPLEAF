@@ -46,8 +46,8 @@ class SingleSimRunner():
         self.environment = Environment(self.simDefinition, silent=silent)
         ''' Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner '''
 
-        self.stagingIndex = None # Set in self.prepRocketForSingleSimulation
-        ''' (int) Set in `SingleSimRunner.prepRocketForSingleSimulation`. Tracks how many stages have been dropped '''
+        self.stagingIndex = None # Set in self.createRocket
+        ''' (int) Set in `SingleSimRunner.createRocket`. Tracks how many stages have been dropped '''
 
         self.silent = silent
         ''' (bool) '''
@@ -66,7 +66,7 @@ class SingleSimRunner():
 
         # Initialize the rocket + environment models and simulation logging
         if rocket == None:
-            rocket = self.prepRocketForSingleSimulation() # Initialize rocket on launch pad, with all stages attached
+            rocket = self.createRocket() # Initialize rocket on launch pad, with all stages attached
         self.rocketStages = [ rocket ] # In this array, 'stage' means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
@@ -159,7 +159,7 @@ class SingleSimRunner():
         return self.stageFlightPaths, logFilePaths
 
     #### Pre-sim ####
-    def prepRocketForSingleSimulation(self, stage=None):
+    def createRocket(self, stage=None):
         ''' 
             Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
             Returns an instance of Rocket with it's Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
@@ -304,7 +304,7 @@ class SingleSimRunner():
     def createNewDetachedStage(self):
         ''' Called by Rocket._stageSeparation '''
         if self.computeStageDropPaths:
-            newDetachedStage = self.prepRocketForSingleSimulation(stage=self.stagingIndex)
+            newDetachedStage = self.createRocket(stage=self.stagingIndex)
             # Set kinematic properties to match those of the current top-most stage
             topStage = self.rocketStages[0]
             newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
@@ -502,7 +502,7 @@ class WindTunnelRunner(SingleSimRunner):
                     
                     if not self.silent:
                         print("Running Single Force Evaluation")
-                    rocket = self.prepRocketForSingleSimulation()
+                    rocket = self.createRocket()
                     self.rocketStages = [rocket]
                     rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
@@ -512,7 +512,7 @@ class WindTunnelRunner(SingleSimRunner):
                             self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i+1])
                         if not self.silent:
                             print("Running Single Force Evaluation")
-                        rocket = self.prepRocketForSingleSimulation()
+                        rocket = self.createRocket()
                         self.rocketStages = [rocket]
                         rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
@@ -533,7 +533,7 @@ class WindTunnelRunner(SingleSimRunner):
                 # Run + log the force evaluation
                 if not self.silent:
                     print("Running Single Force Evaluation")
-                rocket = self.prepRocketForSingleSimulation()
+                rocket = self.createRocket()
                 self.rocketStages = [rocket]
                 rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
@@ -549,13 +549,13 @@ class WindTunnelRunner(SingleSimRunner):
 
         return logFilePaths
 
-    def prepRocketForSingleSimulation(self):
+    def createRocket(self):
         ''' 
             Do all the same stuff as the parent object, but also re-initialize the environment, 
                 to make sure changes to environmental properties during the parameter sweep take effect 
         '''
         self.environment = Environment(self.simDefinition, silent=self.silent)
-        return super().prepRocketForSingleSimulation()
+        return super().createRocket()
 
     def _setUpSingleSimLogging(self):
         # Override to ensure that logs aren't re-initialized for every simulation.

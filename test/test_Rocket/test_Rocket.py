@@ -28,10 +28,10 @@ class TestRocket(unittest.TestCase):
         self.correctNestedList = []
 
         simRunner1 = SingleSimRunner("MAPLEAF/Examples/Simulations/test2.mapleaf", silent=True)
-        self.rocket = simRunner1.prepRocketForSingleSimulation()
+        self.rocket = simRunner1.createRocket()
 
         simRunner2 = SingleSimRunner("MAPLEAF/Examples/Simulations/test6.mapleaf", silent=True)
-        self.rocket2 = simRunner2.prepRocketForSingleSimulation()
+        self.rocket2 = simRunner2.createRocket()
 
         self.dummyVelocity1 = Vector(0, 0, 50)
         self.dummyVelocity2 = Vector(1, 0, 20)
@@ -60,7 +60,7 @@ class TestRocket(unittest.TestCase):
 
     def test_finControlIndependentOfForceEvaluations(self):
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
-        controlledCanardRocket = simRunner.prepRocketForSingleSimulation()
+        controlledCanardRocket = simRunner.createRocket()
         env = controlledCanardRocket._getEnvironmentalConditions(0, controlledCanardRocket.rigidBody.state)
         controlledCanardRocket.controlSystem.runControlLoopIfRequired(0, controlledCanardRocket.rigidBody.state, env)
 
@@ -73,7 +73,7 @@ class TestRocket(unittest.TestCase):
 
     def test_finControlIndependentOfTimeStep(self):        
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
-        controlledCanardRocket = simRunner.prepRocketForSingleSimulation()
+        controlledCanardRocket = simRunner.createRocket()
         
         # Check that fin targets are unaffected by performing rocket time steps smaller than the control loop time step
         controlledCanardRocket.timeStep(0.005)
@@ -122,7 +122,7 @@ class TestRocket(unittest.TestCase):
 
     def test_forcesSymmetricForSymmetricRocket(self):
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
-        controlledCanardRocket = simRunner.prepRocketForSingleSimulation()
+        controlledCanardRocket = simRunner.createRocket()
 
         controlledCanardRocket.rigidBody.state.velocity = Vector(0, 10, 100) #5.7 degree angle of attack
         controlledCanardRocket.rigidBody.state.orientation = Quaternion(axisOfRotation=Vector(0,0,1), angle=0)
@@ -145,7 +145,7 @@ class TestRocket(unittest.TestCase):
 
     def test_stagedInitialization(self):
         stagingSimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Staging.mapleaf", silent=True)
-        twoStageRocket = stagingSimRunner.prepRocketForSingleSimulation()
+        twoStageRocket = stagingSimRunner.createRocket()
 
         # Check that positions of objects in first and second stages are different. The stages are otherwise identical, except the first stage doesn't have a nosecone
         bodyTube1 = twoStageRocket.stages[0].getComponentsOfType(RecoverySystem)[0]
@@ -156,13 +156,13 @@ class TestRocket(unittest.TestCase):
         self.assertEqual(firstStageRecoveryPosition-4.011, secondStageRecoveryPosition)
 
         orbitalSimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf", silent=True)
-        rocket = orbitalSimRunner.prepRocketForSingleSimulation()
+        rocket = orbitalSimRunner.createRocket()
         initInertia = rocket.getInertia(0, rocket.rigidBody.state)
         self.assertAlmostEqual(initInertia.mass, 314000.001, 2)
 
     def test_staging(self):
         stagingSimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/Staging.mapleaf", silent=True)
-        twoStageRocket = stagingSimRunner.prepRocketForSingleSimulation()
+        twoStageRocket = stagingSimRunner.createRocket()
 
         #### Combined (two-stage) rocket checks ####
         # Check that two stages have been created
@@ -218,7 +218,7 @@ class TestRocket(unittest.TestCase):
         simDef.setValue("SimControl.timeDiscretization", "RK4")
         simDef.setValue("Rocket.FirstStage.separationDelay", "0.01")
         stagingSimRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        twoStageRocket = stagingSimRunner.prepRocketForSingleSimulation()
+        twoStageRocket = stagingSimRunner.createRocket()
         
         # Initialize properties in the simRunner required for stage separation. These are normally created in simRunner._runSingleSimulation
         stagingSimRunner.rocketStages = [ twoStageRocket ]

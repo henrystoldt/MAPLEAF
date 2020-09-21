@@ -32,7 +32,7 @@ class Rocket(CompositeObject):
     def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
         '''
             Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.createRocket()`.  
             This will return a Rocket initialized on the pad with all its stages, ready for flight.
 
             If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.

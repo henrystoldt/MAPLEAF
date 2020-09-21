@@ -127,7 +127,7 @@ class TestRocketComponents(unittest.TestCase):
     #### Test Number of headers match number of entries for Force Logging ####
     def test_Logging(self):
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test9.mapleaf", silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        rocket = simRunner.createRocket()
 
         state = rocket.rigidBody.state
         time = 1

@@ -17,7 +17,7 @@ class TestRecoverySystem(unittest.TestCase):
     def setUp(self):
         # Init rocket + environment
         simRunner = SingleSimRunner(simDefinitionFilePath="MAPLEAF/Examples/Simulations/Recovery.mapleaf", silent=True)
-        self.recoveryRocket = simRunner.prepRocketForSingleSimulation()
+        self.recoveryRocket = simRunner.createRocket()
 
         self.rSys = self.recoveryRocket.recoverySystem
         self.environment = self.recoveryRocket.environment

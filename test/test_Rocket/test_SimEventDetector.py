@@ -12,7 +12,7 @@ class TestSimEventDetector(unittest.TestCase):
 
     def setUp(self):
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/EventDetector.mapleaf", silent=True)
-        self.rocket = simRunner.prepRocketForSingleSimulation()
+        self.rocket = simRunner.createRocket()
         self.rocket.rigidBody.time = 30 # Set to arbitrary time > 1 sec
 
         self.calledCount = 0

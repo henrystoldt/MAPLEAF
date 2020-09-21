@@ -83,7 +83,7 @@ class TestBodyTube(unittest.TestCase):
 
     def test_bodyTubeDampingMoment(self):
         simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        rocket = simRunner.createRocket()
 
         bodyTube = rocket.stages[0].getComponentsOfType(BodyTube)[0]
 

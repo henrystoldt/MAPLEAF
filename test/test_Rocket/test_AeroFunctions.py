@@ -61,7 +61,7 @@ class TestAeroFunctions(unittest.TestCase):
 
         # Check that for a tangent ogive nosecone, XCP = 0.466 Length
         SimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
-        rocket = SimRunner.prepRocketForSingleSimulation()
+        rocket = SimRunner.createRocket()
         rocketNosecone = rocket.stages[0].getComponentsOfType(NoseCone)[0]
         noseconeLength = rocketNosecone.length
         expectedCp = rocketNosecone.position + Vector(0,0,-0.46666*noseconeLength)

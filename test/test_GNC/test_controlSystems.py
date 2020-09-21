@@ -21,7 +21,7 @@ class TestRocketControlSystem(unittest.TestCase):
         simDef.removeKey("Rocket.ControlSystem.FlightPlan.filePath")
         
         simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        self.rocket = simRunner.prepRocketForSingleSimulation()
+        self.rocket = simRunner.createRocket()
         
     def test_runControlLoop(self):
         # Basic spin case
@@ -86,7 +86,7 @@ class TestRocketControlSystem(unittest.TestCase):
         simDefinition.setValue("Rocket.ControlSystem.updateRate", "100")
 
         simRunner = SingleSimRunner(simDefinition=simDefinition)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        rocket = simRunner.createRocket()
 
         # Check that the time step has been changed to be fixed, and is 0.01 seconds
         self.assertTrue(isinstance(rocket.rigidBody.integrate, Integrator)) # As oppopsed to AdaptiveIntegrator
