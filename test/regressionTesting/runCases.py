@@ -40,7 +40,7 @@ def runRegressionTestCases(regressionTestsDefinition, caseNameSpec=None, recordA
     startTime = time.time()
 
     # Get all the regression test cases
-    testCases = regressionTestsDefinition.getImmediateSubKeys("")
+    testCases = regressionTestsDefinition.getImmediateSubDicts("")
     nCases = 0
     nCasesOk = 0
     nTestsOk = 0

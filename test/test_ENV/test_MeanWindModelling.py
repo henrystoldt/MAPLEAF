@@ -14,7 +14,7 @@ import numpy as np
 from MAPLEAF.ENV import ConstantWind, InterpolatedWind, meanWindModelFactory
 from MAPLEAF.ENV.MeanWindModelling import (
     RadioSondeDataSampler, _convertWindHeadingToXYPlaneWindDirection)
-from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.Motion import Vector
 
 
@@ -22,6 +22,7 @@ class TestMeanWindModels(unittest.TestCase):
     def setUp(self):
         self.rocket = "fakeNewsRocket" # May have to convert this into a real Rocket at some point, but it's faster this way
         self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
+        self.envReader = SubDictReader("Environment", self.simDefinition)
 
     def test_convertWindHeadingToXYPlaneWindDirection(self):
         assertVectorsAlmostEqual(self, _convertWindHeadingToXYPlaneWindDirection(0), Vector(0,-1,0))
@@ -43,7 +44,7 @@ class TestMeanWindModels(unittest.TestCase):
         self.simDefinition.setValue("Environment.MeanWindModel", "CustomWindProfile")
         self.simDefinition.setValue("Environment.CustomWindProfile.filePath", "MAPLEAF/Examples/Wind/testWindProfile.txt")
         # Re-initialize mWM
-        mWM = meanWindModelFactory(self.simDefinition, self.rocket)
+        mWM = meanWindModelFactory(self.envReader, self.rocket)
 
         assertVectorsAlmostEqual(self, mWM.getMeanWind(8000), Vector(-5, -4, -2))
         assertVectorsAlmostEqual(self, mWM.getMeanWind(7000), Vector(-5, -4, -2))
@@ -60,7 +61,7 @@ class TestMeanWindModels(unittest.TestCase):
         self.simDefinition.setValue("Environment.Hellman.groundWindModel", "Constant")
         self.simDefinition.setValue("Environment.ConstantMeanWind.velocity", "(5 1 0)")
         # Re-initialize mWM
-        mWM = meanWindModelFactory(self.simDefinition, self.rocket)
+        mWM = meanWindModelFactory(self.envReader, self.rocket)
 
         assertVectorsAlmostEqual(self, mWM.getMeanWind(8000), Vector(9.655394088, 1.931078818, 0))
         assertVectorsAlmostEqual(self, mWM.getMeanWind(2000), Vector(9.655394088, 1.931078818, 0))
@@ -75,18 +76,19 @@ class TestMeanWindModels(unittest.TestCase):
 
     def test_initSampledGroundWindDataModel(self):
         self.simDefinition.setValue("Environment.MeanWindModel", "SampledGroundWindData")
-        mWM = meanWindModelFactory(self.simDefinition, silent=True)
+        mWM = meanWindModelFactory(self.envReader, silent=True)
 
     def test_initSampledRadioSondeModel(self):
         self.simDefinition.setValue("Environment.MeanWindModel", "SampledRadioSondeData")
-        mWM = meanWindModelFactory(self.simDefinition, silent=True)
+        mWM = meanWindModelFactory(self.envReader, silent=True)
 
 class TestRadioSondeDataReader(unittest.TestCase):
     def setUp(self):
         self.rocket = "fakeNewsRocket" # May have to convert this into a real Rocket at some point, but it's faster this way
         self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         self.simDefinition.setValue("Environment.MeanWindModel", "Constant")
-        self.mWM = meanWindModelFactory(self.simDefinition, self.rocket)
+        envReader = SubDictReader("Environment", self.simDefinition)
+        self.mWM = meanWindModelFactory(envReader, self.rocket)
 
     def test_readRadioSondeDataFile(self):
         reader = RadioSondeDataSampler()

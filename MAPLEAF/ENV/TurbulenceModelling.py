@@ -17,10 +17,8 @@ class TurbulenceModel(abc.ABC):
     def getTurbVelocity(self, altitude, meanWindVelocity, time):
         pass
 
-def turbulenceModelFactory(simDefinition, silent=False):
+def turbulenceModelFactory(envReader, silent=False):
     ''' Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel '''
-
-    envReader = SubDictReader("Environment", simDefinition)
     turbModelType = envReader.getString("Environment.TurbulenceModel")
     
     if not silent:
@@ -30,12 +28,6 @@ def turbulenceModelFactory(simDefinition, silent=False):
         turbulenceModel = NoTurb()
         
     elif "PinkNoise" in turbModelType:
-        def tryGetValue(key):
-            try:
-                return int(simDefinition.getValue(key))
-            except KeyError:
-                return None
-
         measuredPinkNoiseStdDev = 2.26 # For a 2-pole PinkNoiseGenerator - re-measure if the number of poles is changed
 
         turbulenceIntensity = envReader.tryGetInt("PinkNoiseModel.turbulenceIntensity")

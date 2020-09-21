@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rv_histogram
 
-from MAPLEAF.IO import SubDictReader, defaultConfigValues, getAbsoluteFilePath
+from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.Motion import Vector, linInterp
 
 __all__ = [ "meanWindModelFactory", "ConstantWind", "Hellman", "InterpolatedWind" ]
@@ -22,14 +22,14 @@ class MeanWindModel(abc.ABC):
         pass 
 
 # Mean Wind Model Factory
-def meanWindModelFactory(simDefinition=None, silent=False) -> MeanWindModel:
+def meanWindModelFactory(envReader=None, silent=False) -> MeanWindModel:
     ''' Instantiates a mean wind model '''
 
-    if simDefinition == None:
+    if envReader == None:
+        # Return default zero-wind model
         constWind = Vector(defaultConfigValues["Environment.ConstantMeanWind.velocity"])
         return ConstantWind(constWind)
 
-    envReader = SubDictReader('Environment', simDefinition)
     meanWindModel = None
     meanWindModelType = envReader.getString("MeanWindModel")
 
@@ -58,11 +58,11 @@ def meanWindModelFactory(simDefinition=None, silent=False) -> MeanWindModel:
 
             # Output choices parsed from input file and resulting wind
             if not silent:
-                if simDefinition.monteCarloLogger != None:
-                    simDefinition.monteCarloLogger.log("Sampling ground winds from: {}".format(locationsSampled))
-                    simDefinition.monteCarloLogger.log("Sampling weights for each location: {}".format(locationWeights))
-                    simDefinition.monteCarloLogger.log("Sampling wind distribution from month of: {}".format(launchMonth))
-                    simDefinition.monteCarloLogger.log("Sampled mean ground wind: {:1.2f} m/s".format(meanGroundWind))
+                if envReader.simDefinition.monteCarloLogger != None:
+                    envReader.simDefinition.monteCarloLogger.log("Sampling ground winds from: {}".format(locationsSampled))
+                    envReader.simDefinition.monteCarloLogger.log("Sampling weights for each location: {}".format(locationWeights))
+                    envReader.simDefinition.monteCarloLogger.log("Sampling wind distribution from month of: {}".format(launchMonth))
+                    envReader.simDefinition.monteCarloLogger.log("Sampled mean ground wind: {:1.2f} m/s".format(meanGroundWind))
                 else:
                     print("Sampling ground winds from: {}".format(locationsSampled))
                     print("Sampling weights for each location: {}".format(locationWeights))

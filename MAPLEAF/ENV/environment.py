@@ -44,8 +44,8 @@ class Environment():
             # Whenever we're running a real simulation, should always end up here
             envDictReader = SubDictReader("Environment", simDefinition)
 
-            self.meanWindModel = meanWindModelFactory(simDefinition, silent=silent)
-            self.turbulenceModel = turbulenceModelFactory(simDefinition, silent=silent)
+            self.meanWindModel = meanWindModelFactory(envDictReader, silent=silent)
+            self.turbulenceModel = turbulenceModelFactory(envDictReader, silent=silent)
             self.atmosphericModel = atmosphericModelFactory(envDictReader=envDictReader)
             self.earthModel = earthModelFactory(envDictReader)
 
@@ -82,7 +82,7 @@ class Environment():
             # Need additional default value here in case a SimDefinition is not passed in (otherwise SimDefinition takes care of default values)
             self.meanWindModel = meanWindModelFactory()
             self.turbulenceModel = None
-            self.atmosphericModel = atmosphericModelFactory(defaultConfigValues["Environment.AtmosphericPropertiesModel"])
+            self.atmosphericModel = atmosphericModelFactory()
             self.earthModel = earthModelFactory()
 
             self.launchSiteElevation = float(defaultConfigValues["Environment.LaunchSite.elevation"])

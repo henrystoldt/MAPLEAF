@@ -24,9 +24,10 @@ class TestTurbulenceModels(unittest.TestCase):
         self.simDef.setValue("Environment.MeanWindModel", "Constant")
         self.simDef.setValue("SimControl.loggingLevel", "0")
         rocketDictReader = SubDictReader("Rocket", self.simDef)
+        envReader = SubDictReader("Environment", self.simDef)
         self.rocket = Rocket(rocketDictReader, silent=True)
         
-        self.mWM = meanWindModelFactory(self.simDef, self.rocket)
+        self.mWM = meanWindModelFactory(envReader, self.rocket)
 
     def test_initPinkNoiseGenerator(self):
         png = PinkNoiseGenerator(alpha=5/3, nPoles=2)
@@ -50,8 +51,9 @@ class TestTurbulenceModels(unittest.TestCase):
 
         # Make sure turbulence intensity is not present since it overrides the given std deviation
         simDef.removeKey("Environment.PinkNoiseModel.turbulenceIntensity")
+        envReader = SubDictReader("Environment", simDef)
 
-        turbModel = turbulenceModelFactory(simDef, self.rocket)
+        turbModel = turbulenceModelFactory(envReader)
         v1 = turbModel.getTurbVelocity(1, Vector(1,0,0), None)
         self.assertAlmostEqual(v1[0], 0.7946604314895807/2.26)
         v2 = turbModel.getTurbVelocity(1, Vector(1,0,0), None)
@@ -66,8 +68,9 @@ class TestTurbulenceModels(unittest.TestCase):
 
         # Make sure std deviation is not present since it overrides the given turbulence intensity
         simDef.removeKey("Environment.PinkNoiseModel.velocityStdDeviation")
+        envReader = SubDictReader("Environment", simDef)
 
-        turbModel = turbulenceModelFactory(simDef, self.rocket)
+        turbModel = turbulenceModelFactory(envReader)
         v1 = turbModel.getTurbVelocity(1, Vector(1,0,0), None)
         self.assertAlmostEqual(v1[0], 0.7946604314895807/2.26)
         v2 = turbModel.getTurbVelocity(1, Vector(1,0,0), None)
@@ -81,8 +84,9 @@ class TestTurbulenceModels(unittest.TestCase):
         simDef.setValue("Environment.CustomSineGust.sineBlendDistance", "30")
         simDef.setValue("Environment.CustomSineGust.thickness", "200")
         simDef.setValue("Environment.CustomSineGust.direction", "(0 1 0)")
+        envReader = SubDictReader("Environment", simDef)
 
-        turbModel = turbulenceModelFactory(simDef, self.rocket)
+        turbModel = turbulenceModelFactory(envReader)
 
         v1 = turbModel.getTurbVelocity(0, Vector(1,0,0), 0)
         assertVectorsAlmostEqual(self, v1, Vector(0,0,0))
