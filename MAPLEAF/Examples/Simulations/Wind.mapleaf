@@ -18,7 +18,6 @@ Environment{
 
     AtmosphericPropertiesModel          USStandardAtmosphere
 
-
     #### Mean Wind Modelling ####
     # Constant, SampledGroundWindData, SampledRadioSondeData,  Hellman, CustomWindProfile
     MeanWindModel                       SampledRadioSondeData

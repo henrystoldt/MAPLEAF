@@ -18,7 +18,7 @@ class AtmosphericModel(abc.ABC):
     @abc.abstractmethod
     def getAirProperties(self, ASLElevation: float, time: float) -> Sequence[float]:
         ''' 
-            Should return an iterable containing: 
+            Return an iterable containing: 
                 temp(K), 
                 static pressure (Pa), 
                 density (kg/m^3), 
