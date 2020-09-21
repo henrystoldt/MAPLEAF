@@ -24,4 +24,4 @@
 
 <style>${homelink()}</style>
 <link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/${module.url()[:-len('index.html')] if module.is_package else module.url()}">
-<link rel="icon" href="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png">
+<link rel="icon" href="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png">
