@@ -126,7 +126,7 @@ class PinkNoise2D(_PinkNoiseTurbModel):
         yTurbVel = self.png2.getValue(time) * velStdDev
         return Vector(xTurbVel, yTurbVel, 0)
 
-class PinkNoise3D(TurbulenceModel):
+class PinkNoise3D(_PinkNoiseTurbModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
         self.png2 = PinkNoiseGenerator(seed=randomSeed2)

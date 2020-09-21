@@ -82,7 +82,12 @@ class TestSimDefinition(unittest.TestCase):
         self.assertEqual(self.simDef.getValue("Dictionary1.key3"), "newValue")
 
     def test_findKeysContaining(self):
+        # List of keys
         res = self.simDef.findKeysContaining(["SubDictionary1"])
+        self.assertEqual(res, ["Dictionary1.SubDictionary1.key3", "Dictionary1.SubDictionary1.key4", "Dictionary1.SubDictionary1.key5"])
+
+        # Single string key
+        res = self.simDef.findKeysContaining("SubDictionary1")
         self.assertEqual(res, ["Dictionary1.SubDictionary1.key3", "Dictionary1.SubDictionary1.key4", "Dictionary1.SubDictionary1.key5"])
 
     def test_removeKey(self):

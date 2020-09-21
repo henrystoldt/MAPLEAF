@@ -584,6 +584,9 @@ class SimDefinition():
                 findKeysContaining(["class"]) ->  
                 [ "Rocket.class", "Rocket.Sustainer.class", "Rocket.Sustainer.Nosecone.class", etc... ]
         '''
+        if not isinstance(keyContains, list):
+            keyContains = [ keyContains ]
+        
         matchingKeys = []
         for key in self.dict.keys():
             match = True
