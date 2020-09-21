@@ -1,6 +1,6 @@
 '''
 Defines functions and classes that manage simulations.  
-Includes some (`SingleSimRunner`) that run a single simulation, and others (`OptimizingSimRunner`) that run many simulations at once.
+Includes some (`Simulation`) that run a single simulation, and others (`OptimizingSimRunner`) that run many simulations at once.
 
 .. image:: https://storage.needpix.com/rsynced_images/important-1705212_1280.png
 '''

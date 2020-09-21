@@ -1,16 +1,16 @@
 
-from MAPLEAF.SimulationRunners import SingleSimRunner
+from MAPLEAF.SimulationRunners import Simulation
 import matplotlib.pyplot as plt
 import csv
 
 __all__ = [ "ConvergenceSimRunner" ]
 
-class ConvergenceSimRunner(SingleSimRunner):
+class ConvergenceSimRunner(Simulation):
     '''
         Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence
     '''
     def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
-        SingleSimRunner.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+        Simulation.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
 
     def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel="Simulations", ax1=None, ax2=None):
         '''
@@ -112,7 +112,7 @@ class ConvergenceSimRunner(SingleSimRunner):
                 print("Simulation {}, Time step: {}".format(simCount, targetError))
 
             startTime = time.time()
-            flights, _ = self.runSingleSimulation()
+            flights, _ = self.run()
             flight = flights[0]
             wallTime = time.time() - startTime
             simTimeHistory.append(wallTime)
@@ -309,7 +309,7 @@ class ConvergenceSimRunner(SingleSimRunner):
         if endCondition != "Time":
             print("Running simulation to determine end time")
             # Otherwise run the sim, get the end time and 
-            flights, _ = self.runSingleSimulation()
+            flights, _ = self.run()
             endTime = flights[0].times[-1]
             # set that to the end condition
             print("Setting EndCondition = Time, EndConditionValue = {}".format(endTime))

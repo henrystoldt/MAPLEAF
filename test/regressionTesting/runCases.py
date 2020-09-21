@@ -21,7 +21,7 @@ import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import Vector
-from MAPLEAF.SimulationRunners import SingleSimRunner, WindTunnelRunner
+from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 
 
@@ -211,7 +211,7 @@ def _runParameterSweepCase(caseDictReader, simDefinition, regressionTestsDefinit
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelRunner(parameterToSweepKey=sweptParameters, parameterValueList=parameterValues, fW=simDefinition, silent=True, smoothLine=smoothLine)
+    simRunner = WindTunnelSimulation(parameterToSweepKey=sweptParameters, parameterValueList=parameterValues, fW=simDefinition, silent=True, smoothLine=smoothLine)
     try:
         logFilePaths = simRunner.runSweep()
     except:
@@ -377,8 +377,8 @@ def _runFullFlightCase(caseDictReader, simDefinition, regressionTestsDefinition,
     # Run regular full-flight simulation and check result
     print("  Full Flight Case")
     try:
-        simRunner = SingleSimRunner(simDefinition=simDefinition, silent=True)
-        _, logFilePaths = simRunner.runSingleSimulation()
+        simRunner = Simulation(simDefinition=simDefinition, silent=True)
+        _, logFilePaths = simRunner.run()
     except:
         # Simulation Failed
         Logging.removeLogger() # Make sure we can print to the console

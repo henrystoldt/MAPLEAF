@@ -66,8 +66,8 @@ class TestPlotting(unittest.TestCase):
         # Generate log file from a simulation
         simDef.setValue("SimControl.loggingLevel", "2")
         simDef.fileName = "test/tempTestFileasdf.txt"
-        simRunner =  Main.SingleSimRunner(simDefinition=simDef, silent=True)
-        simRunner.runSingleSimulation()
+        simRunner =  Main.Simulation(simDefinition=simDef, silent=True)
+        simRunner.run()
         
 
 
@@ -104,8 +104,8 @@ class TestPlotting(unittest.TestCase):
         # Generate log file from a simulation
         simDef.setValue("SimControl.loggingLevel", "2")
         simDef.fileName = "test/tempTestFileasdf.txt"
-        simRunner =  Main.SingleSimRunner(simDefinition=simDef, silent=True)
-        simRunner.runSingleSimulation()
+        simRunner =  Main.Simulation(simDefinition=simDef, silent=True)
+        simRunner.run()
         
 
         # Try to plot one of its columns (AeroForce)

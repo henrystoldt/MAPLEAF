@@ -8,7 +8,7 @@
 
 import unittest
 
-from MAPLEAF.Main import SingleSimRunner
+from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import (AngularVelocity, Quaternion, RigidBodyState,
                             RigidBodyState_3DoF, Vector)
 
@@ -16,7 +16,7 @@ from MAPLEAF.Motion import (AngularVelocity, Quaternion, RigidBodyState,
 class TestRecoverySystem(unittest.TestCase):
     def setUp(self):
         # Init rocket + environment
-        simRunner = SingleSimRunner(simDefinitionFilePath="MAPLEAF/Examples/Simulations/Recovery.mapleaf", silent=True)
+        simRunner = Simulation(simDefinitionFilePath="MAPLEAF/Examples/Simulations/Recovery.mapleaf", silent=True)
         self.recoveryRocket = simRunner.createRocket()
 
         self.rSys = self.recoveryRocket.recoverySystem

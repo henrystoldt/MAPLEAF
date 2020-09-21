@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import ray
 
 from MAPLEAF.IO import SimDefinition, SubDictReader
-from MAPLEAF.SimulationRunners import RemoteSimRunner, SingleSimRunner, loadSimDefinition
+from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
 __all__ = [ "OptimizingSimRunner" ]
@@ -203,8 +203,8 @@ class OptimizingSimRunner():
             self._updateDependentVariableValues(simDef, varDict)
 
             # Run the simulation
-            simRunner = RemoteSimRunner.remote(simDefinition=simDef, silent=True)
-            rayFlightPathsID, rayLogPathsID = simRunner.runSingleSimulation.remote()
+            simRunner = RemoteSimulation.remote(simDefinition=simDef, silent=True)
+            rayFlightPathsID, rayLogPathsID = simRunner.run.remote()
             
             # Save futures
             flightPathFutures.append(rayFlightPathsID)
@@ -231,8 +231,8 @@ class OptimizingSimRunner():
             self._updateDependentVariableValues(simDef, varDict)
 
             # Run the simulation
-            simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-            stageFlights, logFilePaths = simRunner.runSingleSimulation()
+            simRunner = Simulation(simDefinition=simDef, silent=True)
+            stageFlights, logFilePaths = simRunner.run()
 
             # Evaluate the cost function
             costFunctionDefinition = simDef.getValue("Optimization.costFunction")

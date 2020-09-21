@@ -2,7 +2,7 @@ import ray
 import random
 
 from MAPLEAF.IO import Logging, Plotting, SimDefinition, RocketFlight
-from MAPLEAF.SimulationRunners import RemoteSimRunner, SingleSimRunner, loadSimDefinition
+from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
 
 __all__ = [ "runMonteCarloSimulation" ]
 
@@ -66,8 +66,8 @@ def _runSimulations_SingleThreaded(simDefinition, nRuns, outputLists, mCLogger, 
         mCLogger.log("\nMonte Carlo Run #{}".format(i+1))
         
         # Run sim
-        simRunner = SingleSimRunner(simDefinition=simDefinition, silent=True)
-        stageFlightPaths, _ = simRunner.runSingleSimulation()
+        simRunner = Simulation(simDefinition=simDefinition, silent=True)
+        stageFlightPaths, _ = simRunner.run()
         Logging.removeLogger() # Remove the logger created by simRunner #TODO Logging needs improvement
         
         # Post process the flight of the top stage
@@ -128,8 +128,8 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
         simDefinition.rng = random.Random(newRandomSeed)
 
         # Start sim
-        simRunner = RemoteSimRunner.remote(simDefinition=simDefinition, silent=True)
-        flightPathsFuture, _ = simRunner.runSingleSimulation.remote()
+        simRunner = RemoteSimulation.remote(simDefinition=simDefinition, silent=True)
+        flightPathsFuture, _ = simRunner.run.remote()
         runningJobs.append(flightPathsFuture)
 
     # Wait for remaining sims to complete

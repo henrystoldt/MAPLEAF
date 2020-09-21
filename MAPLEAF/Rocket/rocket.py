@@ -1,7 +1,7 @@
 """
 `Rocket ties together the code in `MAPLEAF.GNC`, `MAPLEAF.Rocket`, `MAPLEAF.Motion`, and `MAPLEAF.ENV` to 
 simulate the flight of a single rocket or dropped rocket stage (`Rocket` always only represents a single rigid body at a time).
-New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.SingleSimRunner` to represent dropped stages.
+New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` to represent dropped stages.
 
 .. image:: https://media.defense.gov/2020/Apr/01/2002273784/780/780/0/200326-F-KD758-1012.JPG
 """
@@ -31,8 +31,8 @@ class Rocket(CompositeObject):
     #### Initialization ####
     def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
         '''
-            Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.createRocket()`.  
+            Initialization of Rocket(s) is most easily completed through an instance of Simulation
+            To get a single Rocket object, initialize a Simulation and call `MAPLEAF.SimulationRunners.Simulation.createRocket()`.  
             This will return a Rocket initialized on the pad with all its stages, ready for flight.
 
             If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
@@ -42,14 +42,14 @@ class Rocket(CompositeObject):
             * rocketDictReader:     (`MAPLEAF.IO.SubDictReader`) SubDictReader pointed at the "Rocket" dictionary of the desired simulation definition file.  
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n >= 1.  
-            * simRunner:            (`MAPLEAF.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
+            * simRunner:            (`MAPLEAF.SimulationRunners.Simulation`) reference to the current simulation driver/runner
             * environment:          (`MAPLEAF.ENV.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
         '''
         self.rocketDictReader = rocketDictReader
         self.simDefinition = rocketDictReader.simDefinition
 
         self.simRunner = simRunner
-        ''' Parent instance of `MAPLEAF.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. '''
+        ''' Parent instance of `MAPLEAF.SimulationRunners.Simulation` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. '''
         
         self.environment = environment
         ''' Instance of `MAPLEAF.ENV.Environment` '''
@@ -410,7 +410,7 @@ class Rocket(CompositeObject):
 
     #### Logging ####
     def appendToForceLogLine(self, txt: str):
-        ''' Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`'s forceEvaluationLog '''
+        ''' Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`'s forceEvaluationLog '''
         try:
             self.simRunner.forceEvaluationLog[-1] += txt
         except AttributeError:
@@ -521,7 +521,7 @@ class Rocket(CompositeObject):
         '''
             Tells the simulation to take a time step of size dt.  
 
-            Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
+            Usually called by functions like `MAPLEAF.SimulationRunners.Simulation.run()`
 
             Returns:
                 * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)

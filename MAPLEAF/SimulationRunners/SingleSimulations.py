@@ -15,7 +15,7 @@ from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
-__all__ = [ "SingleSimRunner", "RemoteSimRunner", "WindTunnelRunner", "loadSimDefinition" ]
+__all__ = [ "Simulation", "RemoteSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
 
 def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
     ''' Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input '''
@@ -26,11 +26,11 @@ def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=Fal
         return simDefinition # Use the SimDefinition that was passed in
 
     else:
-        raise ValueError(""" Insufficient information to initialize a SingleSimRunner.
+        raise ValueError(""" Insufficient information to initialize a Simulation.
             Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
             If both are provided, the SimDefinition is used.""")
 
-class SingleSimRunner():
+class Simulation():
 
     def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
         '''
@@ -47,14 +47,14 @@ class SingleSimRunner():
         ''' Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner '''
 
         self.stagingIndex = None # Set in self.createRocket
-        ''' (int) Set in `SingleSimRunner.createRocket`. Tracks how many stages have been dropped '''
+        ''' (int) Set in `Simulation.createRocket`. Tracks how many stages have been dropped '''
 
         self.silent = silent
         ''' (bool) '''
 
         self.computeStageDropPaths = strtobool(self.simDefinition.getValue("SimControl.StageDropPaths.compute"))
 
-    def runSingleSimulation(self, rocket=None):
+    def run(self, rocket=None):
         ''' 
             Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
 
@@ -444,22 +444,22 @@ class SingleSimRunner():
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
 
 @ray.remote
-class RemoteSimRunner(SingleSimRunner):
+class RemoteSimulation(Simulation):
     ''' 
-        Exactly the same as SingleSimRunner, except the class itself, and its .runSingleSimulation method are decorated with ray.remote()
+        Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
         to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
     '''
     @ray.method(num_return_vals=2)
-    def runSingleSimulation(self):
-        return super().runSingleSimulation()
+    def run(self):
+        return super().run()
 
-class WindTunnelRunner(SingleSimRunner):
+class WindTunnelSimulation(Simulation):
     def __init__(self, parameterToSweepKey="Rocket.velocity", parameterValueList=["(0 0 100)", "(0 0 200)", "(0 0 300)"], simDefinitionFilePath=None, fW=None, silent=False, smoothLine='False'):
         self.parameterToSweepKey = parameterToSweepKey
         self.parameterValueList = parameterValueList
         self.smoothLine = smoothLine
 
-        SingleSimRunner.__init__(self, simDefinitionFilePath, fW, silent)
+        Simulation.__init__(self, simDefinitionFilePath, fW, silent)
 
     def runSweep(self):
         '''

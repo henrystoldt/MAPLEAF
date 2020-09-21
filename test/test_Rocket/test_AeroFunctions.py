@@ -13,7 +13,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 import MAPLEAF.Rocket.AeroFunctions as AeroFunctions
 from MAPLEAF.ENV import Environment
 from MAPLEAF.IO.Logging import removeLogger
-from MAPLEAF.Main import SingleSimRunner
+from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
                             RigidBodyState, Vector)
 from MAPLEAF.Rocket import NoseCone
@@ -60,7 +60,7 @@ class TestAeroFunctions(unittest.TestCase):
         self.assertAlmostEqual(XCP_cone.Z, -0.666666666)
 
         # Check that for a tangent ogive nosecone, XCP = 0.466 Length
-        SimRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
+        SimRunner = Simulation("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocket = SimRunner.createRocket()
         rocketNosecone = rocket.stages[0].getComponentsOfType(NoseCone)[0]
         noseconeLength = rocketNosecone.length

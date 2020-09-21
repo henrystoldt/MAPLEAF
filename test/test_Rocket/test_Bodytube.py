@@ -15,7 +15,7 @@ from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Rocket import BodyTube, Rocket
-from MAPLEAF.SimulationRunners import SingleSimRunner
+from MAPLEAF.SimulationRunners import Simulation
 
 
 class TestBodyTube(unittest.TestCase):
@@ -82,7 +82,7 @@ class TestBodyTube(unittest.TestCase):
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 5)
 
     def test_bodyTubeDampingMoment(self):
-        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
+        simRunner = Simulation("MAPLEAF/Examples/Simulations/test3.mapleaf", silent=True)
         rocket = simRunner.createRocket()
 
         bodyTube = rocket.stages[0].getComponentsOfType(BodyTube)[0]

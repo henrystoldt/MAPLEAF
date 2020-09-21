@@ -13,7 +13,7 @@ import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       OptimizingSimRunner, SingleSimRunner,
+                                       OptimizingSimRunner, Simulation,
                                        runMonteCarloSimulation)
 
 
@@ -162,8 +162,8 @@ def main(argv: List[str]=None) -> int:
     
     else: 
         # Run a regular, single simulation  
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=args.silent)
-        simRunner.runSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
+        simRunner.run()
 
     Logging.removeLogger()
 
