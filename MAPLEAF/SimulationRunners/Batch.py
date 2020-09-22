@@ -1,7 +1,4 @@
-'''
-    Script to run a series of regression tests, defined below
-'''
-
+''' Script to run a batch of simulations, defined in a batch definition file '''
 import argparse
 import os
 import sys
@@ -17,14 +14,11 @@ from MAPLEAF.Main import findSimDefinitionFile
 from MAPLEAF.Motion import Vector
 from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
-# Make sure MAPLEAF/ is accessible - should run these statements BEFORE MAPLEAF imports below
-mainDirectoryPath = os.path.abspath(os.getcwd())
-sys.path.append(mainDirectoryPath)
 
-warningCount = 0
+warningCount = 0 # Global variable tracking # warnings
 
 #### OPTIONS ####
-percentageErrorTolerance = 0.01 # %
+percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obtained results
 #### END OPTIONS ####
 
 #### Main ####
@@ -47,7 +41,7 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
     for testCase in testCases:
         if caseNameSpec == None or (caseNameSpec in testCase):
             nCases += 1
-            nOk, nFail, newExpectedResultsRecorded, errorStats = _runSingleTestCase(testCase, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+            nOk, nFail, newExpectedResultsRecorded, errorStats = _runCase(testCase, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
 
             totalSimError += errorStats[0]
             nComparisonSets += errorStats[1]
@@ -97,7 +91,7 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
         print("FAIL")
 
 #### 1. Load / Run Sim ####
-def _runSingleTestCase(caseName, batchDefinition, recordAll=False, printStackTraces=False):
+def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False):
     '''
         Runs a single regression tests case, compares the results to the expected results provided, and generates any desired plots.
             If no comparison data is provided, comparison data is recorded
@@ -592,8 +586,8 @@ def _generatePlot(plotDictReader, logFilePaths):
     # Set x and y labels
     xLabel = plotDictReader.tryGetString("xLabel", defaultValue=xColumnName)
     yLabel = plotDictReader.tryGetString("yLabel", defaultValue=columnSpecs[0])
-    ax.set_xlabel(latexLabelTranslation(xLabel))
-    ax.set_ylabel(latexLabelTranslation(yLabel))
+    ax.set_xlabel(_latexLabelTranslation(xLabel))
+    ax.set_ylabel(_latexLabelTranslation(yLabel))
 
     ax.legend()
     
@@ -707,7 +701,7 @@ def _writeModifiedTestDefinitionFile():
     print("  If desired, use this file (or values from this file) to replace/update testDefinitions.mapleaf\n")
     batchDefinition.writeToFile(newTestDefinitionPath, writeHeader=False)
 
-def latexLabelTranslation(labelInput):
+def _latexLabelTranslation(labelInput):
     labelDict = {
         '$\alpha$': r'$\alpha$',
         '$C_l$'   : r'$C_l$',
@@ -723,7 +717,7 @@ def latexLabelTranslation(labelInput):
     else:
         return labelInput
 
-def buildParser():
+def _buildParser():
     parser = argparse.ArgumentParser(description="Batch-run MAPLEAF simulations")
     parser.add_argument(
         "--recordAll", 
@@ -744,8 +738,8 @@ def buildParser():
     parser.add_argument(
         "batchDefinitionFile", 
         nargs='?', 
-        default=["./test/regressionTesting/testDefinitions.mapleaf"], 
-        help="Path to a batch definition (.mapleaf) file. Default is ./test/regressionTesting/testDefinitions.mapleaf"
+        default=["./test/regressionTesting/regressionTests.mapleaf"], 
+        help="Path to a batch definition (.mapleaf) file. Default is ./test/regressionTesting/regressionTests.mapleaf"
     )
 
     return parser
@@ -758,7 +752,7 @@ if __name__ == "__main__":
         os.chdir("..")
     
     # Parse command line arguments
-    parser = buildParser()
+    parser = _buildParser()
     args = parser.parse_args()
 
     # Load definition file
