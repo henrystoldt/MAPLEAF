@@ -37,7 +37,9 @@ To run a single test module: `python3 -m unittest -v test.test_Vector`
 All regression and V&V tests are defined in batch file [test/regressionTesting/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/regressionTesting/testDefinitions.mapleaf)  
 
 To run them all:
-`mapleaf-batch test/regressionTesting/regressionTests.mapleaf`
+`mapleaf-batch MAPLEAF/Examples/Simulations/regressionTests.mapleaf`
+
+Results will show up on screen, plots will be saved in the subfolders of `./test/regressionTesting/`
 
 ## Install virtualenvwrapper (Linux):
 **Note:** Official instructions (incl. Windows version): https://virtualenvwrapper.readthedocs.io/en/latest/install.html  

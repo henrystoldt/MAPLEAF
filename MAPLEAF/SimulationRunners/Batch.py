@@ -99,7 +99,7 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
 
     if len(casesWhoseExpectedResultsWereUpdated) > 0:
         print("New expected results were recorded for the following cases: {}".format(", ".join(casesWhoseExpectedResultsWereUpdated)))
-        _writeModifiedTestDefinitionFile()        
+        _writeModifiedTestDefinitionFile(batchDefinition)        
 
     if nCasesOk == nCases:
         print("{} Case(s) ok".format(nCases))
@@ -720,10 +720,13 @@ def _incrementWarningCount():
     global warningCount
     warningCount += 1
 
-def _writeModifiedTestDefinitionFile():
-    newTestDefinitionPath = "./test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf"
+def _writeModifiedTestDefinitionFile(batchDefinition):
+    origFilePath = batchDefinition.fileName
+    newTestDefinitionPath = origFilePath.replace(".mapleaf", "_newExpectedResultsRecorded.mapleaf")
+
     print("Writing new testDefinition file to: {}".format(newTestDefinitionPath))
     print("  If desired, use this file (or values from this file) to replace/update testDefinitions.mapleaf\n")
+
     batchDefinition.writeToFile(newTestDefinitionPath, writeHeader=False)
 
 def _latexLabelTranslation(labelInput):
@@ -763,8 +766,8 @@ def _buildParser():
     parser.add_argument(
         "batchDefinitionFile", 
         nargs='?', 
-        default="./test/regressionTesting/regressionTests.mapleaf", 
-        help="Path to a batch definition (.mapleaf) file. Default is ./test/regressionTesting/regressionTests.mapleaf"
+        default="MAPLEAF/Examples/Simulations/regressionTests.mapleaf", 
+        help="Path to a batch definition (.mapleaf) file. Default is MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
     )
 
     return parser
