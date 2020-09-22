@@ -12,7 +12,7 @@ ExampleWindTunnelCase{
 
 		velocitySweep{
 			sweptParameter                 	Rocket.velocity # Can be any parameter in the simulation definition file
-      parameterValues               	(0 0 10):100:(0 0 550) # Provide COMMA-separated list of values - can also just be a single value
+      		parameterValues               	(0 0 10):100:(0 0 550) # Provide COMMA-separated list of values - can also just be a single value
 		}
 
 		DragResults{
