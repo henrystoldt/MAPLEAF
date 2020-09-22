@@ -758,6 +758,10 @@ class SimDefinition():
         except AttributeError:
             return False
 
+    def __contains__(self, key):
+        ''' Only checks whether 'key' was parsed from the file. Ignores default values '''
+        return key in self.dict
+
 ################### Functions for dealing with string keys ########################
 def isSubKey(potentialParent:str, potentialChild:str) -> bool:
     """

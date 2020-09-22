@@ -10,9 +10,10 @@ from .SingleSimulations import *
 from .MonteCarlo import *
 from .Convergence import *
 from .Optimization import *
+from .Batch import *
 
 # For some reason CythonVector and company don't exist down here, so they won't import when running from MAPLEAF.Motion import *
-subModules = [ SingleSimulations, MonteCarlo, Convergence, Optimization ]
+subModules = [ SingleSimulations, MonteCarlo, Convergence, Optimization, Batch ]
 
 __all__ = [ ]
 

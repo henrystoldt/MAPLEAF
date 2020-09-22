@@ -10,9 +10,11 @@ import numpy as np
 
 from MAPLEAF.IO import (Logging, Plotting, SimDefinition, SubDictReader,
                         gridConvergenceFunctions)
-from MAPLEAF.Main import findSimDefinitionFile
 from MAPLEAF.Motion import Vector
 from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
+
+
+__all__ = [ "main", "batchRun" ]
 
 
 warningCount = 0 # Global variable tracking # warnings
@@ -20,6 +22,32 @@ warningCount = 0 # Global variable tracking # warnings
 #### OPTIONS ####
 percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obtained results
 #### END OPTIONS ####
+
+#### Command Line Parsing ####
+def main(argv=None):
+    # Load the test definition database
+    if os.path.basename(os.getcwd()) == "regressionTesting":
+        os.chdir("../..")
+    elif os.path.basename(os.getcwd()) == "test":
+        os.chdir("..")
+    
+    # Parse command line arguments
+    parser = _buildParser()
+    args = parser.parse_args()
+
+    # Load definition file
+    from MAPLEAF.Main import findSimDefinitionFile
+    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile[0])
+    batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
+
+    # Filter cases by name if required
+    if len(args.filter) > 0:
+        caseNameSpec=args.filter[0] # Run specific case(s)
+    else:
+        caseNameSpec = None # Run all cases
+
+    # Run Cases
+    batchRun(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
 
 #### Main ####
 def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTraces=False):
@@ -744,26 +772,6 @@ def _buildParser():
 
     return parser
 
+
 if __name__ == "__main__":
-    # Load the test definition database
-    if os.path.basename(os.getcwd()) == "regressionTesting":
-        os.chdir("../..")
-    elif os.path.basename(os.getcwd()) == "test":
-        os.chdir("..")
-    
-    # Parse command line arguments
-    parser = _buildParser()
-    args = parser.parse_args()
-
-    # Load definition file
-    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile[0])
-    batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
-
-    # Filter cases by name if required
-    if len(args.filter) > 0:
-        caseNameSpec=args.filter[0] # Run specific case(s)
-    else:
-        caseNameSpec = None # Run all cases
-
-    # Run Cases
-    batchRun(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
+    main()

@@ -14,7 +14,8 @@ import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
                                        OptimizingSimRunner, Simulation,
-                                       runMonteCarloSimulation)
+                                       batchRun, runMonteCarloSimulation)
+from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
 
 def buildParser() -> argparse.ArgumentParser:
@@ -119,7 +120,17 @@ def isMonteCarloSimulation(simDefinition) -> bool:
 
     return False
 
-def main(argv: List[str]=None) -> int:
+def isBatchSim(batchDefinition) -> bool:
+    ''' Checks whether the file does not contain a 'Rocket' dictionary, and instead contains dictionaries that have a simDefinitionFile key  '''
+    rootDicts = batchDefinition.getImmediateSubDicts("")
+
+    for rootDict in rootDicts:
+        if rootDict == 'Rocket' and 'Rocket.simDefinitionFile' not in batchDefinition:
+            return False
+    
+    return True
+
+def main(argv=None) -> int:
     ''' 
         Main function to run a MAPLEAF simulation. 
         Expects to be called from the command line, usually using the `mapleaf` command
@@ -150,6 +161,10 @@ def main(argv: List[str]=None) -> int:
 
     elif isMonteCarloSimulation(simDef):
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+
+    elif isBatchSim(simDef):
+        print("Batch Simulation\n")
+        batchRun(simDef)
 
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
         cSimRunner = ConvergenceSimRunner(simDefinition=simDef, silent=args.silent)

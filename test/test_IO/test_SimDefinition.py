@@ -176,6 +176,13 @@ class TestSimDefinition(unittest.TestCase):
         simDef2 = SimDefinition("test/test_IO/testDerivedDictsFinal.mapleaf")
         self.assertEqual(simDef, simDef2)
 
+    def test_contains(self):
+        self.assertTrue("Dictionary1.key1" in self.simDef)
+        self.assertTrue("Dictionary1.key2" in self.simDef)
+        self.assertTrue("Dictionary1.key3" not in self.simDef)
+        self.assertTrue("Dictionary1.SubDictionary1.key3" in self.simDef)
+        self.assertTrue("Dictionary1.SubDictionary1.key6" not in self.simDef)
+
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()

@@ -46,7 +46,7 @@ SimControl{
 }
 ```
 
-[Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) is very helpful in maintaining a file overview:
+[Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) and [syntax highlighting](https://marketplace.visualstudio.com/items?itemName=MAPLEAF.MAPLEAF) are helpful in maintaining a file overview:
 
 ![Folded Sim Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinitionFile_Folded.PNG?raw=true)
 
@@ -87,6 +87,15 @@ To execute a batch run of this now-probabilistic simulation, create the top-leve
 Then, MAPLEAF can produce distributions of outputs like landing locations:  
 <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+## Optimization
+MAPLEAF uses [pyswarms](https://github.com/ljvmiranda921/pyswarms) to optimize arbitrary scalar parameters according to arbitrary cost functions using Particle Swarm Optimization.
+To define an optimization problem, include the top-level 'Optimization' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/)):
+
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinition_Optimization.png?raw=true" alt="Optimization Dict"
+  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+Pyswarms will produce a plot of the optimization results after completion:
 
 ## Developers
 Contributions are welcome.
