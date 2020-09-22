@@ -1,4 +1,7 @@
-''' Script to run a batch of simulations, defined in a batch definition file '''
+''' 
+    Script to run a batch of simulations, defined in a batch definition file. Can be run directly from the command line. 
+    Accessible as `mapleaf-batch` if MAPLEAF is installed through pip.
+'''
 import argparse
 import os
 import sys
@@ -24,20 +27,14 @@ percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obt
 #### END OPTIONS ####
 
 #### Command Line Parsing ####
-def main(argv=None):
-    # Load the test definition database
-    if os.path.basename(os.getcwd()) == "regressionTesting":
-        os.chdir("../..")
-    elif os.path.basename(os.getcwd()) == "test":
-        os.chdir("..")
-    
+def main(argv=None):    
     # Parse command line arguments
     parser = _buildParser()
     args = parser.parse_args()
 
     # Load definition file
     from MAPLEAF.Main import findSimDefinitionFile
-    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile[0])
+    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
     batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
 
     # Filter cases by name if required
@@ -160,7 +157,7 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
     if len(logFilePaths) > 0: # Don't generate plots of simulation crashed (didn't produce any log files)
         # Get all plot subdictionaries
         plotsToGeneratePath = ".".join([caseName, "PlotsToGenerate"])
-        plotDicts = batchDefinition.getImmediateSubKeys(plotsToGeneratePath)
+        plotDicts = batchDefinition.getImmediateSubDicts(plotsToGeneratePath)
         for plotDict in plotDicts:
             plotDictReader = SubDictReader(plotDict, simDefinition=batchDefinition)
             _generatePlot(plotDictReader, logFilePaths)
@@ -766,12 +763,11 @@ def _buildParser():
     parser.add_argument(
         "batchDefinitionFile", 
         nargs='?', 
-        default=["./test/regressionTesting/regressionTests.mapleaf"], 
+        default="./test/regressionTesting/regressionTests.mapleaf", 
         help="Path to a batch definition (.mapleaf) file. Default is ./test/regressionTesting/regressionTests.mapleaf"
     )
 
     return parser
-
 
 if __name__ == "__main__":
     main()
