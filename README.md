@@ -88,7 +88,7 @@ Then, MAPLEAF can produce distributions of outputs like landing locations:
 <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
-## Optimization
+## Design Optimization
 MAPLEAF uses [pyswarms](https://github.com/ljvmiranda921/pyswarms) to optimize arbitrary scalar parameters according to arbitrary cost functions using Particle Swarm Optimization.
 To define an optimization problem, include the top-level 'Optimization' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)):
 
@@ -114,7 +114,7 @@ Provides ability to check the final state of a rocket in each case, to produce d
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 Used for regression and verification/validation testing in MAPLEAF.  
-See [batchRunTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/batchRunTemplate.mapleaf) and [regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/Examples/Simulations/regressionTests.mapleaf).
+See [batchRunTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/batchRunTemplate.mapleaf) for complete batch interface definition and [regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/Examples/Simulations/regressionTests.mapleaf) for examples.
 
 To run the regression/verification/validation test suite, check out [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md)
 
