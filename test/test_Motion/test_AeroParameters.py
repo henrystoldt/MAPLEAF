@@ -12,9 +12,8 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 from MAPLEAF.ENV import Environment
 from MAPLEAF.IO.Logging import removeLogger
-from MAPLEAF.Motion import (
-    AeroParameters, AngularVelocity, ForceMomentSystem, Quaternion,
-    RigidBodyState, Vector)
+from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Quaternion,
+                            RigidBodyState, Vector)
 
 
 class TestAeroParameters(unittest.TestCase):

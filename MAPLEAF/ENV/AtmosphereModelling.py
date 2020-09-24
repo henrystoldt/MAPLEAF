@@ -7,7 +7,7 @@ from typing import Sequence
 
 import numpy as np
 
-from MAPLEAF.IO import SubDictReader, defaultConfigValues, getAbsoluteFilePath
+from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.Motion import linInterp
 
 __all__ = [ "atmosphericModelFactory", "ConstantAtmosphere", "TabulatedAtmosphere", "USStandardAtmosphere" ]

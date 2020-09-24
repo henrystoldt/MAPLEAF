@@ -1,7 +1,7 @@
 import ray
 import random
 
-from MAPLEAF.IO import Logging, Plotting, SimDefinition, RocketFlight
+from MAPLEAF.IO import Logging, Plotting
 from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
 
 __all__ = [ "runMonteCarloSimulation" ]

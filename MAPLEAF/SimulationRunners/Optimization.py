@@ -4,7 +4,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import ray
 
-from MAPLEAF.IO import SimDefinition, SubDictReader
+from MAPLEAF.IO import SubDictReader
 from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
