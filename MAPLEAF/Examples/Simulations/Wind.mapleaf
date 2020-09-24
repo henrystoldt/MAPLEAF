@@ -72,10 +72,10 @@ Environment{
     }
 
     CustomSineGust{
-        startAltitude           2000 #m Altitude AGL of base of gust layer
-        magnitude               9 #m/s - 6m/s for < 300m, 9m/s for > 1000m, as per NASA handbook
-        sineBlendDistance       30 #m - gust velocity blended into velocity profile by sine curve over this vertical distance (start and end)
-        thickness               200 #m - Vertical size of gust (~0-200m)
+        startAltitude           2000 # m Altitude AGL of base of gust layer
+        magnitude               9 # m/s - 6m/s for < 300m, 9m/s for > 1000m, as per NASA handbook
+        sineBlendDistance       30 # m - gust velocity blended into velocity profile by sine curve over this vertical distance (start and end)
+        thickness               200 # m - Vertical size of gust (~0-200m)
         direction               (0 1 0 ) # Gust will align with current wind velocity if not given
     }
 }

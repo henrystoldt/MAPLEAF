@@ -82,3 +82,6 @@ docs
 
 # PySwarms logs
 *.log
+
+# Notebooks
+*.ipynb
