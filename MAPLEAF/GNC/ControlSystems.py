@@ -115,7 +115,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
                 2. If the rocket recovery system is deployed
         '''
         if self.timeSteppingModified:
-            # This currently won't do anything because the time step is saved in an array by the SingleSimRunner - might be useful in the future
+            # This currently won't do anything because the time step is saved in an array by the Simulation - might be useful in the future
             self.simDefinition.setValue("SimControl.timeStep", str(self.originalSimTimeStep))
 
             # This will re-initialize the integrator to match that originally selected in the sim definition file

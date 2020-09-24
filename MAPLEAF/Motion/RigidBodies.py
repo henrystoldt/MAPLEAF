@@ -66,8 +66,7 @@ class RigidBody(RigidBody_3DoF):
             Methods
                 .timeStep(deltaT)
     """
-    #TODO: Account for the effect of CG location changing between time steps?
-    #TODO (Future - for a more detailed final model): Moment of Inertia Tensor required
+    #TODO: Moment of Inertia Tensor? Required for aircraft
 
     def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod="Euler", discardedTimeStepCallback=None, simDefinition=None):
         ''' Just calls RigidBodyState_3DoF constructor '''

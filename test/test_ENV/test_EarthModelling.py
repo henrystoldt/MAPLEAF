@@ -4,13 +4,13 @@
 import math
 import unittest
 
-from MAPLEAF.SimulationRunners import SingleSimRunner
+from MAPLEAF.SimulationRunners import Simulation
 from MAPLEAF.ENV import (FlatEarth, NoEarth, SphericalEarth,
                                     WGS84)
 from MAPLEAF.Motion import Vector
 from test.testUtilities import assertVectorsAlmostEqual
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.SimulationRunners import SingleSimRunner
+from MAPLEAF.SimulationRunners import Simulation
 from test.testUtilities import assertVectorsAlmostEqual
 
 
@@ -87,8 +87,8 @@ class TestEarthModels(unittest.TestCase):
         self.assertEqual(Vector(0,0,0), self.noEarth.getGravityForce("asdf", "adf"))
 
     def test_Initialization_NASASphere(self):
-        simRunner = SingleSimRunner("./MAPLEAF/Examples/Simulations/NASASphere.mapleaf")
-        sphere = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation("./MAPLEAF/Examples/Simulations/NASASphere.mapleaf")
+        sphere = simRunner.createRocket()
 
         # Should be at an altitude of 9144 m above earth's surface
         distanceFromEarthCenter = sphere.rigidBody.state.position.length()
@@ -108,8 +108,8 @@ class TestEarthModels(unittest.TestCase):
         # Zero velocity in launch tower frame
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf", silent=True)
         simDef.setValue("Rocket.velocity", "(0 0 0)")
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        rocket = simRunner.createRocket()
         
         computedInitGlobalFrameVel = rocket.rigidBody.state.velocity
         expectdedVel = Vector(0, 465.1020982258931, 0) # Earth's surface velocity at 0 lat, 0 long
@@ -117,8 +117,8 @@ class TestEarthModels(unittest.TestCase):
 
         # Velocity in the +x (East) direction in the launch tower frame
         simDef.setValue("Rocket.velocity", "(1 0 0)")
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        rocket = simRunner.createRocket()
         
         computedInitGlobalFrameVel = rocket.rigidBody.state.velocity
         expectdedVel = Vector(0, 466.1020982258931, 0) # Earth's surface velocity at 0 lat, 0 long + 1m/s east
@@ -126,8 +126,8 @@ class TestEarthModels(unittest.TestCase):
 
         # Velocity in the +y (North) direction in the launch tower frame
         simDef.setValue("Rocket.velocity", "(0 1 0)")
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        rocket = simRunner.createRocket()
         
         computedInitGlobalFrameVel = rocket.rigidBody.state.velocity
         expectdedVel = Vector(0, 465.1020982258931, 1) # Earth's surface velocity at 0 lat, 0 long + 1m/s north
@@ -135,8 +135,8 @@ class TestEarthModels(unittest.TestCase):
 
         # Velocity in the +z (Up) direction in the launch tower frame
         simDef.setValue("Rocket.velocity", "(0 0 1)")
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        rocket = simRunner.createRocket()
         
         computedInitGlobalFrameVel = rocket.rigidBody.state.velocity
         expectdedVel = Vector(1, 465.1020982258931, 0) # Earth's surface velocity at 0 lat, 0 long + 1m/s up

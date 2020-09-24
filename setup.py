@@ -69,6 +69,8 @@ setup(
     zip_safe=False,
     
     entry_points={
-        'console_scripts': ['mapleaf = MAPLEAF.Main:main']
+        'console_scripts': [ 
+            'mapleaf = MAPLEAF.Main:main',
+            'mapleaf-batch = MAPLEAF.SimulationRunners.Batch:main' ]
     }
 )

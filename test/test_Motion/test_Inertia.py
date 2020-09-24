@@ -16,10 +16,10 @@ from test.testUtilities import assertIterablesAlmostEqual
 class TestInertia(unittest.TestCase):
 
     def test_InertiaAddition(self):
-        mCG1 = Inertia(Vector(0,0,0), Vector(0,0,1), 10, componentLocation=Vector(0,0,1))
-        mCG2 = Inertia(Vector(0,0,0), Vector(0,0,0), 20, componentLocation=Vector(0,0,0))
+        mCG1 = Inertia(Vector(0,0,0), Vector(0,0,2), 10)
+        mCG2 = Inertia(Vector(0,0,0), Vector(0,0,0), 20)
 
-        m3 = mCG1.combineInertiasAboutPoint([mCG2], Vector(0,0,0))
+        m3 = mCG1.combineInertiasAboutPoint([ mCG2 ], Vector(0,0,0))
         self.assertEqual(m3.mass, 30)
         self.assertAlmostEqual(m3.CG.Z, 0.6666666666666)
 

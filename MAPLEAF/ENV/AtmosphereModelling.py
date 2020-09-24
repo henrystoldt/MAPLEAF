@@ -18,7 +18,7 @@ class AtmosphericModel(abc.ABC):
     @abc.abstractmethod
     def getAirProperties(self, ASLElevation: float, time: float) -> Sequence[float]:
         ''' 
-            Should return an iterable containing: 
+            Return an iterable containing: 
                 temp(K), 
                 static pressure (Pa), 
                 density (kg/m^3), 
@@ -27,15 +27,17 @@ class AtmosphericModel(abc.ABC):
         '''
         return
 
-def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -> AtmosphericModel:
+def atmosphericModelFactory(envDictReader=None) -> AtmosphericModel:
     ''' 
         Provide either an atmosphericModel name ('USStandardAtmosphere' is only option right now that doesn't require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader`)
     '''
-    if atmosphericModel == None:
-        atmosphericModel = envDictReader.getString("AtmosphericPropertiesModel")
+    if envDictReader == None:
+        modelType = defaultConfigValues["Environment.AtmosphericPropertiesModel"]
+    else:
+        modelType = envDictReader.getString("AtmosphericPropertiesModel")
 
-    if atmosphericModel == "Constant":
+    if modelType == "Constant":
         if envDictReader == None:
             raise ValueError("envDictReader required to initialize Constant atm properties model")
 
@@ -52,7 +54,7 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -> Atmosp
 
         return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
-    elif atmosphericModel == "TabulatedAtmosphere":
+    elif modelType == "TabulatedAtmosphere":
         try:
             tableFilePath = envDictReader.getString("TabulatedAtmosphere.filePath")
         except AttributeError:
@@ -61,11 +63,11 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -> Atmosp
         tableFilePath = getAbsoluteFilePath(tableFilePath)
         return TabulatedAtmosphere(tableFilePath)
 
-    elif atmosphericModel == "USStandardAtmosphere":
+    elif modelType == "USStandardAtmosphere":
         return USStandardAtmosphere()
 
     else:
-        raise ValueError("Atmospheric model: {} not implemented, try using 'USStandardAtmosphere'".format(atmosphericModel))
+        raise ValueError("Atmospheric model: {} not implemented, try using 'USStandardAtmosphere'".format(modelType))
         
 class ConstantAtmosphere(AtmosphericModel):
     def __init__(self, temp, pressure, density, viscosity):

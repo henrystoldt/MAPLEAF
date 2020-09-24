@@ -13,7 +13,7 @@ from test.testUtilities import (assertForceMomentSystemsAlmostEqual,
 
 from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import SimDefinition, SubDictReader
-from MAPLEAF.Main import SingleSimRunner
+from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import (ForceMomentSystem, Inertia, Quaternion,
                             RigidBodyState, Vector)
 from MAPLEAF.Rocket import (BodyTube, FixedForce, FixedMass, NoseCone, Rocket,
@@ -126,8 +126,8 @@ class TestRocketComponents(unittest.TestCase):
 
     #### Test Number of headers match number of entries for Force Logging ####
     def test_Logging(self):
-        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/test9.mapleaf", silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation("MAPLEAF/Examples/Simulations/test9.mapleaf", silent=True)
+        rocket = simRunner.createRocket()
 
         state = rocket.rigidBody.state
         time = 1

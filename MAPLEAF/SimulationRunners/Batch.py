@@ -1,46 +1,60 @@
+''' 
+    Script to run a batch of simulations, defined in a batch definition file. Can be run directly from the command line. 
+    Accessible as `mapleaf-batch` if MAPLEAF is installed through pip.
 '''
-    Script to run a series of regression tests, defined below
-'''
-
 import argparse
 import os
-import sys
 import time
 from math import isnan
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Make sure MAPLEAF/ is accessible - should run these statements BEFORE MAPLEAF imports below
-mainDirectoryPath = os.path.abspath(os.getcwd())
-sys.path.append(mainDirectoryPath)
-
-import MAPLEAF.IO.gridConvergenceFunctions as gridConvergenceFunctions
-import MAPLEAF.IO.Logging as Logging
-import MAPLEAF.IO.Plotting as Plotting
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
+from MAPLEAF.IO import (Logging, Plotting, SimDefinition, SubDictReader,
+                        gridConvergenceFunctions)
 from MAPLEAF.Motion import Vector
-from MAPLEAF.SimulationRunners import SingleSimRunner, WindTunnelRunner
+from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 
+__all__ = [ "main", "batchRun" ]
 
-warningCount = 0
+
+warningCount = 0 # Global variable tracking number of warnings in a batch run
 
 #### OPTIONS ####
-percentageErrorTolerance = 0.01 # %
+percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obtained results
 #### END OPTIONS ####
 
+#### Command Line Parsing ####
+def main(argv=None):    
+    # Parse command line arguments
+    parser = _buildParser()
+    args = parser.parse_args()
+
+    # Load definition file
+    from MAPLEAF.Main import findSimDefinitionFile # Delayed import here to avoid circular imports
+    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
+    batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
+
+    # Filter cases by name if required
+    if len(args.filter) > 0:
+        caseNameSpec=args.filter[0] # Run specific case(s)
+    else:
+        caseNameSpec = None # Run all cases
+
+    # Run Cases
+    batchRun(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
+
 #### Main ####
-def runRegressionTestCases(regressionTestsDefinition, caseNameSpec=None, recordAll=False, printStackTraces=False):
+def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTraces=False):
     '''
-        Given a regressionTestsDefinition object (of type SimDefinition), will run all of the test cases defined in it, and print a summary of the results
+        Given a batchDefinition object (of type `MAPLEAF.IO.SimDefinition`), will run all of the test cases defined in it, and print a summary of the results
     '''
     # Track how long running cases takes
     startTime = time.time()
 
     # Get all the regression test cases
-    testCases = regressionTestsDefinition.getImmediateSubKeys("")
+    testCases = batchDefinition.getImmediateSubDicts("")
     nCases = 0
     nCasesOk = 0
     nTestsOk = 0
@@ -51,7 +65,7 @@ def runRegressionTestCases(regressionTestsDefinition, caseNameSpec=None, recordA
     for testCase in testCases:
         if caseNameSpec == None or (caseNameSpec in testCase):
             nCases += 1
-            nOk, nFail, newExpectedResultsRecorded, errorStats = _runSingleTestCase(testCase, regressionTestsDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+            nOk, nFail, newExpectedResultsRecorded, errorStats = _runCase(testCase, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
 
             totalSimError += errorStats[0]
             nComparisonSets += errorStats[1]
@@ -84,7 +98,7 @@ def runRegressionTestCases(regressionTestsDefinition, caseNameSpec=None, recordA
 
     if len(casesWhoseExpectedResultsWereUpdated) > 0:
         print("New expected results were recorded for the following cases: {}".format(", ".join(casesWhoseExpectedResultsWereUpdated)))
-        _writeModifiedTestDefinitionFile()        
+        _writeModifiedTestDefinitionFile(batchDefinition)        
 
     if nCasesOk == nCases:
         print("{} Case(s) ok".format(nCases))
@@ -101,24 +115,24 @@ def runRegressionTestCases(regressionTestsDefinition, caseNameSpec=None, recordA
         print("FAIL")
 
 #### 1. Load / Run Sim ####
-def _runSingleTestCase(caseName, regressionTestsDefinition, recordAll=False, printStackTraces=False):
+def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False):
     '''
         Runs a single regression tests case, compares the results to the expected results provided, and generates any desired plots.
             If no comparison data is provided, comparison data is recorded
 
         Inputs:
             caseName:                   (string) Name of current case / top-level dictionary
-            regressionTestsDefinition:  (SimDefinition) Should have the regressionTestsDefinition file loaded
+            batchDefinition:  (SimDefinition) Should have the batchDefinition file loaded
 
         Outputs:
             Returns:    numTestsOk(Int), numTestsFailed(Int), resultValuesRecorded(Bool)
                 resultValuesRecorded is True if absent ExpectedResults were added to the regressionTestDefinition
                     Used to remember that an updated regressionTestDefinition shoudl be written to file at the end of all the test cases
-            Modifies:   regressionTestsDefinition - records sim results is no expected results are provided
+            Modifies:   batchDefinition - records sim results is no expected results are provided
             Prints:     One line to introduce case, one more line for each expected results
     '''
     print("Running Case: {}".format(caseName))
-    caseDictReader = SubDictReader(caseName, simDefinition=regressionTestsDefinition)
+    caseDictReader = SubDictReader(caseName, simDefinition=batchDefinition)
 
     newExpectedValuesRecorded = False
     
@@ -127,24 +141,24 @@ def _runSingleTestCase(caseName, regressionTestsDefinition, recordAll=False, pri
     simDefinition = SimDefinition(simDefFilePath, silent=True)
 
     #### Parameter overrides ####
-    _implementParameterOverrides(caseName, regressionTestsDefinition, simDefinition)
+    _implementParameterOverrides(caseName, batchDefinition, simDefinition)
 
     #### Run simulation ####
     # Check whether simulation is a full flight sim or a parameter sweeping simulation
     caseSubDictionaries = caseDictReader.getImmediateSubDicts()
     errorStats = [0.0,0]
     if caseName + ".ParameterSweep" in caseSubDictionaries:
-        logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats = _runParameterSweepCase(caseDictReader, simDefinition, regressionTestsDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+        logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats = _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
     else:
-        logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded = _runFullFlightCase(caseDictReader, simDefinition, regressionTestsDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+        logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded = _runFullFlightCase(caseDictReader, simDefinition, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
 
     #### Generate/Save plots ####
     if len(logFilePaths) > 0: # Don't generate plots of simulation crashed (didn't produce any log files)
         # Get all plot subdictionaries
         plotsToGeneratePath = ".".join([caseName, "PlotsToGenerate"])
-        plotDicts = regressionTestsDefinition.getImmediateSubKeys(plotsToGeneratePath)
+        plotDicts = batchDefinition.getImmediateSubDicts(plotsToGeneratePath)
         for plotDict in plotDicts:
-            plotDictReader = SubDictReader(plotDict, simDefinition=regressionTestsDefinition)
+            plotDictReader = SubDictReader(plotDict, simDefinition=batchDefinition)
             _generatePlot(plotDictReader, logFilePaths)
 
     # Print blank line before next case or final summary
@@ -152,11 +166,13 @@ def _runSingleTestCase(caseName, regressionTestsDefinition, recordAll=False, pri
 
     return numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats
 
-def _implementParameterOverrides(testCase, regressionTestsDefinition, simDefinition):
+def _implementParameterOverrides(testCase, batchDefinition, simDefinition):
     '''
+        Runs on each case before running any sims to implement desired modifications to simulation definition files
+
         Inputs:
             testCase:   (string) name of the current test case / top level dictionary
-            regressionTestsDefinition:      (SimDefinition) The sim definition object that's loaded/parsed the testDefinitions.mapleaf file
+            batchDefinition:      (SimDefinition) The sim definition object that's loaded/parsed the testDefinitions.mapleaf file
             simDefinition:                  (SimDefinition) The sim definition object that's loaded/parsed the definition file for the current regression testing simulation
 
         Outputs:
@@ -170,16 +186,16 @@ def _implementParameterOverrides(testCase, regressionTestsDefinition, simDefinit
 
     # Look for other overrides in the definition file
     parameterOverridesDictKey = ".".join([testCase, "ParameterOverrides"])
-    parameterOverrides = regressionTestsDefinition.getSubKeys(parameterOverridesDictKey)
+    parameterOverrides = batchDefinition.getSubKeys(parameterOverridesDictKey)
     for paramOverrideKey in parameterOverrides:
         overridenKey = paramOverrideKey.replace(parameterOverridesDictKey+".", "")
-        overrideValue = regressionTestsDefinition.getValue(paramOverrideKey)
+        overrideValue = batchDefinition.getValue(paramOverrideKey)
 
         # Implement them
         simDefinition.setValue(overridenKey, overrideValue)
 
-def _runParameterSweepCase(caseDictReader, simDefinition, regressionTestsDefinition, recordAll=False, printStackTraces=False):
-    # Run parameter sweep simulation and check result
+def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
+    ''' Runs a parameter sweep / wind tunnel simulation, checks+plots results '''
     print("  Parameter Sweep Case")
 
     # Get input data from text file
@@ -195,8 +211,8 @@ def _runParameterSweepCase(caseDictReader, simDefinition, regressionTestsDefinit
     sweptParameters = []
     parameterValues = []
     for parameter in ParameterSweeps:
-        sweptParameters.append(regressionTestsDefinition.getValue(parameter + '.sweptParameter'))
-        parameterValues.append(regressionTestsDefinition.getValue(parameter + '.parameterValues'))
+        sweptParameters.append(batchDefinition.getValue(parameter + '.sweptParameter'))
+        parameterValues.append(batchDefinition.getValue(parameter + '.parameterValues'))
 
     parameterValues = [ _parseParameterSweepValues(valString) for valString in parameterValues ]
 
@@ -211,7 +227,7 @@ def _runParameterSweepCase(caseDictReader, simDefinition, regressionTestsDefinit
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelRunner(parameterToSweepKey=sweptParameters, parameterValueList=parameterValues, fW=simDefinition, silent=True, smoothLine=smoothLine)
+    simRunner = WindTunnelSimulation(parametersToSweep=sweptParameters, parameterValues=parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
     try:
         logFilePaths = simRunner.runSweep()
     except:
@@ -293,7 +309,7 @@ def _runParameterSweepCase(caseDictReader, simDefinition, regressionTestsDefinit
             key = expectedResultsDict + ".expectedValues"
             resultData = [ str(x) for x in resultData ]
             value = ",".join(resultData)
-            regressionTestsDefinition.setValue(key, value)
+            batchDefinition.setValue(key, value)
             newExpectedValuesRecorded = True
         else:
             # Check that there's the same number of parameter values and expected results
@@ -373,12 +389,12 @@ def _parseParameterSweepValues(parameterValues):
 
     return parameterValues
 
-def _runFullFlightCase(caseDictReader, simDefinition, regressionTestsDefinition, recordAll=False, printStackTraces=False):
-    # Run regular full-flight simulation and check result
+def _runFullFlightCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
+    ''' Run a regular MAPLEAF simulation based on this case dictionary, checks+plots results '''
     print("  Full Flight Case")
     try:
-        simRunner = SingleSimRunner(simDefinition=simDefinition, silent=True)
-        _, logFilePaths = simRunner.runSingleSimulation()
+        simRunner = Simulation(simDefinition=simDefinition, silent=True)
+        _, logFilePaths = simRunner.run()
     except:
         # Simulation Failed
         Logging.removeLogger() # Make sure we can print to the console
@@ -397,17 +413,17 @@ def _runFullFlightCase(caseDictReader, simDefinition, regressionTestsDefinition,
 
     #### Compare and/or record numerical results, output pass/fail ####
     expectedResultsDictKey = ".".join([caseDictReader.simDefDictPathToReadFrom, "ExpectedResultsAtEndOfSim"])
-    expectedResultKeys = regressionTestsDefinition.getSubKeys(expectedResultsDictKey)
+    expectedResultKeys = batchDefinition.getSubKeys(expectedResultsDictKey)
 
     numTestsOk = 0
     newExpectedValuesRecorded = False
     if len(expectedResultKeys) == 0:
         # If no expected results are provided, record some
-        _recordDefaultSimResults(regressionTestsDefinition, logFilePaths, expectedResultsDictKey)
+        _recordDefaultSimResults(batchDefinition, logFilePaths, expectedResultsDictKey)
         newExpectedValuesRecorded = True
     else:
         # If values were provided, check them
-        numTestsOk, newValuesRecorded = _checkSimResults(regressionTestsDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=recordAll)
+        numTestsOk, newValuesRecorded = _checkSimResults(batchDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=recordAll)
         if newValuesRecorded:
             newExpectedValuesRecorded = True
 
@@ -415,7 +431,8 @@ def _runFullFlightCase(caseDictReader, simDefinition, regressionTestsDefinition,
     return logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded
 
 #### 2. Checking Expected Final Results ####
-def _recordDefaultSimResults(regressionTestsDefinition, logFilePaths, expectedResultsDictKey):
+def _recordDefaultSimResults(batchDefinition, logFilePaths, expectedResultsDictKey):
+    ''' If no expected results are provided, this function records some default position/velocity values for future runs '''
     ## No expected values present ##
     print("  WARNING: No expected parameter values provided. Recording Position & Velocity values.")
     _incrementWarningCount()
@@ -428,9 +445,11 @@ def _recordDefaultSimResults(regressionTestsDefinition, logFilePaths, expectedRe
 
         key = ".".join([expectedResultsDictKey, names[i]])
         observedValue = str(dataLists[i][-1])
-        regressionTestsDefinition.setValue(key, observedValue)
+        batchDefinition.setValue(key, observedValue)
 
-def _checkSimResults(regressionTestsDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=False):
+def _checkSimResults(batchDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=False):
+    ''' Checks every values in the expected results at end of sim dictionary '''
+
     numTestsOk = 0
     resultValuesRecorded = False
     for resultKey in expectedResultKeys:
@@ -462,7 +481,7 @@ def _checkSimResults(regressionTestsDefinition, caseDictReader, logFilePaths, ex
 
                 key = ".".join([expectedResultsDictKey, logColumnSpec])
                 value = str(observedValue)
-                regressionTestsDefinition.setValue(key, value)
+                batchDefinition.setValue(key, value)
 
                 numTestsOk += 1
 
@@ -476,6 +495,8 @@ def _checkSimResults(regressionTestsDefinition, caseDictReader, logFilePaths, ex
 
 def _checkResult(columnName, observedResult, expectedResult):
     '''
+        Checks whether the observed and expected results match to within the desired tolerance
+
         Inputs:
             logFilePaths:   (List (string)) List of paths to simulation log files
             logColumnSpec:  (string) Partial or Full log column name, or regex expression. Should match exactly 1 log column
@@ -483,7 +504,6 @@ def _checkResult(columnName, observedResult, expectedResult):
 
         Outputs:
             Returns: checkPassed(bool), columnName(string)
-
             Prints: 1 line, success or failure
 
     '''    
@@ -507,9 +527,7 @@ def _checkResult(columnName, observedResult, expectedResult):
         return False
 
 def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
-    '''
-        Will return the last value in the log column defined by logColumn Spec. Will search in each file in logFilePaths
-    '''
+    ''' Returns the last value in the log column defined by logColumn Spec. Searches in each file in logFilePaths '''
     for logPath in logFilePaths:
         dataLists, columnNames = Plotting.getLoggedColumns(logPath, [ logColumnSpec ])
 
@@ -531,12 +549,14 @@ def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
 #### 3. Plotting ####
 def _generatePlot(plotDictReader, logFilePaths):
     '''
+        Called once for every plot dictionary. Handles plotting MAPLEAF's results and any provided comparison data. Saves plot.
+
         Inputs:
             plotDictReader:     (SubDictReader) Initialized to read from the subdirectory of PlotsToGenerate that defines the desired plot
             logFilePaths:       (list (string)) 
 
         Outputs:
-            Saves png, pdf, and eps plots to the location specified by .saveLocation
+            Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
     '''
     # Create plot
     fig, ax = plt.subplots(figsize=(6,4))
@@ -596,8 +616,8 @@ def _generatePlot(plotDictReader, logFilePaths):
     # Set x and y labels
     xLabel = plotDictReader.tryGetString("xLabel", defaultValue=xColumnName)
     yLabel = plotDictReader.tryGetString("yLabel", defaultValue=columnSpecs[0])
-    ax.set_xlabel(latexLabelTranslation(xLabel))
-    ax.set_ylabel(latexLabelTranslation(yLabel))
+    ax.set_xlabel(_latexLabelTranslation(xLabel))
+    ax.set_ylabel(_latexLabelTranslation(yLabel))
 
     ax.legend()
     
@@ -622,6 +642,8 @@ def _generatePlot(plotDictReader, logFilePaths):
     plt.close(fig)
 
 def _plotComparisonData(ax, compDataDictReader):
+    ''' Plot a single line of comparison data from a specified .csv file '''
+    # Get line formatting info
     compDataPath = compDataDictReader.tryGetString("file", defaultValue=None)
     compColumnSpecs = compDataDictReader.tryGetString("columnsToPlot", defaultValue="").split()
     xColumnName = compDataDictReader.tryGetString("xColumnName", defaultValue="Time(s)")
@@ -650,6 +672,8 @@ def _plotComparisonData(ax, compDataDictReader):
 
 def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, xLim=["False"], yLim=["False"], adjustXaxisToFit=False):
     '''
+        Adds MAPLEAF's results to the plot currently being created
+
         ax:             (Matplotlib.Axes) to plot on
         dataLists:      (list (list (float))) each sub-list should a vector of x or y data
         columnNames:    (list (string)) list of column names, order matching that of dataLists
@@ -705,13 +729,17 @@ def _incrementWarningCount():
     global warningCount
     warningCount += 1
 
-def _writeModifiedTestDefinitionFile():
-    newTestDefinitionPath = "./test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf"
+def _writeModifiedTestDefinitionFile(batchDefinition):
+    ''' If new expected final values were recorded during the present batch run, this function will be called to write those values to a new file, [originalFileName]_newExpectedResultsRecorded.mapleaf '''
+    origFilePath = batchDefinition.fileName
+    newTestDefinitionPath = origFilePath.replace(".mapleaf", "_newExpectedResultsRecorded.mapleaf")
+
     print("Writing new testDefinition file to: {}".format(newTestDefinitionPath))
     print("  If desired, use this file (or values from this file) to replace/update testDefinitions.mapleaf\n")
-    regressionTestsDefinition.writeToFile(newTestDefinitionPath, writeHeader=False)
 
-def latexLabelTranslation(labelInput):
+    batchDefinition.writeToFile(newTestDefinitionPath, writeHeader=False)
+
+def _latexLabelTranslation(labelInput: str) -> str:
     labelDict = {
         '$\alpha$': r'$\alpha$',
         '$C_l$'   : r'$C_l$',
@@ -727,27 +755,33 @@ def latexLabelTranslation(labelInput):
     else:
         return labelInput
 
+def _buildParser() -> argparse.ArgumentParser:
+    ''' Builds the argparse parser for command-line arguments '''
+    parser = argparse.ArgumentParser(description="Batch-run MAPLEAF simulations")
+    parser.add_argument(
+        "--recordAll", 
+        action='store_true', 
+        help="If present, re-records all expected results for cases that are run. Recorded data outputted to ./test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf"
+    )
+    parser.add_argument(
+        "--printStackTraces", 
+        action='store_true', 
+        help="If present, stack traces are printed for crashed simulations"
+    )
+    parser.add_argument(
+        "--filter", 
+        nargs=1, 
+        default=[], 
+        help="Provide a string.  Only cases whose name includes this string will be run."
+    )
+    parser.add_argument(
+        "batchDefinitionFile", 
+        nargs='?', 
+        default="MAPLEAF/Examples/Simulations/regressionTests.mapleaf", 
+        help="Path to a batch definition (.mapleaf) file. Default is MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
+    )
+
+    return parser
+
 if __name__ == "__main__":
-    # Load the test definition database
-    if os.path.basename(os.getcwd()) == "regressionTesting":
-        os.chdir("../..")
-    elif os.path.basename(os.getcwd()) == "test":
-        os.chdir("..")
-    
-    regressionTestsDefinition = SimDefinition("test/regressionTesting/testDefinitions.mapleaf", defaultDict={}, silent=True)
-
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Run Regression/Validation Test Cases defined in ./test/regressionTesting/testDefinitions.mapleaf")
-    parser.add_argument("--recordAll", action='store_true', help="If present, re-records all expected results for cases that are run. Recorded data outputted to ./test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf")
-    parser.add_argument("--printStackTraces", action='store_true', help="If present, stack traces are printed for crashed simulations")
-    parser.add_argument("--filterCases", nargs=1, default=[], help="Provide a string.  Only cases whose name includes this string will be run.")
-    args = parser.parse_args()
-
-    # Filter cases by name if required
-    if len(args.filterCases) > 0:
-        caseNameSpec=args.filterCases[0] # Run specific case(s)
-    else:
-        caseNameSpec = None # Run all cases
-
-    # Run Cases
-    runRegressionTestCases(regressionTestsDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
+    main()

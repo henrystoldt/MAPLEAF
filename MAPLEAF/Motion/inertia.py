@@ -9,19 +9,15 @@ class Inertia():
 
     ___slots__ = [ "MOI", "MOICentroidLocation", "mass", "CG" ]
 
-    def __init__(self, MOI, MOICentroidLocation, mass, CG=None, componentLocation=Vector(0,0,0)):
+    def __init__(self, MOI, CG, mass, MOICentroidLocation=None):
         """ 
             * MOIVector: Ixx, Iyy, Izz  
             * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
         """
         self.MOI = MOI
-        self.MOICentroidLocation = MOICentroidLocation + componentLocation
+        self.CG = CG
         self.mass = mass
-        
-        if CG == None:
-            self.CG = MOICentroidLocation + componentLocation
-        else:
-            self.CG = CG + componentLocation
+        self.MOICentroidLocation = CG if (MOICentroidLocation == None) else MOICentroidLocation
 
     def checkDefinedAboutCG(self, inertiasList):
         '''
@@ -77,7 +73,7 @@ class Inertia():
         # Compute actual CG by dividing out the mass
         totalCG = totalCG / totalMass
 
-        return Inertia(totalMOI, Point, totalMass, totalCG)
+        return Inertia(totalMOI, totalCG, totalMass, MOICentroidLocation=Point)
 
     def combineInertias(self, inertiasList):
         """
@@ -124,9 +120,9 @@ class Inertia():
     def __str__(self):
         ''' Get string representation, used by str() and print() '''
         if self.MOICentroidLocation == self.CG:
-            return 'MOI=({}) calculated about CG=({}) Mass=({}) '
+            return 'MOI=({}) calculated about CG=({}); Mass={} '.format(self.MOI, self.CG, self.mass)
         else:
-            return 'MOI=({}) calculated about non-CG Point=({}) CG=({}) Mass=({})'
+            return 'MOI=({}) calculated about non-CG Point=({}); CG=({}); Mass={}'.format(self.MOI, self.MOICentroidLocation, self.CG, self.mass)
 
     def __eq__(self, inertia2):
         try:

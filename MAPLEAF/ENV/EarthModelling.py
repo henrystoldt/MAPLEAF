@@ -364,7 +364,7 @@ class WGS84(SphericalEarth):
         multiplier = -mu*inertia.mass / r**3
 
         xForce = x * multiplier * (1 - frac*(5*z*z - r*r))
-        yForce = xForce * y/x
+        yForce = y * multiplier * (1 - frac*(5*z*z - r*r))
         zForce = z * multiplier * (1 - frac*(5*z*z - 3*r*r))
 
         return Vector(xForce, yForce, zForce)

@@ -3,7 +3,7 @@
 
 import unittest
 
-from MAPLEAF.Main import SingleSimRunner
+from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import EventTypes, SimEventDetector
 
@@ -11,8 +11,8 @@ from MAPLEAF.Rocket import EventTypes, SimEventDetector
 class TestSimEventDetector(unittest.TestCase):
 
     def setUp(self):
-        simRunner = SingleSimRunner("MAPLEAF/Examples/Simulations/EventDetector.mapleaf", silent=True)
-        self.rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation("MAPLEAF/Examples/Simulations/EventDetector.mapleaf", silent=True)
+        self.rocket = simRunner.createRocket()
         self.rocket.rigidBody.time = 30 # Set to arbitrary time > 1 sec
 
         self.calledCount = 0

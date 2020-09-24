@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       OptimizingSimRunner, SingleSimRunner,
+                                       OptimizingSimRunner, Simulation,
                                        runMonteCarloSimulation)
 from MAPLEAF.Utilities import evalExpression
 
@@ -23,20 +23,20 @@ from MAPLEAF.Utilities import evalExpression
 class TestSimRunners(unittest.TestCase):
     def test_Init(self):
         with self.assertRaises(ValueError):
-            shouldCrash = SingleSimRunner() # Needs a sim definition file
+            shouldCrash = Simulation() # Needs a sim definition file
 
-        shouldntCrash = SingleSimRunner("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
+        shouldntCrash = Simulation("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
         
         simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
-        shouldntCrash2 = SingleSimRunner(simDefinitionFilePath="MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", simDefinition=simDefinition, silent=True)
+        shouldntCrash2 = Simulation(simDefinitionFilePath="MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", simDefinition=simDefinition, silent=True)
 
         #### Set up sim definition ####
         simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
 
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDefinition)
 
-        shouldntCrash2 = SingleSimRunner(simDefinition=simDefinition, silent=True)
-        shouldntCrash2.runSingleSimulation()
+        shouldntCrash2 = Simulation(simDefinition=simDefinition, silent=True)
+        shouldntCrash2.run()
 
     def test_simLoggingColumnsMatchHeaders(self):
         # Load sim definition file
@@ -47,8 +47,8 @@ class TestSimRunners(unittest.TestCase):
         # Generate log file from a simulation
         simDefinition.setValue("SimControl.loggingLevel", "2")
         simDefinition.fileName = "test/tempTestFileasdf.mapleaf"
-        simRunner = SingleSimRunner(simDefinition=simDefinition, silent=True) # Not silent so we can capture main sim log
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDefinition, silent=True) # Not silent so we can capture main sim log
+        rocket = simRunner.createRocket()
 
         forcesLogHeaderItemCount = len(simRunner.forceEvaluationLog[0].split())
         mainLogHeaderItemCount = len(simRunner.mainSimulationLog[-1].split())
@@ -135,8 +135,8 @@ class TestSimRunners(unittest.TestCase):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
         simDef.setValue("SimControl.timeDiscretization", "RK45Adaptive")
         simDef.setValue("SimControl.TimeStepAdaptation.controller", "PID")
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        rocket = simRunner.createRocket()
 
         # 6-DoF time step
         rocket.timeStep(0.05)
@@ -149,8 +149,8 @@ class TestSimRunners(unittest.TestCase):
     def test_RK4Sim(self):
         # Smoke test
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf", silent=True)
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        rocket = simRunner.createRocket()
 
         # 6-DoF time step
         rocket.timeStep(0.05)

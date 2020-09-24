@@ -82,7 +82,12 @@ class TestSimDefinition(unittest.TestCase):
         self.assertEqual(self.simDef.getValue("Dictionary1.key3"), "newValue")
 
     def test_findKeysContaining(self):
+        # List of keys
         res = self.simDef.findKeysContaining(["SubDictionary1"])
+        self.assertEqual(res, ["Dictionary1.SubDictionary1.key3", "Dictionary1.SubDictionary1.key4", "Dictionary1.SubDictionary1.key5"])
+
+        # Single string key
+        res = self.simDef.findKeysContaining("SubDictionary1")
         self.assertEqual(res, ["Dictionary1.SubDictionary1.key3", "Dictionary1.SubDictionary1.key4", "Dictionary1.SubDictionary1.key5"])
 
     def test_removeKey(self):
@@ -139,7 +144,7 @@ class TestSimDefinition(unittest.TestCase):
 
     def test_getImmediateSubkeys(self):
         result = self.simDef.getImmediateSubKeys("Dictionary1")
-        expectedResult = [ "Dictionary1.SubDictionary1", "Dictionary1.key2", "Dictionary1.key1"  ]
+        expectedResult = [ "Dictionary1.key2", "Dictionary1.key1"  ]
         self.assertEqual(len(result), len(expectedResult))
         for i in range(len(result)):
             self.assertTrue(result[i] in expectedResult)
@@ -170,6 +175,13 @@ class TestSimDefinition(unittest.TestCase):
         simDef = SimDefinition("test/test_IO/testDerivedDicts.mapleaf")
         simDef2 = SimDefinition("test/test_IO/testDerivedDictsFinal.mapleaf")
         self.assertEqual(simDef, simDef2)
+
+    def test_contains(self):
+        self.assertTrue("Dictionary1.key1" in self.simDef)
+        self.assertTrue("Dictionary1.key2" in self.simDef)
+        self.assertTrue("Dictionary1.key3" not in self.simDef)
+        self.assertTrue("Dictionary1.SubDictionary1.key3" in self.simDef)
+        self.assertTrue("Dictionary1.SubDictionary1.key6" not in self.simDef)
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':

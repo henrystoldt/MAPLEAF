@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Main import SingleSimRunner
+from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
 
@@ -20,8 +20,8 @@ class TestRocketControlSystem(unittest.TestCase):
         
         simDef.removeKey("Rocket.ControlSystem.FlightPlan.filePath")
         
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=True)
-        self.rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        self.rocket = simRunner.createRocket()
         
     def test_runControlLoop(self):
         # Basic spin case
@@ -85,8 +85,8 @@ class TestRocketControlSystem(unittest.TestCase):
         # Set a fixed control system update rate
         simDefinition.setValue("Rocket.ControlSystem.updateRate", "100")
 
-        simRunner = SingleSimRunner(simDefinition=simDefinition)
-        rocket = simRunner.prepRocketForSingleSimulation()
+        simRunner = Simulation(simDefinition=simDefinition)
+        rocket = simRunner.createRocket()
 
         # Check that the time step has been changed to be fixed, and is 0.01 seconds
         self.assertTrue(isinstance(rocket.rigidBody.integrate, Integrator)) # As oppopsed to AdaptiveIntegrator

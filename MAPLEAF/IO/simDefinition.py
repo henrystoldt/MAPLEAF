@@ -584,6 +584,9 @@ class SimDefinition():
                 findKeysContaining(["class"]) ->  
                 [ "Rocket.class", "Rocket.Sustainer.class", "Rocket.Sustainer.Nosecone.class", etc... ]
         '''
+        if not isinstance(keyContains, list):
+            keyContains = [ keyContains ]
+        
         matchingKeys = []
         for key in self.dict.keys():
             match = True
@@ -632,8 +635,9 @@ class SimDefinition():
                 # If so, get the part of the key that is the immediate child of currentPath
                 immediateSubkey = getImmediateSubKey(key, potentialChildKey)
                 
-                # If we haven't got it already, save it
-                results.add(immediateSubkey)
+                if immediateSubkey in self.dict:
+                    # If we haven't got it already, save it
+                    results.add(immediateSubkey)
 
         return list(results)
 
@@ -753,6 +757,10 @@ class SimDefinition():
                 return False
         except AttributeError:
             return False
+
+    def __contains__(self, key):
+        ''' Only checks whether 'key' was parsed from the file. Ignores default values '''
+        return key in self.dict
 
 ################### Functions for dealing with string keys ########################
 def isSubKey(potentialParent:str, potentialChild:str) -> bool:

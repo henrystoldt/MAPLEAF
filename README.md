@@ -46,7 +46,7 @@ SimControl{
 }
 ```
 
-[Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) is very helpful in maintaining a file overview:
+[Code folding](https://code.visualstudio.com/docs/editor/codebasics#_folding) and [syntax highlighting](https://marketplace.visualstudio.com/items?itemName=MAPLEAF.MAPLEAF) are helpful in maintaining a file overview:
 
 ![Folded Sim Definition](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinitionFile_Folded.PNG?raw=true)
 
@@ -82,11 +82,47 @@ Any scalar or vector parameter in simulation definition files can be made probab
 
 ![Monte Carlo Parameter](https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinition_MonteCarlo.png?raw=true)
 
-To execute a batch run of this now-probabilistic simulation, create the top-level 'Monte Carlo' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/))
+To execute a batch run of this now-probabilistic simulation, create the top-level 'Monte Carlo' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf))
 
 Then, MAPLEAF can produce distributions of outputs like landing locations:  
 <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/LandingLocationPlot.png?raw=true" alt="Landing Location Plot"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+## Optimization
+MAPLEAF uses [pyswarms](https://github.com/ljvmiranda921/pyswarms) to optimize arbitrary scalar parameters according to arbitrary cost functions using Particle Swarm Optimization.
+To define an optimization problem, include the top-level 'Optimization' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)):
+
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinition_Optimization.png?raw=true" alt="Optimization Dict"
+  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+Pyswarms will produce a plot of the optimization results after completion:
+
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/OptimizationResult.png?raw=true" alt="Optimization Result"
+  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+## Batch Simulations
+Useful for organizing a batch of test cases to run in automated fashion. 
+
+![Batch Definition](Resources/BatchDefinition.png)
+
+Provides ability to check the final state of a rocket in each case, to produce detailed plots of MAPLEAF's results compared to verification/validation data, and to run Wind-Tunnel style aero-sweep simulations:
+
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/CantedFinRocketPlot.png?raw=true" alt="Canted Fin Roll Rate"
+  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/ParametricFin5CAvsMach.png?raw=true" alt="Wind Tunnel Comparison"
+  title="MAPLEAF" height=300 style="padding-right: 10px;"/>
+
+Used for regression and verification/validation testing in MAPLEAF.  
+See [batchRunTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/batchRunTemplate.mapleaf) and [regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/Examples/Simulations/regressionTests.mapleaf).
+
+To run the regression/verification/validation test suite, check out [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md)
+
+## Parallelization
+To run **Monte Carlo** or **Optimization** simulations in parallel:
+`mapleaf --nCores 8 MonteCarlo.mapleaf`
+
+MAPLEAF's parallelization is implemented using [ray](https://github.com/ray-project/ray).
 
 ## Developers
 Contributions are welcome.
