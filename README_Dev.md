@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="Resources/DraftLogo.png?raw=true" alt="Logo"
-    title="MAPLEAF" height=125 style="padding-right: 10px;"/>
+  <img src="Resources/Draft2Logo.png?raw=true" alt="Logo"
+    title="MAPLEAF" height=150 style="padding-right: 10px;"/>
   <h1 align="center">MAPLEAF: Modular Aerospace Prediction Lab for Engines and Aero Forces</h1>
 </p>
 
@@ -72,6 +72,13 @@ Cython is a superset of Python, meaning all Python code is valid Cython.
 
 **Note:** Changes to the Cython code will not take effect without [re-compiling the Cython code](https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html). 
 To re-compile: `$ python3 setup.py build_ext --inplace`
+
+## Uploading to PyPI
+(Must be done on Linux/Mac to preserve file cases)
+Requires [twine](https://pypi.org/project/twine/)
+1. Update the MAPLEAF version number in setup.py
+2. `python setup.py sdist`
+3. `twine upload dist/MAPLEAF-X.X.X.tar.gz`
 
 ## Linting (static error checking)
 **Note:** The Linting Github action runs these checks after every commit to master

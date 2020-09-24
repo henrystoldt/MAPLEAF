@@ -370,7 +370,7 @@ class SimDefinition():
 
     def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self):
         ''' 
-            Right after parsing a sim definition file, replaces paths relative to the MAPLEAF installation directory with absolute paths.
+            Tries to detect paths relative to the MAPLEAF installation directory and replaces them with absolute paths.
             This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
         '''
         for key in self.dict:

@@ -1,7 +1,7 @@
 '''
 <p align="center">
-  <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/DraftLogo.png" alt="Logo"
-    title="MAPLEAF" height=125 style="padding-right: 10px;"/>
+  <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png" alt="Logo"
+    title="MAPLEAF" height=150 style="padding-right: 10px;"/>
 </p>
 
 <p align="center">
