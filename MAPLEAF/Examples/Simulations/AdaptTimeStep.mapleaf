@@ -1,12 +1,12 @@
 # MAPLEAF
-# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+     # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
-SimControl{
+  SimControl{ 
     EndCondition Altitude
     EndConditionValue 0
     plot FlightAnimation VelocityZ&NoseconeFZ
     
-    # None, 1, 2
+        # None, 1, 2
     loggingLevel 2
 
     # Euler, RK2Midpoint, RK2Heun, RK4, RK12Adaptive, RK23Adaptive, RK45Adaptive - Implemented in Integrator class in rigidBody.py
