@@ -32,7 +32,7 @@ Rocket{
     position            (0 0 0) # m
 
     Sustainer{
-        class           Stage
+        class               Stage
 
         Nosecone{            
             class           Nosecone
