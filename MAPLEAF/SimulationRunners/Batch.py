@@ -227,7 +227,7 @@ def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recor
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelSimulation(parameterToSweepKey=sweptParameters, parameterValueList=parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
+    simRunner = WindTunnelSimulation(parametersToSweep=sweptParameters, parameterValues=parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
     try:
         logFilePaths = simRunner.runSweep()
     except:

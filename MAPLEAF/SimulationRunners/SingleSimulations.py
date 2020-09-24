@@ -470,120 +470,48 @@ class WindTunnelSimulation(Simulation):
         self.simDefinition.setValue("SimControl.RocketPlot", "Off")
 
         # Run a single force evaluation for each parameter value
-        # Regenerate simulation environment each time to allow user to change anything about the sim definition
+        # Regenerate environment each time to allow user to change anything about the sim definition
 
         if self.smoothLine == 'True': # interpolate between user set parameter values
-            for i in range(len(self.parameterValues[0])-1): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
-                # this loop will run for as many values are given PER parameter. i'th value for each parameter
-                # Set sim def value
-                if not self.silent:
-                    pass
-                    # print("Setting value: {} to {}".format(self.parameterToSweepKey, self.paramValueList[j][i]))
-                
-                k = 0
-                while k < 10:
-                    for j in range(len(self.parameterValues)): # j'th parameter (velocity, temperature)
-                        # this loop will set a value for each given parameter type that is specified
-                        try:
-                            first = Vector(self.parameterValues[j][i])
-                            second = Vector(self.parameterValues[j][i+1])
-                            bucket = second - first
-                            incrementalValue = str(k/10 * bucket + Vector(self.parameterValues[j][i]))
-                        except ValueError:
-                            first = float(self.parameterValues[j][i])
-                            second = float(self.parameterValues[j][i+1])
-                            bucket = second - first
-                            incrementalValue = str(k/10 * bucket + float(self.parameterValues[j][i]))
-                        self.simDefinition.setValue(self.parametersToSweep[j], incrementalValue)
-                    
-                    if not self.silent:
-                        print("Running Single Force Evaluation")
-                    rocket = self.createRocket()
-                    self.rocketStages = [rocket]
-                    rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+            self._addPoints() 
 
-                    if i == len(self.parameterValues[0])-2 and k == 9:
-                        for j in range(len(self.parameterValues)):
-                            incrementalValue = self.parameterValues[j][i+1]
-                            self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i+1])
-                        if not self.silent:
-                            print("Running Single Force Evaluation")
-                        rocket = self.createRocket()
-                        self.rocketStages = [rocket]
-                        rocket._getAppliedForce(0.0, rocket.rigidBody.state)
-
-                    k +=1   
-
-        else:
-            for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
-                # this loop will run for as many values are given PER parameter
-                # Set sim def value
-                if not self.silent:
-                    pass
-                    # print("Setting value: {} to {}".format(self.parameterToSweepKey, self.paramValueList[j][i]))
-                
-                for j in range(len(self.parameterValues)): # j'th parameter (velocity, temperature)
-                    # this loop will set a value for each given parameter type that is specified
-                    self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
+        for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+            # this loop will run for as many values are given PER parameter
             
-                # Run + log the force evaluation
-                if not self.silent:
-                    print("Running Single Force Evaluation")
-                rocket = self.createRocket()
-                self.rocketStages = [rocket]
-                rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+            for j in range(len(self.parameterValues)): # j'th parameter (velocity, temperature)
+                # this loop will set a value for each given parameter type that is specified
+                self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
 
-        # Write Logs to file
-        logFilePaths = self._postProcess(self.simDefinition)
+            rocket = self.createRocket()
+            self.rocketStages = [ rocket ]
+            rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
-        # Because no time steps were taken, the main simulation log will not contain any tabular data.
-            # Remove it from logFilePaths (but file is still generated)
-        for logPath in logFilePaths:
-            if "simulationLog" in logPath:
-                logFilePaths.remove(logPath)
-                break
+        # Write Logs to file, return path
+        return self._postProcess(self.simDefinition)
 
-        return logFilePaths
+    def _addPoints(self, pointMultiple=10):
+        ''' Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values '''
+        for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
+            for k in range(1, pointMultiple): # Loops over each new point
+                
+                # Index at which to add new point
+                newPointIndex = pointMultiple*i + k
 
-    def smoothInterpolation(self):
-        ''' Edits the parameter sweeps to include 10x as many points, linearly interpolated between the given values '''
-
-        for i in range(len(self.parameterValues[0])-1): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
-            # this loop will run for as many values are given PER parameter. i'th value for each parameter
-            
-            k = 0
-            while k < 10:
-                for j in range(len(self.parameterValues)): # j'th parameter (velocity, temperature)
-                    # this loop will set a value for each given parameter type that is specified
+                for j in range(len(self.parametersToSweep)): # j'th corresponds to parameters to sweep over (velocity, temperature)
                     try:
+                        # Vector sweep
                         first = Vector(self.parameterValues[j][i])
                         second = Vector(self.parameterValues[j][i+1])
-                        bucket = second - first
-                        incrementalValue = str(k/10 * bucket + Vector(self.parameterValues[j][i]))
+                        change = second - first
+                        incrementalValue = str(k/10*change + first)
                     except ValueError:
+                        # Scalar sweep
                         first = float(self.parameterValues[j][i])
                         second = float(self.parameterValues[j][i+1])
-                        bucket = second - first
-                        incrementalValue = str(k/10 * bucket + float(self.parameterValues[j][i]))
-                    self.simDefinition.setValue(self.parametersToSweep[j], incrementalValue)
-                
-                if not self.silent:
-                    print("Running Single Force Evaluation")
-                rocket = self.createRocket()
-                self.rocketStages = [rocket]
-                rocket._getAppliedForce(0.0, rocket.rigidBody.state)
-
-                if i == len(self.parameterValues[0])-2 and k == 9:
-                    for j in range(len(self.parameterValues)):
-                        incrementalValue = self.parameterValues[j][i+1]
-                        self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i+1])
-                    if not self.silent:
-                        print("Running Single Force Evaluation")
-                    rocket = self.createRocket()
-                    self.rocketStages = [rocket]
-                    rocket._getAppliedForce(0.0, rocket.rigidBody.state)
-
-                k +=1   
+                        change = second - first
+                        incrementalValue = str(k/10*change + first)
+                    
+                    self.parameterValues[j].insert(newPointIndex, incrementalValue)
 
     def createRocket(self):
         ''' 
@@ -606,7 +534,19 @@ class WindTunnelSimulation(Simulation):
             return super()._createLogDataTableHeaders(rocket)
 
     def _postProcess(self, simDefinition):
-        ''' Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files '''
+        ''' Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files.
+            Removes mainSimLog from (returned) log file paths since no time steps we taken by this sim '''
         # Create an empty flight path to prevent errors in the parent function)
         self.stageFlightPaths = [ RocketFlight() ]
-        return super()._postProcess(simDefinition)
+        logFilePaths = super()._postProcess(simDefinition)
+
+        # Because no time steps were taken, the main simulation log will not contain any tabular data.
+            # Remove it from logFilePaths (but file is still generated)
+        for logPath in logFilePaths:
+            if "simulationLog" in logPath:
+                logFilePaths.remove(logPath)
+                break
+
+        return logFilePaths
+
+
