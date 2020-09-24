@@ -4,11 +4,11 @@
 #TODO: Complete this case
 
 SimControl{
-    timeDiscretization RK4
-    timeStep 0.01 #sec
+    timeDiscretization  RK4
+    timeStep            0.01 #sec
 
-    EndCondition Apogee
-    EndConditionValue 6
+    EndCondition        Apogee
+    EndConditionValue   6
 
     loggingLevel    2
     RocketPlot      On
@@ -25,17 +25,17 @@ Environment{
 }
 
 Rocket{
-    position            (0 0 0) # m
+    position                (0 0 0) # m
 
     Sustainer{
-        class           Stage
+        class               Stage
 
         Nosecone{
             class           Nosecone
             mass            0.007506
             position        (0 0 0)
             cg              (0 0 -0.063527)
-            MOI     (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
             baseDiameter    0.1968
             aspectRatio     4.53506098  #length over diameter
             shape           tangentOgive
