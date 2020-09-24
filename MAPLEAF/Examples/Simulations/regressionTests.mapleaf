@@ -124,7 +124,7 @@ ExampleCase1{
 		SamplePlot{
 			columnsToPlot	PositionZ ^VelocityZ
 			lineFormat			:b :k
-			xLabel					time (s)
+			xLabel					Time (s)
 			yLabel					Altitude (m)
 			xLimits					0 1
 			yLimits					0 100	
@@ -168,8 +168,8 @@ B4-4SimpleRocketCase{
 			columnsToPlot	PositionZ
 			saveLocation	./test/regressionTesting/B4-4SimpleRocket/B4-4SimpleRocketPlot.pdf
 			lineFormat			--r
-			xLabel					time(s)
-			yLabel					Altitude(m)
+			xLabel					Time (s)
+			yLabel					Altitude (m)
 			# xLimits					0 4.5
 			# yLimits					0 80
 			legendLabel			MAPLEAF
@@ -235,7 +235,7 @@ C6-3SimpleRocketCase{
 		Altitude{
 			columnsToPlot	PositionZ
 			lineFormat			--r
-			xLabel					time (s)
+			xLabel					Time (s)
 			yLabel					Altitude (m)
 			xLimits					0 7
 			yLimits					0 200
@@ -294,7 +294,7 @@ HaisunaataCase{
 		SamplePlot{
 			columnsToPlot	PositionZ
 			lineFormat			--r
-			xLabel					time (s)
+			xLabel					Time (s)
 			yLabel					Altitude (m)
 			xLimits					0 15
 			yLimits					0 1000
@@ -366,7 +366,7 @@ RollingRocketCase{
 		SamplePlot{
 			columnsToPlot			AngularVelocityZ(rad/s)
 			lineFormat				--r
-			xLabel					time (s)
+			xLabel					Time (s)
 			yLabel					Angular Velocity (rad/s)
 			xLimits					0 6
 			yLimits					-200 0
@@ -1368,7 +1368,7 @@ ParametricFinCase12{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
 		Rocket.Sustainer.TailFins.rootChord			0.1524
 		Rocket.Sustainer.TailFins.tipChord			0.0762
-		Rocket.Sustainer.TailFins.span					0.11
+		Rocket.Sustainer.TailFins.span				0.11
 		Rocket.Sustainer.TailFins.sweepAngle		33.69
 		Rocket.Sustainer.TailFins.thickness			0.0027432
 	}
@@ -1398,12 +1398,12 @@ ParametricFinCase12{
 		}
 
 		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
+			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
+			column				Mach
 		}
 		AOAResults{
-			expectedValues			2.66,2.71,2.95,2.95,2.83,3.0,3.0,3.05
-			column							AOA(deg)
+			expectedValues		2.66,2.71,2.95,2.95,2.83,3.0,3.0,3.05
+			column				AOA(deg)
 		}
 	}
 
@@ -1981,12 +1981,12 @@ NASACdSphere_WGS84Wind{
 
 	# Expected values from NASA Sim 4
 	ExpectedResultsAtEndOfSim{
-		PositionX				6383085.4118580
+		PositionX			6383085.4118580
 		PositionY   		13978.2005101
-		PositionZ				0.0
-		VelocityX(m/s)	-264.3589523
-		VelocityY(m/s)	466.3203626
-		VelocityZ(m/s)	0.0
+		PositionZ			0.0
+		VelocityX(m/s)		-264.3589523
+		VelocityY(m/s)		466.3203626
+		VelocityZ(m/s)		0.0
 	}
 
 	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
