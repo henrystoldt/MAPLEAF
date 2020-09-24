@@ -49,17 +49,17 @@ Environment{
         locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
         randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
     }
-    TurbulenceModel PinkNoise2D
+    TurbulenceModel                     PinkNoise2D
     PinkNoiseModel{
         # To set the strength of pink noise fluctuations, provide the turbulenceIntensity OR the velocityStdDeviation
             # If both are provided, the turbulenceIntensity is used
-        turbulenceIntensity     5 #% velocity standard deviation / mean wind velocity - specify this or velocityStdDeviation
-        velocityStdDeviation    1 #m/s standard deviation of pink noise model - specify this or turbulenceIntensity
+        turbulenceIntensity             5 #% velocity standard deviation / mean wind velocity - specify this or velocityStdDeviation
+        velocityStdDeviation            1 #m/s standard deviation of pink noise model - specify this or turbulenceIntensity
 
         # Set the random seeds for each pink noise generator for repeatable simulations
             # PinkNoise1D only uses 1, 2D uses 2, 3D uses 3
-        randomSeed1             63583 # Integer
-        randomSeed2             63583 # Integer
+        randomSeed1                     63583 # Integer
+        randomSeed2                     63583 # Integer
     }
 }
 
@@ -70,7 +70,7 @@ Rocket{
 
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
+        stageNumber         0 #First and only stage
 
         # Constant mass properties - remove to use component-buildup mass/cg/MOI
         constCG             (0 0 -2.8) #m
