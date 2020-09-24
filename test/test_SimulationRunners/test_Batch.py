@@ -8,8 +8,10 @@
 
 import unittest
 
-from MAPLEAF.Main import isBatchSim
+import matplotlib.pyplot as plt
+
 from MAPLEAF.IO import SimDefinition
+from MAPLEAF.Main import isBatchSim
 
 
 class TestBatchSim(unittest.TestCase):

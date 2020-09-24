@@ -4,7 +4,6 @@ import abc
 import random
 from math import cos, pi
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import Vector
 
 __all__ = [ "turbulenceModelFactory", "PinkNoiseGenerator" ]

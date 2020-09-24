@@ -1,7 +1,9 @@
-''' Script to run a batch of simulations, defined in a batch definition file '''
+''' 
+    Script to run a batch of simulations, defined in a batch definition file. Can be run directly from the command line. 
+    Accessible as `mapleaf-batch` if MAPLEAF is installed through pip.
+'''
 import argparse
 import os
-import sys
 import time
 from math import isnan
 
@@ -17,27 +19,21 @@ from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 __all__ = [ "main", "batchRun" ]
 
 
-warningCount = 0 # Global variable tracking # warnings
+warningCount = 0 # Global variable tracking number of warnings in a batch run
 
 #### OPTIONS ####
 percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obtained results
 #### END OPTIONS ####
 
 #### Command Line Parsing ####
-def main(argv=None):
-    # Load the test definition database
-    if os.path.basename(os.getcwd()) == "regressionTesting":
-        os.chdir("../..")
-    elif os.path.basename(os.getcwd()) == "test":
-        os.chdir("..")
-    
+def main(argv=None):    
     # Parse command line arguments
     parser = _buildParser()
     args = parser.parse_args()
 
     # Load definition file
-    from MAPLEAF.Main import findSimDefinitionFile
-    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile[0])
+    from MAPLEAF.Main import findSimDefinitionFile # Delayed import here to avoid circular imports
+    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
     batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
 
     # Filter cases by name if required
@@ -52,7 +48,7 @@ def main(argv=None):
 #### Main ####
 def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTraces=False):
     '''
-        Given a batchDefinition object (of type SimDefinition), will run all of the test cases defined in it, and print a summary of the results
+        Given a batchDefinition object (of type `MAPLEAF.IO.SimDefinition`), will run all of the test cases defined in it, and print a summary of the results
     '''
     # Track how long running cases takes
     startTime = time.time()
@@ -102,7 +98,7 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
 
     if len(casesWhoseExpectedResultsWereUpdated) > 0:
         print("New expected results were recorded for the following cases: {}".format(", ".join(casesWhoseExpectedResultsWereUpdated)))
-        _writeModifiedTestDefinitionFile()        
+        _writeModifiedTestDefinitionFile(batchDefinition)        
 
     if nCasesOk == nCases:
         print("{} Case(s) ok".format(nCases))
@@ -160,7 +156,7 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
     if len(logFilePaths) > 0: # Don't generate plots of simulation crashed (didn't produce any log files)
         # Get all plot subdictionaries
         plotsToGeneratePath = ".".join([caseName, "PlotsToGenerate"])
-        plotDicts = batchDefinition.getImmediateSubKeys(plotsToGeneratePath)
+        plotDicts = batchDefinition.getImmediateSubDicts(plotsToGeneratePath)
         for plotDict in plotDicts:
             plotDictReader = SubDictReader(plotDict, simDefinition=batchDefinition)
             _generatePlot(plotDictReader, logFilePaths)
@@ -172,6 +168,8 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
 
 def _implementParameterOverrides(testCase, batchDefinition, simDefinition):
     '''
+        Runs on each case before running any sims to implement desired modifications to simulation definition files
+
         Inputs:
             testCase:   (string) name of the current test case / top level dictionary
             batchDefinition:      (SimDefinition) The sim definition object that's loaded/parsed the testDefinitions.mapleaf file
@@ -197,7 +195,7 @@ def _implementParameterOverrides(testCase, batchDefinition, simDefinition):
         simDefinition.setValue(overridenKey, overrideValue)
 
 def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
-    # Run parameter sweep simulation and check result
+    ''' Runs a parameter sweep / wind tunnel simulation, checks+plots results '''
     print("  Parameter Sweep Case")
 
     # Get input data from text file
@@ -229,7 +227,7 @@ def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recor
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelSimulation(parameterToSweepKey=sweptParameters, parameterValueList=parameterValues, fW=simDefinition, silent=True, smoothLine=smoothLine)
+    simRunner = WindTunnelSimulation(parametersToSweep=sweptParameters, parameterValues=parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
     try:
         logFilePaths = simRunner.runSweep()
     except:
@@ -392,7 +390,7 @@ def _parseParameterSweepValues(parameterValues):
     return parameterValues
 
 def _runFullFlightCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
-    # Run regular full-flight simulation and check result
+    ''' Run a regular MAPLEAF simulation based on this case dictionary, checks+plots results '''
     print("  Full Flight Case")
     try:
         simRunner = Simulation(simDefinition=simDefinition, silent=True)
@@ -434,6 +432,7 @@ def _runFullFlightCase(caseDictReader, simDefinition, batchDefinition, recordAll
 
 #### 2. Checking Expected Final Results ####
 def _recordDefaultSimResults(batchDefinition, logFilePaths, expectedResultsDictKey):
+    ''' If no expected results are provided, this function records some default position/velocity values for future runs '''
     ## No expected values present ##
     print("  WARNING: No expected parameter values provided. Recording Position & Velocity values.")
     _incrementWarningCount()
@@ -449,6 +448,8 @@ def _recordDefaultSimResults(batchDefinition, logFilePaths, expectedResultsDictK
         batchDefinition.setValue(key, observedValue)
 
 def _checkSimResults(batchDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=False):
+    ''' Checks every values in the expected results at end of sim dictionary '''
+
     numTestsOk = 0
     resultValuesRecorded = False
     for resultKey in expectedResultKeys:
@@ -494,6 +495,8 @@ def _checkSimResults(batchDefinition, caseDictReader, logFilePaths, expectedResu
 
 def _checkResult(columnName, observedResult, expectedResult):
     '''
+        Checks whether the observed and expected results match to within the desired tolerance
+
         Inputs:
             logFilePaths:   (List (string)) List of paths to simulation log files
             logColumnSpec:  (string) Partial or Full log column name, or regex expression. Should match exactly 1 log column
@@ -501,7 +504,6 @@ def _checkResult(columnName, observedResult, expectedResult):
 
         Outputs:
             Returns: checkPassed(bool), columnName(string)
-
             Prints: 1 line, success or failure
 
     '''    
@@ -525,9 +527,7 @@ def _checkResult(columnName, observedResult, expectedResult):
         return False
 
 def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
-    '''
-        Will return the last value in the log column defined by logColumn Spec. Will search in each file in logFilePaths
-    '''
+    ''' Returns the last value in the log column defined by logColumn Spec. Searches in each file in logFilePaths '''
     for logPath in logFilePaths:
         dataLists, columnNames = Plotting.getLoggedColumns(logPath, [ logColumnSpec ])
 
@@ -549,12 +549,14 @@ def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
 #### 3. Plotting ####
 def _generatePlot(plotDictReader, logFilePaths):
     '''
+        Called once for every plot dictionary. Handles plotting MAPLEAF's results and any provided comparison data. Saves plot.
+
         Inputs:
             plotDictReader:     (SubDictReader) Initialized to read from the subdirectory of PlotsToGenerate that defines the desired plot
             logFilePaths:       (list (string)) 
 
         Outputs:
-            Saves png, pdf, and eps plots to the location specified by .saveLocation
+            Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
     '''
     # Create plot
     fig, ax = plt.subplots(figsize=(6,4))
@@ -640,6 +642,8 @@ def _generatePlot(plotDictReader, logFilePaths):
     plt.close(fig)
 
 def _plotComparisonData(ax, compDataDictReader):
+    ''' Plot a single line of comparison data from a specified .csv file '''
+    # Get line formatting info
     compDataPath = compDataDictReader.tryGetString("file", defaultValue=None)
     compColumnSpecs = compDataDictReader.tryGetString("columnsToPlot", defaultValue="").split()
     xColumnName = compDataDictReader.tryGetString("xColumnName", defaultValue="Time(s)")
@@ -668,6 +672,8 @@ def _plotComparisonData(ax, compDataDictReader):
 
 def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, xLim=["False"], yLim=["False"], adjustXaxisToFit=False):
     '''
+        Adds MAPLEAF's results to the plot currently being created
+
         ax:             (Matplotlib.Axes) to plot on
         dataLists:      (list (list (float))) each sub-list should a vector of x or y data
         columnNames:    (list (string)) list of column names, order matching that of dataLists
@@ -723,13 +729,17 @@ def _incrementWarningCount():
     global warningCount
     warningCount += 1
 
-def _writeModifiedTestDefinitionFile():
-    newTestDefinitionPath = "./test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf"
+def _writeModifiedTestDefinitionFile(batchDefinition):
+    ''' If new expected final values were recorded during the present batch run, this function will be called to write those values to a new file, [originalFileName]_newExpectedResultsRecorded.mapleaf '''
+    origFilePath = batchDefinition.fileName
+    newTestDefinitionPath = origFilePath.replace(".mapleaf", "_newExpectedResultsRecorded.mapleaf")
+
     print("Writing new testDefinition file to: {}".format(newTestDefinitionPath))
     print("  If desired, use this file (or values from this file) to replace/update testDefinitions.mapleaf\n")
+
     batchDefinition.writeToFile(newTestDefinitionPath, writeHeader=False)
 
-def _latexLabelTranslation(labelInput):
+def _latexLabelTranslation(labelInput: str) -> str:
     labelDict = {
         '$\alpha$': r'$\alpha$',
         '$C_l$'   : r'$C_l$',
@@ -745,7 +755,8 @@ def _latexLabelTranslation(labelInput):
     else:
         return labelInput
 
-def _buildParser():
+def _buildParser() -> argparse.ArgumentParser:
+    ''' Builds the argparse parser for command-line arguments '''
     parser = argparse.ArgumentParser(description="Batch-run MAPLEAF simulations")
     parser.add_argument(
         "--recordAll", 
@@ -766,12 +777,11 @@ def _buildParser():
     parser.add_argument(
         "batchDefinitionFile", 
         nargs='?', 
-        default=["./test/regressionTesting/regressionTests.mapleaf"], 
-        help="Path to a batch definition (.mapleaf) file. Default is ./test/regressionTesting/regressionTests.mapleaf"
+        default="MAPLEAF/Examples/Simulations/regressionTests.mapleaf", 
+        help="Path to a batch definition (.mapleaf) file. Default is MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
     )
 
     return parser
-
 
 if __name__ == "__main__":
     main()

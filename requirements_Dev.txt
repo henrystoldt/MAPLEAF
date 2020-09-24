@@ -1,7 +1,7 @@
 -r requirements.txt
-snakeviz>=2.1.0
-coverage>=5.0
-pylint>=2.5
-pdoc3
-PyQt5
-Mayavi
+snakeviz>=2.1.0 # Performance Profiling
+coverage>=5.0   # Checking test coverage
+pylint>=2.5     # Linting
+pdoc3           # Docs
+PyQt5           # Required for Mayavi
+Mayavi          # Flight-path renders including 3D earth. Once installation reliably succeeds, should be moved to requirements.txt

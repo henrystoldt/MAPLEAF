@@ -1,11 +1,8 @@
 import math
-import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
-from typing import List
 
-import matplotlib.pyplot as plt
 import ray
 from tqdm import tqdm
 
@@ -154,7 +151,7 @@ class Simulation():
 
         print("Simulation Complete")
 
-        logFilePaths = self._postProcessing(simDefinition)
+        logFilePaths = self._postProcess(simDefinition)
 
         return self.stageFlightPaths, logFilePaths
 
@@ -346,7 +343,7 @@ class Simulation():
         ''' After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace '''
         print("ERROR: Simulation Crashed, Aborting")
         print("Attempting to save log files and show plots")
-        self._postProcessing(self.simDefinition)
+        self._postProcess(self.simDefinition)
 
         # Try to print out the stack trace
         print("Attempting to show stack trace")
@@ -358,7 +355,7 @@ class Simulation():
         sys.exit()
 
     #### Post-sim ####
-    def _postProcessing(self, simDefinition):
+    def _postProcess(self, simDefinition):
         simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
 
         # Log results
@@ -454,12 +451,12 @@ class RemoteSimulation(Simulation):
         return super().run()
 
 class WindTunnelSimulation(Simulation):
-    def __init__(self, parameterToSweepKey="Rocket.velocity", parameterValueList=["(0 0 100)", "(0 0 200)", "(0 0 300)"], simDefinitionFilePath=None, fW=None, silent=False, smoothLine='False'):
-        self.parameterToSweepKey = parameterToSweepKey
-        self.parameterValueList = parameterValueList
+    def __init__(self, parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)", "(0 0 300)"]], simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):
+        self.parametersToSweep = parametersToSweep
+        self.parameterValues = parameterValues
         self.smoothLine = smoothLine
 
-        Simulation.__init__(self, simDefinitionFilePath, fW, silent)
+        Simulation.__init__(self, simDefinitionFilePath, simDefinition, silent)
 
     def runSweep(self):
         '''
@@ -467,87 +464,54 @@ class WindTunnelSimulation(Simulation):
             Returns:
                 List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
         '''
-        # Make sure we're logging forces (the only way to get data out of this sim runner)
+        # Make sure we're logging forces (the only way to get data out of this sim runner) and avoid producing any plots
         self.simDefinition.setValue("SimControl.loggingLevel", "3")
-        self.simDefinition.setValue("SimControl.plot", "None") # Don't produce any plots
-        self.simDefinition.setValue("SimControl.RocketPlot", "Off") # Don't produce any plots
+        self.simDefinition.setValue("SimControl.plot", "None") 
+        self.simDefinition.setValue("SimControl.RocketPlot", "Off")
 
         # Run a single force evaluation for each parameter value
-        # Regenerate simulation environment each time to allow user to change anything about the sim definition
+        # Regenerate environment each time to allow user to change anything about the sim definition
 
-        # parameterValueDicts = SubDictReader.getImmediateSubDicts(SubDictReader.simDefDictPathToReadFrom + ".ParameterSweep")
         if self.smoothLine == 'True': # interpolate between user set parameter values
-            for i in range(len(self.parameterValueList[0])-1): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
-                # this loop will run for as many values are given PER parameter. i'th value for each parameter
-                # Set sim def value
-                if not self.silent:
-                    pass
-                    # print("Setting value: {} to {}".format(self.parameterToSweepKey, self.paramValueList[j][i]))
-                
-                k = 0
-                while k < 10:
-                    for j in range(len(self.parameterValueList)): # j'th parameter (velocity, temperature)
-                        # this loop will set a value for each given parameter type that is specified
-                        try:
-                            first = Vector(self.parameterValueList[j][i])
-                            second = Vector(self.parameterValueList[j][i+1])
-                            bucket = second - first
-                            incrementalValue = str(k/10 * bucket + Vector(self.parameterValueList[j][i]))
-                        except ValueError:
-                            first = float(self.parameterValueList[j][i])
-                            second = float(self.parameterValueList[j][i+1])
-                            bucket = second - first
-                            incrementalValue = str(k/10 * bucket + float(self.parameterValueList[j][i]))
-                        self.simDefinition.setValue(self.parameterToSweepKey[j], incrementalValue)
-                    
-                    if not self.silent:
-                        print("Running Single Force Evaluation")
-                    rocket = self.createRocket()
-                    self.rocketStages = [rocket]
-                    rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+            self._addPoints() 
 
-                    if i == len(self.parameterValueList[0])-2 and k == 9:
-                        for j in range(len(self.parameterValueList)):
-                            incrementalValue = self.parameterValueList[j][i+1]
-                            self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i+1])
-                        if not self.silent:
-                            print("Running Single Force Evaluation")
-                        rocket = self.createRocket()
-                        self.rocketStages = [rocket]
-                        rocket._getAppliedForce(0.0, rocket.rigidBody.state)
-
-                    k +=1   
-
-        else:
-            for i in range(len(self.parameterValueList[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
-                # this loop will run for as many values are given PER parameter
-                # Set sim def value
-                if not self.silent:
-                    pass
-                    # print("Setting value: {} to {}".format(self.parameterToSweepKey, self.paramValueList[j][i]))
-                
-                for j in range(len(self.parameterValueList)): # j'th parameter (velocity, temperature)
-                    # this loop will set a value for each given parameter type that is specified
-                    self.simDefinition.setValue(self.parameterToSweepKey[j], self.parameterValueList[j][i])
+        for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+            # this loop will run for as many values are given PER parameter
             
-                # Run + log the force evaluation
-                if not self.silent:
-                    print("Running Single Force Evaluation")
-                rocket = self.createRocket()
-                self.rocketStages = [rocket]
-                rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+            for j in range(len(self.parameterValues)): # j'th parameter (velocity, temperature)
+                # this loop will set a value for each given parameter type that is specified
+                self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
 
-        # Write Logs to file
-        logFilePaths = self._postProcessing(self.simDefinition)
+            rocket = self.createRocket()
+            self.rocketStages = [ rocket ]
+            rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
-        # Because no time steps were taken, the main simulation log will not contain any plottable, tabular data.
-            # Remove it from logFilePaths
-        for logPath in logFilePaths:
-            if "simulationLog" in logPath:
-                logFilePaths.remove(logPath)
-                break
+        # Write Logs to file, return path
+        return self._postProcess(self.simDefinition)
 
-        return logFilePaths
+    def _addPoints(self, pointMultiple=10):
+        ''' Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values '''
+        for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
+            for k in range(1, pointMultiple): # Loops over each new point
+                
+                # Index at which to add new point
+                newPointIndex = pointMultiple*i + k
+
+                for j in range(len(self.parametersToSweep)): # j'th corresponds to parameters to sweep over (velocity, temperature)
+                    try:
+                        # Vector sweep
+                        first = Vector(self.parameterValues[j][i])
+                        second = Vector(self.parameterValues[j][i+1])
+                        change = second - first
+                        incrementalValue = str(k/10*change + first)
+                    except ValueError:
+                        # Scalar sweep
+                        first = float(self.parameterValues[j][i])
+                        second = float(self.parameterValues[j][i+1])
+                        change = second - first
+                        incrementalValue = str(k/10*change + first)
+                    
+                    self.parameterValues[j].insert(newPointIndex, incrementalValue)
 
     def createRocket(self):
         ''' 
@@ -558,18 +522,31 @@ class WindTunnelSimulation(Simulation):
         return super().createRocket()
 
     def _setUpLogging(self):
-        # Override to ensure that logs aren't re-initialized for every simulation.
-            # mainSimulationLog will only be absent the first time this function is run
-            # Want to keep all the force data in a single log file
+        ''' Override to ensure that logs aren't re-initialized for every simulation.
+            mainSimulationLog will only be absent the first time this function is run
+            Want to keep all the force data in a single log file '''
         if not hasattr(self, 'mainSimulationLog'):
             return super()._setUpLogging()
 
     def _createLogDataTableHeaders(self, rocket):
-        # Prevent the log headers from being re-generated over and over
+        ''' Prevents the log headers from being re-generated over and over '''
         if self.forceEvaluationLog == []:
             return super()._createLogDataTableHeaders(rocket)
 
-    def _postProcessing(self, simDefinition):
+    def _postProcess(self, simDefinition):
+        ''' Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files.
+            Removes mainSimLog from (returned) log file paths since no time steps we taken by this sim '''
         # Create an empty flight path to prevent errors in the parent function)
         self.stageFlightPaths = [ RocketFlight() ]
-        return super()._postProcessing(simDefinition)
+        logFilePaths = super()._postProcess(simDefinition)
+
+        # Because no time steps were taken, the main simulation log will not contain any tabular data.
+            # Remove it from logFilePaths (but file is still generated)
+        for logPath in logFilePaths:
+            if "simulationLog" in logPath:
+                logFilePaths.remove(logPath)
+                break
+
+        return logFilePaths
+
+
