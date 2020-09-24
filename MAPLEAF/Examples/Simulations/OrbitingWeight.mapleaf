@@ -8,27 +8,27 @@ SimControl{
         maxTimeStep         60
     }
 
-    EndCondition Time
-    EndConditionValue 30000 # sec
+    EndCondition            Time
+    EndConditionValue       30000 # sec
 
-    plot FlightAnimation
+    plot                    FlightAnimation
 }
 
 Environment{
     LaunchSite{
-        elevation       409e3 # m - roughly the ISS orbit
+        elevation           409e3 # m - roughly the ISS orbit
     }
 
-    EarthModel          WGS84
+    EarthModel              WGS84
 }
 
 Rocket{
-    position            (0 0 0) # meters
-    initialDirection    (1 0 0) # Orbit around equator
-    velocity            (7701 0 0) # m/s Orbit around equator (heading east)
+    position                (0 0 0) # meters
+    initialDirection        (1 0 0) # Orbit around equator
+    velocity                (7701 0 0) # m/s Orbit around equator (heading east)
 
     Stage1{         
-        class           Stage  
+        class               Stage  
 
         Mass{
             class           Mass
