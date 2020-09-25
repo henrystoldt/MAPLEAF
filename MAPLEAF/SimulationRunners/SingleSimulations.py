@@ -487,27 +487,27 @@ class WindTunnelSimulation(Simulation):
     def _addPoints(self, pointMultiple=10):
         ''' Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values '''
         for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
-            for k in range(1, pointMultiple): # Loops over each new point
+            for interpPt in range(1, pointMultiple): # Loops over each new point
                 
                 intervalStartIndex = pointMultiple*i
                 # Index at which to add new point (also interval end index)
-                newPointIndex = pointMultiple*i + k
+                newPointIndex = pointMultiple*i + interpPt
 
-                for j in range(len(self.parametersToSweep)): # j'th corresponds to parameters to sweep over (velocity, temperature)
+                for param in range(len(self.parametersToSweep)): # j'th corresponds to parameters to sweep over (velocity, temperature)
                     try:
                         # Vector sweep
-                        first = Vector(self.parameterValues[j][intervalStartIndex])
-                        second = Vector(self.parameterValues[j][newPointIndex])
+                        first = Vector(self.parameterValues[param][intervalStartIndex])
+                        second = Vector(self.parameterValues[param][newPointIndex])
                         change = second - first
-                        incrementalValue = str(k/pointMultiple*change + first)
+                        incrementalValue = str(interpPt/pointMultiple*change + first)
                     except ValueError:
                         # Scalar sweep
-                        first = float(self.parameterValues[j][intervalStartIndex])
-                        second = float(self.parameterValues[j][newPointIndex])
+                        first = float(self.parameterValues[param][intervalStartIndex])
+                        second = float(self.parameterValues[param][newPointIndex])
                         change = second - first
-                        incrementalValue = str(k/pointMultiple*change + first)
+                        incrementalValue = str(interpPt/pointMultiple*change + first)
                     
-                    self.parameterValues[j].insert(newPointIndex, incrementalValue)
+                    self.parameterValues[param].insert(newPointIndex, incrementalValue)
 
     def createRocket(self):
         ''' 
