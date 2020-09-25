@@ -25,6 +25,8 @@ warningCount = 0 # Global variable tracking number of warnings in a batch run
 percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obtained results
 #### END OPTIONS ####
 
+
+
 #### Command Line Parsing ####
 def main(argv=None):    
     # Parse command line arguments
@@ -44,6 +46,8 @@ def main(argv=None):
 
     # Run Cases
     batchRun(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
+
+
 
 #### Main ####
 def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTraces=False):
@@ -121,15 +125,17 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
             If no comparison data is provided, comparison data is recorded
 
         Inputs:
-            caseName:                   (string) Name of current case / top-level dictionary
-            batchDefinition:  (SimDefinition) Should have the batchDefinition file loaded
+            
+            *caseName:         (string) Name of current case / top-level dictionary  
+            *batchDefinition:  (`MAPLEAF.IO.SimDefinition`) Should have the batchDefinition file loaded  
 
         Outputs:
-            Returns:    numTestsOk(Int), numTestsFailed(Int), resultValuesRecorded(Bool)
-                resultValuesRecorded is True if absent ExpectedResults were added to the regressionTestDefinition
-                    Used to remember that an updated regressionTestDefinition shoudl be written to file at the end of all the test cases
-            Modifies:   batchDefinition - records sim results is no expected results are provided
-            Prints:     One line to introduce case, one more line for each expected results
+
+            Returns:    numTestsOk(Int), numTestsFailed(Int), resultValuesRecorded(Bool)  
+                resultValuesRecorded is True if absent ExpectedResults were added to the regressionTestDefinition  
+                    Used to remember that an updated regressionTestDefinition shoudl be written to file at the end of all the test cases  
+            Modifies:   batchDefinition - records sim results is no expected results are provided  
+            Prints:     One line to introduce case, one more line for each expected results  
     '''
     print("Running Case: {}".format(caseName))
     caseDictReader = SubDictReader(caseName, simDefinition=batchDefinition)
@@ -524,7 +530,7 @@ def _checkResult(columnName, observedResult, expectedResult):
             print("  {:<25} ok       {:>15.7}".format(columnName + ":", expectedResult))
             return True, 0
     else:
-        return False
+        return False, 100
 
 def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
     ''' Returns the last value in the log column defined by logColumn Spec. Searches in each file in logFilePaths '''
@@ -724,6 +730,8 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             else:
                 ax.scatter(xData, dataLists[i],  label = legendLabel[i])            
 
+
+
 #### Utility functions ####
 def _incrementWarningCount():
     global warningCount
@@ -782,6 +790,8 @@ def _buildParser() -> argparse.ArgumentParser:
     )
 
     return parser
+
+
 
 if __name__ == "__main__":
     main()
