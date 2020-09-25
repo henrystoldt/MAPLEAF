@@ -152,18 +152,18 @@ class TestSimRunners(unittest.TestCase):
         windTunnelSim = WindTunnelSimulation(parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)", "(0 0 300)"]], simDefinition=simDef)
         
         # Check that smoothline is working correctly
-        windTunnelSim._addPoints(pointMultiple=2)
+        windTunnelSim._addPoints(pointMultiple=4)
 
         expectedParamsToSweep = [ "Rocket.velocity" ]
         self.assertEqual(windTunnelSim.parametersToSweep, expectedParamsToSweep)
 
-        expectedParamValues = [ [ "(0 0 100)", "(0 0 150)", "(0 0 200)", "(0 0 250)", "(0 0 300)" ] ]
+        expectedParamValues = [ [ "(0 0 100)", "(0.0 0.0 125.0)", "(0.0 0.0 150.0)", "(0.0 0.0 175.0)", "(0 0 200)", "(0.0 0.0 225.0)", "(0.0 0.0 250.0)","(0.0 0.0 275.0)", "(0 0 300)" ] ]
         self.assertEqual(windTunnelSim.parameterValues, expectedParamValues)
 
         # Test running a sweep
         windTunnelSim.runSweep()
-        # Check number of rows in the force evaluation log
-        self.assertEqual(len(windTunnelSim.forceEvaluationLog), 5)
+        # Check number of rows in the force evaluation log (5 evaluations + 1 row of headers)
+        self.assertEqual(len(windTunnelSim.forceEvaluationLog), 10)
 
     def tearDown(self):
         plt.cla()

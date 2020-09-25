@@ -488,22 +488,24 @@ class WindTunnelSimulation(Simulation):
         ''' Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values '''
         for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
             for k in range(1, pointMultiple): # Loops over each new point
-                # Index at which to add new point
+                
+                intervalStartIndex = pointMultiple*i
+                # Index at which to add new point (also interval end index)
                 newPointIndex = pointMultiple*i + k
 
                 for j in range(len(self.parametersToSweep)): # j'th corresponds to parameters to sweep over (velocity, temperature)
                     try:
                         # Vector sweep
-                        first = Vector(self.parameterValues[j][i])
-                        second = Vector(self.parameterValues[j][i+1])
+                        first = Vector(self.parameterValues[j][intervalStartIndex])
+                        second = Vector(self.parameterValues[j][newPointIndex])
                         change = second - first
-                        incrementalValue = str(k/10*change + first)
+                        incrementalValue = str(k/pointMultiple*change + first)
                     except ValueError:
                         # Scalar sweep
-                        first = float(self.parameterValues[j][i])
-                        second = float(self.parameterValues[j][i+1])
+                        first = float(self.parameterValues[j][intervalStartIndex])
+                        second = float(self.parameterValues[j][newPointIndex])
                         change = second - first
-                        incrementalValue = str(k/10*change + first)
+                        incrementalValue = str(k/pointMultiple*change + first)
                     
                     self.parameterValues[j].insert(newPointIndex, incrementalValue)
 
