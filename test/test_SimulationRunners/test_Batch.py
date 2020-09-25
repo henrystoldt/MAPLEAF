@@ -1,11 +1,3 @@
-#Created by: Henry Stoldt
-#May 2020
-
-#To run tests:
-#In this file: [test_ Main.py]
-#In all files in the current directory: [python -m unittest discover]
-#Add [-v] for verbose output (displays names of all test functions)
-
 import unittest
 
 import matplotlib.pyplot as plt
@@ -24,7 +16,6 @@ class TestBatchSim(unittest.TestCase):
         normalDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf")
         self.assertFalse(isBatchSim(normalDefinition))
         
-
     def tearDown(self):
         plt.cla()
         plt.clf()

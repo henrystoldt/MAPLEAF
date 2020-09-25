@@ -1,11 +1,3 @@
-#Created by: Henry Stoldt
-#May 2020
-
-#To run tests:
-#In this file: [test_ Main.py]
-#In all files in the current directory: [python -m unittest discover]
-#Add [-v] for verbose output (displays names of all test functions)
-
 import os
 import test.testUtilities
 import unittest
@@ -16,7 +8,7 @@ from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
                                        OptimizingSimRunner, Simulation,
-                                       runMonteCarloSimulation)
+                                       runMonteCarloSimulation, WindTunnelSimulation)
 from MAPLEAF.Utilities import evalExpression
 
 
@@ -105,11 +97,6 @@ class TestSimRunners(unittest.TestCase):
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
 
-    def test_evalExpression(self):
-        varDict = { "bodyWeight": 0.15 }
-        result = evalExpression( "0.007506 + 0.01/bodyWeight", varDict)
-        self.assertAlmostEqual(result, 0.0741726666666)
-
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
         convSimDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
@@ -159,6 +146,24 @@ class TestSimRunners(unittest.TestCase):
         rocket.isUnderChute = True
         rocket._switchTo3DoF()
         rocket.timeStep(0.05)
+
+    def test_WindTunnelSimRunner(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf")
+        windTunnelSim = WindTunnelSimulation(parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)", "(0 0 300)"]], simDefinition=simDef)
+        
+        # Check that smoothline is working correctly
+        windTunnelSim._addPoints(pointMultiple=2)
+
+        expectedParamsToSweep = [ "Rocket.velocity" ]
+        self.assertEqual(windTunnelSim.parametersToSweep, expectedParamsToSweep)
+
+        expectedParamValues = [ [ "(0 0 100)", "(0 0 150)", "(0 0 200)", "(0 0 250)", "(0 0 300)" ] ]
+        self.assertEqual(windTunnelSim.parameterValues, expectedParamValues)
+
+        # Test running a sweep
+        windTunnelSim.runSweep()
+        # Check number of rows in the force evaluation log
+        self.assertEqual(len(windTunnelSim.forceEvaluationLog), 5)
 
     def tearDown(self):
         plt.cla()

@@ -451,9 +451,9 @@ class RemoteSimulation(Simulation):
         return super().run()
 
 class WindTunnelSimulation(Simulation):
-    def __init__(self, parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)", "(0 0 300)"]], simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):
-        self.parametersToSweep = parametersToSweep
-        self.parameterValues = parameterValues
+    def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):
+        self.parametersToSweep = ["Rocket.velocity"] if (parametersToSweep == None) else parametersToSweep
+        self.parameterValues = [["(0 0 100)", "(0 0 200)", "(0 0 300)"]] if (parameterValues == None) else parameterValues
         self.smoothLine = smoothLine
 
         Simulation.__init__(self, simDefinitionFilePath, simDefinition, silent)
@@ -469,19 +469,14 @@ class WindTunnelSimulation(Simulation):
         self.simDefinition.setValue("SimControl.plot", "None") 
         self.simDefinition.setValue("SimControl.RocketPlot", "Off")
 
-        # Run a single force evaluation for each parameter value
-        # Regenerate environment each time to allow user to change anything about the sim definition
-
-        if self.smoothLine == 'True': # interpolate between user set parameter values
+        if strtobool(self.smoothLine): # interpolate between user set parameter values
             self._addPoints() 
 
         for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
-            # this loop will run for as many values are given PER parameter
-            
             for j in range(len(self.parameterValues)): # j'th parameter (velocity, temperature)
-                # this loop will set a value for each given parameter type that is specified
                 self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
 
+            # Run a single force evaluation, which creates a forces log entry for this force evaluation
             rocket = self.createRocket()
             self.rocketStages = [ rocket ]
             rocket._getAppliedForce(0.0, rocket.rigidBody.state)
@@ -493,7 +488,6 @@ class WindTunnelSimulation(Simulation):
         ''' Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values '''
         for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
             for k in range(1, pointMultiple): # Loops over each new point
-                
                 # Index at which to add new point
                 newPointIndex = pointMultiple*i + k
 
