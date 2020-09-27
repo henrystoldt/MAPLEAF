@@ -143,13 +143,14 @@ def _build_Parser() -> argparse.ArgumentParser:
         python runTests.py 5                        {startGray}# All unit and regression tests{endColor}
     """.format(startGray="\033[90m", endColor="\033[0m")) # https://en.wikipedia.org/wiki/ANSI_escape_code#Escape_sequences
 
-    parser.add_argument(
+    mutexGroup = parser.add_mutually_exclusive_group()
+    mutexGroup.add_argument(
         "--excluding",
         nargs='*',
         default=[],
         help="Exclude tests in packages with these parameter(s) in their names"
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         "Including",
         nargs='*',
         default=[],
@@ -158,14 +159,9 @@ def _build_Parser() -> argparse.ArgumentParser:
     
     return parser
 
-def _checkForMutuallyExclusiveArgs(args):
-    if len(args.Including) > 0 and len(args.excluding) > 0:
-        raise ValueError("Script can only be run in inclusive or exclusive mode")
-
-def main(argv=None):
+def main(argv=None) -> int:
     parser = _build_Parser()
     args = parser.parse_args(argv)
-    _checkForMutuallyExclusiveArgs(args)
     runRegressionTests = False
 
     ### Run unit tests ###
@@ -196,12 +192,19 @@ def main(argv=None):
         else:
             unittestResult = runUnitTests()
 
+    returnCode = 0
+    if unittestResult != None:
+        if len(unittestResult.failures) + len(unittestResult.errors) > 0:
+            errorCode = 1
+
     if runRegressionTests:
         sys.stdout = sys.__stdout__ # Remove any leftover loggers
-        _runRegressionTests()
+        regressionReturnCode = _runRegressionTests()
 
         if unittestResult != None:
             _reOutputUnitTestResults(unittestResult)            
+        
+        return max(returnCode, regressionReturnCode)
 
 if __name__ == "__main__":
     main()

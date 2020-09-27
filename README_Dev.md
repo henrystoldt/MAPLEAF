@@ -25,22 +25,29 @@
     `$ pip install -r requirements_Dev.txt`  
     Installing Mayavi can be problematic, if using Python 3.8+, try installing the latest version directly from git `$ python3 -m pip install git+https://github.com/enthought/mayavi.git`, or check out [mayavi's documentation](https://github.com/enthought/mayavi) for further assisstance
 
+## Running All Unit and Regression Tests
+`python3 test/runTests.py all`
+
+For more options: `python3 test/runTests.py -h`  
+See below for how to run unit and regression tests individually  
+
 ## Running Unit Tests
 **Note:** The Tests Github action runs these tests after every commit to master
 Unit Testing Framework Info:
 https://docs.python.org/3/library/unittest.html
   
-To run all tests: `python3 -m unittest discover -v`   
+To run all tests: `python3 -m unittest -v`   
 To run a single test module: `python3 -m unittest -v test.test_Vector`  
+To easily run restricted sets of tests: `python3 test/runTests.py -h`
 
 ## Running Regression Testing / V & V Suite
 All regression and V&V tests are defined in batch file [test/regressionTesting/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/regressionTesting/testDefinitions.mapleaf)  
 
 To run them:
-`mapleaf-batch MAPLEAF/Examples/Simulations/regressionTests.mapleaf` **or**
-`mapleaf MAPLEAF/Examples/Simulations/regressionTests.mapleaf` (won't be able to use the mapleaf-batch command-line options this way)
+`mapleaf-batch MAPLEAF/Examples/Simulations/regressionTests.mapleaf`  
+For more info: `mapleaf-batch -h`
 
-Results will show up in the console, plots will be saved in `./test/regressionTesting/`
+Shows results in console, generates plots in `./test/regressionTesting/`  
 
 ## Install virtualenvwrapper (Linux):
 **Note:** Official instructions (incl. Windows version): https://virtualenvwrapper.readthedocs.io/en/latest/install.html  

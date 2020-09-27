@@ -20,65 +20,56 @@ from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
 def buildParser() -> argparse.ArgumentParser:
     ''' Builds the command-line argument parser using argparse '''
-    parser = argparse.ArgumentParser(description="""
-    Command line interface for running single MAPLEAF simulations.
-    Runs simulations defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations/ 
-    All possible options for sim definition files defined in ./SimDefinitionTemplate.mapleaf
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description="""
+    Run individual MAPLEAF simulations.
+    Expects simulations to be defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations 
+    See ./SimDefinitionTemplate.mapleaf for definition of all possible options
     """)
 
-    parser.add_argument(
+    mutexGroup = parser.add_mutually_exclusive_group()
+    mutexGroup.add_argument(
         "--converge", 
         action='store_true', 
         help="Runs the current simulation using successively finer time steps, attempting to provide a converged final location"
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         "--compareIntegrationSchemes", 
         action='store_true', 
         help="Attempts to converge the current simulation using a variety of classical integration schemes."
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         "--compareAdaptiveIntegrationSchemes", 
         action='store_true', 
         help="Attempts to converge the current simulation using a variety of adaptive time integration schemes"
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         "--plotFromLog", 
-        nargs=1, 
+        nargs=2, 
         default=[], 
-        help="Instead of a path to a sim definition file, provide a path to a log file from a previous simulation. Also provide \
-            a plotDefinitionString - works the same way the SimControl.plot entries work"
+        metavar=("plotDefinition", "pathToLogFile"),
+        help="plotDefinition works the same way as SimControl.plot entries in simulation definition files"
     )
+
     parser.add_argument(
         "--nCores",
         type=int,
         nargs=1,
         default=[1],
-        help="Set this to a number > 1 to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray's Windows support has exited alpha, or use only on Linux/Mac."
+        help="Use to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray's Windows support has exited alpha, or use only on Linux/Mac."
     )
     parser.add_argument(
         "--silent", 
         action='store_true', 
-        help="If present, simulation(s) are run w/o outputting to console - which can be significantly faster on some setups"
+        help="If present, does not output to console - faster on windows"
     )
     parser.add_argument(
         "simDefinitionFile", 
-        nargs=1, 
+        nargs='?', 
         default="MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf",
-        help="Path to a simulation definition (.mapleaf) file"
+        help="Path to a simulation definition (.mapleaf) file. Not required if using --plotFromLog"
     )
 
     return parser
-
-def checkForMutuallyExclusiveArgs(args):
-    ''' Check that we haven't passed in mutually exclusive command-line arguments (ex. --converge and --plotFromLog) '''
-    mutuallyExclusiveArgs = [ args.converge, args.compareIntegrationSchemes, args.compareAdaptiveIntegrationSchemes, args.plotFromLog ]
-    mutExCount = 0
-    for item in mutuallyExclusiveArgs:
-        if item == True:
-            mutExCount += 1
-    if mutExCount > 1:
-        print("ERROR: --converge, --compareIntegrationSchemes, --compareAdaptiveIntegrationSchemes, and --plotFromLog are mutually exclusive. Please only use one at a time.")
-        sys.exit()
 
 def findSimDefinitionFile(providedPath):
     if os.path.isfile(providedPath):
@@ -141,12 +132,11 @@ def main(argv=None) -> int:
 
     # Parse command line call, check for errors
     parser = buildParser()
-    args = parser.parse_args(argv)
-    checkForMutuallyExclusiveArgs(args)    
+    args = parser.parse_args(argv) 
 
     if len(args.plotFromLog):
         # Just plot a column from a log file, and not run a whole simulation
-        Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
+        Plotting.plotFromLogFiles([args.plotFromLog[1]], args.plotFromLog[0])
         print("Exiting")
         sys.exit()
      
