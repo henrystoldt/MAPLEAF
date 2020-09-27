@@ -3,15 +3,15 @@
 
 
 SimControl{
-    timeDiscretization RK4
-    timeStep 0.01 #sec
+    timeDiscretization  RK4
+    timeStep            0.01 #sec
 
-    EndCondition Apogee
+    EndCondition        Apogee
 
-    loggingLevel    2
-    RocketPlot      On
+    loggingLevel        2
+    RocketPlot          On
 
-    plot Position Velocity AngularVelocity FlightAnimation
+    plot                Position Velocity AngularVelocity FlightAnimation
 }
 
 Environment{
