@@ -126,7 +126,7 @@ Rocket{
             mass            50
             position        (0 0 -2.6)
             cg              (0 0 0)
-            MOI     (66.6 66.6 0.21)
+            MOI             (66.6 66.6 0.21)
         }
 
         Motor{
