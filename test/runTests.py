@@ -3,6 +3,8 @@ import os
 import sys
 import unittest
 
+from MAPLEAF.SimulationRunners.Batch import main as runBatchSim
+
 
 def setupPath():
     # Make sure we're running from the main MAPLEAF directory
@@ -95,10 +97,50 @@ def runTests_byLevelPresets(level, excluding=None):
     else:
         return runTests()
 
+def reOutputUnitTestResults(result):
+    print("\n----------------------------------------------------------------------")
+    print("UNIT TEST Results")
+    passed = result.testsRun - len(result.failures) - len(result.errors)
+    print("Passed: {}/{}".format(passed, result.testsRun))
+
+    if len(result.skipped) > 0:
+        print("Skipped: {}".format(len(result.skipped)))
+    
+    if len(result.expectedFailures) > 0:
+        print("Expected Failures: {}".format(len(result.expectedFailures)))
+
+    if len(result.unexpectedSuccesses) > 0:
+        print("Unexpected Successes: {}".format(len(result.unexpectedSuccesses)))
+
+    print("")
+
+    if passed == result.testsRun:
+        print("OK")
+    else:
+        print("FAIL")
+
 def build_Parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="""
-    Convenience script for running subsets of the unttest test suite.
-    """)
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description="""
+    Convenience script for running subsets of the unittest test suite OR all tests including the regression test suite.  
+
+    Examples:
+        {startGray}# Key words:{endColor}
+        python runTests.py all                      {startGray}# All unit and regression tests{endColor}
+        python runTests.py regression               {startGray}# Only regression tests {endColor}
+
+        {startGray}# Inclusive run:{endColor}
+        python runTests.py Motion GNC IO            {startGray}# Run unit tests from test/test_Motion, test/test_GNC, and test/test_IO{endColor}
+        
+        {startGray}# Exclusive run:{endColor}
+        python runTests.py --excl Motion GNC IO     {startGray}# Run all unit tests EXCEPT those from test/test_Motion, test/test_GNC, and test/test_IO{endColor}
+
+        {startGray}# Run by level presets:{endColor}
+        python runTests.py 1                        {startGray}# Exclude SimulationRunners, Rocket, and IO{endColor}
+        python runTests.py 2                        {startGray}# Exclude SimulationRunners and Rocket{endColor}
+        python runTests.py 3                        {startGray}# Exclude SimulationRunners{endColor}
+        python runTests.py 4                        {startGray}# All unit tests{endColor}
+        python runTests.py 5                        {startGray}# All unit and regression tests{endColor}
+    """.format(startGray="\033[90m", endColor="\033[0m"))
     parser.add_argument(
         "--excluding",
         nargs='*',
@@ -125,65 +167,42 @@ def main(argv=None):
     runRegressionTests = False
 
     ### Run unit tests ###
-    unittestResults = None
+    unittestResult = None
 
     if len(args.Including) == 1:
-        # Check for keywords
         if args.Including[0].lower() == "all":
-            args.Including[0] = "5"
+            args.Including = [ "4" ]
         
         elif args.Including[0].lower() == "regression":
-            args.Including[0] = "0"
-            runRegressionTests = True
+            args.Including = [ "0" ] # Don't run any unit tests
+            runRegressionTests = True # Run regression tests
 
-        # Check for running tests by level preset
         try:
+            # Try to run tests by level preset
             level = int(args.Including[0])
-            if level >= 5:
-                runRegressionTests = True
-            unittestResults = runTests_byLevelPresets(level)
+            if level >= 4:
+                runRegressionTests = True # For levels >= 5, run all unit tests and all regression tests
+            unittestResult = runTests_byLevelPresets(level)
         except ValueError:
             pass
 
-    if unittestResults == None and args.Including != [ "0" ]:
+    if unittestResult == None and args.Including != [ "0" ]:
         if len(args.excluding) > 0:
-            unittestResults = runTests(exclude=args.excluding)
+            unittestResult = runTests(exclude=args.excluding)
         elif len(args.Including) > 0:
-            unittestResults = runTests(include=args.Including)
+            unittestResult = runTests(include=args.Including)
         else:
-            unittestResults = runTests()
+            unittestResult = runTests()
 
-    ### Run regression tests ###
     if runRegressionTests:
-        sys.stdout = sys.__stdout__
-        from MAPLEAF.SimulationRunners.Batch import main as batchMain
+        sys.stdout = sys.__stdout__ # Remove any leftover loggers
         print("\n----------------------------------------------------------------------")
         print("RUNNING REGRESSION TESTS\n")
 
-        batchMain(["./MAPLEAF/Examples/Simulations/regressionTests.mapleaf"])
+        runBatchSim(["./MAPLEAF/Examples/Simulations/regressionTests.mapleaf"])
 
-        if unittestResults != None:
-            ### Re-output Unit Testing Results ###
-            print("\n----------------------------------------------------------------------")
-            print("UNIT TEST Results")
-            passed = unittestResults.testsRun - len(unittestResults.failures) - len(unittestResults.errors)
-            print("Passed: {}/{}".format(passed, unittestResults.testsRun))
-
-            if len(unittestResults.skipped) > 0:
-                print("Skipped: {}".format(len(unittestResults.skipped)))
-            
-            if len(unittestResults.expectedFailures) > 0:
-                print("Expected Failures: {}".format(len(unittestResults.expectedFailures)))
-        
-            if len(unittestResults.unexpectedSuccesses) > 0:
-                print("Unexpected Successes: {}".format(len(unittestResults.unexpectedSuccesses)))
-
-            print("")
-
-            if passed == unittestResults.testsRun:
-                print("OK")
-            else:
-                print("FAIL")
+        if unittestResult != None:
+            reOutputUnitTestResults(unittestResult)            
 
 if __name__ == "__main__":
     main()
