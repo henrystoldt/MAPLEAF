@@ -1,5 +1,5 @@
 '''
-Contains all of the test code and test data to make sure the code in `MAPLEAF` is running properly.
+Contains all of the test code to make sure the code in `MAPLEAF` is running properly.
 Directory structure mirrors that of MAPLEAF, with additional data directories.
 
 All test/test_XXXX modules contains unit testing code for MAPLEAF/XXXX.
