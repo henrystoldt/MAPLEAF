@@ -195,7 +195,7 @@ def main(argv=None) -> int:
     returnCode = 0
     if unittestResult != None:
         if len(unittestResult.failures) + len(unittestResult.errors) > 0:
-            errorCode = 1
+            returnCode = 1
 
     if runRegressionTests:
         sys.stdout = sys.__stdout__ # Remove any leftover loggers

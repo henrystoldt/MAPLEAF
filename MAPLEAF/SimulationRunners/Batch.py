@@ -26,6 +26,38 @@ percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obt
 #### END OPTIONS ####
 
 
+class BatchRun():
+
+    def __init__(self, batchDefinition, recordAll=False, printStackTraces=False, caseNameSpec=None):
+        self.batchDefinition = batchDefinition
+        self.recordAll = recordAll
+        self.printStackTraces = printStackTraces
+        self.caseNameSpec = caseNameSpec
+
+        self.nCasesRun = 0
+        self.nCasesOk = 0
+        self.nTestsOk = 0
+        self.nTestsFailed = 0
+        self.totalSimErrors = 0
+        self.nComparisonSets = 0
+        self.casesWithNewRecordedResults = 0
+
+    def getCasesToRun(self):
+        subDicts = self.batchDefinition.getImmediateSubDicts("")
+        
+        if self.caseNameSpec == None:
+            # Run all cases
+            return subDicts
+
+        else:
+            # Only run cases that include the nameSpec
+            casesToRun = []
+            for caseDict in subDicts:
+                if self.caseNameSpec in caseDict:
+                    casesToRun.append(caseDict)
+
+            return casesToRun
+
 
 #### Command Line Parsing ####
 def main(argv=None):    
@@ -45,12 +77,12 @@ def main(argv=None):
         caseNameSpec = None # Run all cases
 
     # Run Cases
-    batchRun(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
+    return run(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
 
 
 
 #### Main ####
-def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTraces=False):
+def run(batchRun: BatchRun) -> int:
     '''
         Given a batchDefinition object (of type `MAPLEAF.IO.SimDefinition`), will run all of the test cases defined in it, and print a summary of the results
     '''
@@ -58,33 +90,26 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
     startTime = time.time()
 
     # Get all the regression test cases
-    testCases = batchDefinition.getImmediateSubDicts("")
-    nCases = 0
-    nCasesOk = 0
-    nTestsOk = 0
-    nTestsFailed = 0
-    totalSimError = 0
-    nComparisonSets = 0
-    casesWhoseExpectedResultsWereUpdated = []
-    for testCase in testCases:
-        if caseNameSpec == None or (caseNameSpec in testCase):
-            nCases += 1
-            nOk, nFail, newExpectedResultsRecorded, errorStats = _runCase(testCase, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+    testCases = batchRun.getCasesToRun()
 
-            totalSimError += errorStats[0]
-            nComparisonSets += errorStats[1]
-            
-            if newExpectedResultsRecorded:
-                casesWhoseExpectedResultsWereUpdated.append(testCase)
+    for case in testCases:
+        nOk, nFail, newExpectedResultsRecorded, errorStats = _runCase(case, batchRun)
 
-            # Track number of case and test successes / failures
-            if nFail == 0:
-                nCasesOk += 1
-                nTestsOk += nOk
-            else:
+        totalSimError += errorStats[0]
+        nComparisonSets += errorStats[1]
+        
+        if newExpectedResultsRecorded:
+            casesWhoseExpectedResultsWereUpdated.append(testCase)
+
+        # Track number of case and test successes / failures
+        if nFail == 0:
+            nCasesOk += 1
+            nTestsOk += nOk
+        else:
                 nTestsOk += nOk
                 nTestsFailed += nFail
 
+        batchRun.nCasesRun += 1
 
     runTime = time.time() - startTime
 
@@ -112,15 +137,17 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
             print("OK")
         else:
             print("WARNING")
+        return 0
     else:
         nCasesFailed = nCases - nCasesOk
         nTests = nTestsOk + nTestsFailed
         print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, nCases, nTestsFailed, nTests))
         print("")
         print("FAIL")
+        return 1
 
 #### 1. Load / Run Sim ####
-def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False):
+def _runCase(caseName, batchRun: BatchRun):
     '''
         Runs a single regression tests case, compares the results to the expected results provided, and generates any desired plots.
             If no comparison data is provided, comparison data is recorded
@@ -139,7 +166,7 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
             Prints:     One line to introduce case, one more line for each expected results  
     '''
     print("Running Case: {}".format(caseName))
-    caseDictReader = SubDictReader(caseName, simDefinition=batchDefinition)
+    caseDictReader = SubDictReader(caseName, simDefinition=batchRun.batchDefinition)
 
     newExpectedValuesRecorded = False
     
@@ -148,7 +175,7 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
     simDefinition = SimDefinition(simDefFilePath, silent=True)
 
     #### Parameter overrides ####
-    _implementParameterOverrides(caseName, batchDefinition, simDefinition)
+    _implementParameterOverrides(caseName, batchRun.batchDefinition, simDefinition)
 
     #### Run simulation ####
     # Check whether simulation is a full flight sim or a parameter sweeping simulation
@@ -163,9 +190,9 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
     if len(logFilePaths) > 0: # Don't generate plots of simulation crashed (didn't produce any log files)
         # Get all plot subdictionaries
         plotsToGeneratePath = ".".join([caseName, "PlotsToGenerate"])
-        plotDicts = batchDefinition.getImmediateSubDicts(plotsToGeneratePath)
+        plotDicts = batchRun.batchDefinition.getImmediateSubDicts(plotsToGeneratePath)
         for plotDict in plotDicts:
-            plotDictReader = SubDictReader(plotDict, simDefinition=batchDefinition)
+            plotDictReader = SubDictReader(plotDict, simDefinition=batchRun.batchDefinition)
             _generatePlot(plotDictReader, logFilePaths)
 
     # Print blank line before next case or final summary
@@ -173,7 +200,7 @@ def _runCase(caseName, batchDefinition, recordAll=False, printStackTraces=False)
 
     return numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats
 
-def _implementParameterOverrides(testCase, batchDefinition, simDefinition):
+def _implementParameterOverrides(caseName, batchDefinition, caseSimDefinition):
     '''
         Runs on each case before running any sims to implement desired modifications to simulation definition files
 
@@ -187,19 +214,19 @@ def _implementParameterOverrides(testCase, batchDefinition, simDefinition):
     '''
     #### Load and enact parameter overrides ####
     # Always disable plotting and enable logging
-    simDefinition.setValue("SimControl.plot", "None")
-    simDefinition.setValue("SimControl.loggingLevel", "3")
-    simDefinition.setValue("SimControl.RocketPlot", "Off")
+    caseSimDefinition.setValue("SimControl.plot", "None")
+    caseSimDefinition.setValue("SimControl.loggingLevel", "3")
+    caseSimDefinition.setValue("SimControl.RocketPlot", "Off")
 
     # Look for other overrides in the definition file
-    parameterOverridesDictKey = ".".join([testCase, "ParameterOverrides"])
+    parameterOverridesDictKey = ".".join([caseName, "ParameterOverrides"])
     parameterOverrides = batchDefinition.getSubKeys(parameterOverridesDictKey)
     for paramOverrideKey in parameterOverrides:
         overridenKey = paramOverrideKey.replace(parameterOverridesDictKey+".", "")
         overrideValue = batchDefinition.getValue(paramOverrideKey)
 
         # Implement them
-        simDefinition.setValue(overridenKey, overrideValue)
+        caseSimDefinition.setValue(overridenKey, overrideValue)
 
 def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
     ''' Runs a parameter sweep / wind tunnel simulation, checks+plots results '''
@@ -766,11 +793,16 @@ def _latexLabelTranslation(labelInput: str) -> str:
 
 def _buildParser() -> argparse.ArgumentParser:
     ''' Builds the argparse parser for command-line arguments '''
-    parser = argparse.ArgumentParser(description="Batch-run MAPLEAF simulations")
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description="""
+    Batch-run MAPLEAF simulations.
+    Expects batch run to be defined by a batch definition file like MAPLEAF/Examples/Simulations/regressionTests.mapleaf
+    See ./batchRunTemplate.mapleaf for definition of all possible options.
+    """)
+
     parser.add_argument(
         "--recordAll", 
         action='store_true', 
-        help="If present, re-records all expected results for cases that are run. Recorded data outputted to ./test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf"
+        help="If present, re-records all expected results for cases that are run. Recorded data outputted to [batchDefinitionFile]_newExpectedResultsRecorded.mapleaf"
     )
     parser.add_argument(
         "--printStackTraces", 
@@ -781,13 +813,13 @@ def _buildParser() -> argparse.ArgumentParser:
         "--filter", 
         nargs=1, 
         default=[], 
-        help="Provide a string.  Only cases whose name includes this string will be run."
+        help="Only cases whose name includes this string will be run."
     )
     parser.add_argument(
         "batchDefinitionFile", 
         nargs='?', 
         default="MAPLEAF/Examples/Simulations/regressionTests.mapleaf", 
-        help="Path to a batch definition (.mapleaf) file. Default is MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
+        help="Path to a batch definition (.mapleaf) file. Default = MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
     )
 
     return parser
