@@ -147,9 +147,9 @@ class TestSimRunners(unittest.TestCase):
         rocket._switchTo3DoF()
         rocket.timeStep(0.05)
 
-    def test_WindTunnelSimRunner(self):
+    def test_WindTunnelSim_addPoints(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf")
-        windTunnelSim = WindTunnelSimulation(parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)", "(0 0 300)"]], simDefinition=simDef)
+        windTunnelSim = WindTunnelSimulation(parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)", "(0 0 300)"]], simDefinition=simDef, silent=True)
         
         # Check that smoothline is working correctly
         windTunnelSim._addPoints(pointMultiple=4)
@@ -160,10 +160,14 @@ class TestSimRunners(unittest.TestCase):
         expectedParamValues = [ [ "(0 0 100)", "(0.0 0.0 125.0)", "(0.0 0.0 150.0)", "(0.0 0.0 175.0)", "(0 0 200)", "(0.0 0.0 225.0)", "(0.0 0.0 250.0)","(0.0 0.0 275.0)", "(0 0 300)" ] ]
         self.assertEqual(windTunnelSim.parameterValues, expectedParamValues)
 
+    def test_WindTunnelSim(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Wind.mapleaf")
+        windTunnelSim = WindTunnelSimulation(parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)"]], simDefinition=simDef, silent=True, smoothLine="False")
+
         # Test running a sweep
         windTunnelSim.runSweep()
-        # Check number of rows in the force evaluation log (5 evaluations + 1 row of headers)
-        self.assertEqual(len(windTunnelSim.forceEvaluationLog), 10)
+        # Check number of rows in the force evaluation log (2 evaluations + 1 row of headers)
+        self.assertEqual(len(windTunnelSim.forceEvaluationLog), 3)
 
     def tearDown(self):
         plt.cla()
