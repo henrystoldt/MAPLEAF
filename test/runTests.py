@@ -5,8 +5,8 @@ import unittest
 
 from MAPLEAF.SimulationRunners.Batch import main as runBatchSim
 
-
-def setupPath():
+#### Running Tests ####
+def _setupPath():
     # Make sure we're running from the main MAPLEAF directory
     cwd = os.getcwd()
     if os.path.basename(cwd) == "test":
@@ -18,9 +18,12 @@ def setupPath():
         sys.path.remove(cwd)
     sys.path.insert(0, cwd)
 
-def stringMatch(string, exclude=None, include=None) -> bool:
+def _stringMatch(string, exclude=None, include=None) -> bool:
     if (exclude == None and include == None) or (exclude != None and include != None):
         ValueError("Exactly one of include: {} and exclude: {} must not be None".format(include, exclude))
+
+    if "test_" not in string:
+        return False
 
     if exclude != None:
         # Check if name should be excluded
@@ -38,24 +41,8 @@ def stringMatch(string, exclude=None, include=None) -> bool:
     
         return False
 
-def folderMatch(folder, exclude=None, include=None) -> bool:
-    ''' Check whether itemName is a package that should be included in the test suite '''
-    # Check if is a "test_" directory
-    if not os.path.isdir(folder) or "test_" not in folder:
-        return False
-    
-    return stringMatch(folder, exclude, include)
-
-def fileMatch(file, exclude=None, include=None) -> bool:
-    ''' Check whether itemName is a package that should be included in the test suite '''
-    # Check if is a "test_" file
-    if not os.path.isfile(file) or "test_" not in file:
-        return False
-    
-    return stringMatch(file, exclude, include)
-
-def runTests(exclude=None, include=None):
-    setupPath()
+def runUnitTests(exclude=None, include=None):
+    _setupPath()
 
     #### Find tests ####
     suite = unittest.TestSuite()
@@ -67,20 +54,26 @@ def runTests(exclude=None, include=None):
     else:
         testDirContents = [ ("test/" + x) for x in os.listdir("test") ]
         for item in testDirContents:
-            moduleName = item.replace("test/", "")
-            moduleName = moduleName.replace(".py", "")
+            # Obtain python name from file name: ex: "text/test_Interpolation.py" -> "test_Interpolation"
+            pythonName = item.replace("test/", "")
+            pythonName = pythonName.replace(".py", "")
 
-            if folderMatch(item, exclude, include):
-                suite.addTests(unittest.defaultTestLoader.discover(moduleName))
-            
-            elif fileMatch(item, exclude, include):
-                suite.addTests(unittest.defaultTestLoader.loadTestsFromName(moduleName))
+            if _stringMatch(item, exclude, include):
+                # If the item name matches current include/exclude rules, include it
+                
+                if os.path.isdir(item):
+                    # Include from folder/package
+                    suite.addTests(unittest.defaultTestLoader.discover(pythonName))
+                
+                elif os.path.isfile(item):
+                    # Include from file/module
+                    suite.addTests(unittest.defaultTestLoader.loadTestsFromName(pythonName))
 
     #### Run Tests ####
-    runner = unittest.TextTestRunner(verbosity=3)
+    runner = unittest.TextTestRunner(verbosity=3) # verbosity=3 same as running unittest -v
     return runner.run(suite)
     
-def runTests_byLevelPresets(level, excluding=None):
+def _runUnitTests_byLevelPresets(level, excluding=None):
     '''
         Level 1 Runs just the quickest tests (Excludes tests in test_Rocket and test_SimulationRunners)
         Level 2 Excludes tests in test_SimulationRunners
@@ -89,15 +82,23 @@ def runTests_byLevelPresets(level, excluding=None):
     if level == 0:
         return None
     elif level == 1:
-        return runTests(exclude=["SimulationRunners", "Rocket", "IO"])
+        return runUnitTests(exclude=["SimulationRunners", "Rocket", "IO"])
     elif level == 2:
-        return runTests(exclude=["SimulationRunners", "Rocket"])
+        return runUnitTests(exclude=["SimulationRunners", "Rocket"])
     elif level == 3:
-        return runTests(exclude=["SimulationRunners"])
+        return runUnitTests(exclude=["SimulationRunners"])
     else:
-        return runTests()
+        return runUnitTests()
 
-def reOutputUnitTestResults(result):
+def _runRegressionTests():
+    print("\n----------------------------------------------------------------------")
+    print("RUNNING REGRESSION TESTS\n")
+
+    return runBatchSim(["./MAPLEAF/Examples/Simulations/regressionTests.mapleaf"])
+
+
+#### Command line interface ####
+def _reOutputUnitTestResults(result):
     print("\n----------------------------------------------------------------------")
     print("UNIT TEST Results")
     passed = result.testsRun - len(result.failures) - len(result.errors)
@@ -119,7 +120,7 @@ def reOutputUnitTestResults(result):
     else:
         print("FAIL")
 
-def build_Parser() -> argparse.ArgumentParser:
+def _build_Parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description="""
     Convenience script for running subsets of the unittest test suite OR all tests including the regression test suite.  
 
@@ -140,7 +141,8 @@ def build_Parser() -> argparse.ArgumentParser:
         python runTests.py 3                        {startGray}# Exclude SimulationRunners{endColor}
         python runTests.py 4                        {startGray}# All unit tests{endColor}
         python runTests.py 5                        {startGray}# All unit and regression tests{endColor}
-    """.format(startGray="\033[90m", endColor="\033[0m"))
+    """.format(startGray="\033[90m", endColor="\033[0m")) # https://en.wikipedia.org/wiki/ANSI_escape_code#Escape_sequences
+
     parser.add_argument(
         "--excluding",
         nargs='*',
@@ -156,14 +158,14 @@ def build_Parser() -> argparse.ArgumentParser:
     
     return parser
 
-def checkForMutuallyExclusiveArgs(args):
+def _checkForMutuallyExclusiveArgs(args):
     if len(args.Including) > 0 and len(args.excluding) > 0:
         raise ValueError("Script can only be run in inclusive or exclusive mode")
 
 def main(argv=None):
-    parser = build_Parser()
+    parser = _build_Parser()
     args = parser.parse_args(argv)
-    checkForMutuallyExclusiveArgs(args)
+    _checkForMutuallyExclusiveArgs(args)
     runRegressionTests = False
 
     ### Run unit tests ###
@@ -182,27 +184,24 @@ def main(argv=None):
             level = int(args.Including[0])
             if level >= 4:
                 runRegressionTests = True # For levels >= 5, run all unit tests and all regression tests
-            unittestResult = runTests_byLevelPresets(level)
+            unittestResult = _runUnitTests_byLevelPresets(level)
         except ValueError:
             pass
 
     if unittestResult == None and args.Including != [ "0" ]:
         if len(args.excluding) > 0:
-            unittestResult = runTests(exclude=args.excluding)
+            unittestResult = runUnitTests(exclude=args.excluding)
         elif len(args.Including) > 0:
-            unittestResult = runTests(include=args.Including)
+            unittestResult = runUnitTests(include=args.Including)
         else:
-            unittestResult = runTests()
+            unittestResult = runUnitTests()
 
     if runRegressionTests:
         sys.stdout = sys.__stdout__ # Remove any leftover loggers
-        print("\n----------------------------------------------------------------------")
-        print("RUNNING REGRESSION TESTS\n")
-
-        runBatchSim(["./MAPLEAF/Examples/Simulations/regressionTests.mapleaf"])
+        _runRegressionTests()
 
         if unittestResult != None:
-            reOutputUnitTestResults(unittestResult)            
+            _reOutputUnitTestResults(unittestResult)            
 
 if __name__ == "__main__":
     main()
