@@ -21,9 +21,9 @@ from MAPLEAF.SimulationRunners.Batch import main as batchMain
 def buildParser() -> argparse.ArgumentParser:
     ''' Builds the command-line argument parser using argparse '''
     parser = argparse.ArgumentParser(description="""
-    Command line interface for the rocket simulator 
+    Command line interface for running single MAPLEAF simulations.
     Runs simulations defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations/ 
-    All possible options for sim definition files defined in ./SimDefinitionTemplate.txt
+    All possible options for sim definition files defined in ./SimDefinitionTemplate.mapleaf
     """)
 
     parser.add_argument(

@@ -31,7 +31,7 @@ percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obt
 def main(argv=None):    
     # Parse command line arguments
     parser = _buildParser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # Load definition file
     from MAPLEAF.Main import findSimDefinitionFile # Delayed import here to avoid circular imports
@@ -90,7 +90,8 @@ def batchRun(batchDefinition, caseNameSpec=None, recordAll=False, printStackTrac
 
     # Output result summary
     print("----------------------------------------------------------------------")
-    print("Time to run {} Case(s): {:>.2f} s".format(nCases, runTime))
+    print("BATCH RUN RESULTS")
+    print("Ran {} Case(s) in {:>.2f} s".format(nCases, runTime))
 
     if nComparisonSets > 0:
         totalSimAvgError = totalSimError/nComparisonSets
