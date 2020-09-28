@@ -30,7 +30,7 @@ ExampleWindTunnelCase{
     SamplePlot{
       columnsToPlot               Cd AeroCFZ NoseconeCFZ TailFinsCFZ BodyTubeCFZ
       xColumnName                 Mach
-      overwriteImages             True
+      overwrite             True
       lineFormat					--b
       xLabel						Mach
       yLabel						Coefficient of Drag
@@ -71,7 +71,7 @@ OpenRocketWindTunnelCase{
 			yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				Simulator
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/WindTunnel/OpenRocketWindTunnelPlot.pdf
 		 
 			ComparisonDataExp{
@@ -105,7 +105,7 @@ OpenRocketWindTunnelCase{
 ExampleCase1{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		Mach	    	0.3514
 		PositionX		-0.332
 		Time(s)	    	1.001
@@ -153,7 +153,7 @@ B4-4SimpleRocketCase{
 		SimControl.EndCondition		Apogee
 	}
 
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX(m)	-1.275
 		PositionY(m)	0.0
 		PositionZ(m)	67.818
@@ -221,7 +221,7 @@ C6-3SimpleRocketCase{
 		SimControl.EndCondition		Apogee
 	}
 
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX(m)	1.8459999999999999
 		PositionY(m)	0.0
 		PositionZ(m)	156.835
@@ -280,7 +280,7 @@ C6-3SimpleRocketCase{
 HaisunaataCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/Haisunaata.mapleaf
 
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX(m)	-138.064
 		PositionY(m)	0.0
 		PositionZ(m)	859.154
@@ -352,7 +352,7 @@ RollingRocketCase{
 		SimControl.timeStep							0.005
     }
 
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX(m)	-9.898
 		PositionY(m)	1.51
 		PositionZ(m)	123.546
@@ -446,7 +446,7 @@ Sparrow287{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowLowMachCl.pdf
 			scalingFactor	-1
 			xColumnName	AOA(deg)
@@ -477,7 +477,7 @@ Sparrow287{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowLowMachCn.pdf
 			scalingFactor	-1
 			xColumnName	AOA(deg)
@@ -508,7 +508,7 @@ Sparrow287{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowLowMachCy.pdf
 			scalingFactor	-1
 			xColumnName	AOA(deg)
@@ -565,7 +565,7 @@ Sparrow46{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowHighMachCl.pdf
 			scalingFactor	-1
 			xColumnName	AOA(deg)
@@ -596,7 +596,7 @@ Sparrow46{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowHighMachCn.pdf
 			scalingFactor	-1
 			xColumnName	AOA(deg)
@@ -627,7 +627,7 @@ Sparrow46{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowHighMachCy.pdf
 			scalingFactor	-1
 			xColumnName	AOA(deg)
@@ -667,7 +667,7 @@ SparrowWindTunnelCase{
 			columnsToPlot	AeroCFZ
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/SparrowWindTunnelPlot.pdf
 			xColumnName	Mach
 			xLabel	Mach
@@ -729,7 +729,7 @@ SparrowWindTunnelCase2{
 
 			legendLabel	MAPLEAF
 			lineFormat	--b
-			overwriteImages	True
+			overwrite	True
 			saveLocation	./test/regressionTesting/Sparrow/SparrowAOAPlot.pdf
 			xColumnName	AOA(deg)
 			xLabel	$\alpha$
@@ -767,7 +767,7 @@ ConventionalRocketCase{
 			xLabel						$\alpha$
 			yLabel						$C_m$
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Conventional/ConventionalCm.pdf
 			
 			ComparisonDataAP98{
@@ -801,7 +801,7 @@ ConventionalRocketCase{
 			yLabel							$C_N$
 			legendLabel					MAPLEAF
 			scalingFactor			-1
-			overwriteImages			True
+			overwrite			True
 			saveLocation				./test/regressionTesting/Conventional/ConventionalCN.pdf
 
 			ComparisonDataAP98{
@@ -853,7 +853,7 @@ ParametricFinCase1{
 
 	ParameterSweep{
 
-		smoothLine					True
+		smoothLine				True
 
 		velocitySweep{
 			sweptParameter		Rocket.velocity
@@ -877,12 +877,12 @@ ParametricFinCase1{
 		}
 		
 		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
+			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
+			column				Mach
 		}
 		AOAResults{
-			expectedValues			2.99,3,3,2.72,3.01,3.04,3.05,3.03
-			column							AOA(deg)
+			expectedValues		2.99,3,3,2.72,3.01,3.04,3.05,3.03
+			column				AOA(deg)
 		}
 	}
 
@@ -898,7 +898,7 @@ ParametricFinCase1{
 			# yLimits						0 1
 			legendLabel					MAPLEAF
 			# scalingFactor			    -1
-			overwriteImages			    True
+			overwrite			    True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin1CN.pdf
 
 			ComparisonData{
@@ -924,11 +924,11 @@ ParametricFinCase1{
 			columnsToPlot			AeroCFZ
 			xColumnName				Mach
 			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
+			xLabel					Mach
+			yLabel					$C_A$
 			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwriteImages		True
+			scalingFactor			-1
+			overwrite			True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin1CA.pdf
 
 			ComparisonData{
@@ -936,7 +936,7 @@ ParametricFinCase1{
 				xColumnName			Mach
 				lineFormat			.k
 				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin1Cd.csv
+				file				./test/regressionTesting/Parametric/ParametricFin1Cd.csv
 				# compareToSim		AeroCFZ
 			}
 
@@ -945,7 +945,7 @@ ParametricFinCase1{
 			# 	xColumnName			Mach
 			# 	lineFormat			py
 			# 	legendLabel			OpenRocket v15.03
-			# 	file						./test/regressionTesting/Parametric/ParametricFin1CdOR.csv
+			# 	file				./test/regressionTesting/Parametric/ParametricFin1CdOR.csv
 			# }
 		}
 
@@ -953,11 +953,11 @@ ParametricFinCase1{
 			columnsToPlot			AeroCMY
 			xColumnName				Mach
 			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			# scalingFactor		-1
+			xLabel					Mach
+			yLabel					$C_m$
+			# scalingFactor			-1
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite			True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin1Cm.pdf
 
 			ComparisonData{
@@ -965,7 +965,7 @@ ParametricFinCase1{
 				xColumnName			Mach
 				lineFormat			.k
 				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin1Cm.csv
+				file				./test/regressionTesting/Parametric/ParametricFin1Cm.csv
 			}
 		}
 	}
@@ -978,7 +978,7 @@ ParametricFinCase5{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.64008)
 		Rocket.Sustainer.TailFins.rootChord			0.0762
 		Rocket.Sustainer.TailFins.tipChord			0.0381
-		Rocket.Sustainer.TailFins.span					0.0762
+		Rocket.Sustainer.TailFins.span				0.0762
 		Rocket.Sustainer.TailFins.sweepAngle		26.565
 		Rocket.Sustainer.TailFins.thickness			0.0025527
 	}
@@ -1030,7 +1030,7 @@ ParametricFinCase5{
 			yLimits						0 1
 			legendLabel					MAPLEAF
 			scalingFactor			    -1
-			overwriteImages			    True
+			overwrite			    True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin5CN.pdf
 
 			ComparisonData{
@@ -1059,7 +1059,7 @@ ParametricFinCase5{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin5CA.pdf
 
 			ComparisonData{
@@ -1088,7 +1088,7 @@ ParametricFinCase5{
 			yLabel						$C_m$
 			scalingFactor		-1
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin5Cm.pdf
 
 			ComparisonData{
@@ -1161,7 +1161,7 @@ ParametricFinCase9{
 			# yLimits						0 1
 			legendLabel					MAPLEAF
 			# scalingFactor			    -1
-			overwriteImages			    True
+			overwrite			    True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin9CN.pdf
 
 			ComparisonData{
@@ -1190,7 +1190,7 @@ ParametricFinCase9{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin9CA.pdf
 
 			ComparisonData{
@@ -1219,7 +1219,7 @@ ParametricFinCase9{
 			yLabel						$C_m$
 			# scalingFactor		-1
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin9Cm.pdf
 
 			ComparisonData{
@@ -1290,7 +1290,7 @@ ParametricFinCase10{
 			yLimits						0 0.8
 			legendLabel					MAPLEAF
 			scalingFactor			-1
-			overwriteImages			True
+			overwrite			True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin10CN.pdf
 
 			ComparisonData{
@@ -1318,7 +1318,7 @@ ParametricFinCase10{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin10CA.pdf
 
 			ComparisonData{
@@ -1347,7 +1347,7 @@ ParametricFinCase10{
 			yLabel						$C_m$
 			scalingFactor		-1
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin10Cm.pdf
 
 			ComparisonData{
@@ -1418,7 +1418,7 @@ ParametricFinCase12{
 			xLimits						0.5 4
 			yLimits						0 1.8
 			legendLabel					MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin12CN.pdf
 
 			ComparisonData{
@@ -1446,7 +1446,7 @@ ParametricFinCase12{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin12CA.pdf
 
 			ComparisonData{
@@ -1473,7 +1473,7 @@ ParametricFinCase12{
 			xLabel						Mach
 			yLabel						$C_m$
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin12Cm.pdf
 
 			ComparisonData{
@@ -1543,7 +1543,7 @@ ParametricFinCase5_0AOA{
 			yLabel							$C_N$
 			legendLabel					MAPLEAF
 			scalingFactor			-1
-			overwriteImages			True
+			overwrite			True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin5CN_0AOA.pdf
 
 			ComparisonData{
@@ -1563,7 +1563,7 @@ ParametricFinCase5_0AOA{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin5CA_0AOA.pdf
 
 			ComparisonData{
@@ -1591,7 +1591,7 @@ ParametricFinCase5_0AOA{
 			yLabel						$C_m$
 			scalingFactor		-1
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin5Cm_0AOA.pdf
 
 			ComparisonData{
@@ -1661,7 +1661,7 @@ ParametricFinCase10_0AOA{
 			yLabel							$C_N$
 			legendLabel					MAPLEAF
 			scalingFactor			-1
-			overwriteImages			True
+			overwrite			True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin10CN_0AOA.pdf
 
 			ComparisonData{
@@ -1681,7 +1681,7 @@ ParametricFinCase10_0AOA{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin10CA_0AOA.pdf
 
 			ComparisonData{
@@ -1709,7 +1709,7 @@ ParametricFinCase10_0AOA{
 			yLabel						$C_m$
 			scalingFactor		-1
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin10Cm_0AOA.pdf
 
 			ComparisonData{
@@ -1778,7 +1778,7 @@ ParametricFinCase12_0AOA{
 			xLabel							Mach
 			yLabel							$C_N$
 			legendLabel					MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation				./test/regressionTesting/Parametric/ParametricFin12CN_0AOA.pdf
 
 			ComparisonData{
@@ -1798,7 +1798,7 @@ ParametricFinCase12_0AOA{
 			yLabel						$C_A$
 			legendLabel				MAPLEAF
 			scalingFactor		-1
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin12CA_0AOA.pdf
 
 			ComparisonData{
@@ -1825,7 +1825,7 @@ ParametricFinCase12_0AOA{
 			xLabel						Mach
 			yLabel						$C_m$
 			legendLabel				MAPLEAF
-			overwriteImages		True
+			overwrite		True
 			saveLocation			./test/regressionTesting/Parametric/ParametricFin12Cm_0AOA.pdf
 
 			ComparisonData{
@@ -1847,7 +1847,7 @@ NASADraglessSphere{
 	}
 
 	# Expected values from NASA Sim 4
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX		6382876.054
 		PositionY   	13969.82281
 		PositionZ		0.0
@@ -1937,7 +1937,7 @@ NASACdSphere_RoundEarth{
 	}
 
 	# Expected values from NASA Sim 4
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX				6375952.953
 		PositionY   		13954.22714
 		PositionZ				0.0
@@ -1956,7 +1956,7 @@ NASACdSphere_WGS84{
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
 
 	# Expected values from NASA Sim 4
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX				6383085.212
 		PositionY   		13969.82655
 		PositionZ				0.0
@@ -1980,7 +1980,7 @@ NASACdSphere_WGS84Wind{
 	}
 
 	# Expected values from NASA Sim 4
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX			6383085.4118580
 		PositionY   		13978.2005101
 		PositionZ			0.0
@@ -1999,7 +1999,7 @@ NASADampedBrick{
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASABrick.mapleaf
 
 	# Expected values from NASA Sim 4
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX		6382876.054
 		PositionY   	13969.82281
 		PositionZ		0.0
@@ -2087,7 +2087,7 @@ NASADampedBrick{
 
 	# Final orientation is different than in the NASADampedBrick case due to lack of damping
 	# Position / Velocity results are the same
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		EulerAngleX		-0.980025197
 		EulerAngleY		-0.066646 # -0.066665555 with tighter time step
 		EulerAngleZ		-0.074831 # -0.074863368 with tighter time step
@@ -2101,7 +2101,7 @@ NASATwoStageOrbitalRocket{
 		SimControl.StageDropPaths.compute false
 	}
 
-	ExpectedResultsAtEndOfSim{
+	ExpectedFinalValues{
 		PositionX(m)	6598829.9
 		PositionY(m)	637702.775
 		PositionZ(m)	0.0
@@ -2264,7 +2264,7 @@ StaticStabilityLongFinsOn{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCAFin.pdf
 		 
 			ComparisonDataExp{
@@ -2285,7 +2285,7 @@ StaticStabilityLongFinsOn{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCmFin.pdf
 		 
 			ComparisonDataExp{
@@ -2306,7 +2306,7 @@ StaticStabilityLongFinsOn{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCNFin.pdf
 		 
 			ComparisonDataExp{
@@ -2372,7 +2372,7 @@ StaticStabilityLongFinsOff{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCAFinsOff.pdf
 		 
 			ComparisonDataExp{
@@ -2393,7 +2393,7 @@ StaticStabilityLongFinsOff{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCmFinsOff.pdf
 		 
 			ComparisonDataExp{
@@ -2414,7 +2414,7 @@ StaticStabilityLongFinsOff{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCNFinsOff.pdf
 		 
 			ComparisonDataExp{
@@ -2483,7 +2483,7 @@ StaticStabilityLongFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCACant.pdf
 		 
 			ComparisonDataExp{
@@ -2504,7 +2504,7 @@ StaticStabilityLongFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongClCant.pdf
 		 
 			ComparisonDataExp{
@@ -2525,7 +2525,7 @@ StaticStabilityLongFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCmCant.pdf
 		 
 			ComparisonDataExp{
@@ -2546,7 +2546,7 @@ StaticStabilityLongFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCNCant.pdf
 		 
 			ComparisonDataExp{
@@ -2614,7 +2614,7 @@ StaticStabilityShortFinsOn{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCAFin.pdf
 		 
 			ComparisonDataExp{
@@ -2635,7 +2635,7 @@ StaticStabilityShortFinsOn{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCmFin.pdf
 		 
 			ComparisonDataExp{
@@ -2656,7 +2656,7 @@ StaticStabilityShortFinsOn{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCNFin.pdf
 		 
 			ComparisonDataExp{
@@ -2722,7 +2722,7 @@ StaticStabilityShortFinsOff{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCAFinsOff.pdf
 		 
 			ComparisonDataExp{
@@ -2743,7 +2743,7 @@ StaticStabilityShortFinsOff{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCmFinsOff.pdf
 		 
 			ComparisonDataExp{
@@ -2764,7 +2764,7 @@ StaticStabilityShortFinsOff{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCNFinsOff.pdf
 		 
 			ComparisonDataExp{
@@ -2833,7 +2833,7 @@ StaticStabilityShortFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCACant.pdf
 		 
 			ComparisonDataExp{
@@ -2854,7 +2854,7 @@ StaticStabilityShortFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortClCant.pdf
 		 
 			ComparisonDataExp{
@@ -2875,7 +2875,7 @@ StaticStabilityShortFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCmCant.pdf
 		 
 			ComparisonDataExp{
@@ -2896,7 +2896,7 @@ StaticStabilityShortFinsCant{
 			# yLimits				    0 1.0
       scalingFactor           -1
 			legendLabel				MAPLEAF
-			overwriteImages			True
+			overwrite			True
 			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCNCant.pdf
 		 
 			ComparisonDataExp{

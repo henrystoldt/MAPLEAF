@@ -21,7 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install coverage
-        python setup.py build_ext --inplace
+        pip install .
                 
     - name: Test with unittest
       run: |

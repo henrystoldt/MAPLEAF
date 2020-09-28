@@ -27,7 +27,7 @@ __all__ = [ "main", "run", "BatchRun" ]
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
 
-    def __init__(self, batchDefinition: SimDefinition, recordAll=False, printStackTraces=False, caseNameSpec=None, percentErrorTolerance=0.01):
+    def __init__(self, batchDefinition: SimDefinition, recordAll=False, printStackTraces=False, caseNameSpec=None, percentErrorTolerance=0.01, resultToValidate=None):
         self.batchDefinition = batchDefinition
         self.recordAll = recordAll
         self.printStackTraces = printStackTraces
@@ -44,6 +44,10 @@ class BatchRun():
         self.warningCount = 0
         self.percentErrorTolerance = percentErrorTolerance
 
+        self.validationError = 0
+        self.validationDataUsed = []
+        self.resultToValidate = resultToValidate
+
     def getCasesToRun(self):
         subDicts = self.batchDefinition.getImmediateSubDicts("")
         
@@ -59,6 +63,48 @@ class BatchRun():
                     casesToRun.append(caseDict)
 
             return casesToRun
+    
+    def printResult(self, timeToRun=None) -> int:
+        """ Outputs result summary """
+        print("\n----------------------------------------------------------------------")
+        print("BATCH RUN RESULTS")
+
+        if timeToRun != None:
+            print("Ran {} Case(s) in {:>.2f} s".format(self.nCasesRun, timeToRun))
+        else:
+            print("Ran {} Case(s)".format(self.nCasesRun))
+
+        # TODO: Validation stuff
+        # if nComparisonSets > 0:
+        #     totalSimAvgError = totalSimError/nComparisonSets
+        #     print("")
+        #     print("Total Average Error for Entire Simulation: %6.2f %%\n" %(totalSimAvgError))
+
+        if self.warningCount > 0:
+            print("Errors/Warnings: {}".format(self.warningCount))
+
+        if len(self.casesWithNewRecordedResults) > 0:
+            recordedCaseList = ", ".join(self.casesWithNewRecordedResults)
+            print("New expected results were recorded for the following cases: {}".format(recordedCaseList))
+            _writeModifiedTestDefinitionFile(self.batchDefinition)
+
+        if self.nCasesOk == self.nCasesRun:
+            print("{} Case(s) ok".format(self.nCasesOk))
+            print("")
+            if self.warningCount == 0:
+                print("OK")
+            else:
+                print("WARNING")
+
+            return 0
+        else:
+            nCasesFailed = self.nCasesRun - self.nCasesOk
+            nTests = self.nTestsOk + self.nTestsFailed
+            print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, self.nCasesRun, self.nTestsFailed, nTests))
+            print("")
+            print("FAIL")
+
+            return 1
 
 
 #### Command Line Parsing ####
@@ -101,39 +147,7 @@ def run(batchRun: BatchRun) -> int:
         batchRun.nCasesRun += 1
 
     runTime = time.time() - startTime
-
-    # Output result summary
-    print("\n----------------------------------------------------------------------")
-    print("BATCH RUN RESULTS")
-    print("Ran {} Case(s) in {:>.2f} s".format(nCases, runTime))
-
-    if nComparisonSets > 0:
-        totalSimAvgError = totalSimError/nComparisonSets
-        print("")
-        print("Total Average Error for Entire Simulation: %6.2f %%\n" %(totalSimAvgError))
-    
-    if warningCount > 0:
-        print("Errors/Warnings: {}".format(warningCount))
-
-    if len(casesWhoseExpectedResultsWereUpdated) > 0:
-        print("New expected results were recorded for the following cases: {}".format(", ".join(casesWhoseExpectedResultsWereUpdated)))
-        _writeModifiedTestDefinitionFile(batchDefinition)        
-
-    if nCasesOk == nCases:
-        print("{} Case(s) ok".format(nCases))
-        print("")
-        if warningCount == 0:
-            print("OK")
-        else:
-            print("WARNING")
-        return 0
-    else:
-        nCasesFailed = nCases - nCasesOk
-        nTests = nTestsOk + nTestsFailed
-        print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, nCases, nTestsFailed, nTests))
-        print("")
-        print("FAIL")
-        return 1
+    return batchRun.printResult(runTime)
 
 #### 1. Load / Run Sim ####
 def _runCase(caseName: str, batchRun: BatchRun):
@@ -212,7 +226,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     ''' Runs a parameter sweep / wind tunnel simulation, checks+plots results '''
     print("  Parameter Sweep Case")
 
-    # Get input data from text file
+    # Find dictionaries of expected results & parameter sweeps
     ParametersToSweepOver = []
     expectedResultsDicts = []
     ParameterSweepDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + ".ParameterSweep")
@@ -222,20 +236,20 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         else:
             ParametersToSweepOver.append(SubDict)
 
+    # Parse parameter sweep values
     sweptParameters = []
     parameterValues = []
     for parameter in ParametersToSweepOver:
         sweptParameters.append(caseDictReader.getString(parameter + '.sweptParameter'))
         parameterValues.append(caseDictReader.getString(parameter + '.parameterValues'))
-
-    # Expand linspace-type specs
     parameterValues = [ _parseParameterSweepValues(valString) for valString in parameterValues ]
 
+    # Check that all parameters are being swept over an equal number of points
     if not all(len(sub) == len(parameterValues[0]) for sub in parameterValues):
         print("parameterSweep value are not equal lengths!")
         batchRun.warningCount += 1
     
-    # Check whether to run 10x the points to make the line smooth
+    # Check whether to add points for smoother plots
     if len(parameterValues) < 25:
         smoothLineDefault = 'True'
     else:
@@ -243,8 +257,8 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
     try:
+        simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
         logFilePaths = simRunner.runSweep()
     except:
         _handleSimCrash(batchRun)
@@ -252,11 +266,6 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         Logging.removeLogger()
 
     # Check results
-    numTestsOk = 0
-    numTestsFailed = 0
-    newExpectedValuesRecorded = False
-    compareToSim = False
-    errorStats = [0.0, 0]
     plotsSubDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + ".PlotsToGenerate") # access plot sub dicts
     for plotSubDict in plotsSubDicts: # loop through plot sub dicts
         comparisonResults = caseDictReader.getImmediateSubDicts(plotSubDict) # access the comparison data dicts
@@ -264,12 +273,10 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             if caseDictReader.tryGetString(comparisonResult + ".compareToSim") != None: # check for compareToSim key
                 compareToSim = True # conditional variable needed to not divide by 0 later on in the error calcs
                 expectedResultsDicts.append(comparisonResult) # if compareToSim exists, add that comparisonDataDict to the expectedResultsDict
-                errorStats[1] +=1
 
     compCasesCount = 0 # initialize, final total will be equal to number of plotted comparison data sets included in error calcs
     totalAvgError = 0 # initialize, this variable tracks total avg error for all plotted comparison data that is elected to be included in error calcs
     for expectedResultsDict in expectedResultsDicts: # loop through expected results. Manually inputed values, as well as comparisonData in the plots
-
 
         if caseDictReader.tryGetString(expectedResultsDict + ".compareToSim") != None: # this checks if the expected results came from comparisonPlot data, or user inputted expectedResults
             showAvgError = True # do an average percent error calc for this data set
@@ -343,7 +350,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         totalAvgError /= compCasesCount # get average error for all parameters in this case (only for data that came from plotted comparison data)
         print("Total average error for all comparison data: %6.2f %%\n" %(totalAvgError)) # Well I am sure you know what this does
 
-    return logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats
+    return logFilePaths
 
 def _parseParameterSweepValues(parameterValues):
     '''
@@ -394,7 +401,7 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
         Logging.removeLogger()
 
     #### Compare and/or record numerical results from final simulation state, output pass/fail ####
-    expectedResultKeys = caseDictReader.getSubKeys("ExpectedResultsAtEndOfSim")
+    expectedResultKeys = caseDictReader.getSubKeys("ExpectedFinalValues")
 
     if len(expectedResultKeys) == 0:
         # If no expected results are provided, record the default set
@@ -428,12 +435,12 @@ def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictRead
     colsToRecord = [ "PositionX", "PositionY", "PositionZ", "VelocityX", "VelocityY", "VelocityZ"]
 
     for column in colsToRecord:
-        batchRun.batchDefinition.setValue(caseName + ".ExpectedResultsAtEndOfSim." + column, "Record" )
+        batchRun.batchDefinition.setValue(caseName + ".ExpectedFinalValues." + column, "Record" )
 
 def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths, expectedResultKeys):
     ''' Checks every values in the expected results at end of sim dictionary '''
     for resultKey in expectedResultKeys:
-        logColumnSpec = resultKey[resultKey.rfind(".")+1:] # From CaseName.ExpectedResultsAtEndOfSim.PositionX -> PositionX
+        logColumnSpec = resultKey[resultKey.rfind(".")+1:] # From CaseName.ExpectedFinalValues.PositionX -> PositionX
 
         try:
             if batchRun.recordAll:
@@ -529,25 +536,30 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim = _setUpFigure(plotDictReader)
 
     ### Plot all the requested data from MAPLEAF's results ###
-    plottedColumns = []
+    mapleafCols = []
+    mapleafX = []
+    mapleafData = []
     for logFilePath in logFilePaths:
-        columnData, columnNames = Plotting.getLoggedColumns(logFilePath, columnSpecs, columnsToExclude=plottedColumns)
+        columnData, columnNames = Plotting.getLoggedColumns(logFilePath, columnSpecs, columnsToExclude=mapleafCols)
         if len(columnNames) > 1:
             # Only plot if we've found (at minimum) an X-column and a Y-column (2 columns)
             adjustX = True if xLim == ["False"] else False
             _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
 
             # Avoid plotting columns twice!
-            plottedColumns += columnNames
-
-            if xColumnName in plottedColumns:
-                plottedColumns.remove(xColumnName)
+            for i in range(len(columnNames)):
+                if columnNames[i] != xColumnName:
+                    mapleafCols.append(columnNames[i])
+                    mapleafData.append(columnData[i])
+                else:
+                    mapleafX.append(columnData[i])
 
     #### Plot comparison data ####
     compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
     for compDataDict in compDataDictionaries:
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
-        _plotComparisonData(batchRun, ax, compDataDictReader)
+        valData, valCols, valXCol = _plotComparisonData(batchRun, ax, compDataDictReader)
+        _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol)
     
     #### Finalize + Save Plot ####  
     if yLim == ["False"]:
@@ -560,10 +572,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     saveFilePath = plotDictReader.getString("saveLocation")
     saveDirectory = os.path.dirname(saveFilePath)
     saveFileName = os.path.basename(saveFilePath)
-    overwriteImages = plotDictReader.tryGetBool("overwriteImages", defaultValue=True)
+    overwrite = plotDictReader.tryGetBool("overwrite", defaultValue=True)
 
     # Save plot
-    gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwriteImages, epsVersion=False, pngVersion=False, printStatementPrefix="  ")
+    gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=False, printStatementPrefix="  ")
     plt.close(fig) # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
 
 def _setUpFigure(plotDictReader: SubDictReader):
@@ -622,6 +634,7 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     lineFormat = compDataDictReader.tryGetString("lineFormat", defaultValue="k-").split()
     legendLabel = compDataDictReader.tryGetString("legendLabel", defaultValue="Label").split(',')
     scalingFactor = compDataDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
+    validationData = compDataDictReader.tryGetBool("validationData", defaultValue=True)
 
     # If comparison data entries found in the plot dictionary, load and plot the comparison data
     if compDataPath != None and len(compColumnSpecs) > 0:
@@ -638,9 +651,18 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
 
             _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
 
+            if validationData:
+                return compColData, compColNames, xColumnName
+
         except FileNotFoundError:
             print("  ERROR: Comparison data file: {} not found".format(compDataPath))
             batchRun.warningCount += 1
+
+    else:
+        print("   ERROR: Locating comparison data, file: {}, columns to plot: {}".format(compDataPath, compColumnSpecs))
+        batchRun.warningCount += 1
+
+    return [], []
 
 def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, linewidth=1.5, adjustXaxisToFit=False):
     '''
@@ -676,6 +698,20 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             # Point
             ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
 
+def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol: str):
+    '''
+        Inputs:
+            mapleafCols:    (List[str]) List of the column names plotted against the present comparison data mapleaf
+            mapleafX:       (List[float]) Mapleaf X-data
+            mapleafData:    (List[List[float]]) Mapleaf data for each of the column names in mapleafCols (order should match)
+            
+            valCols:        (List[str]) List of column names of validation data to be plotted
+            valData:        (List[List[float]]) Comparison data for each of the column names in valCols (order should match)
+            valXCol:        (str) Name of the x-column data in valCols / valData
+
+        Outputs:
+            Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
+    '''
 
 
 #### Utility functions ####

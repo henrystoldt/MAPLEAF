@@ -1,4 +1,4 @@
-ExampleFullFlightCase{
+ExampleFlightCase{
     simDefinitionFile                   ./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
     ParameterOverrides{ # (Optional)
@@ -10,24 +10,24 @@ ExampleFullFlightCase{
         # SimControl.RocketPlot will always be set to 'Off' (unless overridden here)
     }
 
-    ExpectedResultsAtEndOfSim{ # (Optional)
+    ExpectedFinalValues{ # (Optional)
         # Full/partial log column names or regex. Must match only a single column
         # Note that the program will first try to find these columns in the simulationLog, then in the forceEvaluation log. 
-            # Columns that exist in both logs (ex. PositionX(m), will be taken from the mainSimulationLog
+            # Columns that exist in both logs (ex. PositionX(m)), will be taken from the mainSimulationLog
         PositionX                       -2.768
         Time(s)                         0.9856
 
         # If the value is "Record", no check will be performed, but the ending value of the specified parameter will be recorded.
         # If no ExpectedResults are provided, final Position and Velocity X/Y/Z attributes will be auto-recorded
-        # Recorded data will be written to a new file: test/regressionTesting/testDefinitions_newExpectedResultsRecorded.mapleaf
+        # Recorded data will be written to a new file: [origninalBatchFile]_newExpectedResultsRecorded.mapleaf
         Mach                            Record
     }
     
-    PlotsToGenerate{ # (Optional - plots are not shown, only saved to file)
+    PlotsToGenerate{ # (Optional - plots saved to file)
         SamplePlot{
-            # Generate a plot of MAPLEAF's results, and (optional) comparison data            
+            # Generate a plot of MAPLEAF's results + comparison data            
             columnsToPlot               PositionZ ^VelocityZ # Full/partial log column names and/or regex
-            saveLocation                ./test/regressionTesting/SamplePlot.pdf # Will always save .pdf plot, even if a different format is given here
+            saveLocation                ./test/regressionTesting/SamplePlot.pdf # Always saves .pdf plots
 
             xColumnName                 Time(s)             # (Optional) specify which column will be plotted on the x-axis (default is Time(s))
             lineFormat					--b                 # (Optional) matplotlib-style line format
@@ -35,13 +35,13 @@ ExampleFullFlightCase{
             yLabel						Position, Velocity  # (Optional)
             xLimits						0.2 1.6             # (Optional)
             yLimits						-1.2 1.2            # (Optional)
-			scalingFactor				-1                  # (Optional) Use to invert data or convert units - scales all MAPLEAF's results by a constant factor
-            plotTitle					Example Full Flight # (Optional)
+			scalingFactor				1                   # (Optional) Use to invert data or convert units - scales MAPLEAF's results by a constant factor
+            offset                      0                   # (Optional) Add scalar to MAPLEAF's results
             legendLabel					Total               # (Optional) Label of MAPLEAF line
-            overwriteImages             True                # (Optional), True is default
+            overwrite                   True                # (Optional)
 
             # Each subdictionary is assumed to contain comparison data. Can have any number of these
-            flightComparisonData{
+            flightComparisonData{ # (Optional)
                 # Comparison data file should be a simple .csv table
                     # First row should have headers, each subsequent row should have scalar numeric entries
                 file                    ./test/regressionTesting/sampleComparisonData.csv         
@@ -51,6 +51,11 @@ ExampleFullFlightCase{
                 xColumnName             Time(s)                 # (Optional) - supply if not 'Time(s)'       
                 lineFormat              :c                      # (Optional) matplotlib-style line format
                 legendLabel             Analytical Data [12]    # (Optional), otherwise uses column headers
+                
+                # (Optional), if True, data will be used to assess the accuracy of MAPLEAF results
+                    # Assumes there's only a single line of MAPLEAF data plotted, comparison data is compared to that
+                    # Used when running `mapleaf-batch --validate`
+                validationData          True                    
             }
         }
     }
@@ -58,30 +63,33 @@ ExampleFullFlightCase{
 
 ExampleWindTunnelCase{
 
-    # Each test case can only be a ParameterSweep (Wind Tunnel) case or an ExpectedResultsAtEndOfSim (Full Flight) case.
+    # Each test case can only be a ParameterSweep (Wind Tunnel) case or an ExpectedFinalValues (Full Flight) case.
         # If both subdictionaries are present, the ParameterSweep mode takes priority
     ParameterSweep{
 
         velocitySweep{ # SubDict name can be anything, as long as it does not contrain "Results"
-            sweptParameter                 Rocket.velocity # Can be any parameter in the simulation definition file
-            parameterValues                 (0 0 100), (0 0 200), (0 0 300) # Provide COMMA-separated list of values - can also just be a single value
+            sweptParameter              Rocket.velocity # Can be any parameter in the simulation definition file
+            parameterValues             (0 0 100), (0 0 200), (0 0 300) # Provide COMMA-separated list of values - can also just be a single value
+                
                 # Can also specify a range of values to loop over firstValue:numSteps:finalValue
-                    # Scalar example: 0:50:1.75
-                    # Vector example: (0 0 100):50:(0 0 300)
+                    # Scalar example:   0:50:1.75
+                    # Vector example:   (0 0 100):50:(0 0 300)
         }
 
-        MachResults{ # Results dictionaries must contain "Results" (same capitalization), or they will be treated as parameterSweepValues
+        MachResults{ # Results dictionary names must contain "Results"
             column                      Mach # Any logged column of results
             
             # COMMA-separated list of scalar expected result values OR 'Record'
-                # Number of expectedValues must macth number (and order) of parameterValues
-			expectedValues	0.2955,0.5886,0.8822
+                # Number of expectedValues must match number (and order) of parameterValues
+			expectedValues	            0.2955,0.5886,0.8822
         }
+
         DragResults{ # Can have an arbitrary number of these dictionaries
             column                      AeroCFZ
             expectedValues              Record
         }
     }
     
-    # Other entries and dictionaries same as the flight case above
+    #### Parameter Sweep cases ignore the ExpectedFinalValues{} dictionary (expected results included in ParameterSweep{} ) ####
+    #### Rest same as for a flight case ####
 }
