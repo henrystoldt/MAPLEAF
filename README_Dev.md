@@ -21,6 +21,8 @@
     - (Optional) - [create dedicated Python environment](#create-python-virtual-environment-with-virtualenvwrapper)  
 3. Install MAPLEAF: `$ pip install -e .` (needs to be run from the cloned repository)
     - Just like a normal pip install, but changes made to MAPLEAF's code will take effect without reinstalling
+    - If there's an error installing ray, either switch to a Linux/Mac environment, or remove it from the requirements.txt file
+        - Without ray, everything except multi-threaded sims will work
 4. (Optional) To be able to do a lot of the things described below, install the packages in requirements_Dev.txt:  
     `$ pip install -r requirements_Dev.txt`  
     Installing Mayavi can be problematic, if using Python 3.8+, try installing the latest version directly from git `$ python3 -m pip install git+https://github.com/enthought/mayavi.git`, or check out [mayavi's documentation](https://github.com/enthought/mayavi) for further assisstance
