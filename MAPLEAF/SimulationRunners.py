@@ -18,7 +18,6 @@ from distutils.util import strtobool
 from typing import List
 
 import matplotlib.pyplot as plt
-import ray
 from tqdm import tqdm
 
 from MAPLEAF.ENV import Environment
@@ -453,15 +452,22 @@ class SingleSimRunner():
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
 
-@ray.remote
-class RemoteSimRunner(SingleSimRunner):
-    ''' 
-        Exactly the same as SingleSimRunner, except the class itself, and its .runSingleSimulation method are decorated with ray.remote()
-        to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
-    '''
-    @ray.method(num_return_vals=2)
-    def runSingleSimulation(self):
-        return super().runSingleSimulation()
+try:
+    import ray
+    rayAvailable = True
+except ImportError:
+    rayAvailable = False
+
+if rayAvailable:
+    @ray.remote
+    class RemoteSimRunner(SingleSimRunner):
+        ''' 
+            Exactly the same as SingleSimRunner, except the class itself, and its .runSingleSimulation method are decorated with ray.remote()
+            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
+        '''
+        @ray.method(num_return_vals=2)
+        def runSingleSimulation(self):
+            return super().runSingleSimulation()
 
 class WindTunnelRunner(SingleSimRunner):
     def __init__(self, parameterToSweepKey="Rocket.velocity", parameterValueList=["(0 0 100)", "(0 0 200)", "(0 0 300)"], simDefinitionFilePath=None, fW=None, silent=False, smoothLine='False'):
@@ -585,7 +591,7 @@ class WindTunnelRunner(SingleSimRunner):
         return super()._postSingleSimCleanup(simDefinition)
 
 def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
-    if nCores > 1:
+    if nCores > 1 and rayAvailable:
         return _runMonteCarloSimulation_Parallel(simDefinitionFilePath, simDefinition, silent, nCores)
     else:
         return _runMonteCarloSimulation_SingleThreaded(simDefinitionFilePath, simDefinition, silent)
@@ -929,7 +935,7 @@ class OptimizingSimRunner():
     #### Running the optimization ####
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
-        if self.nProcesses > 1:
+        if self.nProcesses > 1 and rayAvailable:
             ray.init()
             self.optimizer.optimize(self.computeCostFunction_Parallel, iters=self.nIterations)
             ray.shutdown()
