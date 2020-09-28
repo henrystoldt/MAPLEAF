@@ -1,25 +1,23 @@
-#Created by: Henry Stoldt
-#January 2019
-
-#To run tests:
-#In this file: [test_Vector.py]
-#In all files in the current directory: [python -m unittest discover]
-#Add [-v] for verbose output (displays names of all test functions)
-
 import re
 import unittest
+from copy import deepcopy
 from test.testUtilities import assertVectorsAlmostEqual
 
-from MAPLEAF.IO import SimDefinition, defaultConfigValues 
+from MAPLEAF.IO import SimDefinition, defaultConfigValues
 from MAPLEAF.IO.simDefinition import getImmediateSubKey, getKeyLevel, isSubKey
 from MAPLEAF.Motion import Vector
 
 
 class TestSimDefinition(unittest.TestCase):
-    def setUp(self):
-        self.fileName = "test/test_IO/textFileDefinition.mapleaf"
-        self.simDef = SimDefinition(self.fileName, silent=True)
-        self.simDef2 = SimDefinition(self.fileName, silent=True)
+    @classmethod
+    def setUpClass(cls):
+        cls.fileName = "test/test_IO/textFileDefinition.mapleaf"
+        cls.simDef = SimDefinition(cls.fileName, silent=True)
+        cls._simDef = deepcopy(cls.simDef)
+
+    @classmethod
+    def resetSimDef(cls):
+        cls.simDef = deepcopy(cls._simDef)
 
     def test_detectDuplicateValue(self):
         with self.assertRaises(ValueError):
@@ -29,11 +27,12 @@ class TestSimDefinition(unittest.TestCase):
         self.setValueTest("Dictionary1.SubDictionary1.key3", "newValue")
         self.setValueTest("Dictionary1.key1", "1.2245")
         self.setValueTest("Dictionary2.subD2.subsubD3.keyZZ", "value5")
+        self.resetSimDef()
 
     # Test called by the actual test_ function
     def setValueTest(self, key, newVal):
-        self.simDef2.setValue(key, newVal)
-        self.assertEqual(self.simDef2.getValue(key), newVal)
+        self.simDef.setValue(key, newVal)
+        self.assertEqual(self.simDef.getValue(key), newVal)
     
     # Also testing the constructor here
     def test_getAndConstructor(self):
@@ -81,6 +80,8 @@ class TestSimDefinition(unittest.TestCase):
         self.simDef.setIfAbsent("Dictionary1.key3", "newValue")
         self.assertEqual(self.simDef.getValue("Dictionary1.key3"), "newValue")
 
+        self.resetSimDef()
+
     def test_findKeysContaining(self):
         # List of keys
         res = self.simDef.findKeysContaining(["SubDictionary1"])
@@ -94,6 +95,8 @@ class TestSimDefinition(unittest.TestCase):
         val1 = self.simDef.removeKey("Dictionary1.key1")
         self.assertEqual(val1, "value1")
         self.assertFalse("Dictionary1.key1" in self.simDef.dict)
+
+        self.resetSimDef()
 
     def test_defaultValues(self):
         # Test that values not in the config file are returned from the defaults dictionary
@@ -116,6 +119,7 @@ class TestSimDefinition(unittest.TestCase):
         self.simDef.rng.seed(1000)
 
         self.assertAlmostEqual(10.254632116649685, float(self.simDef.getValue("scalar1")))
+        self.resetSimDef()
 
     def test_sampleDistribution_vectorValue(self):
         self.simDef.setValue("vector1", "(10, 11, 12)")
@@ -126,6 +130,7 @@ class TestSimDefinition(unittest.TestCase):
         expectedVec = Vector(10.254632116649685, 8.066448705920658 ,14.27360999981685)
 
         assertVectorsAlmostEqual(self, expectedVec, resultVec)
+        self.resetSimDef()
 
     def test_isSubKey(self):
         self.assertTrue(isSubKey("Rocket", "Rocket.name"))
