@@ -142,7 +142,7 @@ class TestOtherLogging(unittest.TestCase):
             expectedCol = list(origLog[expectedColumnName])
             assertIterablesAlmostEqual(self, calculatedCol, expectedCol)
 
-        # Delete the new log expanded log file
+        # Delete the new expanded log file
         os.remove(expandedLogPath)
 
 if __name__ == '__main__':

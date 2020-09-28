@@ -42,9 +42,6 @@ class TestRocket(unittest.TestCase):
         self.canardRocket.rigidBody.time = 0
         self.canardRocket.rigidBody.state = self.originalCanardRocketState
 
-    def test_timeStep(self):
-        self.rocket2.timeStep(0.001)
-
     def test_getStageSubDicts(self):
         result = self.rocket._getStageSubDicts()
         expectedResult = [ "Rocket.Sustainer" ]

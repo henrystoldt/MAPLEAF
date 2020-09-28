@@ -17,16 +17,12 @@ class TestSimRunners(unittest.TestCase):
         with self.assertRaises(ValueError):
             shouldCrash = Simulation() # Needs a sim definition file
 
-        shouldntCrash = Simulation("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
-        
-        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+        shouldntCrash = Simulation("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+        simDefinition = shouldntCrash.simDefinition
         shouldntCrash2 = Simulation(simDefinitionFilePath="MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", simDefinition=simDefinition, silent=True)
 
         #### Set up sim definition ####
-        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
-
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDefinition)
-
         shouldntCrash2 = Simulation(simDefinition=simDefinition, silent=True)
         shouldntCrash2.run()
 
@@ -39,7 +35,7 @@ class TestSimRunners(unittest.TestCase):
         # Generate log file from a simulation
         simDefinition.setValue("SimControl.loggingLevel", "2")
         simDefinition.fileName = "test/tempTestFileasdf.mapleaf"
-        simRunner = Simulation(simDefinition=simDefinition, silent=True) # Not silent so we can capture main sim log
+        simRunner = Simulation(simDefinition=simDefinition, silent=True)
         rocket = simRunner.createRocket()
 
         forcesLogHeaderItemCount = len(simRunner.forceEvaluationLog[0].split())
@@ -166,6 +162,7 @@ class TestSimRunners(unittest.TestCase):
 
         # Test running a sweep
         windTunnelSim.runSweep()
+        
         # Check number of rows in the force evaluation log (2 evaluations + 1 row of headers)
         self.assertEqual(len(windTunnelSim.forceEvaluationLog), 3)
 

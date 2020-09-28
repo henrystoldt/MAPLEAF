@@ -97,22 +97,7 @@ def run(batchRun: BatchRun) -> int:
     testCases = batchRun.getCasesToRun()
 
     for case in testCases:
-        nOk, nFail, newExpectedResultsRecorded, errorStats = _runCase(case, batchRun)
-
-        totalSimError += errorStats[0]
-        nComparisonSets += errorStats[1]
-        
-        if newExpectedResultsRecorded:
-            casesWhoseExpectedResultsWereUpdated.append(testCase)
-
-        # Track number of case and test successes / failures
-        if nFail == 0:
-            nCasesOk += 1
-            nTestsOk += nOk
-        else:
-                nTestsOk += nOk
-                nTestsFailed += nFail
-
+        _runCase(case, batchRun)
         batchRun.nCasesRun += 1
 
     runTime = time.time() - startTime
@@ -258,7 +243,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition, silent=True, smoothLine=smoothLine)
+    simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
     try:
         logFilePaths = simRunner.runSweep()
     except:
@@ -448,7 +433,7 @@ def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictRead
 def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths, expectedResultKeys):
     ''' Checks every values in the expected results at end of sim dictionary '''
     for resultKey in expectedResultKeys:
-        logColumnSpec = resultKey[resultKey.rfind("."):] # From CaseName.ExpectedResultsAtEndOfSim.PositionX -> PositionX
+        logColumnSpec = resultKey[resultKey.rfind(".")+1:] # From CaseName.ExpectedResultsAtEndOfSim.PositionX -> PositionX
 
         try:
             if batchRun.recordAll:
@@ -490,7 +475,6 @@ def _checkResult(batchRun: BatchRun, columnName: str, observedResult: float, exp
     '''    
     if observedResult == None:
         # Could end up here if a result is not found in the log file - perhaps a column name has been mis-spelled in the batch definition file?
-        print("  {:<25} FAIL     {:>15}, Expected: {:>15.7}".format(columnName + ":", "None", expectedResult))
         batchRun.nTestsFailed += 1
     
     else:
@@ -554,8 +538,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
             _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
 
             # Avoid plotting columns twice!
-            columnNames.remove(xColumnName)
             plottedColumns += columnNames
+
+            if xColumnName in plottedColumns:
+                plottedColumns.remove(xColumnName)
 
     #### Plot comparison data ####
     compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
