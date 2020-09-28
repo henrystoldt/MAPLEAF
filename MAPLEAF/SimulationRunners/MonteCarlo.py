@@ -1,4 +1,3 @@
-import ray
 import random
 
 from MAPLEAF.IO import Logging, Plotting
@@ -6,14 +5,24 @@ from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefin
 
 __all__ = [ "runMonteCarloSimulation" ]
 
+try:
+    import ray
+    rayAvailable = True
+except ImportError:
+    rayAvailable = False
+
+
 def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
     simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
 
     nRuns, mCLogger, outputLists = _prepSim(simDefinition)    
 
-    if nCores > 1:
+    if nCores > 1 and rayAvailable:
         _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent, nCores)
     else:
+        if nCores > 1 and not rayAvailable:
+            print("ERROR: ray not found. Reverting to single-threaded mode.")
+            
         _runSimulations_SingleThreaded(simDefinition, nRuns, outputLists, mCLogger, silent)
     
     _showResults(simDefinition, outputLists, mCLogger)

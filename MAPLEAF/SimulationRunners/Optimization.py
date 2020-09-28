@@ -2,13 +2,18 @@ import importlib
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
-import ray
 
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
 __all__ = [ "OptimizingSimRunner" ]
+
+try:
+    import ray
+    rayAvailable = True
+except ImportError:
+    rayAvailable = False
 
 class OptimizingSimRunner():
     '''
@@ -295,12 +300,15 @@ class OptimizingSimRunner():
     #### Main Function ####
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
-        if self.nCores > 1:
+        if self.nCores > 1 and rayAvailable:
             ray.init()
             self.optimizer.optimize(self._computeCostFunction_Parallel, iters=self.nIterations)
             ray.shutdown()
         
         else:
+            if self.nCores > 1 and not rayAvailable:
+                print("ERROR: ray not found. Reverting to single-threaded mode.")
+                
             self.optimizer.optimize(self._computeCostFunction_SingleThreaded, iters=self.nIterations)
         
         if self.showConvergence:

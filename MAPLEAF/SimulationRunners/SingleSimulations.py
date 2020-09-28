@@ -3,7 +3,6 @@ import sys
 from copy import deepcopy
 from distutils.util import strtobool
 
-import ray
 from tqdm import tqdm
 
 from MAPLEAF.ENV import Environment
@@ -440,15 +439,24 @@ class Simulation():
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
 
-@ray.remote
-class RemoteSimulation(Simulation):
-    ''' 
-        Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
-        to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
-    '''
-    @ray.method(num_return_vals=2)
-    def run(self):
-        return super().run()
+try:
+    import ray
+    rayAvailable = True
+except ImportError:
+    rayAvailable = False
+
+if rayAvailable:
+    @ray.remote
+    class RemoteSimulation(Simulation):
+        ''' 
+            Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
+            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
+        '''
+        @ray.method(num_return_vals=2)
+        def run(self):
+            return super().run()
+else:
+    RemoteSimulation = None
 
 class WindTunnelSimulation(Simulation):
     def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):
