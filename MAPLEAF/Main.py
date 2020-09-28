@@ -14,7 +14,7 @@ import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
                                        OptimizingSimRunner, Simulation,
-                                       batchRun, runMonteCarloSimulation)
+                                       runMonteCarloSimulation)
 from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
 
@@ -154,7 +154,7 @@ def main(argv=None) -> int:
 
     elif isBatchSim(simDef):
         print("Batch Simulation\n")
-        batchRun(simDef)
+        batchMain([ simDef.fileName ])
 
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
         cSimRunner = ConvergenceSimRunner(simDefinition=simDef, silent=args.silent)

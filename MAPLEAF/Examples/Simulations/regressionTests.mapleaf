@@ -108,7 +108,7 @@ ExampleCase1{
 	ExpectedResultsAtEndOfSim{
 		Mach	    	0.3514
 		PositionX		-0.332
-		Time(s)	    1.001
+		Time(s)	    	1.001
 	}
 
 	ParameterOverrides{

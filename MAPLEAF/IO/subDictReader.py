@@ -83,16 +83,37 @@ class SubDictReader():
     def getImmediateSubDicts(self, key=None) -> List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + "." + key
+            result = self.simDefinition.getImmediateSubDicts(absKey)
+        
+            if len(result) != 0: # If no subdicts found, try other key
+                return result
+        
         return self.simDefinition.getImmediateSubDicts(key)
 
     def getSubKeys(self, key=None) -> List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + "." + key
+            result = self.simDefinition.getSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getSubKeys(key)
 
     def getImmediateSubKeys(self, key=None) -> List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + "." + key
+            result = self.simDefinition.getImmediateSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getImmediateSubKeys(key)
 
     def getDictName(self) -> str:

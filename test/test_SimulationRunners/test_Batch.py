@@ -4,12 +4,16 @@ import matplotlib.pyplot as plt
 
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isBatchSim
-from MAPLEAF.SimulationRunners.Batch import _checkResult
+from MAPLEAF.SimulationRunners.Batch import _checkResult, BatchRun
 from test.testUtilities import captureOutput
 
 
 class TestBatchSim(unittest.TestCase):
     
+    @classmethod
+    def setUpClass(cls):
+        cls.batchRun = BatchRun("fakeSimDef")
+
     def test_isBatchSim(self):
         # Checks whether the batch sim detection function is working
         batchDefinition = SimDefinition("batchRunTemplate.mapleaf")
@@ -19,12 +23,14 @@ class TestBatchSim(unittest.TestCase):
         self.assertFalse(isBatchSim(normalDefinition))
 
     def test_checkResult(self):
+        origPassedTests = self.batchRun.nTestsOk
+        origFailedTests = self.batchRun.nTestsFailed
+
         # Check case that should pass
         with captureOutput() as (out, err):
-            match, errorPercent = _checkResult("FakeColumn", 1.125, 1.125)
+            _checkResult(self.batchRun, "FakeColumn", 1.125, 1.125)
 
-        self.assertTrue(match)
-        self.assertAlmostEqual(errorPercent, 0.0)
+        self.assertEqual(self.batchRun.nTestsOk, origPassedTests+1)
         output = out.getvalue().strip()
         self.assertTrue(" ok " in output)
         self.assertTrue(" FAIL " not in output)
@@ -32,10 +38,9 @@ class TestBatchSim(unittest.TestCase):
         
         # Check case that should fail
         with captureOutput() as (out, err):
-            match, errorPercent = _checkResult("FakeColumn", 1.1, 1.0)
+            _checkResult(self.batchRun, "FakeColumn", 1.1, 1.0)
 
-        self.assertFalse(match)
-        self.assertAlmostEqual(errorPercent, 10)
+        self.assertEqual(self.batchRun.nTestsFailed, origFailedTests+1)
         output = out.getvalue().strip()
         self.assertTrue(" ok " not in output)
         self.assertTrue(" FAIL " in output)

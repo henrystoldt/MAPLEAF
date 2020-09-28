@@ -16,19 +16,18 @@ from MAPLEAF.Motion import Vector
 from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 
-__all__ = [ "main", "batchRun" ]
+__all__ = [ "main", "run", "BatchRun" ]
 
-
-warningCount = 0 # Global variable tracking number of warnings in a batch run
-
-#### OPTIONS ####
-percentageErrorTolerance = 0.01 # % error tolerated b/w expected results and obtained results
-#### END OPTIONS ####
-
+#TODO: For validation, want to be able to run something like: `mapleaf-batch regressionTests.mapleaf --validate CN`
+    # Tweak existing errorStats code to make this happen
+    # Integrate errorStats into BatchRun object
+    # Should do an error comparison to all validation data in plots whose names contain 'CN'
+    # Output average validation error at the end of the simulation
 
 class BatchRun():
+    ''' Class to hold info about and results of a mapleaf-batch run '''
 
-    def __init__(self, batchDefinition, recordAll=False, printStackTraces=False, caseNameSpec=None):
+    def __init__(self, batchDefinition: SimDefinition, recordAll=False, printStackTraces=False, caseNameSpec=None, percentErrorTolerance=0.01):
         self.batchDefinition = batchDefinition
         self.recordAll = recordAll
         self.printStackTraces = printStackTraces
@@ -40,7 +39,10 @@ class BatchRun():
         self.nTestsFailed = 0
         self.totalSimErrors = 0
         self.nComparisonSets = 0
-        self.casesWithNewRecordedResults = 0
+        self.casesWithNewRecordedResults = set()
+
+        self.warningCount = 0
+        self.percentErrorTolerance = percentErrorTolerance
 
     def getCasesToRun(self):
         subDicts = self.batchDefinition.getImmediateSubDicts("")
@@ -76,9 +78,11 @@ def main(argv=None):
     else:
         caseNameSpec = None # Run all cases
 
-    # Run Cases
-    return run(batchDefinition, caseNameSpec=caseNameSpec, recordAll=args.recordAll, printStackTraces=args.printStackTraces)
+    # Create batch run object containing settings and results
+    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, caseNameSpec)
 
+    # Run Cases
+    return run(batchRun)
 
 
 #### Main ####
@@ -114,7 +118,7 @@ def run(batchRun: BatchRun) -> int:
     runTime = time.time() - startTime
 
     # Output result summary
-    print("----------------------------------------------------------------------")
+    print("\n----------------------------------------------------------------------")
     print("BATCH RUN RESULTS")
     print("Ran {} Case(s) in {:>.2f} s".format(nCases, runTime))
 
@@ -147,7 +151,7 @@ def run(batchRun: BatchRun) -> int:
         return 1
 
 #### 1. Load / Run Sim ####
-def _runCase(caseName, batchRun: BatchRun):
+def _runCase(caseName: str, batchRun: BatchRun):
     '''
         Runs a single regression tests case, compares the results to the expected results provided, and generates any desired plots.
             If no comparison data is provided, comparison data is recorded
@@ -165,10 +169,8 @@ def _runCase(caseName, batchRun: BatchRun):
             Modifies:   batchDefinition - records sim results is no expected results are provided  
             Prints:     One line to introduce case, one more line for each expected results  
     '''
-    print("Running Case: {}".format(caseName))
+    print("\nRunning Case: {}".format(caseName))
     caseDictReader = SubDictReader(caseName, simDefinition=batchRun.batchDefinition)
-
-    newExpectedValuesRecorded = False
     
     #### Load Sim definition file ####
     simDefFilePath = caseDictReader.getString("simDefinitionFile")
@@ -180,27 +182,20 @@ def _runCase(caseName, batchRun: BatchRun):
     #### Run simulation ####
     # Check whether simulation is a full flight sim or a parameter sweeping simulation
     caseSubDictionaries = caseDictReader.getImmediateSubDicts()
-    errorStats = [0.0,0]
     if caseName + ".ParameterSweep" in caseSubDictionaries:
-        logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats = _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+        logFilePaths = _runParameterSweepCase(batchRun, caseDictReader, simDefinition)
     else:
-        logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded = _runFullFlightCase(caseDictReader, simDefinition, batchDefinition, recordAll=recordAll, printStackTraces=printStackTraces)
+        logFilePaths = _runFullFlightCase(batchRun, caseDictReader, simDefinition)
 
     #### Generate/Save plots ####
-    if len(logFilePaths) > 0: # Don't generate plots of simulation crashed (didn't produce any log files)
-        # Get all plot subdictionaries
-        plotsToGeneratePath = ".".join([caseName, "PlotsToGenerate"])
-        plotDicts = batchRun.batchDefinition.getImmediateSubDicts(plotsToGeneratePath)
+    if len(logFilePaths) > 0: # Don't generate plots for crashed sims
+        # Get all plot subdictionaries, create plot for each one
+        plotDicts = caseDictReader.getImmediateSubDicts("PlotsToGenerate")
         for plotDict in plotDicts:
             plotDictReader = SubDictReader(plotDict, simDefinition=batchRun.batchDefinition)
-            _generatePlot(plotDictReader, logFilePaths)
+            _generatePlot(batchRun, plotDictReader, logFilePaths)
 
-    # Print blank line before next case or final summary
-    print("")
-
-    return numTestsOk, numTestsFailed, newExpectedValuesRecorded, errorStats
-
-def _implementParameterOverrides(caseName, batchDefinition, caseSimDefinition):
+def _implementParameterOverrides(caseName: str, batchDefinition: SimDefinition, caseSimDefinition: SimDefinition):
     '''
         Runs on each case before running any sims to implement desired modifications to simulation definition files
 
@@ -228,30 +223,32 @@ def _implementParameterOverrides(caseName, batchDefinition, caseSimDefinition):
         # Implement them
         caseSimDefinition.setValue(overridenKey, overrideValue)
 
-def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
+def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDefinition: SimDefinition):
     ''' Runs a parameter sweep / wind tunnel simulation, checks+plots results '''
     print("  Parameter Sweep Case")
 
     # Get input data from text file
-    ParameterSweeps = []
+    ParametersToSweepOver = []
     expectedResultsDicts = []
     ParameterSweepDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + ".ParameterSweep")
     for SubDict in ParameterSweepDicts:
-        if 'Results' not in SubDict: # any subdict in parameterSweep that is NOT a results dict, will be assumed to be a parameter sweep dict
-            ParameterSweeps.append(SubDict)
-        else:
+        if 'Results' in SubDict: # any subdict in parameterSweep that is NOT a results dict, will be assumed to be a parameter sweep dict
             expectedResultsDicts.append(SubDict)
+        else:
+            ParametersToSweepOver.append(SubDict)
 
     sweptParameters = []
     parameterValues = []
-    for parameter in ParameterSweeps:
-        sweptParameters.append(batchDefinition.getValue(parameter + '.sweptParameter'))
-        parameterValues.append(batchDefinition.getValue(parameter + '.parameterValues'))
+    for parameter in ParametersToSweepOver:
+        sweptParameters.append(caseDictReader.getString(parameter + '.sweptParameter'))
+        parameterValues.append(caseDictReader.getString(parameter + '.parameterValues'))
 
+    # Expand linspace-type specs
     parameterValues = [ _parseParameterSweepValues(valString) for valString in parameterValues ]
 
     if not all(len(sub) == len(parameterValues[0]) for sub in parameterValues):
-        print("parameterSweep values are not equal lengths.")
+        print("parameterSweep value are not equal lengths!")
+        batchRun.warningCount += 1
     
     # Check whether to run 10x the points to make the line smooth
     if len(parameterValues) < 25:
@@ -261,22 +258,11 @@ def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recor
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
-    simRunner = WindTunnelSimulation(parametersToSweep=sweptParameters, parameterValues=parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
+    simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition, silent=True, smoothLine=smoothLine)
     try:
         logFilePaths = simRunner.runSweep()
     except:
-        # Simulation Failed
-        Logging.removeLogger()
-        print("  ERROR: Simulation Crashed")
-        _incrementWarningCount()
-
-        if printStackTraces:
-            import traceback
-            tb = traceback.format_exc()
-            print(tb)
-
-        numTestsOk, numTestsFailed, newExpectedValuesRecorded = (0, 1, False)
-        return [], numTestsOk, numTestsFailed, newExpectedValuesRecorded, [0, 0]
+        _handleSimCrash(batchRun)
     else:
         Logging.removeLogger()
 
@@ -321,21 +307,22 @@ def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recor
 
             if len(columnNames) == 1:
                 resultData = columnDataLists[0]
+                break
+
             elif len(columnNames) > 1:
                 print("  ERROR: Column Spec '{}' matched more than one column: {} in log file: '{}'".format(expectedResultsCol, columnNames, logPath))
-                _incrementWarningCount()
-                numTestsOk, numTestsFailed, newExpectedValuesRecorded = (0, 1, False)
-                return numTestsOk, numTestsFailed, newExpectedValuesRecorded, [0, 0]
+                batchRun.warningCount += 1
+                batchRun.nTestsFailed += 1
+                return
 
-        # Error check (no result columns found)
         if len(resultData) == 0:
             print("  ERROR: Column Spec {} did not match any columns".format(expectedResultsCol))
-            _incrementWarningCount()
-            numTestsOk, numTestsFailed, newExpectedValuesRecorded = (0, 1, False)
-            return numTestsOk, numTestsFailed, newExpectedValuesRecorded, [0, 0]
+            batchRun.warningCount += 1
+            batchRun.nTestsFailed += 1
+            return
 
         # Record / Check Results
-        if (len(expectedResults) == 1 and expectedResults[0].lower() == "record") or recordAll:
+        if (len(expectedResults) == 1 and expectedResults[0].lower() == "record") or batchRun.recordAll:
             # Record results for future runs
             for value in resultData:
                 print("  {:<25} Recorded {:>15.7}".format(expectedResultsCol + ":", value))
@@ -343,35 +330,22 @@ def _runParameterSweepCase(caseDictReader, simDefinition, batchDefinition, recor
             key = expectedResultsDict + ".expectedValues"
             resultData = [ str(x) for x in resultData ]
             value = ",".join(resultData)
-            batchDefinition.setValue(key, value)
-            newExpectedValuesRecorded = True
-        else:
-            # Check that there's the same number of parameter values and expected results
-            # if len(parameterValues) != len(expectedResults):
-            #     print("ERROR: Must have the same number of sweep values (currently {}) and expected results (currently {}).".format(len(parameterValues), len(expectedResults)))
-            #     _incrementWarningCount()
-            #     numTestsOk, numTestsFailed, newExpectedValuesRecorded = (0, 1, False)
-            #     return numTestsOk, numTestsFailed, newExpectedValuesRecorded
+            batchRun.batchDefinition.setValue(key, value)
+            batchRun.casesWithNewRecordedResults.add(caseDictReader.simDefDictPathToReadFrom)
 
+        else:
             # Compare obtained results to expected ones
             totalCaseError = 0    # initalize, used to track total error in each individual case        
 
             if smoothLine == "True":
                 for i in range(len(expectedResults)):
-                    match, errorPercent = _checkResult(expectedResultsCol, resultData[i*10], float(expectedResults[i]))
+                    _checkResult(batchRun, expectedResultsCol, resultData[i*10], float(expectedResults[i]))
                     totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
-                    if match:
-                        numTestsOk += 1
-                    else:
-                        numTestsFailed += 1
+
             else:
                 for i in range(len(expectedResults)):
-                    match, errorPercent = _checkResult(expectedResultsCol, resultData[i], float(expectedResults[i]))
+                    _checkResult(batchRun, expectedResultsCol, resultData[i], float(expectedResults[i]))
                     totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
-                    if match:
-                        numTestsOk += 1
-                    else:
-                        numTestsFailed += 1  
 
             if showAvgError: # if the case came from plotted comparison data, display the total parameter error
                 
@@ -423,111 +397,84 @@ def _parseParameterSweepValues(parameterValues):
 
     return parameterValues
 
-def _runFullFlightCase(caseDictReader, simDefinition, batchDefinition, recordAll=False, printStackTraces=False):
+def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDefinition: SimDefinition):
     ''' Run a regular MAPLEAF simulation based on this case dictionary, checks+plots results '''
     print("  Full Flight Case")
     try:
         simRunner = Simulation(simDefinition=simDefinition, silent=True)
         _, logFilePaths = simRunner.run()
     except:
-        # Simulation Failed
-        Logging.removeLogger() # Make sure we can print to the console
-        print("  ERROR: Simulation Crashed")
-        _incrementWarningCount()
-
-        if printStackTraces:
-            import traceback
-            tb = traceback.format_exc()
-            print(tb)
-            
-        numTestsOk, numTestsFailed, newExpectedValuesRecorded = (0, 1, False)
-        return [], numTestsOk, numTestsFailed, newExpectedValuesRecorded
+        _handleSimCrash(batchRun)
     else:
         Logging.removeLogger()
 
-    #### Compare and/or record numerical results, output pass/fail ####
-    expectedResultsDictKey = ".".join([caseDictReader.simDefDictPathToReadFrom, "ExpectedResultsAtEndOfSim"])
-    expectedResultKeys = batchDefinition.getSubKeys(expectedResultsDictKey)
+    #### Compare and/or record numerical results from final simulation state, output pass/fail ####
+    expectedResultKeys = caseDictReader.getSubKeys("ExpectedResultsAtEndOfSim")
 
-    numTestsOk = 0
-    newExpectedValuesRecorded = False
     if len(expectedResultKeys) == 0:
-        # If no expected results are provided, record some
-        _recordDefaultSimResults(batchDefinition, logFilePaths, expectedResultsDictKey)
-        newExpectedValuesRecorded = True
-    else:
-        # If values were provided, check them
-        numTestsOk, newValuesRecorded = _checkSimResults(batchDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=recordAll)
-        if newValuesRecorded:
-            newExpectedValuesRecorded = True
+        # If no expected results are provided, record the default set
+        _setUpDefaultResultRecording(batchRun, caseDictReader, logFilePaths)
+    
+    _checkSimResults(batchRun, caseDictReader, logFilePaths, expectedResultKeys)
 
-    numTestsFailed = len(expectedResultKeys) - numTestsOk
-    return logFilePaths, numTestsOk, numTestsFailed, newExpectedValuesRecorded
+    return logFilePaths
+
+def _handleSimCrash(batchRun: BatchRun):
+    # Simulation Failed
+    Logging.removeLogger() # Make sure we can print to the console
+    print("  ERROR: Simulation Crashed")
+    batchRun.warningCount += 1
+
+    if batchRun.printStackTraces:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+        
+    batchRun.nTestsFailed += 1
+    return [] # No log file paths
 
 #### 2. Checking Expected Final Results ####
-def _recordDefaultSimResults(batchDefinition, logFilePaths, expectedResultsDictKey):
-    ''' If no expected results are provided, this function records some default position/velocity values for future runs '''
-    ## No expected values present ##
+def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths):
+    ''' If no expected results are provided, this adds some default position/velocity values to record for future runs '''
     print("  WARNING: No expected parameter values provided. Recording Position & Velocity values.")
     _incrementWarningCount()
 
-    # Record Position, Velocity values for future regression test runs
-    columnSpecs = [ "Position", "^Velocity" ]
-    dataLists, names = Plotting.getLoggedColumns(logFilePaths[0], columnSpecs)
-    for i in range(len(names)):
-        print("  {:<25} Recorded {:>15.7}".format(names[i] + ":", dataLists[i][-1]))
+    caseName = caseDictReader.simDefDictPathToReadFrom
+    colsToRecord = [ "PositionX", "PositionY", "PositionZ", "VelocityX", "VelocityY", "VelocityZ"]
 
-        key = ".".join([expectedResultsDictKey, names[i]])
-        observedValue = str(dataLists[i][-1])
-        batchDefinition.setValue(key, observedValue)
+    for column in colsToRecord:
+        batchRun.batchDefinition.setValue(caseName + ".ExpectedResultsAtEndOfSim." + column, "Record" )
 
-def _checkSimResults(batchDefinition, caseDictReader, logFilePaths, expectedResultsDictKey, expectedResultKeys, recordAll=False):
+def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths, expectedResultKeys):
     ''' Checks every values in the expected results at end of sim dictionary '''
-
-    numTestsOk = 0
-    resultValuesRecorded = False
     for resultKey in expectedResultKeys:
-        # Get expected final value for this parameter
-        logColumnSpec = resultKey.replace(expectedResultsDictKey+".", "")
+        logColumnSpec = resultKey[resultKey.rfind("."):] # From CaseName.ExpectedResultsAtEndOfSim.PositionX -> PositionX
 
         try:
-            if recordAll:
-                raise ValueError("Let's record a value! #Flow Control by exceptions")
+            if batchRun.recordAll:
+                raise ValueError("Let's record a value")
 
             ## Regular Parameter Check ##
             expectedResult = caseDictReader.getFloat(resultKey)
-            # Get and compare observed final value for this parameter to its expected value
-            observedResult, columnName = _getSingleResultFromLogs(logFilePaths, logColumnSpec)
-            match, errorPercent = _checkResult(columnName, observedResult, expectedResult)
-
-            # Keep track of the number of successes (and implicitly the number failures)
-            if match:
-                numTestsOk += 1
+            observedResult, columnName = _getSingleResultFromLogs(batchRun, logFilePaths, logColumnSpec)
+            _checkResult(batchRun, columnName, observedResult, expectedResult)
 
         except ValueError:
-            ## Check whether we're meant to record/save the current sim result for this parameter ##
+            ## Record value for this parameter? ##
             expectedResult = caseDictReader.getString(resultKey)
-            if expectedResult.lower() == "record" or recordAll:
+            if expectedResult.lower() == "record" or batchRun.recordAll:
                 # Get and save value of parameter from current simulation
-                observedValue, colName = _getSingleResultFromLogs(logFilePaths, logColumnSpec)
-                
+                observedValue, colName = _getSingleResultFromLogs(batchRun, logFilePaths, logColumnSpec)
+                batchRun.batchDefinition.setValue(resultKey, str(observedValue))
                 print("  {:<25} Recorded {:>15.7}".format(colName + ":", observedValue))
-
-                key = ".".join([expectedResultsDictKey, logColumnSpec])
-                value = str(observedValue)
-                batchDefinition.setValue(key, value)
-
-                numTestsOk += 1
-
-                resultValuesRecorded = True
+                batchRun.casesWithNewRecordedResults.add(caseDictReader.simDefDictPathToReadFrom)
+                
             else:
                 ## Parsing error ##
                 print("  ERROR: Expected value: {} for parameter: {} not numeric or 'Record'".format(expectedResult, resultKey))
-                _incrementWarningCount()
+                batchRun.warningCount += 1
 
-    return numTestsOk, resultValuesRecorded
-
-def _checkResult(columnName, observedResult, expectedResult):
+def _checkResult(batchRun: BatchRun, columnName: str, observedResult: float, expectedResult: float):
     '''
         Checks whether the observed and expected results match to within the desired tolerance
 
@@ -541,33 +488,35 @@ def _checkResult(columnName, observedResult, expectedResult):
             Prints: 1 line, success or failure
 
     '''    
-    if observedResult != None:
-        error = abs(expectedResult - observedResult)
+    if observedResult == None:
+        # Could end up here if a result is not found in the log file - perhaps a column name has been mis-spelled in the batch definition file?
+        print("  {:<25} FAIL     {:>15}, Expected: {:>15.7}".format(columnName + ":", "None", expectedResult))
+        batchRun.nTestsFailed += 1
+    
+    else:
+        # Compute error %
         if expectedResult != 0:
+            error = abs(expectedResult - observedResult)
             errorPercent = abs(error * 100 / expectedResult)
-        elif expectedResult == observedResult:
-            errorPercent = 0
         else:
-            errorPercent = 100
+            errorPercent = 0 if (expectedResult == observedResult) else 100
 
-        global percentageErrorTolerance
-        if errorPercent > percentageErrorTolerance or isnan(errorPercent):
+        # Print + Save Result
+        if errorPercent > batchRun.percentErrorTolerance or isnan(errorPercent):
             print("  {:<25} FAIL     {:>15.7}, Expected: {:>15.7}, Disagreement: {:>10.2f} %".format(columnName + ":", observedResult, expectedResult, errorPercent))
-            return False, errorPercent
+            batchRun.nTestsFailed += 1
         else:
             print("  {:<25} ok       {:>15.7}".format(columnName + ":", expectedResult))
-            return True, 0
-    else:
-        return False, 100
+            batchRun.nTestsOk += 1
 
-def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
+def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
     ''' Returns the last value in the log column defined by logColumn Spec. Searches in each file in logFilePaths '''
     for logPath in logFilePaths:
         dataLists, columnNames = Plotting.getLoggedColumns(logPath, [ logColumnSpec ])
 
         if len(dataLists) > 1:
             print("  ERROR: Column Spec '{}' matched more than one column: {} in log file: '{}'".format(logColumnSpec, columnNames, logPath))
-            _incrementWarningCount()
+            batchRun.warningCount += 1
             return None, logColumnSpec
 
         if len(dataLists) == 1:
@@ -577,11 +526,11 @@ def _getSingleResultFromLogs(logFilePaths, logColumnSpec):
     
     # No column was found
     print("  ERROR: Column Spec {} did not match any columns".format(logColumnSpec))
-    _incrementWarningCount()
+    batchRun.warningCount += 1
     return None, None
 
 #### 3. Plotting ####
-def _generatePlot(plotDictReader, logFilePaths):
+def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePaths):
     '''
         Called once for every plot dictionary. Handles plotting MAPLEAF's results and any provided comparison data. Saves plot.
 
@@ -592,6 +541,46 @@ def _generatePlot(plotDictReader, logFilePaths):
         Outputs:
             Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
     '''
+    # Read info from plotDictReader, create figure, set x/y limits, axes labels, etc...
+    fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim = _setUpFigure(plotDictReader)
+
+    ### Plot all the requested data from MAPLEAF's results ###
+    plottedColumns = []
+    for logFilePath in logFilePaths:
+        columnData, columnNames = Plotting.getLoggedColumns(logFilePath, columnSpecs, columnsToExclude=plottedColumns)
+        if len(columnNames) > 1:
+            # Only plot if we've found (at minimum) an X-column and a Y-column (2 columns)
+            adjustX = True if xLim == ["False"] else False
+            _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
+
+            # Avoid plotting columns twice!
+            columnNames.remove(xColumnName)
+            plottedColumns += columnNames
+
+    #### Plot comparison data ####
+    compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
+    for compDataDict in compDataDictionaries:
+        compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
+        _plotComparisonData(batchRun, ax, compDataDictReader)
+    
+    #### Finalize + Save Plot ####  
+    if yLim == ["False"]:
+        ax.autoscale(axis='y', tight=True)
+    
+    ax.legend()
+    fig.tight_layout()
+
+    # Get save location
+    saveFilePath = plotDictReader.getString("saveLocation")
+    saveDirectory = os.path.dirname(saveFilePath)
+    saveFileName = os.path.basename(saveFilePath)
+    overwriteImages = plotDictReader.tryGetBool("overwriteImages", defaultValue=True)
+
+    # Save plot
+    gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwriteImages, epsVersion=False, pngVersion=False, printStatementPrefix="  ")
+    plt.close(fig) # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
+
+def _setUpFigure(plotDictReader: SubDictReader):
     # Create plot
     fig, ax = plt.subplots(figsize=(6,4))
 
@@ -602,80 +591,43 @@ def _generatePlot(plotDictReader, logFilePaths):
     if nLinesToPlot == 0:
         return
 
-    lineFormat = plotDictReader.tryGetString("lineFormat", defaultValue="y--").split()
-    while len(lineFormat) < nLinesToPlot:
-        lineFormat.append("")
-
-    legendLabel = plotDictReader.tryGetString("legendLabel", defaultValue=columnSpecs[0]).split(',')
-    while len(legendLabel) < nLinesToPlot:
-        legendLabel.append(columnSpecs[len(legendLabel)])
-
-    scalingFactor = plotDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
-    offset = plotDictReader.tryGetFloat('offset', defaultValue=0.0)
-
-    xLim = plotDictReader.tryGetString("xLimits", defaultValue="False").split() # Expected length: 2
-    yLim = plotDictReader.tryGetString("yLimits", defaultValue="False").split() # Expected length: 2
-
-    lists = [ lineFormat, legendLabel, scalingFactor ]
-    fillValues = [ "", "", "" ]
-
     # Make sure we're set to get the time/x column along with the y-data
     xColumnName = plotDictReader.tryGetString("xColumnName", defaultValue="Time(s)")
     if xColumnName not in columnSpecs:
         columnSpecs.append(xColumnName)
 
-    # Plot all the requested data
-    plottedColumns = []
-    for logFilePath in logFilePaths:
-        columnData, columnNames = Plotting.getLoggedColumns(logFilePath, columnSpecs, plottedColumns)
-        if len(columnNames) > 1:
-            # Only plot if we've found (at minimum) an X-column and a Y-column
-            _plotData(ax, columnData, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset, xLim, yLim, adjustXaxisToFit=True)
+    lineFormats = plotDictReader.tryGetString("lineFormat", defaultValue="y--").split()
+    while len(lineFormats) < nLinesToPlot:
+        lineFormats.append("")
 
-            # Don't retrieve the same columns from another log file
-            plottedColumns += columnNames
+    legendLabels = plotDictReader.tryGetString("legendLabel", defaultValue=columnSpecs[0]).split(',')
+    while len(legendLabels) < nLinesToPlot:
+        legendLabels.append(columnSpecs[len(legendLabels)])
 
-            # Remove xColumnName if it's present
-            if xColumnName in plottedColumns:
-                plottedColumns.remove(xColumnName)
+    scalingFactor = plotDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
+    offset = plotDictReader.tryGetFloat('offset', defaultValue=0.0)
 
-    #### Plot comparison data ####
-    # Load comparison data file
-    compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
-    for compDataDict in compDataDictionaries:
-        compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
-        _plotComparisonData(ax, compDataDictReader)
+    ### Set Axes Limits
+    xLim = plotDictReader.tryGetString("xLimits", defaultValue="False").split() # Expected length: 2
+    if xLim[0] != "False":
+        xLowerLim = float(xLim[0])
+        xUpperLim = float(xLim[1])
+        ax.set_xlim([xLowerLim,xUpperLim])
+    yLim = plotDictReader.tryGetString("yLimits", defaultValue="False").split() # Expected length: 2
+    if yLim[0] != "False":
+        yLowerLim = float(yLim[0])
+        yUpperLim = float(yLim[1])
+        ax.set_ylim([yLowerLim,yUpperLim])
     
-    #### Finalize Plot ####
     # Set x and y labels
     xLabel = plotDictReader.tryGetString("xLabel", defaultValue=xColumnName)
     yLabel = plotDictReader.tryGetString("yLabel", defaultValue=columnSpecs[0])
     ax.set_xlabel(_latexLabelTranslation(xLabel))
     ax.set_ylabel(_latexLabelTranslation(yLabel))
-
-    ax.legend()
     
-    if yLim == "False":
-        ax.autoscale(axis='y', tight=True)
-    else:
-        pass
+    return fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim
 
-    fig.tight_layout()
-
-    # Get save location
-    saveFilePath = plotDictReader.getString("saveLocation")
-    saveDirectory = os.path.dirname(saveFilePath)
-    saveFileName = os.path.basename(saveFilePath)
-
-    overwriteImages = plotDictReader.tryGetBool("overwriteImages", defaultValue=True)
-
-    # Save plot
-    gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwriteImages, epsVersion=False, pngVersion=False, printStatementPrefix="  ")
-
-    # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
-    plt.close(fig)
-
-def _plotComparisonData(ax, compDataDictReader):
+def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     ''' Plot a single line of comparison data from a specified .csv file '''
     # Get line formatting info
     compDataPath = compDataDictReader.tryGetString("file", defaultValue=None)
@@ -696,15 +648,15 @@ def _plotComparisonData(ax, compDataDictReader):
 
             if len(compColData) < len(compColumnSpecs):
                 print("  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}".format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
-                _incrementWarningCount()
+                batchRun.warningCount += 1
 
             _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
 
         except FileNotFoundError:
             print("  ERROR: Comparison data file: {} not found".format(compDataPath))
-            _incrementWarningCount()
+            batchRun.warningCount += 1
 
-def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, xLim=["False"], yLim=["False"], adjustXaxisToFit=False):
+def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, linewidth=1.5, adjustXaxisToFit=False):
     '''
         Adds MAPLEAF's results to the plot currently being created
 
@@ -721,19 +673,7 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             columnNames.pop(i)
 
     if adjustXaxisToFit:
-        # This will be True if we're plotting the current sim's output
-        if xLim[0] != "False":
-            xLowerLim = float(xLim[0])
-            xUpperLim = float(xLim[1])
-            ax.set_xlim([xLowerLim,xUpperLim])
-
-        else:
-            ax.set_xlim([xData[0], xData[-1]])
-
-        if yLim[0] != "False":
-            yLowerLim = float(yLim[0])
-            yUpperLim = float(yLim[1])
-            ax.set_ylim([yLowerLim,yUpperLim])
+        ax.set_xlim([xData[0], xData[-1]])
 
     # Scale data and apply offset:
     for i in range(len(dataLists)):
@@ -741,31 +681,19 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             a = dataLists[i][j]
             dataLists[i][j] = scalingFactor*float(dataLists[i][j]) + offset
 
-    # Plot obtained data
+    # Plot data
     for i in range(len(columnNames)):
-        line = lineFormat[i]
-
         if len(xData) > 1:
-            # Plot line
-            if adjustXaxisToFit:
-                ax.plot(xData, dataLists[i], line, label = legendLabel[i], linewidth=3)
-            else:
-                ax.plot(xData, dataLists[i], line, label = legendLabel[i])
+            # Line
+            ax.plot(xData, dataLists[i], lineFormat[i], linewidth=linewidth, label=legendLabel[i])
         else:
-            # Plot point
-            if adjustXaxisToFit:
-                ax.scatter(xData, dataLists[i],  label = legendLabel[i], linewidth=3)
-            else:
-                ax.scatter(xData, dataLists[i],  label = legendLabel[i])            
+            # Point
+            ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
 
 
 
 #### Utility functions ####
-def _incrementWarningCount():
-    global warningCount
-    warningCount += 1
-
-def _writeModifiedTestDefinitionFile(batchDefinition):
+def _writeModifiedTestDefinitionFile(batchDefinition: SimDefinition):
     ''' If new expected final values were recorded during the present batch run, this function will be called to write those values to a new file, [originalFileName]_newExpectedResultsRecorded.mapleaf '''
     origFilePath = batchDefinition.fileName
     newTestDefinitionPath = origFilePath.replace(".mapleaf", "_newExpectedResultsRecorded.mapleaf")
