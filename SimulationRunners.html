@@ -52,7 +52,6 @@ from distutils.util import strtobool
 from typing import List
 
 import matplotlib.pyplot as plt
-import ray
 from tqdm import tqdm
 
 from MAPLEAF.ENV import Environment
@@ -487,15 +486,22 @@ class SingleSimRunner():
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
 
-@ray.remote
-class RemoteSimRunner(SingleSimRunner):
-    &#39;&#39;&#39; 
-        Exactly the same as SingleSimRunner, except the class itself, and its .runSingleSimulation method are decorated with ray.remote()
-        to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
-    &#39;&#39;&#39;
-    @ray.method(num_return_vals=2)
-    def runSingleSimulation(self):
-        return super().runSingleSimulation()
+try:
+    import ray
+    rayAvailable = True
+except ImportError:
+    rayAvailable = False
+
+if rayAvailable:
+    @ray.remote
+    class RemoteSimRunner(SingleSimRunner):
+        &#39;&#39;&#39; 
+            Exactly the same as SingleSimRunner, except the class itself, and its .runSingleSimulation method are decorated with ray.remote()
+            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
+        &#39;&#39;&#39;
+        @ray.method(num_return_vals=2)
+        def runSingleSimulation(self):
+            return super().runSingleSimulation()
 
 class WindTunnelRunner(SingleSimRunner):
     def __init__(self, parameterToSweepKey=&#34;Rocket.velocity&#34;, parameterValueList=[&#34;(0 0 100)&#34;, &#34;(0 0 200)&#34;, &#34;(0 0 300)&#34;], simDefinitionFilePath=None, fW=None, silent=False, smoothLine=&#39;False&#39;):
@@ -619,7 +625,7 @@ class WindTunnelRunner(SingleSimRunner):
         return super()._postSingleSimCleanup(simDefinition)
 
 def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
-    if nCores &gt; 1:
+    if nCores &gt; 1 and rayAvailable:
         return _runMonteCarloSimulation_Parallel(simDefinitionFilePath, simDefinition, silent, nCores)
     else:
         return _runMonteCarloSimulation_SingleThreaded(simDefinitionFilePath, simDefinition, silent)
@@ -963,7 +969,7 @@ class OptimizingSimRunner():
     #### Running the optimization ####
     def runOptimization(self):
         &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
-        if self.nProcesses &gt; 1:
+        if self.nProcesses &gt; 1 and rayAvailable:
             ray.init()
             self.optimizer.optimize(self.computeCostFunction_Parallel, iters=self.nIterations)
             ray.shutdown()
@@ -1461,7 +1467,7 @@ if __name__ == &#34;__main__&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
-    if nCores &gt; 1:
+    if nCores &gt; 1 and rayAvailable:
         return _runMonteCarloSimulation_Parallel(simDefinitionFilePath, simDefinition, silent, nCores)
     else:
         return _runMonteCarloSimulation_SingleThreaded(simDefinitionFilePath, simDefinition, silent)</code></pre>
@@ -2345,7 +2351,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
     #### Running the optimization ####
     def runOptimization(self):
         &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
-        if self.nProcesses &gt; 1:
+        if self.nProcesses &gt; 1 and rayAvailable:
             ray.init()
             self.optimizer.optimize(self.computeCostFunction_Parallel, iters=self.nIterations)
             ray.shutdown()
@@ -2659,7 +2665,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
 </summary>
 <pre><code class="python">def runOptimization(self):
     &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
-    if self.nProcesses &gt; 1:
+    if self.nProcesses &gt; 1 and rayAvailable:
         ray.init()
         self.optimizer.optimize(self.computeCostFunction_Parallel, iters=self.nIterations)
         ray.shutdown()
