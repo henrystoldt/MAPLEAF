@@ -141,7 +141,7 @@ def main(argv=None) -> int:
         sys.exit()
      
     # Load simulation definition file
-    simDefPath = findSimDefinitionFile(args.simDefinitionFile[0])
+    simDefPath = findSimDefinitionFile(args.simDefinitionFile)
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
