@@ -7,4 +7,6 @@ tqdm>=4.0 # Progress bars
 cython # Compiling Cython code
 pyswarms # Optimization
 pyyaml # Secretly required by pyswarms
-ray # Multithreading
+ray # (Optional) Multithreading
+PyQt5 # (Optional) Mayavi requires this
+mayavi # (Optional) 3D flight path renders of earth
