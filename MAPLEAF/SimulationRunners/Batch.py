@@ -106,6 +106,9 @@ class BatchRun():
 
             return 1
 
+    def getAverageValidationError(self):
+        return self.validationError / len(self.validationDataUsed)
+
 
 #### Command Line Parsing ####
 def main(argv=None):    
@@ -559,6 +562,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     for compDataDict in compDataDictionaries:
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
         valData, valCols, valXCol = _plotComparisonData(batchRun, ax, compDataDictReader)
+
+        # Check whether we should validate this graph
+        mapleafIsValidation = batchRun.resultToValidate in compDataDict
+        comparisonIsValidation = any([ batchRun.resultToValidate in x for x in valCols ])
         _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol)
     
     #### Finalize + Save Plot ####  
@@ -712,6 +719,18 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
         Outputs:
             Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
     '''
+    # Check whether this column is the one we're interested in
+    
+    
+    # Make sure there's only a single MAPLEAF column
+    if len(mapleafCols) > 0:
+        print("  Not used for validation: More than one column of MAPLEAF data plotted")
+        return
+
+    
+    
+    totalError = 0
+    nPoints = 0
 
 
 #### Utility functions ####
