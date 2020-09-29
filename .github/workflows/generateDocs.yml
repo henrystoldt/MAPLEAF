@@ -35,9 +35,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python3 -m pip install -r ./requirements.txt
-          python3 setup.py build_ext --inplace
-          python3 -m pip install pdoc3
+          pip install .
+          pip install pdoc3
 
       - run: |
           pdoc --html --output-dir docs ./MAPLEAF --template-dir ./Resources/DocTemplate
