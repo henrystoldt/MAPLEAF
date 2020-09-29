@@ -28,9 +28,9 @@ Rocket{
             class           Bodytube
             mass            20 
             position        (0 0 -0.762)
-            cg              (0 0 -8.476)
+            cg              (0 0 -2.276)
             outerDiameter   0.1524
-            length          2
+            length          2.3048
 
             surfaceRoughness    0.000050
         }
