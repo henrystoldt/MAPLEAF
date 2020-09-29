@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install .
+          pip install -e .
           pip install pdoc3
 
       - run: |
