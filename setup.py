@@ -1,3 +1,6 @@
+import subprocess
+import sys
+
 import setuptools
 from Cython.Build import cythonize
 from pkg_resources import parse_requirements
@@ -10,6 +13,18 @@ with open("README.md", "r") as fh:
 with open("requirements.txt") as reqFile:
     lines = reqFile.readlines()
     install_reqs = list([ str(x) for x in parse_requirements(lines)])
+
+    if "ray" in install_reqs:
+        # Don't install ray b/c installation fails often on windows
+        install_reqs.remove("ray")
+
+        # Instead, try to install it here
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "ray"])
+            print("\nInstalled ray\n")
+        except subprocess.CalledProcessError:
+            print("\nWARNING: Unable to install ray. MAPLEAF will only run single-threaded.\n")
+
 
 MAPLEAFVersion = "0.8.8"
 
