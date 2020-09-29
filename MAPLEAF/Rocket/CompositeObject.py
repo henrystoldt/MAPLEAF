@@ -11,14 +11,14 @@ __all__ = [ 'CompositeObject' ]
 
 class CompositeObject():
     """
-        Represents a collection of physical objects with masses.
-        Expects:
-            Components to have the following methods:
-                .getAeroForce(state, time, environmentalConditions, rocketCG)
-                .getInertia(time)
-                .getMass(time) (optional as long as getInertia is implemented)
-            Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed
-            Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.
+        Represents a collection of physical objects with masses.  
+        Expects:  
+            Components to have the following methods:  
+                .getAeroForce(state, time, environmentalConditions, rocketCG)  
+                .getInertia(time)  
+                .getMass(time) (optional as long as getInertia is implemented)  
+            Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed  
+            Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.  
     """
     def __init__(self, components=[], CGOverride=None, MOIOverride=None, massOverride=None):
         self.components = components
