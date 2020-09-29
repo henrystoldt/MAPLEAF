@@ -46,14 +46,14 @@ __all__ = [ &#39;CompositeObject&#39; ]
 
 class CompositeObject():
     &#34;&#34;&#34;
-        Represents a collection of physical objects with masses.
-        Expects:
-            Components to have the following methods:
-                .getAeroForce(state, time, environmentalConditions, rocketCG)
-                .getInertia(time)
-                .getMass(time) (optional as long as getInertia is implemented)
-            Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed
-            Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.
+        Represents a collection of physical objects with masses.  
+        Expects:  
+            Components to have the following methods:  
+                .getAeroForce(state, time, environmentalConditions, rocketCG)  
+                .getInertia(time)  
+                .getMass(time) (optional as long as getInertia is implemented)  
+            Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed  
+            Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.  
     &#34;&#34;&#34;
     def __init__(self, components=[], CGOverride=None, MOIOverride=None, massOverride=None):
         self.components = components
@@ -185,13 +185,13 @@ class CompositeObject():
 <span>(</span><span>components=[], CGOverride=None, MOIOverride=None, massOverride=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Represents a collection of physical objects with masses.</p>
-<h2 id="expects">Expects</h2>
-<p>Components to have the following methods:
-.getAeroForce(state, time, environmentalConditions, rocketCG)
-.getInertia(time)
-.getMass(time) (optional as long as getInertia is implemented)
-Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed
+<div class="desc"><p>Represents a collection of physical objects with masses.<br>
+Expects:<br>
+Components to have the following methods:<br>
+.getAeroForce(state, time, environmentalConditions, rocketCG)<br>
+.getInertia(time)<br>
+.getMass(time) (optional as long as getInertia is implemented)<br>
+Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed<br>
 Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.</p></div>
 <details class="source">
 <summary>
@@ -199,14 +199,14 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 </summary>
 <pre><code class="python">class CompositeObject():
     &#34;&#34;&#34;
-        Represents a collection of physical objects with masses.
-        Expects:
-            Components to have the following methods:
-                .getAeroForce(state, time, environmentalConditions, rocketCG)
-                .getInertia(time)
-                .getMass(time) (optional as long as getInertia is implemented)
-            Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed
-            Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.
+        Represents a collection of physical objects with masses.  
+        Expects:  
+            Components to have the following methods:  
+                .getAeroForce(state, time, environmentalConditions, rocketCG)  
+                .getInertia(time)  
+                .getMass(time) (optional as long as getInertia is implemented)  
+            Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed  
+            Objects that do not inherit from FixedMass to be variable mass objects. Their inertias are recalculated all the time.  
     &#34;&#34;&#34;
     def __init__(self, components=[], CGOverride=None, MOIOverride=None, massOverride=None):
         self.components = components
