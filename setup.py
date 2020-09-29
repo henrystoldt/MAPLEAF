@@ -22,7 +22,10 @@ with open("requirements.txt") as reqFile:
         try:
             subprocess.check_call([sys.executable, "-m", "pip", "install", "ray"])
             print("\nInstalled ray\n")
+        
         except subprocess.CalledProcessError:
+            # Output error, but continue installation if ray install fails
+                # Error message won't be visible unless running `python setup.py develop`
             print("\nWARNING: Unable to install ray. MAPLEAF will only run single-threaded.\n")
 
 
