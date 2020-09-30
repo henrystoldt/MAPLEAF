@@ -30,14 +30,14 @@ ExampleFlightCase{
             saveLocation                ./test/regressionTesting/SamplePlot.pdf # Always saves .pdf plots
 
             xColumnName                 Time(s)             # (Optional) specify which column will be plotted on the x-axis (default is Time(s))
-            lineFormat					--b                 # (Optional) matplotlib-style line format
+            lineFormat					:b :k               # (Optional) matplotlib-style line format
             xLabel						Time (s)            # (Optional)
-            yLabel						Position, Velocity  # (Optional)
-            xLimits						0.2 1.6             # (Optional)
-            yLimits						-1.2 1.2            # (Optional)
+            yLabel						Altitude (m)        # (Optional)
+            xLimits						0 1                 # (Optional)
+            yLimits						0 100               # (Optional)
 			scalingFactor				1                   # (Optional) Use to invert data or convert units - scales MAPLEAF's results by a constant factor
             offset                      0                   # (Optional) Add scalar to MAPLEAF's results
-            legendLabel					Total               # (Optional) Label of MAPLEAF line
+            legendLabel					Altitude Sim, Velocity Sim # (Optional) Label of MAPLEAF line
             overwrite                   True                # (Optional)
 
             # Each subdictionary is assumed to contain comparison data. Can have any number of these
@@ -49,13 +49,8 @@ ExampleFlightCase{
                 columnsToPlot           posZ velZ               # Full/partial .csv column names and/or regex
 
                 xColumnName             Time(s)                 # (Optional) - supply if not 'Time(s)'       
-                lineFormat              :c                      # (Optional) matplotlib-style line format
-                legendLabel             Analytical Data [12]    # (Optional), otherwise uses column headers
-                
-                # (Optional), if True, data will be used to assess the accuracy of MAPLEAF results
-                    # Assumes there's only a single line of MAPLEAF data plotted, comparison data is compared to that
-                    # Used when running `mapleaf-batch --validate`
-                validationData          True                    
+                lineFormat              --b --k                 # (Optional) matplotlib-style line format
+                legendLabel             Altitude Comparion, Velocity Comparison # (Optional), otherwise uses column headers
             }
         }
     }
@@ -81,7 +76,7 @@ ExampleWindTunnelCase{
             
             # COMMA-separated list of scalar expected result values OR 'Record'
                 # Number of expectedValues must match number (and order) of parameterValues
-			expectedValues	            0.2955,0.5886,0.8822
+			expectedValues	            0.2955, 0.5886, 0.8822
         }
 
         DragResults{ # Can have an arbitrary number of these dictionaries

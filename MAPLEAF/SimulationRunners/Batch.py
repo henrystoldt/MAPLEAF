@@ -5,16 +5,15 @@
 import argparse
 import os
 import time
+from distutils.util import strtobool
 from math import isnan
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from MAPLEAF.IO import (Logging, Plotting, SimDefinition, SubDictReader,
                         gridConvergenceFunctions)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
-
 
 __all__ = [ "main", "run", "BatchRun" ]
 
@@ -109,6 +108,10 @@ class BatchRun():
     def getAverageValidationError(self):
         return self.validationError / len(self.validationDataUsed)
 
+    def error(self, msg: str):
+        self.warningCount += 1
+        self.nTestsFailed += 1
+        print(msg)
 
 #### Command Line Parsing ####
 def main(argv=None):    
@@ -117,7 +120,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     # Load definition file
-    from MAPLEAF.Main import findSimDefinitionFile # Delayed import here to avoid circular imports
+    from MAPLEAF.Main import \
+        findSimDefinitionFile  # Delayed import here to avoid circular imports
     batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
     batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
 
@@ -244,17 +248,9 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         sweptParameters.append(caseDictReader.getString(parameter + '.sweptParameter'))
         parameterValues.append(caseDictReader.getString(parameter + '.parameterValues'))
     parameterValues = [ _parseParameterSweepValues(valString) for valString in parameterValues ]
-
-    # Check that all parameters are being swept over an equal number of points
-    if not all(len(sub) == len(parameterValues[0]) for sub in parameterValues):
-        print("parameterSweep value are not equal lengths!")
-        batchRun.warningCount += 1
     
     # Check whether to add points for smoother plots
-    if len(parameterValues) < 25:
-        smoothLineDefault = 'True'
-    else:
-        smoothLineDefault = 'False'
+    smoothLineDefault = 'True' if len(parameterValues) < 25 else 'False'
     smoothLine = caseDictReader.tryGetString('ParameterSweep.smoothLine', defaultValue=smoothLineDefault)
 
     # Run simulation
@@ -266,90 +262,41 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     else:
         Logging.removeLogger()
 
-    # Check results
-    plotsSubDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + ".PlotsToGenerate") # access plot sub dicts
-    for plotSubDict in plotsSubDicts: # loop through plot sub dicts
-        comparisonResults = caseDictReader.getImmediateSubDicts(plotSubDict) # access the comparison data dicts
-        for comparisonResult in comparisonResults: # loop through comparison data dicts
-            if caseDictReader.tryGetString(comparisonResult + ".compareToSim") != None: # check for compareToSim key
-                compareToSim = True # conditional variable needed to not divide by 0 later on in the error calcs
-                expectedResultsDicts.append(comparisonResult) # if compareToSim exists, add that comparisonDataDict to the expectedResultsDict
-
-    compCasesCount = 0 # initialize, final total will be equal to number of plotted comparison data sets included in error calcs
-    totalAvgError = 0 # initialize, this variable tracks total avg error for all plotted comparison data that is elected to be included in error calcs
     for expectedResultsDict in expectedResultsDicts: # loop through expected results. Manually inputed values, as well as comparisonData in the plots
-
-        if caseDictReader.tryGetString(expectedResultsDict + ".compareToSim") != None: # this checks if the expected results came from comparisonPlot data, or user inputted expectedResults
-            showAvgError = True # do an average percent error calc for this data set
-            compCasesCount += 1 # increase count for comparison data sets included in error calcs
-
-            expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".compareToSim") # get column header that contains sim results in log files
-            compResultsCol = caseDictReader.getString(expectedResultsDict + ".columnsToPlot") # get column header that contains sim results in log files
-            expectedResultsPath = caseDictReader.tryGetString(expectedResultsDict + ".file", defaultValue=None)
-            expectedResults, compColNames = Plotting.getLoggedColumns(expectedResultsPath, compResultsCol, sep=',') # get expected results from .csv file
-            expectedResults = expectedResults[0] # take sublist and make it main list
-        else: # if the data comes from expected results, and not the comparison data dictionary, the above 'if' statement will be false, and this will be executed
-            expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".column") # get column header that contains results in log files
-            expectedResults = caseDictReader.getString(expectedResultsDict + ".expectedValues").split(',') # get expected results values that will be compared against sim
-            showAvgError = False # do not do a percent error calc for this data set
-
-        # Get results to be checked
-        resultData = []
+        expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".column") # get column header that contains results in log files
+        expectedResults = caseDictReader.getString(expectedResultsDict + ".expectedValues").split(',') # get expected results values that will be compared against sim
+        expectedResults = [ float(x) for x in expectedResults ] # Convert to floatS
+            
+        ### Get results to be checked ###
         for logPath in logFilePaths:
             columnDataLists, columnNames = Plotting.getLoggedColumns(logPath, expectedResultsCol)
+            if len(columnNames) > 0:
+                break # Stop looking on first column match
 
-            if len(columnNames) == 1:
-                resultData = columnDataLists[0]
-                break
-
-            elif len(columnNames) > 1:
-                print("  ERROR: Column Spec '{}' matched more than one column: {} in log file: '{}'".format(expectedResultsCol, columnNames, logPath))
-                batchRun.warningCount += 1
-                batchRun.nTestsFailed += 1
-                return
-
-        if len(resultData) == 0:
-            print("  ERROR: Column Spec {} did not match any columns".format(expectedResultsCol))
-            batchRun.warningCount += 1
-            batchRun.nTestsFailed += 1
+        if len(columnNames) != 1:
+            batchRun.error("   ERROR: Did not find exactly one column matching spec: {} in log files: {}. Instead, found: {} matching columns {}".format(expectedResultsCol, logFilePaths, len(columnNames), columnNames))
             return
+        else:
+            resultData = columnDataLists[0]
 
-        # Record / Check Results
+        ### Record / Check Results ###
         if (len(expectedResults) == 1 and expectedResults[0].lower() == "record") or batchRun.recordAll:
-            # Record results for future runs
-            for value in resultData:
-                print("  {:<25} Recorded {:>15.7}".format(expectedResultsCol + ":", value))
-
+            ## Record results ##
             key = expectedResultsDict + ".expectedValues"
-            resultData = [ str(x) for x in resultData ]
-            value = ",".join(resultData)
+            stringResults = ", ".join([ str(x) for x in resultData ])
             batchRun.batchDefinition.setValue(key, value)
             batchRun.casesWithNewRecordedResults.add(caseDictReader.simDefDictPathToReadFrom)
 
+            # Tell user the values have been recorded
+            for value in resultData:
+                print("  {:<25} Recorded {:>15.7}".format(expectedResultsCol + ":", value))
+
         else:
-            # Compare obtained results to expected ones
-            totalCaseError = 0    # initalize, used to track total error in each individual case        
+            ## Chcek results ##
+            resultDataStep = 10 if strtobool(smoothLine) else 1
 
-            if smoothLine == "True":
-                for i in range(len(expectedResults)):
-                    _checkResult(batchRun, expectedResultsCol, resultData[i*10], float(expectedResults[i]))
-                    totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
-
-            else:
-                for i in range(len(expectedResults)):
-                    _checkResult(batchRun, expectedResultsCol, resultData[i], float(expectedResults[i]))
-                    totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
-
-            if showAvgError: # if the case came from plotted comparison data, display the total parameter error
-                
-                avgCaseError = totalCaseError/(i+1) # take avg of the total
-                print("Total average error for the above parameter comparison:  %6.2f %%\n" %(avgCaseError))
-                totalAvgError += avgCaseError # add total avg parameter error to total case error
-
-    errorStats[0] = totalAvgError
-    if compareToSim: # required in order to not divide by 0 for cases that do not contain the compareToSim key in any of their comparison data dicts
-        totalAvgError /= compCasesCount # get average error for all parameters in this case (only for data that came from plotted comparison data)
-        print("Total average error for all comparison data: %6.2f %%\n" %(totalAvgError)) # Well I am sure you know what this does
+            for i in range(len(expectedResults)):
+                _checkResult(batchRun, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
 
     return logFilePaths
 
@@ -536,7 +483,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     # Read info from plotDictReader, create figure, set x/y limits, axes labels, etc...
     fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim = _setUpFigure(plotDictReader)
 
-    ### Plot all the requested data from MAPLEAF's results ###
+    #### Plot all the requested data from MAPLEAF's results ####
     mapleafCols = []
     mapleafX = []
     mapleafData = []
@@ -562,9 +509,12 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
         valData, valCols, valXCol = _plotComparisonData(batchRun, ax, compDataDictReader)
 
         # Check whether we should validate this graph
-        mapleafIsValidation = batchRun.resultToValidate in compDataDict
-        comparisonIsValidation = any([ batchRun.resultToValidate in x for x in valCols ])
-        _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol)
+        dictNameMatchesValidation = (batchRun.resultToValidate in compDataDict and len(valCols) == 1)
+        columnNameMatchesValidation = (len(valCols) == 1 and batchRun.resultToValidate in valCols[0])
+        mapleafColumnNameMatchesValidation = (len(mapleafCols) == 1 and batchRun.resultToValidate in mapleafCols[0])
+        
+        if any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation]):
+            _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol)
     
     #### Finalize + Save Plot ####  
     if yLim == ["False"]:
@@ -729,6 +679,48 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
     
     totalError = 0
     nPoints = 0
+
+
+    def validationCode():
+        # Check results
+        plotsSubDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + ".PlotsToGenerate") # access plot sub dicts
+        for plotSubDict in plotsSubDicts: # loop through plot sub dicts
+            comparisonResults = caseDictReader.getImmediateSubDicts(plotSubDict) # access the comparison data dicts
+            for comparisonResult in comparisonResults: # loop through comparison data dicts
+                if caseDictReader.tryGetString(comparisonResult + ".compareToSim") != None: # check for compareToSim key
+                    compareToSim = True # conditional variable needed to not divide by 0 later on in the error calcs
+                    expectedResultsDicts.append(comparisonResult) # if compareToSim exists, add that comparisonDataDict to the expectedResultsDict
+
+        compCasesCount = 0 # initialize, final total will be equal to number of plotted comparison data sets included in error calcs
+        totalAvgError = 0 # initialize, this variable tracks total avg error for all plotted comparison data that is elected to be included in error calcs
+
+        if caseDictReader.tryGetString(expectedResultsDict + ".compareToSim") != None: # this checks if the expected results came from comparisonPlot data, or user inputted expectedResults
+            showAvgError = True # do an average percent error calc for this data set
+            compCasesCount += 1 # increase count for comparison data sets included in error calcs
+
+            expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".compareToSim") # get column header that contains sim results in log files
+            compResultsCol = caseDictReader.getString(expectedResultsDict + ".columnsToPlot") # get column header that contains sim results in log files
+            expectedResultsPath = caseDictReader.tryGetString(expectedResultsDict + ".file", defaultValue=None)
+            expectedResults, compColNames = Plotting.getLoggedColumns(expectedResultsPath, compResultsCol, sep=',') # get expected results from .csv file
+            expectedResults = expectedResults[0] # take sublist and make it main list
+        else: # if the data comes from expected results, and not the comparison data dictionary, the above 'if' statement will be false, and this will be executed
+            showAvgError = False # do not do a percent error calc for this data set
+
+        
+        totalCaseError = 0    # initalize, used to track total error in each individual case 
+        totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
+        totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
+
+        if showAvgError: # if the case came from plotted comparison data, display the total parameter error
+            avgCaseError = totalCaseError/(i+1) # take avg of the total
+            print("Total average error for the above parameter comparison:  %6.2f %%\n" %(avgCaseError))
+            totalAvgError += avgCaseError # add total avg parameter error to total case error
+
+        errorStats[0] = totalAvgError
+        if compareToSim: # required in order to not divide by 0 for cases that do not contain the compareToSim key in any of their comparison data dicts
+            totalAvgError /= compCasesCount # get average error for all parameters in this case (only for data that came from plotted comparison data)
+            print("Total average error for all comparison data: %6.2f %%\n" %(totalAvgError)) # Well I am sure you know what this does
+    
 
 
 #### Utility functions ####
