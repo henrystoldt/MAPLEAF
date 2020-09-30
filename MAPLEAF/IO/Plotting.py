@@ -28,10 +28,9 @@ plt.rcParams["font.size"] = "10"
 plt.rcParams["font.weight"] = "normal"
 
 logFileCache = OrderedDict()
-''' Will keep the contents of the last n log files loaded cached, to avoid re-loading repeatedly when making lots of plots '''
-
-numberOfFilesToKeepCached = 10
-''' Number of log files to keep cached '''
+''' Will keep the contents of the last n log files loaded cached, to avoid re-loading repeatedly when making lots of plots '''s
+maxLogFileCacheSize = 10
+''' Max number of log files to keep cached simultaneously '''
 
 ### Plot data from log files ###
 def plotFromLogFiles(logFilePaths, plotDefinitionString, showPlot=True):
@@ -105,6 +104,9 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
 
 def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
     '''
+        Obtains columns matching one or more regex expressions in a log file.
+        By default, log file contents are cached by file name.
+
         Inputs:
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
             columnSpecs:        (list (string)) list of partial/full column names and/or regex expressions, to identify the desired columns
@@ -137,7 +139,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
         df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine='python')
             
         logFileCache[logPath] = df
-        if len(logFileCache) > numberOfFilesToKeepCached:
+        if len(logFileCache) > maxLogFileCacheSize:
             logFileCache.popitem(last=False)
     
     matchingColumnData = []
