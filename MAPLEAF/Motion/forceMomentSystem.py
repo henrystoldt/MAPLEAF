@@ -17,6 +17,7 @@ class ForceMomentSystem():
             location = Vector(0,0,0)
         self.location = location
 
+        # Avoids using mutable default values
         if moment == None:
             moment = Vector(0,0,0)
         self.moment = moment

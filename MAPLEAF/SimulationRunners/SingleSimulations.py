@@ -464,6 +464,14 @@ class WindTunnelSimulation(Simulation):
         self.parameterValues = [["(0 0 100)", "(0 0 200)", "(0 0 300)"]] if (parameterValues == None) else parameterValues
         self.smoothLine = smoothLine
 
+        # Error checks
+        if len(self.parametersToSweep) != len(self.parameterValues):
+            raise ValueError("Must have a list of values for each parameter to sweep over. Currently have {} parameters, and {} lists of values.".format(len(self.parametersToSweep), len(self.parameterValues)))
+
+        paramValueCounts = [ len(x) for x in self.parameterValues ]
+        if not all([ (x == paramValueCounts[0]) for x in paramValueCounts ]):
+            raise ValueError("All lists of parameter values must be of equal length. Currently, list lengths are: {}".format(paramValueCounts))
+
         Simulation.__init__(self, simDefinitionFilePath, simDefinition, silent)
 
     def runSweep(self):
@@ -490,7 +498,7 @@ class WindTunnelSimulation(Simulation):
             rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
         # Write Logs to file, return path
-        return self._postProcess(self.simDefinition)
+        return self._postProcess()
 
     def _addPoints(self, pointMultiple=10):
         ''' Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values '''
@@ -537,19 +545,18 @@ class WindTunnelSimulation(Simulation):
         if self.forceEvaluationLog == []:
             return super()._createLogDataTableHeaders(rocket)
 
-    def _postProcess(self, simDefinition):
+    def _postProcess(self):
         ''' Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files.
             Removes mainSimLog from (returned) log file paths since no time steps we taken by this sim '''
         # Create an empty flight path to prevent errors in the parent function)
         self.stageFlightPaths = [ RocketFlight() ]
-        logFilePaths = super()._postProcess(simDefinition)
+        logFilePaths = Simulation._postProcess(self, self.simDefinition)
 
         # Because no time steps were taken, the main simulation log will not contain any tabular data.
             # Remove it from logFilePaths (but file is still generated)
         for logPath in logFilePaths:
             if "simulationLog" in logPath:
                 logFilePaths.remove(logPath)
-                break
 
         return logFilePaths
 

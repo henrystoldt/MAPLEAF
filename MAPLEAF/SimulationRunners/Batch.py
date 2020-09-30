@@ -136,9 +136,7 @@ def main(argv=None):
 
 #### Main ####
 def run(batchRun: BatchRun) -> int:
-    '''
-        Given a batchDefinition object (of type `MAPLEAF.IO.SimDefinition`), will run all of the test cases defined in it, and print a summary of the results
-    '''
+    ''' Given a batchRun object (of type `BatchRun`), will run all of its test cases, and print a summary of the results '''
     # Track how long running cases takes
     startTime = time.time()
 
