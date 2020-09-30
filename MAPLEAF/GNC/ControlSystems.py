@@ -4,8 +4,9 @@ Control systems run a simulated control loops between simulation time steps, and
 '''
 
 import abc
+import numpy as np
 
-from MAPLEAF.GNC import GainScheduledPIDRocketMomentController, Stabilizer
+from MAPLEAF.GNC import ConstantGainPIDRocketMomentController, ScheduledGainPIDRocketMomentController, Stabilizer
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import integratorFactory
 
@@ -33,6 +34,15 @@ class ControlSystem(abc.ABC):
     def getLogHeader(self):
         ''' Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired '''
 
+    def calculateAngularError(self, currentOrientation, targetOrientation):
+
+        errors = np.array((targetOrientation / currentOrientation).toRotationVector())
+        pitchError = errors[0]
+        yawError = errors[1]
+        rollError = errors[2]
+
+        return pitchError, yawError, rollError
+
 class RocketControlSystem(ControlSystem, SubDictReader):
     ''' Simplest possible control system for a rocket '''
 
@@ -48,12 +58,20 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 
         ### Create Moment Controller ###
         momentControllerType = controlSystemDictReader.getString("MomentController.Type")
-        if momentControllerType == "GainScheduledPIDRocket":
+        if momentControllerType == "ConstantGainPIDRocket":
+            Pxy = controlSystemDictReader.getFloat("MomentController.Pxy")
+            Ixy = controlSystemDictReader.getFloat("MomentController.Ixy")
+            Dxy = controlSystemDictReader.getFloat("MomentController.Dxy")
+            Pz = controlSystemDictReader.getFloat("MomentController.Pz")
+            Iz = controlSystemDictReader.getFloat("MomentController.Iz")
+            Dz = controlSystemDictReader.getFloat("MomentController.Dz")
+            self.momentController = ConstantGainPIDRocketMomentController(Pxy,Ixy,Dxy,Pz,Iz,Dz)
+        elif momentControllerType == "ScheduledGainPIDRocket":
             gainTableFilePath = controlSystemDictReader.getString("MomentController.gainTableFilePath")
             keyColumnNames = controlSystemDictReader.getString("MomentController.scheduledBy").split()
-            self.momentController = GainScheduledPIDRocketMomentController(gainTableFilePath, keyColumnNames)
+            self.momentController = ScheduledGainPIDRocketMomentController(gainTableFilePath, keyColumnNames)
         else:
-            raise ValueError("Moment Controller Type: {} not implemented. Try GainScheduledPIDRocket".format(momentControllerType))
+            raise ValueError("Moment Controller Type: {} not implemented. Try ScheduledGainPIDRocket".format(momentControllerType))
 
         ### Set update rate ###
         self.updateRate = controlSystemDictReader.getFloat("updateRate")
@@ -125,6 +143,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         # Run control loop if enough time has passed
+
         if (currentTime - self.lastControlLoopRunTime) + 0.0000000001 >= self.controlTimeStep:
             dt = currentTime - self.lastControlLoopRunTime
 
@@ -139,6 +158,11 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 
             self.lastControlLoopRunTime = currentTime
 
+            pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
+
+            self.rocket.simRunner.newControlSystemLogLine("{:<7.3f} ".format(currentTime))      # Start a new line in the control system evaluation log 
+            self.appendToControlSystemLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(pitchError, yawError, rollError))
+
             return newActuatorPositionTargets
         else:
             return False
@@ -146,3 +170,10 @@ class RocketControlSystem(ControlSystem, SubDictReader):
     def getLogHeader(self):
         headerStrings = [ " Actuator_{}_TargetDeflection".format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
         return "".join(headerStrings)
+
+    def appendToControlSystemLogLine(self, txt: str):
+        ''' Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`'s controlSystemEvaluationLog '''
+        try:
+            self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
+        except AttributeError:
+            pass # Force logging not set up for this sim

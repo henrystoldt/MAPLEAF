@@ -223,6 +223,10 @@ class SingleSimRunner():
             # Start force evaluation log if required
             if self.loggingLevel >= 2:
                 self.forceEvaluationLog = []
+            # Start control system evaluation log if required
+            if self.loggingLevel >=4:
+                self.controlSystemEvaluationLog = []
+
         elif self.silent:
             # No intention of writing things to a log file, just prevent them from being printed to the terminal
             _ = []
@@ -264,6 +268,14 @@ class SingleSimRunner():
                 " TotalFX(N) TotalFY(N) TotalFZ(N)"
                 
                 self.forceEvaluationLog.append(header)
+
+            if self.loggingLevel >= 4:
+                #Create control system evaluation log header (written once per time step)
+                # Columns always included
+                header = "Time(s)" + \
+                " Pitch Angular Error (degrees) Yaw Angular Error (degrees) Roll Angular Error (degrees)"
+
+                self.controlSystemEvaluationLog.append(header)
 
     def _getSimEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
         ''' 
@@ -354,6 +366,14 @@ class SingleSimRunner():
         except AttributeError:
             pass # Force logging not desired/set up for this simulation
 
+    def newControlSystemLogLine(self, txt):
+        try:
+            if len(self.controlSystemEvaluationLeg) > 0 and self.controlSystemEvaluationLog[-1][-1:] != '\n':
+                self.controlSystemEvaluationLog[-1] += "\n"
+            self.controlSystemEvaluationLog.append(txt)
+        except AttributeError:
+            pass # Control system logging no desired/set up for this simulation
+
     def discardForceLogsForLastTimeStep(self, integrator):
         if self.loggingLevel >= 2:
             # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
@@ -415,11 +435,18 @@ class SingleSimRunner():
                     file.writelines(self.forceEvaluationLog)
 
                 # Post process / calculate force/moment coefficients if desired
-                if self.loggingLevel >= 3:
+                if self.loggingLevel >= 5:
                     bodyDiameter = self.rocketStages[0].bodyTubeDiameter
                     crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
+
+                if self.loggingLevel >= 4:
+                    controlSystemLogFilePath = mainLogFilePath.replace("simulationLog", "controlSystemEvaluationLog")
+                    print("Writing control system evaluation log to: {}".format(controlSystemLogFilePath))
+                    logFilePaths.append(controlSystemLogFilePath)
+                    with open(controlSystemLogFilePath, 'w+') as file:
+                        file.writelines(self.controlSystemEvaluationLog)
 
         return logFilePaths
 
