@@ -28,7 +28,7 @@ plt.rcParams["font.size"] = "10"
 plt.rcParams["font.weight"] = "normal"
 
 logFileCache = OrderedDict()
-''' Will keep the contents of the last n log files loaded cached, to avoid re-loading repeatedly when making lots of plots '''s
+''' Will keep the contents of the last n log files loaded cached, to avoid re-loading repeatedly when making lots of plots '''
 maxLogFileCacheSize = 10
 ''' Max number of log files to keep cached simultaneously '''
 
