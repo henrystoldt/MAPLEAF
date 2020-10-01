@@ -273,7 +273,7 @@ class SingleSimRunner():
                 #Create control system evaluation log header (written once per time step)
                 # Columns always included
                 header = "Time(s)" + \
-                " Pitch Angular Error (degrees) Yaw Angular Error (degrees) Roll Angular Error (degrees)"
+                " PitchAngularError(degrees) YawAngularError(degrees) RollAngularError(degrees)"
 
                 self.controlSystemEvaluationLog.append(header)
 
@@ -368,7 +368,7 @@ class SingleSimRunner():
 
     def newControlSystemLogLine(self, txt):
         try:
-            if len(self.controlSystemEvaluationLeg) > 0 and self.controlSystemEvaluationLog[-1][-1:] != '\n':
+            if len(self.controlSystemEvaluationLog) > 0 and self.controlSystemEvaluationLog[-1][-1:] != '\n':
                 self.controlSystemEvaluationLog[-1] += "\n"
             self.controlSystemEvaluationLog.append(txt)
         except AttributeError:

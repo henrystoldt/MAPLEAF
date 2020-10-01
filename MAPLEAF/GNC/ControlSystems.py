@@ -160,8 +160,9 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 
             pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
 
-            self.rocket.simRunner.newControlSystemLogLine("{:<7.3f} ".format(currentTime))      # Start a new line in the control system evaluation log 
-            self.appendToControlSystemLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(pitchError, yawError, rollError))
+            if self.rocket.simRunner.loggingLevel >= 4:
+                self.rocket.simRunner.newControlSystemLogLine("{:<7.3f} ".format(currentTime))      # Start a new line in the control system evaluation log 
+                self.appendToControlSystemLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(pitchError, yawError, rollError))
 
             return newActuatorPositionTargets
         else:

@@ -103,7 +103,7 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
     
     return names
 
-def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
+def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+", enableCache=True):
     '''
         Inputs:
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
@@ -118,7 +118,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
     if isinstance(columnSpecs, str):
         columnSpecs = [ columnSpecs ]
     
-    if logPath in logFileCache:
+    if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
         with open(logPath, 'r') as file:
