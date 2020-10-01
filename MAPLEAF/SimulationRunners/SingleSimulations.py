@@ -122,7 +122,7 @@ class Simulation():
                 time = self.rocketStages[stageIndex].rigidBody.time
                 self.stageFlightPaths[stageIndex].times.append(time)
                 self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
-                if self.rocketStages[stageIndex].controlSystem != None:
+                if self.rocketStages[stageIndex].controlSystem != None and self.stageFlightPaths[stageIndex]:
                     try:
                         for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
                             self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
@@ -286,10 +286,11 @@ class Simulation():
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None and hasattr(rocket.controlSystem.controlledSystem, "numFins"):  
+        if rocket.controlSystem != None:  
             # If rocket has moving fins, record their angles for plotting
-            flight.actuatorDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
-            flight.actuatorTargetDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
+            nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
+            flight.actuatorDefls = [ [0] for i in range(nActuators) ]
+            flight.actuatorTargetDefls = [ [0] for i in range(nActuators) ]
         else:
             flight.actuatorDefls = None
             flight.actuatorTargetDefls = None
