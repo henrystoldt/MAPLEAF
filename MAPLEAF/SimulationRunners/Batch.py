@@ -83,7 +83,7 @@ class BatchRun():
                 print("Average disagreement with validation data across {} validation data sets: {:2.2f}%".format( len(self.validationDataUsed), mean(self.validationErrors)))
                 print("Data Sets Used :")
                 for (dataSet, avgError) in zip(self.validationDataUsed, self.validationErrors):
-                    print("{}: {}%".format(dataSet, avgError))
+                    print("{}: {:2.2f}%".format(dataSet, avgError))
                 print("")
             else:
                 self.warning("\nERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries\n".format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
@@ -512,15 +512,14 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
         if len(columnNames) > 1:
             # Only plot if we've found (at minimum) an X-column and a Y-column (2 columns)
             adjustX = True if xLim == ["False"] else False
-            _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
+            xData = _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
+            mapleafX.append(xData)
 
             # Avoid plotting columns twice!
             for i in range(len(columnNames)):
                 if columnNames[i] != xColumnName:
                     mapleafCols.append(columnNames[i])
                     mapleafData.append(columnData[i])
-                else:
-                    mapleafX.append(columnData[i])
 
     #### Plot comparison data ####
     compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
@@ -703,16 +702,16 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
 
     if len(mapleafCols) == 1 and len(valCols) == 1:
         # One set of mapleaf data, one set of comparison data -> straightforward
-        avgError = getAvgError(mapleafX, mapleafData[0], validationX, valData[0])
+        avgError = getAvgError(mapleafX[0], mapleafData[0], validationX, valData[0])
     
     elif len(mapleafCols) == 1 and len(valCols) > 1:
         # One set of mapleaf data, multiple sets of comparison data -> compare each to the mapleaf data, return mean error across all curves
-        avgErrors = [ getAvgError(mapleafX, mapleafData[0], validationX, validationY) for validationY in valData ]
+        avgErrors = [ getAvgError(mapleafX[0], mapleafData[0], validationX, validationY) for validationY in valData ]
         avgError = mean(avgErrors)
 
     elif len(mapleafCols) > 1 and len(valCols) == 1:
         # Multiple sets of mapleaf data, one set of comparison data -> compare comparison data to the mapleaf line that matches it most closely
-        avgErrors = [ getAvgError(mapleafX, mapleafY, validationX, valData[0]) for mapleafY in mapleafData ]
+        avgErrors = [ getAvgError(mapleafX[i], mapleafData[i], validationX, valData[0]) for i in range(len(mapleafData)) ]
         avgError = min(avgErrors)
 
     else:
