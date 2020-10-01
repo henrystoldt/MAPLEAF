@@ -82,11 +82,11 @@ class BatchRun():
                 print("\nValidation Results for {}:".format(self.resultToValidate))
                 print("Average disagreement with validation data across {} validation data sets: {:2.2f}%".format( len(self.validationDataUsed), mean(self.validationErrors)))
                 print("Data Sets Used :")
-                for dataSet in self.validationDataUsed:
-                    print(dataSet)
+                for (dataSet, avgError) in zip(self.validationDataUsed, self.validationErrors):
+                    print("{}: {}%".format(dataSet, avgError))
                 print("")
             else:
-                self.warning("ERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries".format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
+                self.warning("\nERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries\n".format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
   
         if self.warningCount > 0:
             print("Errors/Warnings: {}".format(self.warningCount))
@@ -780,7 +780,7 @@ def _buildParser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--validate",
         nargs=1,
-        default=None,
+        default=[],
         help="The average disagreement between MAPLEAF's results and plotted comparison data will be computed for the parameter provided. Parameter must be found in one or more of: a) name of comparison data dictionary name, b) comparison data column name, c) the MAPLEAF column name."
     )
     parser.add_argument(

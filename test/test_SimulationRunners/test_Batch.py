@@ -28,7 +28,7 @@ class TestBatchSim(unittest.TestCase):
 
         # Check case that should pass
         with captureOutput() as (out, err):
-            _checkResult(self.batchRun, "FakeColumn", 1.125, 1.125)
+            _checkResult(self.batchRun, "fakeCase", "FakeColumn", 1.125, 1.125)
 
         self.assertEqual(self.batchRun.nTestsOk, origPassedTests+1)
         output = out.getvalue().strip()
@@ -38,7 +38,7 @@ class TestBatchSim(unittest.TestCase):
         
         # Check case that should fail
         with captureOutput() as (out, err):
-            _checkResult(self.batchRun, "FakeColumn", 1.1, 1.0)
+            _checkResult(self.batchRun, "fakeCase", "FakeColumn", 1.1, 1.0)
 
         self.assertEqual(self.batchRun.nTestsFailed, origFailedTests+1)
         output = out.getvalue().strip()
