@@ -122,7 +122,7 @@ class Simulation():
                 time = self.rocketStages[stageIndex].rigidBody.time
                 self.stageFlightPaths[stageIndex].times.append(time)
                 self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
-                if self.rocketStages[stageIndex].controlSystem != None and self.stageFlightPaths[stageIndex]:
+                if self.rocketStages[stageIndex].controlSystem != None:
                     try:
                         for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
                             self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
