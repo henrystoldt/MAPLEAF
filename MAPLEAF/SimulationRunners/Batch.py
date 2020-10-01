@@ -19,11 +19,6 @@ from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 __all__ = [ "main", "run", "BatchRun" ]
 
-#TODO: For validation, want to be able to run something like: `mapleaf-batch regressionTests.mapleaf --validate CN`
-    # Tweak existing errorStats code to make this happen
-    # Integrate errorStats into BatchRun object
-    # Should do an error comparison to all validation data in plots whose names contain 'CN'
-    # Output average validation error at the end of the simulation
 
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
@@ -41,8 +36,8 @@ class BatchRun():
         self.printStackTraces = printStackTraces
         self.caseNameSpec = caseNameSpec
 
-        self.nCasesRun = 0
-        self.nCasesOk = 0
+        self.casesRun = set()
+        self.casesFailed = set()
         self.nTestsOk = 0
         self.nTestsFailed = 0
         self.totalSimErrors = 0
@@ -78,9 +73,9 @@ class BatchRun():
         print("BATCH RUN RESULTS")
 
         if timeToRun != None:
-            print("Ran {} Case(s) in {:>.2f} s".format(self.nCasesRun, timeToRun))
+            print("Ran {} Case(s) in {:>.2f} s".format(len(self.casesRun), timeToRun))
         else:
-            print("Ran {} Case(s)".format(self.nCasesRun))
+            print("Ran {} Case(s)".format(len(self.casesRun)))
 
         if self.resultToValidate != None:
             if len(self.validationErrors) > 0:
@@ -100,8 +95,8 @@ class BatchRun():
             print("New expected results were recorded for the following cases: {}".format(recordedCaseList))
             _writeModifiedTestDefinitionFile(self.batchDefinition)
 
-        if self.nCasesOk == self.nCasesRun:
-            print("{} Case(s) ok".format(self.nCasesOk))
+        if len(self.casesFailed) == 0:
+            print("{} Case(s) ok".format(len(self.casesRun)))
             print("")
             if self.warningCount == 0:
                 print("OK")
@@ -110,19 +105,24 @@ class BatchRun():
 
             return 0
         else:
-            nCasesFailed = self.nCasesRun - self.nCasesOk
+            nCasesFailed = len(self.casesFailed)
             nTests = self.nTestsOk + self.nTestsFailed
-            print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, self.nCasesRun, self.nTestsFailed, nTests))
+            print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, len(self.casesRun), self.nTestsFailed, nTests))
+            print("")
+            print("Failed Cases:")
+            for case in self.casesFailed:
+                print(case)
             print("")
             print("FAIL")
 
             return 1
 
-    def error(self, msg: str):
+    def error(self, caseName, msg: str):
         ''' Currently, errors are used to indicated problems directly related to MAPLEAF simulations '''
         self.warningCount += 1
         self.nTestsFailed += 1
         print(msg)
+        self.casesFailed.add(caseName)
 
     def warning(self, msg: str):
         ''' Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data '''
@@ -147,8 +147,10 @@ def main(argv=None):
     else:
         caseNameSpec = None # Run all cases
 
+    validate = args.validate[0] if len(args.validate) > 0 else None
+
     # Create batch run object containing settings and results
-    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, caseNameSpec)
+    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, caseNameSpec, resultToValidate=validate)
 
     # Run Cases
     return run(batchRun)
@@ -165,7 +167,7 @@ def run(batchRun: BatchRun) -> int:
 
     for case in testCases:
         _runCase(case, batchRun)
-        batchRun.nCasesRun += 1
+        batchRun.casesRun.add(case)
 
     runTime = time.time() - startTime
     return batchRun.printResult(runTime)
@@ -274,7 +276,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
         logFilePaths = simRunner.runSweep()
     except:
-        _handleSimCrash(batchRun)
+        _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
     else:
         Logging.removeLogger()
 
@@ -290,7 +292,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
                 break # Stop looking on first column match
 
         if len(columnNames) != 1:
-            batchRun.error("   ERROR: Did not find exactly one column matching spec: {} in log files: {}. Instead, found: {} matching columns {}".format(expectedResultsCol, logFilePaths, len(columnNames), columnNames))
+            batchRun.error(caseDictReader.simDefDictPathToReadFrom, "   ERROR: Did not find exactly one column matching spec: {} in log files: {}. Instead, found: {} matching columns {}".format(expectedResultsCol, logFilePaths, len(columnNames), columnNames))
             return
         else:
             resultData = columnDataLists[0]
@@ -312,7 +314,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             resultDataStep = 10 if strtobool(smoothLine) else 1
 
             for i in range(len(expectedResults)):
-                _checkResult(batchRun, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+                _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
 
     return logFilePaths
 
@@ -360,7 +362,7 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
         simRunner = Simulation(simDefinition=simDefinition, silent=True)
         _, logFilePaths = simRunner.run()
     except:
-        _handleSimCrash(batchRun)
+        _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
     else:
         Logging.removeLogger()
 
@@ -375,18 +377,16 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
 
     return logFilePaths
 
-def _handleSimCrash(batchRun: BatchRun):
+def _handleSimCrash(batchRun: BatchRun, caseName):
     # Simulation Failed
     Logging.removeLogger() # Make sure we can print to the console
-    print("  ERROR: Simulation Crashed")
-    batchRun.warningCount += 1
+    batchRun.error(caseName, "  ERROR: Simulation Crashed")
 
     if batchRun.printStackTraces:
         import traceback
         tb = traceback.format_exc()
         print(tb)
         
-    batchRun.nTestsFailed += 1
     return [] # No log file paths
 
 #### 2. Checking Expected Final Results ####
@@ -413,7 +413,7 @@ def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFileP
             ## Regular Parameter Check ##
             expectedResult = caseDictReader.getFloat(resultKey)
             observedResult, columnName = _getSingleResultFromLogs(batchRun, logFilePaths, logColumnSpec)
-            _checkResult(batchRun, columnName, observedResult, expectedResult)
+            _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, columnName, observedResult, expectedResult)
 
         except ValueError:
             ## Record value for this parameter? ##
@@ -430,7 +430,7 @@ def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFileP
                 print("  ERROR: Expected value: {} for parameter: {} not numeric or 'Record'".format(expectedResult, resultKey))
                 batchRun.warningCount += 1
 
-def _checkResult(batchRun: BatchRun, columnName: str, observedResult: float, expectedResult: float):
+def _checkResult(batchRun: BatchRun, caseName: str, columnName: str, observedResult: float, expectedResult: float):
     '''
         Checks whether the observed and expected results match to within the desired tolerance
 
@@ -447,6 +447,7 @@ def _checkResult(batchRun: BatchRun, columnName: str, observedResult: float, exp
     if observedResult == None:
         # Could end up here if a result is not found in the log file - perhaps a column name has been mis-spelled in the batch definition file?
         batchRun.nTestsFailed += 1
+        batchRun.casesFailed.add(caseName)
     
     else:
         # Compute error %
@@ -460,6 +461,8 @@ def _checkResult(batchRun: BatchRun, columnName: str, observedResult: float, exp
         if errorPercent > batchRun.percentErrorTolerance or isnan(errorPercent):
             print("  {:<25} FAIL     {:>15.7}, Expected: {:>15.7}, Disagreement: {:>10.2f} %".format(columnName + ":", observedResult, expectedResult, errorPercent))
             batchRun.nTestsFailed += 1
+            batchRun.casesFailed.add(caseName)
+
         else:
             print("  {:<25} ok       {:>15.7}".format(columnName + ":", expectedResult))
             batchRun.nTestsOk += 1
@@ -524,15 +527,16 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
         valData, valCols, valXCol = _plotComparisonData(batchRun, ax, compDataDictReader)
 
-        # Check whether we should validate this graph
-        dictNameMatchesValidation = (batchRun.resultToValidate in compDataDict and len(valCols) == 1)
-        columnNameMatchesValidation = (len(valCols) == 1 and batchRun.resultToValidate in valCols[0])
-        mapleafColumnNameMatchesValidation = (len(mapleafCols) == 1 and batchRun.resultToValidate in mapleafCols[0])
-        dataShouldBeUsedForCurrentValidation = any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation])
-        dataExists = len(valCols) > 0
-        
-        if  dataShouldBeUsedForCurrentValidation and dataExists:
-            _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol, compDataDict)
+        if batchRun.resultToValidate != None:
+            # Check whether we should validate this graph
+            dictNameMatchesValidation = (batchRun.resultToValidate in compDataDict and len(valCols) == 1)
+            columnNameMatchesValidation = (len(valCols) == 1 and batchRun.resultToValidate in valCols[0])
+            mapleafColumnNameMatchesValidation = (len(mapleafCols) == 1 and batchRun.resultToValidate in mapleafCols[0])
+            dataShouldBeUsedForCurrentValidation = any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation])
+            dataExists = len(valCols) > 0
+            
+            if  dataShouldBeUsedForCurrentValidation and dataExists:
+                _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol, compDataDict)
     
     #### Finalize + Save Plot ####  
     if yLim == ["False"]:
@@ -688,6 +692,10 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
             validationX = valData.pop(i)
             valCols.pop(i)
 
+    if validationX == None:
+        batchRun.warning("  ERROR: Didn't find x-data column {} in comparison data array".format(valXCol))
+        return
+
     def getAvgError(MAPLEAFX, MAPLEAFY, valX, valY) -> float:
         def getInterpolatedMAPLEAFResult(x):
             # Interpolating MAPLEAF's results because we are assuming MAPLEAF's data is often denser than validation data, which decreases interpolation error
@@ -776,6 +784,12 @@ def _buildParser() -> argparse.ArgumentParser:
         nargs=1, 
         default=[], 
         help="Only cases whose name includes this string will be run."
+    )
+    parser.add_argument(
+        "--validate",
+        nargs=1,
+        default=None,
+        help="The average disagreement between MAPLEAF's results and plotted comparison data will be computed for the parameter provided. Parameter must be found in one or more of: a) name of comparison data dictionary name, b) comparison data column name, c) the MAPLEAF column name."
     )
     parser.add_argument(
         "batchDefinitionFile", 
