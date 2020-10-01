@@ -452,7 +452,7 @@ if rayAvailable:
             Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
             to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
         '''
-        @ray.method(num_return_vals=2)
+        @ray.method(num_returns=2)
         def run(self):
             return super().run()
 else:

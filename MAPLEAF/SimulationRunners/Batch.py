@@ -13,6 +13,7 @@ import numpy as np
 from MAPLEAF.IO import (Logging, Plotting, SimDefinition, SubDictReader,
                         gridConvergenceFunctions)
 from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion.Interpolation import linInterp
 from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 __all__ = [ "main", "run", "BatchRun" ]
@@ -26,7 +27,14 @@ __all__ = [ "main", "run", "BatchRun" ]
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
 
-    def __init__(self, batchDefinition: SimDefinition, recordAll=False, printStackTraces=False, caseNameSpec=None, percentErrorTolerance=0.01, resultToValidate=None):
+    def __init__(self, 
+            batchDefinition: SimDefinition, 
+            recordAll=False, 
+            printStackTraces=False, 
+            caseNameSpec=None, 
+            percentErrorTolerance=0.01, 
+            resultToValidate=None
+        ):
         self.batchDefinition = batchDefinition
         self.recordAll = recordAll
         self.printStackTraces = printStackTraces
@@ -109,8 +117,14 @@ class BatchRun():
         return self.validationError / len(self.validationDataUsed)
 
     def error(self, msg: str):
+        ''' Currently, errors are used to indicated problems directly related to MAPLEAF simulations '''
         self.warningCount += 1
         self.nTestsFailed += 1
+        print(msg)
+
+    def warning(self, msg: str):
+        ''' Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data '''
+        self.warningCount +=1
         print(msg)
 
 #### Command Line Parsing ####
@@ -512,8 +526,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
         dictNameMatchesValidation = (batchRun.resultToValidate in compDataDict and len(valCols) == 1)
         columnNameMatchesValidation = (len(valCols) == 1 and batchRun.resultToValidate in valCols[0])
         mapleafColumnNameMatchesValidation = (len(mapleafCols) == 1 and batchRun.resultToValidate in mapleafCols[0])
+        dataShouldBeUsedForCurrentValidation = any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation])
+        dataExists = len(valCols) > 0
         
-        if any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation]):
+        if  dataShouldBeUsedForCurrentValidation and dataExists:
             _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol)
     
     #### Finalize + Save Plot ####  
@@ -589,7 +605,6 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     lineFormat = compDataDictReader.tryGetString("lineFormat", defaultValue="k-").split()
     legendLabel = compDataDictReader.tryGetString("legendLabel", defaultValue="Label").split(',')
     scalingFactor = compDataDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
-    validationData = compDataDictReader.tryGetBool("validationData", defaultValue=True)
 
     # If comparison data entries found in the plot dictionary, load and plot the comparison data
     if compDataPath != None and len(compColumnSpecs) > 0:
@@ -601,23 +616,18 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
             compColData, compColNames = Plotting.getLoggedColumns(compDataPath, compColumnSpecs, sep=',')
 
             if len(compColData) < len(compColumnSpecs):
-                print("  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}".format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
-                batchRun.warningCount += 1
+                batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}".format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
 
             _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
-
-            if validationData:
-                return compColData, compColNames, xColumnName
+            return compColData, compColNames, xColumnName
 
         except FileNotFoundError:
-            print("  ERROR: Comparison data file: {} not found".format(compDataPath))
-            batchRun.warningCount += 1
+            batchRun.warning("  ERROR: Comparison data file: {} not found".format(compDataPath))
 
     else:
-        print("   ERROR: Locating comparison data, file: {}, columns to plot: {}".format(compDataPath, compColumnSpecs))
-        batchRun.warningCount += 1
+        batchRun.warning("  ERROR: Locating comparison data, file: {}, columns to plot: {}".format(compDataPath, compColumnSpecs))
 
-    return [], []
+    return [], [], xColumnName
 
 def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, linewidth=1.5, adjustXaxisToFit=False):
     '''
@@ -653,32 +663,48 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             # Point
             ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
 
-def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol: str):
+def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol: str) -> float:
     '''
+        Returns the average percentage disagreement between the mapleaf results and the validation data
+
         Inputs:
-            mapleafCols:    (List[str]) List of the column names plotted against the present comparison data mapleaf
+            mapleafCols:    (List[str]) List of the column names plotted against the present comparison data by MAPLEAF
             mapleafX:       (List[float]) Mapleaf X-data
             mapleafData:    (List[List[float]]) Mapleaf data for each of the column names in mapleafCols (order should match)
             
-            valCols:        (List[str]) List of column names of validation data to be plotted
-            valData:        (List[List[float]]) Comparison data for each of the column names in valCols (order should match)
+            valCols:        (List[str]) List of column names of validation data to be plotted, including x-column
+            valData:        (List[List[float]]) Comparison data for each of the column names in valCols (order should match), also includes x-column data
             valXCol:        (str) Name of the x-column data in valCols / valData
 
         Outputs:
             Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
     '''
-    # Check whether this column is the one we're interested in
     
-    
-    # Make sure there's only a single MAPLEAF column
-    if len(mapleafCols) > 0:
-        print("  Not used for validation: More than one column of MAPLEAF data plotted")
-        return
+    # Extract the x-column from valData 
+    validationX = None
+    for i in range(len(valCols)):
+        if valCols[i] == valXCol:
+            validationX = valData.pop(i)
+            valCols.pop(i)
 
+    def getAvgError(MAPLEAFResult, validationData, xData):
+
+
+    if len(mapleafCols) == 1 and len(valCols) == 1:
+        # One set of mapleaf data, one set of comparison data -> straightforward
+        def getInterpolatedMAPLEAFResult(x):
+            # Interpolating MAPLEAF's results because we are assuming MAPLEAF's data is often denser than validation data, which decreases interpolation error
+            return linInterp(mapleafX, mapleafData[0], x)
+
+        interpolatedMAPLEAFResults = [ getInterpolatedMAPLEAFResult(x) for x in validationX ]
+
+        errorMagnitude = [ abs(MAPLEAFResult - validationData) for (MAPLEAFResult, validationData) in zip(interpolatedMAPLEAFResults, valData[0]) ]
+        errorPercentage = 
     
+    # One set of mapleaf data, multiple sets of comparison data -> compare each to the mapleaf data, return mean error across all curves
     
-    totalError = 0
-    nPoints = 0
+    # Multiple sets of mapleaf data, one set of comparison data -> compare comparison data to the mapleaf line that matches it most closely
+
 
 
     def validationCode():
