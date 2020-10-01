@@ -7,6 +7,7 @@ import os
 import time
 from distutils.util import strtobool
 from math import isnan
+from statistics import mean
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -51,7 +52,7 @@ class BatchRun():
         self.warningCount = 0
         self.percentErrorTolerance = percentErrorTolerance
 
-        self.validationError = 0
+        self.validationErrors = []
         self.validationDataUsed = []
         self.resultToValidate = resultToValidate
 
@@ -81,12 +82,16 @@ class BatchRun():
         else:
             print("Ran {} Case(s)".format(self.nCasesRun))
 
-        # TODO: Validation stuff
-        # if nComparisonSets > 0:
-        #     totalSimAvgError = totalSimError/nComparisonSets
-        #     print("")
-        #     print("Total Average Error for Entire Simulation: %6.2f %%\n" %(totalSimAvgError))
-
+        if self.resultToValidate != None:
+            if len(self.validationErrors) > 0:
+                print("Validation Results for {}:".format(self.resultToValidate))
+                print("Average disagreement with validation data across {} validation data sets: {:2.2f} \n".format( len(self.validationDataUsed), mean(self.validationErrors)))
+                print("Data Sets Used :")
+                for dataSet in self.validationDataUsed:
+                    print(dataSet)
+            else:
+                self.warning("ERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries".format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
+  
         if self.warningCount > 0:
             print("Errors/Warnings: {}".format(self.warningCount))
 
@@ -112,9 +117,6 @@ class BatchRun():
             print("FAIL")
 
             return 1
-
-    def getAverageValidationError(self):
-        return self.validationError / len(self.validationDataUsed)
 
     def error(self, msg: str):
         ''' Currently, errors are used to indicated problems directly related to MAPLEAF simulations '''
@@ -530,7 +532,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
         dataExists = len(valCols) > 0
         
         if  dataShouldBeUsedForCurrentValidation and dataExists:
-            _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol)
+            _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol, compDataDict)
     
     #### Finalize + Save Plot ####  
     if yLim == ["False"]:
@@ -663,7 +665,7 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             # Point
             ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
 
-def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol: str) -> float:
+def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol: str, validationDataPath: str) -> float:
     '''
         Returns the average percentage disagreement between the mapleaf results and the validation data
 
@@ -679,7 +681,6 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
         Outputs:
             Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
     '''
-    
     # Extract the x-column from valData 
     validationX = None
     for i in range(len(valCols)):
@@ -687,66 +688,42 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
             validationX = valData.pop(i)
             valCols.pop(i)
 
-    def getAvgError(MAPLEAFResult, validationData, xData):
+    def getAvgError(MAPLEAFX, MAPLEAFY, valX, valY) -> float:
+        def getInterpolatedMAPLEAFResult(x):
+            # Interpolating MAPLEAF's results because we are assuming MAPLEAF's data is often denser than validation data, which decreases interpolation error
+            return linInterp(MAPLEAFX, MAPLEAFY, x)
+        
+        interpolatedMAPLEAFResults = [ getInterpolatedMAPLEAFResult(x) for x in validationX ]
 
+        # TODO: Provide/plot error distributions, not just averages?
+        errorMagnitudes = [ (mY - vY)  for  (mY, vY)  in  zip(interpolatedMAPLEAFResults, valY) ]
+        errorPercentages = [ ((error / vY) if vY != 0 else 100)  for  (error, vY)  in  zip(errorMagnitudes, valY) ]
+        
+        return mean(errorPercentages)
 
     if len(mapleafCols) == 1 and len(valCols) == 1:
         # One set of mapleaf data, one set of comparison data -> straightforward
-        def getInterpolatedMAPLEAFResult(x):
-            # Interpolating MAPLEAF's results because we are assuming MAPLEAF's data is often denser than validation data, which decreases interpolation error
-            return linInterp(mapleafX, mapleafData[0], x)
-
-        interpolatedMAPLEAFResults = [ getInterpolatedMAPLEAFResult(x) for x in validationX ]
-
-        errorMagnitude = [ abs(MAPLEAFResult - validationData) for (MAPLEAFResult, validationData) in zip(interpolatedMAPLEAFResults, valData[0]) ]
-        errorPercentage = 
+        avgError = getAvgError(mapleafX, mapleafData[0], validationX, valData[0])
     
-    # One set of mapleaf data, multiple sets of comparison data -> compare each to the mapleaf data, return mean error across all curves
-    
-    # Multiple sets of mapleaf data, one set of comparison data -> compare comparison data to the mapleaf line that matches it most closely
+    elif len(mapleafCols) == 1 and len(valCols) > 1:
+        # One set of mapleaf data, multiple sets of comparison data -> compare each to the mapleaf data, return mean error across all curves
+        avgErrors = [ getAvgError(mapleafX, mapleafData[0], validationX, validationY) for validationY in valData ]
+        avgError = mean(avgErrors)
 
+    elif len(mapleafCols) > 1 and len(valCols) == 1:
+        # Multiple sets of mapleaf data, one set of comparison data -> compare comparison data to the mapleaf line that matches it most closely
+        avgErrors = [ getAvgError(mapleafX, mapleafY, validationX, valData[0]) for mapleafY in mapleafData ]
+        avgError = min(avgErrors)
 
+    else:
+        # Error: Unclear which MAPLEAF data should be validated by which set of comparison data
+        # Skip
+        batchRun.warning("  WARNING: Unclear which set of MAPLEAF results should be validated by which set of comparison data")
+        avgError = None
 
-    def validationCode():
-        # Check results
-        plotsSubDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + ".PlotsToGenerate") # access plot sub dicts
-        for plotSubDict in plotsSubDicts: # loop through plot sub dicts
-            comparisonResults = caseDictReader.getImmediateSubDicts(plotSubDict) # access the comparison data dicts
-            for comparisonResult in comparisonResults: # loop through comparison data dicts
-                if caseDictReader.tryGetString(comparisonResult + ".compareToSim") != None: # check for compareToSim key
-                    compareToSim = True # conditional variable needed to not divide by 0 later on in the error calcs
-                    expectedResultsDicts.append(comparisonResult) # if compareToSim exists, add that comparisonDataDict to the expectedResultsDict
-
-        compCasesCount = 0 # initialize, final total will be equal to number of plotted comparison data sets included in error calcs
-        totalAvgError = 0 # initialize, this variable tracks total avg error for all plotted comparison data that is elected to be included in error calcs
-
-        if caseDictReader.tryGetString(expectedResultsDict + ".compareToSim") != None: # this checks if the expected results came from comparisonPlot data, or user inputted expectedResults
-            showAvgError = True # do an average percent error calc for this data set
-            compCasesCount += 1 # increase count for comparison data sets included in error calcs
-
-            expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".compareToSim") # get column header that contains sim results in log files
-            compResultsCol = caseDictReader.getString(expectedResultsDict + ".columnsToPlot") # get column header that contains sim results in log files
-            expectedResultsPath = caseDictReader.tryGetString(expectedResultsDict + ".file", defaultValue=None)
-            expectedResults, compColNames = Plotting.getLoggedColumns(expectedResultsPath, compResultsCol, sep=',') # get expected results from .csv file
-            expectedResults = expectedResults[0] # take sublist and make it main list
-        else: # if the data comes from expected results, and not the comparison data dictionary, the above 'if' statement will be false, and this will be executed
-            showAvgError = False # do not do a percent error calc for this data set
-
-        
-        totalCaseError = 0    # initalize, used to track total error in each individual case 
-        totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
-        totalCaseError += abs(errorPercent) # add individual instance of a parameter's error to total case error
-
-        if showAvgError: # if the case came from plotted comparison data, display the total parameter error
-            avgCaseError = totalCaseError/(i+1) # take avg of the total
-            print("Total average error for the above parameter comparison:  %6.2f %%\n" %(avgCaseError))
-            totalAvgError += avgCaseError # add total avg parameter error to total case error
-
-        errorStats[0] = totalAvgError
-        if compareToSim: # required in order to not divide by 0 for cases that do not contain the compareToSim key in any of their comparison data dicts
-            totalAvgError /= compCasesCount # get average error for all parameters in this case (only for data that came from plotted comparison data)
-            print("Total average error for all comparison data: %6.2f %%\n" %(totalAvgError)) # Well I am sure you know what this does
-    
+    if avgError != None:
+        batchRun.validationDataUsed.append(validationDataPath)
+        batchRun.validationErrors.append(avgError)
 
 
 #### Utility functions ####
