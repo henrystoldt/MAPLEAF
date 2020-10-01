@@ -286,7 +286,7 @@ class Simulation():
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:  
+        if rocket.controlSystem != None and hasattr(rocket.controlSystem.controlledSystem, "numFins"):  
             # If rocket has moving fins, record their angles for plotting
             flight.actuatorDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
             flight.actuatorTargetDefls = [ [0] for i in range(rocket.controlSystem.controlledSystem.numFins) ]
