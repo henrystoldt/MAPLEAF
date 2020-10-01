@@ -79,11 +79,12 @@ class BatchRun():
 
         if self.resultToValidate != None:
             if len(self.validationErrors) > 0:
-                print("Validation Results for {}:".format(self.resultToValidate))
-                print("Average disagreement with validation data across {} validation data sets: {:2.2f} \n".format( len(self.validationDataUsed), mean(self.validationErrors)))
+                print("\nValidation Results for {}:".format(self.resultToValidate))
+                print("Average disagreement with validation data across {} validation data sets: {:2.2f}%".format( len(self.validationDataUsed), mean(self.validationErrors)))
                 print("Data Sets Used :")
                 for dataSet in self.validationDataUsed:
                     print(dataSet)
+                print("")
             else:
                 self.warning("ERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries".format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
   
@@ -525,7 +526,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
     for compDataDict in compDataDictionaries:
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
-        valData, valCols, valXCol = _plotComparisonData(batchRun, ax, compDataDictReader)
+        valData, valCols, valX = _plotComparisonData(batchRun, ax, compDataDictReader)
 
         if batchRun.resultToValidate != None:
             # Check whether we should validate this graph
@@ -536,7 +537,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
             dataExists = len(valCols) > 0
             
             if  dataShouldBeUsedForCurrentValidation and dataExists:
-                _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol, compDataDict)
+                _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valX, compDataDict)
     
     #### Finalize + Save Plot ####  
     if yLim == ["False"]:
@@ -624,8 +625,8 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
             if len(compColData) < len(compColumnSpecs):
                 batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}".format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
 
-            _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
-            return compColData, compColNames, xColumnName
+            xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
+            return compColData, compColNames, xData
 
         except FileNotFoundError:
             batchRun.warning("  ERROR: Comparison data file: {} not found".format(compDataPath))
@@ -669,7 +670,9 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
             # Point
             ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
 
-def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valXCol: str, validationDataPath: str) -> float:
+    return xData
+
+def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, validationX, validationDataPath: str) -> float:
     '''
         Returns the average percentage disagreement between the mapleaf results and the validation data
 
@@ -685,17 +688,6 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
         Outputs:
             Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
     '''
-    # Extract the x-column from valData 
-    validationX = None
-    for i in range(len(valCols)):
-        if valCols[i] == valXCol:
-            validationX = valData.pop(i)
-            valCols.pop(i)
-
-    if validationX == None:
-        batchRun.warning("  ERROR: Didn't find x-data column {} in comparison data array".format(valXCol))
-        return
-
     def getAvgError(MAPLEAFX, MAPLEAFY, valX, valY) -> float:
         def getInterpolatedMAPLEAFResult(x):
             # Interpolating MAPLEAF's results because we are assuming MAPLEAF's data is often denser than validation data, which decreases interpolation error
@@ -731,7 +723,7 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
 
     if avgError != None:
         batchRun.validationDataUsed.append(validationDataPath)
-        batchRun.validationErrors.append(avgError)
+        batchRun.validationErrors.append(avgError*100)
 
 
 #### Utility functions ####
