@@ -23,7 +23,6 @@ __all__ = [ "main", "run", "BatchRun" ]
 
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
-
     def __init__(self, 
             batchDefinition: SimDefinition, 
             recordAll=False, 
@@ -84,7 +83,8 @@ class BatchRun():
             if len(self.validationErrors) > 0:
                 print("\nValidation Results for {}:".format(self.resultToValidate))
                 print("Average disagreement with validation data across {} validation data sets: {:2.2f}%".format( len(self.validationDataUsed), mean(self.validationErrors)))
-                print("Data Sets Used :")
+                print("Average magnitude of disgreement with validation data across {} validation data sets: {:2.2f}%".format( len(self.validationDataUsed), mean([abs(error) for error in self.validationErrors])))
+                print("Data Sets Used:")
                 for (dataSet, avgError) in zip(self.validationDataUsed, self.validationErrors):
                     print("{}: {:2.2f}%".format(dataSet, avgError))
                 print("")
@@ -140,8 +140,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     # Load definition file
-    from MAPLEAF.Main import \
-        findSimDefinitionFile  # Delayed import here to avoid circular imports
+    from MAPLEAF.Main import findSimDefinitionFile  # Delayed import here to avoid circular imports
     batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
     batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
 
