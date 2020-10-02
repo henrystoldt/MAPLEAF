@@ -1,7 +1,27 @@
+import subprocess
+import sys
+
 import setuptools
 from Cython.Build import cythonize
 from pkg_resources import parse_requirements
 from setuptools import Extension, setup
+
+MAPLEAFVersion = "0.8.8"
+
+def tryInstallingPackage(packageName: str, errorMessage: str, install_reqs):
+    ''' Function used to handle 'nice-to-have', but not required packages '''
+    if packageName in install_reqs:
+        install_reqs.remove(packageName)
+
+        # Instead, try to install it here
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", packageName])
+            print("\nInstalled {}\n".format(packageName))
+        
+        except subprocess.CalledProcessError:
+            # Output error, but continue installation if ray install fails
+                # Error message won't be visible unless running `python setup.py develop`
+            print("\nWARNING: Unable to install {}. {}\n".format(packageName, errorMessage))
 
 #### Get/Set info to be passed into setup() ####
 with open("README.md", "r") as fh:
@@ -11,7 +31,18 @@ with open("requirements.txt") as reqFile:
     lines = reqFile.readlines()
     install_reqs = list([ str(x) for x in parse_requirements(lines)])
 
-MAPLEAFVersion = "0.8.8"
+#### Try installing optional packages ####
+# ray and mayavi often cause issues on windows
+# PyQt5 only required for mayavi
+optionalProblematicPackages = [ "ray", "PyQt5", "mayavi" ]
+errorMessages = [
+    "MAPLEAF will only run single-threaded.", 
+    "", 
+    "MAPLEAF will not produce 3D renders of the earth. Will fall back to Matplotlib instead."
+]
+
+for i in range(len(optionalProblematicPackages)):
+    tryInstallingPackage(optionalProblematicPackages[i], errorMessages[i], install_reqs)
 
 #### Create list of setuptools.Extension objects for Cython to compile ####
 # Add Cython files here, together with ".c" if it compiles to Cython-Generated C code, or ".cpp" if it compiles to Cython-Generated C++ code

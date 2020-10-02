@@ -1,5 +1,5 @@
 matplotlib==3.2.2   # Plots
-numpy>=1.16.3       # Reading tabulated data
+numpy>=1.16.3       # Reading tables
 scipy>=1.3.0        # Interpolation / Statistics
 pandas>=1.0.3       # Dataframes
 pyserial>=3.4       # HIL
@@ -7,4 +7,6 @@ tqdm>=4.0           # Progress bars
 cython              # Compiling Cython code
 pyswarms            # Optimization
 pyyaml              # Secretly required by pyswarms
-ray                 # Parallelization
+ray                 # (Optional) Multithreading
+PyQt5               # (Optional) Mayavi requires this
+mayavi              # (Optional) 3D flight path renders of earth
