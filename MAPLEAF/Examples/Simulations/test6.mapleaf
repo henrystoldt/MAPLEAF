@@ -9,7 +9,7 @@ Rocket{
 
     Sustainer{
         class           Stage
-        stageNumber      0 #First and only stage
+        stageNumber     0 #First and only stage
 
         Nosecone{
             class           Nosecone
