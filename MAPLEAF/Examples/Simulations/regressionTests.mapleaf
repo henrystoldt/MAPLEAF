@@ -1027,7 +1027,7 @@ ParametricFinCase5{
 			xLabel						Mach
 			yLabel						$C_N$
 			xLimits						0.5 4
-			yLimits						0 1
+			yLimits						0.25 1
 			legendLabel					MAPLEAF
 			scalingFactor			    -1
 			overwrite			    True
