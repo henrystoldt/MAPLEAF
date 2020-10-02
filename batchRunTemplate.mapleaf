@@ -51,6 +51,7 @@ ExampleFlightCase{
                 xColumnName             Time(s)                 # (Optional) - supply if not 'Time(s)'       
                 lineFormat              --b --k                 # (Optional) matplotlib-style line format
                 legendLabel             Altitude Comparion, Velocity Comparison # (Optional), otherwise uses column headers
+                validationData          True                    # (optional) Can use to exclude certain sets of comparison data from validation metrics
             }
         }
     }

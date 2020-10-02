@@ -28,14 +28,16 @@ class BatchRun():
             batchDefinition: SimDefinition, 
             recordAll=False, 
             printStackTraces=False, 
-            caseNameSpec=None, 
+            include=None, 
+            exclude=None,
             percentErrorTolerance=0.01, 
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
         self.recordAll = recordAll
         self.printStackTraces = printStackTraces
-        self.caseNameSpec = caseNameSpec
+        self.include = include
+        self.exclude = exclude
 
         self.casesRun = set()
         self.casesFailed = set()
@@ -55,16 +57,16 @@ class BatchRun():
     def getCasesToRun(self):
         subDicts = self.batchDefinition.getImmediateSubDicts("")
         
-        if self.caseNameSpec == None:
+        if self.include == None and self.exclude == None:
             # Run all cases
             return subDicts
 
         else:
-            # Only run cases that include the nameSpec
+            # Only run cases that include the include string AND do not contain the exclude string
             casesToRun = []
-            for caseDict in subDicts:
-                if self.caseNameSpec in caseDict:
-                    casesToRun.append(caseDict)
+            for caseDictName in subDicts:
+                if (self.include == None or self.include in caseDictName) and (self.exclude == None or self.exclude not in caseDictName):
+                    casesToRun.append(caseDictName)
 
             return casesToRun
     
@@ -143,16 +145,12 @@ def main(argv=None):
     batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
     batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
 
-    # Filter cases by name if required
-    if len(args.filter) > 0:
-        caseNameSpec=args.filter[0] # Run specific case(s)
-    else:
-        caseNameSpec = None # Run all cases
-
+    include = args.include[0] if len(args.include) > 0 else None
+    exclude = args.exclude[0] if len(args.exclude) > 0 else None
     validate = args.validate[0] if len(args.validate) > 0 else None
 
     # Create batch run object containing settings and results
-    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, caseNameSpec, resultToValidate=validate)
+    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, include, exclude, resultToValidate=validate)
 
     # Run Cases
     return run(batchRun)
@@ -528,17 +526,18 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     for compDataDict in compDataDictionaries:
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
         valData, valCols, valX = _plotComparisonData(batchRun, ax, compDataDictReader)
+        validationData = compDataDictReader.tryGetBool("validationData", defaultValue=True)
 
         if batchRun.resultToValidate != None:
             # Check whether we should validate this graph
             dictNameMatchesValidation = (batchRun.resultToValidate in compDataDict and len(valCols) == 1)
             columnNameMatchesValidation = (len(valCols) == 1 and batchRun.resultToValidate in valCols[0])
             mapleafColumnNameMatchesValidation = (len(mapleafCols) == 1 and batchRun.resultToValidate in mapleafCols[0])
-            dataShouldBeUsedForCurrentValidation = any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation])
+            dataShouldBeUsedForCurrentValidation = validationData and any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation])
             dataExists = len(valCols) > 0
             
-            if  dataShouldBeUsedForCurrentValidation and dataExists:
-                _validate(batchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, valX, compDataDict)
+            if dataShouldBeUsedForCurrentValidation and dataExists:
+                _validate(batchRun, mapleafX, mapleafData, valData, valX, compDataDict)
     
     #### Finalize + Save Plot ####  
     if yLim == ["False"]:
@@ -775,10 +774,16 @@ def _buildParser() -> argparse.ArgumentParser:
         help="If present, stack traces are printed for crashed simulations"
     )
     parser.add_argument(
-        "--filter", 
+        "--include", 
         nargs=1, 
         default=[], 
         help="Only cases whose name includes this string will be run."
+    )
+    parser.add_argument(
+        "--exclude",
+        nargs=1,
+        default=[],
+        help="Exclude cases whose name includes this string. Takes precedence over --include"
     )
     parser.add_argument(
         "--validate",

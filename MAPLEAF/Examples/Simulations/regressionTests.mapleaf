@@ -322,7 +322,7 @@ HaisunaataCase{
 				xColumnName 	t(s)
 				lineFormat		--g
 				legendLabel		RockSim v8
-				file	        	./test/regressionTesting/HaisunaataRocket/HaisunaataRockSim.csv
+				file	        ./test/regressionTesting/HaisunaataRocket/HaisunaataRockSim.csv
 			}
 
 			comparisonData_Flight{
@@ -330,7 +330,7 @@ HaisunaataCase{
 				xColumnName 	t(s)
 				lineFormat		.k
 				legendLabel		Flight Data
-				file	        	./test/regressionTesting/HaisunaataRocket/HaisunaataExpData.csv
+				file	        ./test/regressionTesting/HaisunaataRocket/HaisunaataExpData.csv
 			}
 
 		}
@@ -1048,6 +1048,7 @@ ParametricFinCase5{
 				legendLabel				OpenRocket v15.03
 				# compareToSim			AeroCFX
 				file					./test/regressionTesting/Parametric/ParametricFin5CNOR.csv
+				validationData			False
 			}			
 		}
 
@@ -1076,7 +1077,8 @@ ParametricFinCase5{
 				xColumnName			Mach
 				lineFormat			py
 				legendLabel			OpenRocket v15.03
-				file						./test/regressionTesting/Parametric/ParametricFin5CdOR.csv
+				file				./test/regressionTesting/Parametric/ParametricFin5CdOR.csv
+				validationData		False
 			}
 		}
 
@@ -1307,6 +1309,7 @@ ParametricFinCase10{
 				legendLabel				OpenRocket v15.03
 				# compareToSim			AeroCFX
 				file					./test/regressionTesting/Parametric/ParametricFin10CNOR.csv
+				validationData			False
 			}					
 		}
 
@@ -1335,7 +1338,8 @@ ParametricFinCase10{
 				xColumnName			Mach
 				lineFormat			py
 				legendLabel			OpenRocket v15.03
-				file						./test/regressionTesting/Parametric/ParametricFin10CdOR.csv
+				file				./test/regressionTesting/Parametric/ParametricFin10CdOR.csv
+				validationData		False
 			}
 		}
 
@@ -1435,6 +1439,7 @@ ParametricFinCase12{
 				legendLabel				OpenRocket v15.03
 				# compareToSim			AeroCFX
 				file					./test/regressionTesting/Parametric/ParametricFin12CNOR.csv
+				validationData			False
 			}		
 		}
 
@@ -1462,7 +1467,8 @@ ParametricFinCase12{
 				xColumnName			Mach
 				lineFormat			py
 				legendLabel			OpenRocket v15.03
-				file						./test/regressionTesting/Parametric/ParametricFin12CdOR.csv
+				file				./test/regressionTesting/Parametric/ParametricFin12CdOR.csv
+				validationData		False
 			}
 		}
 
