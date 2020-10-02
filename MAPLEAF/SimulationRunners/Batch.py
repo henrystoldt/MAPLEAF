@@ -301,7 +301,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             ## Record results ##
             key = expectedResultsDict + ".expectedValues"
             stringResults = ", ".join([ str(x) for x in resultData ])
-            batchRun.batchDefinition.setValue(key, value)
+            batchRun.batchDefinition.setValue(key, stringResults)
             batchRun.casesWithNewRecordedResults.add(caseDictReader.simDefDictPathToReadFrom)
 
             # Tell user the values have been recorded
@@ -391,8 +391,7 @@ def _handleSimCrash(batchRun: BatchRun, caseName):
 #### 2. Checking Expected Final Results ####
 def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths):
     ''' If no expected results are provided, this adds some default position/velocity values to record for future runs '''
-    print("  WARNING: No expected parameter values provided. Recording Position & Velocity values.")
-    _incrementWarningCount()
+    batchRun.warning("  WARNING: No expected parameter values provided. Recording Position & Velocity values.")
 
     caseName = caseDictReader.simDefDictPathToReadFrom
     colsToRecord = [ "PositionX", "PositionY", "PositionZ", "VelocityX", "VelocityY", "VelocityZ"]
@@ -657,7 +656,6 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
     # Scale data and apply offset:
     for i in range(len(dataLists)):
         for j in range(len(dataLists[i])):
-            a = dataLists[i][j]
             dataLists[i][j] = scalingFactor*float(dataLists[i][j]) + offset
 
     # Plot data
