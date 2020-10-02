@@ -25,6 +25,8 @@ Sample simulation definitions: [MAPLEAF/Examples/Simulations](https://github.com
 Example cases be run with just the case name: `$ mapleaf NASATwoStageOrbitalRocket`  
 This is the same as running: `$ mapleaf MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf` from MAPLEAF's install location
 
+Help: `$ mapleaf -h`
+
 ### Simulation Definition Files
 Brief overview below. **More info, and definitions of all possible options in:** [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)
 
@@ -101,11 +103,13 @@ Pyswarms will produce a plot of the optimization results after completion:
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 ## Batch Simulations
-Useful for organizing a batch of test cases to run in automated fashion. 
+Automates running and post-processing groups of cases.  
+To run: `$ mapleaf-batch path/to/batchDefinitionFile`  
+For help: `$ mapleaf-batch -h`
 
 ![Batch Definition](Resources/BatchDefinition.png)
 
-Provides ability to check the final state of a rocket in each case, to produce detailed plots of MAPLEAF's results compared to verification/validation data, and to run Wind-Tunnel style aero-sweep simulations:
+Provides ability to automate production of detailed plots of MAPLEAF's results compared to verification/validation data, and to run Wind-Tunnel style aero-sweep simulations:
 
 <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/CantedFinRocketPlot.png?raw=true" alt="Canted Fin Roll Rate"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
