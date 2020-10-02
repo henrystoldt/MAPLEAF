@@ -91,7 +91,7 @@ for subModule in subModules:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.atmosphericModelFactory"><code class="name flex">
-<span>def <span class="ident">atmosphericModelFactory</span></span>(<span>atmosphericModel=None, envDictReader=None) ‑> MAPLEAF.ENV.AtmosphereModelling.AtmosphericModel</span>
+<span>def <span class="ident">atmosphericModelFactory</span></span>(<span>envDictReader=None) ‑> MAPLEAF.ENV.AtmosphereModelling.AtmosphericModel</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Provide either an atmosphericModel name ('USStandardAtmosphere' is only option right now that doesn't require additional info,
@@ -100,15 +100,17 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; AtmosphericModel:
+<pre><code class="python">def atmosphericModelFactory(envDictReader=None) -&gt; AtmosphericModel:
     &#39;&#39;&#39; 
         Provide either an atmosphericModel name (&#39;USStandardAtmosphere&#39; is only option right now that doesn&#39;t require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader`)
     &#39;&#39;&#39;
-    if atmosphericModel == None:
-        atmosphericModel = envDictReader.getString(&#34;AtmosphericPropertiesModel&#34;)
+    if envDictReader == None:
+        modelType = defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;]
+    else:
+        modelType = envDictReader.getString(&#34;AtmosphericPropertiesModel&#34;)
 
-    if atmosphericModel == &#34;Constant&#34;:
+    if modelType == &#34;Constant&#34;:
         if envDictReader == None:
             raise ValueError(&#34;envDictReader required to initialize Constant atm properties model&#34;)
 
@@ -125,7 +127,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 
         return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
-    elif atmosphericModel == &#34;TabulatedAtmosphere&#34;:
+    elif modelType == &#34;TabulatedAtmosphere&#34;:
         try:
             tableFilePath = envDictReader.getString(&#34;TabulatedAtmosphere.filePath&#34;)
         except AttributeError:
@@ -134,11 +136,11 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
         tableFilePath = getAbsoluteFilePath(tableFilePath)
         return TabulatedAtmosphere(tableFilePath)
 
-    elif atmosphericModel == &#34;USStandardAtmosphere&#34;:
+    elif modelType == &#34;USStandardAtmosphere&#34;:
         return USStandardAtmosphere()
 
     else:
-        raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(atmosphericModel))</code></pre>
+        raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(modelType))</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.ENV.earthModelFactory"><code class="name flex">
@@ -170,7 +172,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 </details>
 </dd>
 <dt id="MAPLEAF.ENV.meanWindModelFactory"><code class="name flex">
-<span>def <span class="ident">meanWindModelFactory</span></span>(<span>simDefinition=None, silent=False) ‑> MAPLEAF.ENV.MeanWindModelling.MeanWindModel</span>
+<span>def <span class="ident">meanWindModelFactory</span></span>(<span>envReader=None, silent=False) ‑> MAPLEAF.ENV.MeanWindModelling.MeanWindModel</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Instantiates a mean wind model</p></div>
@@ -178,14 +180,14 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
+<pre><code class="python">def meanWindModelFactory(envReader=None, silent=False) -&gt; MeanWindModel:
     &#39;&#39;&#39; Instantiates a mean wind model &#39;&#39;&#39;
 
-    if simDefinition == None:
+    if envReader == None:
+        # Return default zero-wind model
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
         return ConstantWind(constWind)
 
-    envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
     meanWindModelType = envReader.getString(&#34;MeanWindModel&#34;)
 
@@ -214,11 +216,11 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 
             # Output choices parsed from input file and resulting wind
             if not silent:
-                if simDefinition.monteCarloLogger != None:
-                    simDefinition.monteCarloLogger.log(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
-                    simDefinition.monteCarloLogger.log(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
-                    simDefinition.monteCarloLogger.log(&#34;Sampling wind distribution from month of: {}&#34;.format(launchMonth))
-                    simDefinition.monteCarloLogger.log(&#34;Sampled mean ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
+                if envReader.simDefinition.monteCarloLogger != None:
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling wind distribution from month of: {}&#34;.format(launchMonth))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampled mean ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
                 else:
                     print(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
                     print(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
@@ -287,7 +289,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 </details>
 </dd>
 <dt id="MAPLEAF.ENV.turbulenceModelFactory"><code class="name flex">
-<span>def <span class="ident">turbulenceModelFactory</span></span>(<span>simDefinition, silent=False)</span>
+<span>def <span class="ident">turbulenceModelFactory</span></span>(<span>envReader, silent=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel</p></div>
@@ -295,10 +297,8 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def turbulenceModelFactory(simDefinition, silent=False):
+<pre><code class="python">def turbulenceModelFactory(envReader, silent=False):
     &#39;&#39;&#39; Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel &#39;&#39;&#39;
-
-    envReader = SubDictReader(&#34;Environment&#34;, simDefinition)
     turbModelType = envReader.getString(&#34;Environment.TurbulenceModel&#34;)
     
     if not silent:
@@ -308,12 +308,6 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
         turbulenceModel = NoTurb()
         
     elif &#34;PinkNoise&#34; in turbModelType:
-        def tryGetValue(key):
-            try:
-                return int(simDefinition.getValue(key))
-            except KeyError:
-                return None
-
         measuredPinkNoiseStdDev = 2.26 # For a 2-pole PinkNoiseGenerator - re-measure if the number of poles is changed
 
         turbulenceIntensity = envReader.tryGetInt(&#34;PinkNoiseModel.turbulenceIntensity&#34;)
@@ -398,7 +392,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 <span>def <span class="ident">getAirProperties</span></span>(<span>self, _)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Should return an iterable containing:
+<div class="desc"><p>Return an iterable containing:
 temp(K),
 static pressure (Pa),
 density (kg/m^3),
@@ -481,8 +475,8 @@ single interface for communication with flight vehicles</p>
             # Whenever we&#39;re running a real simulation, should always end up here
             envDictReader = SubDictReader(&#34;Environment&#34;, simDefinition)
 
-            self.meanWindModel = meanWindModelFactory(simDefinition, silent=silent)
-            self.turbulenceModel = turbulenceModelFactory(simDefinition, silent=silent)
+            self.meanWindModel = meanWindModelFactory(envDictReader, silent=silent)
+            self.turbulenceModel = turbulenceModelFactory(envDictReader, silent=silent)
             self.atmosphericModel = atmosphericModelFactory(envDictReader=envDictReader)
             self.earthModel = earthModelFactory(envDictReader)
 
@@ -519,7 +513,7 @@ single interface for communication with flight vehicles</p>
             # Need additional default value here in case a SimDefinition is not passed in (otherwise SimDefinition takes care of default values)
             self.meanWindModel = meanWindModelFactory()
             self.turbulenceModel = None
-            self.atmosphericModel = atmosphericModelFactory(defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;])
+            self.atmosphericModel = atmosphericModelFactory()
             self.earthModel = earthModelFactory()
 
             self.launchSiteElevation = float(defaultConfigValues[&#34;Environment.LaunchSite.elevation&#34;])
@@ -2021,7 +2015,7 @@ mu(10^-5 Pa*s)</p></div>
 <span>def <span class="ident">getAirProperties</span></span>(<span>self, ASLElevation)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Should return an iterable containing:
+<div class="desc"><p>Return an iterable containing:
 temp(K),
 static pressure (Pa),
 density (kg/m^3),
@@ -2187,7 +2181,7 @@ in that order</p></div>
 <span>def <span class="ident">getAirProperties</span></span>(<span>self, ASLElevation, time)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Should return an iterable containing:
+<div class="desc"><p>Return an iterable containing:
 temp(K),
 static pressure (Pa),
 density (kg/m^3),
@@ -2385,7 +2379,7 @@ Inherits the getInertialToENUFrameRotation function from SphericalEarth, otherwi
         multiplier = -mu*inertia.mass / r**3
 
         xForce = x * multiplier * (1 - frac*(5*z*z - r*r))
-        yForce = xForce * y/x
+        yForce = y * multiplier * (1 - frac*(5*z*z - r*r))
         zForce = z * multiplier * (1 - frac*(5*z*z - 3*r*r))
 
         return Vector(xForce, yForce, zForce)</code></pre>
@@ -2606,7 +2600,7 @@ Method from NESC-RP-12-00770, Volume II, pg.51, Eqn 29-31</p></div>
     multiplier = -mu*inertia.mass / r**3
 
     xForce = x * multiplier * (1 - frac*(5*z*z - r*r))
-    yForce = xForce * y/x
+    yForce = y * multiplier * (1 - frac*(5*z*z - r*r))
     zForce = z * multiplier * (1 - frac*(5*z*z - 3*r*r))
 
     return Vector(xForce, yForce, zForce)</code></pre>

@@ -149,7 +149,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
                 2. If the rocket recovery system is deployed
         &#39;&#39;&#39;
         if self.timeSteppingModified:
-            # This currently won&#39;t do anything because the time step is saved in an array by the SingleSimRunner - might be useful in the future
+            # This currently won&#39;t do anything because the time step is saved in an array by the Simulation - might be useful in the future
             self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(self.originalSimTimeStep))
 
             # This will re-initialize the integrator to match that originally selected in the sim definition file
@@ -372,7 +372,7 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
                 2. If the rocket recovery system is deployed
         &#39;&#39;&#39;
         if self.timeSteppingModified:
-            # This currently won&#39;t do anything because the time step is saved in an array by the SingleSimRunner - might be useful in the future
+            # This currently won&#39;t do anything because the time step is saved in an array by the Simulation - might be useful in the future
             self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(self.originalSimTimeStep))
 
             # This will re-initialize the integrator to match that originally selected in the sim definition file
@@ -430,7 +430,7 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
             2. If the rocket recovery system is deployed
     &#39;&#39;&#39;
     if self.timeSteppingModified:
-        # This currently won&#39;t do anything because the time step is saved in an array by the SingleSimRunner - might be useful in the future
+        # This currently won&#39;t do anything because the time step is saved in an array by the Simulation - might be useful in the future
         self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(self.originalSimTimeStep))
 
         # This will re-initialize the integrator to match that originally selected in the sim definition file

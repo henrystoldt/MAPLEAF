@@ -1,0 +1,1572 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.SimulationRunners.SingleSimulations API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/SimulationRunners/SingleSimulations.html">
+<link rel="icon" href="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png">
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.SimulationRunners.SingleSimulations</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import math
+import sys
+from copy import deepcopy
+from distutils.util import strtobool
+
+from tqdm import tqdm
+
+from MAPLEAF.ENV import Environment
+from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
+                        SubDictReader)
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Rocket import Rocket
+
+__all__ = [ &#34;Simulation&#34;, &#34;RemoteSimulation&#34;, &#34;WindTunnelSimulation&#34;, &#34;loadSimDefinition&#34; ]
+
+def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    &#39;&#39;&#39; Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input &#39;&#39;&#39;
+    if simDefinition == None and simDefinitionFilePath != None:
+        return SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+
+    elif simDefinition != None:
+        return simDefinition # Use the SimDefinition that was passed in
+
+    else:
+        raise ValueError(&#34;&#34;&#34; Insufficient information to initialize a Simulation.
+            Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+            If both are provided, the SimDefinition is used.&#34;&#34;&#34;)
+
+class Simulation():
+
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        &#39;&#39;&#39;
+            Inputs:
+                
+                * simDefinitionFilePath:  (string) path to simulation definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
+                * silent:                 (bool) toggles optional outputs to the console  
+        &#39;&#39;&#39;
+        self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
+        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
+
+        self.environment = Environment(self.simDefinition, silent=silent)
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
+
+        self.stagingIndex = None # Set in self.createRocket
+        &#39;&#39;&#39; (int) Set in `Simulation.createRocket`. Tracks how many stages have been dropped &#39;&#39;&#39;
+
+        self.silent = silent
+        &#39;&#39;&#39; (bool) &#39;&#39;&#39;
+
+        self.computeStageDropPaths = strtobool(self.simDefinition.getValue(&#34;SimControl.StageDropPaths.compute&#34;))
+
+    def run(self, rocket=None):
+        &#39;&#39;&#39; 
+            Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
+
+            Returns:
+                * stageFlightsPaths: (list[`MAPLEAF.IO.RocketFlight.RocketFlight`]) Each RocketFlight object represents the flight path of a single stage
+                * logFilePaths: (list[string]) list of paths to all log files created by this simulation
+        &#39;&#39;&#39;
+        simDefinition = self.simDefinition
+
+        # Initialize the rocket + environment models and simulation logging
+        if rocket == None:
+            rocket = self.createRocket() # Initialize rocket on launch pad, with all stages attached
+        self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
+
+        # Create progress bar if appropriate
+        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+            endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
+            progressBar = tqdm(total=endTime+0.01)
+            
+            try:
+                self.logger.continueWritingToTerminal = False
+            except AttributeError:
+                pass # Logging not set up for this sim
+        else:
+            progressBar = None
+
+        #### Main Loop Setup #### 
+        self.dts = [ float(simDefinition.getValue(&#34;SimControl.timeStep&#34;)) ]    # (Initial) time step size
+        self.endDetectors = [ self._getEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+        self.stageFlightPaths = [ self._setUpCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+
+        if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
+            print(&#34;Setting up hardware in the loop interface&#34;)
+            rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
+
+        #### Main Loop ####
+        stageIndex = 0
+        while stageIndex &lt; len(self.rocketStages):
+
+            if stageIndex &gt; 0:
+                print(&#34;Computing stage {} drop path&#34;.format(stageIndex))
+
+            endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+                
+            while not endSimulation:
+                # Take a time step
+                try:
+                    if FinalTimeStepDt != None:
+                        self.dts[stageIndex] = FinalTimeStepDt
+
+                    timeStepAdjustmentFactor, self.dts[stageIndex] = self.rocketStages[stageIndex].timeStep(self.dts[stageIndex])
+
+                    if stageIndex == 0:
+                        try:
+                            progressBar.update(self.dts[stageIndex])
+                        except AttributeError:
+                            pass
+                except:
+                    self._handleSimulationCrash()
+
+                # Adjust time step
+                self.dts[stageIndex] *= timeStepAdjustmentFactor
+
+                # HIL
+                if(self.rocketStages[stageIndex].hardwareInTheLoopControl == &#34;yes&#34;):
+                    rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
+
+                # Cache states for flight animation
+                time = self.rocketStages[stageIndex].rigidBody.time
+                self.stageFlightPaths[stageIndex].times.append(time)
+                self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
+                if self.rocketStages[stageIndex].controlSystem != None:
+                    try:
+                        for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
+                            self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                            self.stageFlightPaths[stageIndex].actuatorTargetDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                    except AttributeError:
+                        # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                        pass
+
+                # Check whether we should end the simulation, or take a modified-size final time step    
+                endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+            
+            # Log last state (would be the starting state of the next time step)
+            self.rocketStages[stageIndex]._runControlSystemAndLogStartingState(0.0)
+
+            # Move on to next (dropped) stage
+            stageIndex += 1
+
+            try:
+                progressBar.close()
+                
+                if not self.silent:
+                    sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+            except AttributeError:
+                pass
+
+        print(&#34;Simulation Complete&#34;)
+
+        logFilePaths = self._postProcess(simDefinition)
+
+        return self.stageFlightPaths, logFilePaths
+
+    #### Pre-sim ####
+    def createRocket(self, stage=None):
+        &#39;&#39;&#39; 
+            Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+            Returns an instance of Rocket with it&#39;s Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
+        &#39;&#39;&#39;
+        # Initialize Rocket
+        rocketDictReader = SubDictReader(&#34;Rocket&#34;, self.simDefinition)  
+        rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
+
+        if self.simDefinition.getValue(&#39;SimControl.RocketPlot&#39;) in [ &#39;On&#39;, &#39;on&#39; ]:
+            rocket.plotShape()  # Reference to this simRunner used to add to logs
+
+        if stage == None:
+            self._setUpLogging()
+            self._createLogDataTableHeaders(rocket)
+
+            self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+            
+        return rocket
+
+    def _setUpLogging(self):
+        self.loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if  self.loggingLevel &gt; 0:
+            # Set up logging so that the output of any print calls after this point is captured in mainSimulationLog
+            self.mainSimulationLog = []
+            if self.silent:
+                self.logger = Logging.Logger(self.mainSimulationLog, continueWritingToTerminal=False)
+            else:
+                self.logger = Logging.Logger(self.mainSimulationLog)
+            sys.stdout = self.logger
+            
+            # Output system info to console and to log
+            Logging.getSystemInfo(printToConsole=True)
+            # Output sim definition file and default value dict to the log only
+            self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
+
+            # Start force evaluation log if required
+            if self.loggingLevel &gt;= 2:
+                self.forceEvaluationLog = []
+        elif self.silent:
+            # No intention of writing things to a log file, just prevent them from being printed to the terminal
+            _ = []
+            logger = Logging.Logger(_, continueWritingToTerminal=False)
+            sys.stdout = logger
+
+    def _createLogDataTableHeaders(self, rocket):
+        print(&#34;Starting Simulation:&#34;)
+
+        if self.loggingLevel &gt; 0 or not self.silent:
+            # Create main sim log header (written to once per time step)
+            mainSimLogHeader = &#34;Time(s) TimeStep(s)&#34; 
+            mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + &#34; EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)&#34;
+            if rocket.controlSystem != None:
+                mainSimLogHeader += rocket.controlSystem.getLogHeader()
+
+            # Actually print/log the main sim log header
+            print(mainSimLogHeader)
+
+            if self.loggingLevel &gt;= 2:
+                # Create force evaluation log header (written to once per force evaluation (several time per time step for higher-order time discretizations))
+                # Columns always included
+                header = &#34;Time(s)&#34; + rocket.rigidBody.state.getLogHeader() + \
+                &#34; WindX(m/s) WindY(m/s) WindZ(m/s) AirDensity(kg/m^3)&#34; + \
+                &#34; CGX(m), CGY(m), CGZ(m) Mass(kg) MOIx(kg*m^2) MOIy(kg*m^2) MOIz(kg*m^2)&#34; + \
+                &#34; Mach UnitRe AOA(deg) RollAngle(deg)&#34;
+
+                # Columns for each rocket component
+                for stage in rocket.stages:
+                    for component in stage.components:
+                        try:
+                            header += component.getLogHeader()
+                        except AttributeError:
+                            pass
+
+                # Total force columns
+                header += &#34; CPZ(m) AeroFX(N) AeroFY(N) AeroFZ(N) AeroMX(Nm)&#34; + \
+                &#34; AeroMY(Nm) AeroMZ(Nm) GravityFX(N) GravityFY(N) GravityFZ(N)&#34; + \
+                &#34; TotalFX(N) TotalFY(N) TotalFZ(N)&#34;
+                
+                self.forceEvaluationLog.append(header)
+
+    def _getEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
+        &#39;&#39;&#39; 
+            Returns a function, which returns a boolean value and Union[None, float], indicating whether the 
+                simulation endpoint has been reached. When close to the end of a sim, the second value returned is the recommended
+                time step to take to hit the end criteria.
+                Simulation end criteria defined in sim definition file. 
+            Rocket object must be passed in because the end condition functions require a reference to the rocket, 
+                so they can access its current altitude/velocity/time attributes
+        &#39;&#39;&#39;
+        # Read desired end criteria from simulation definition file
+        if not droppedStage:
+            # Get end condition for main stage
+            endCondition = simConfig.getValue(&#34;SimControl.EndCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.EndConditionValue&#34;))
+        else:
+            # Get end condition for dropped stages
+            endCondition = simConfig.getValue(&#34;SimControl.StageDropPaths.endCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.StageDropPaths.endConditionValue&#34;))
+
+        # Define all possible end-detector functions
+        def isAfterApogee(dt):
+            return rocket.rigidBody.state.velocity.Z &lt;= 0 and rocket.rigidBody.time &gt; 1.0, None
+        def isAboveAltitude(dt):
+            return rocket.rigidBody.state.position.Z &gt;= conditionValue, None
+        def isBelowAltitude(dt):
+            return rocket.environment.earthModel.getAltitude(*rocket.rigidBody.state.position) &lt;= conditionValue, None
+        def EndTimeReached(dt):
+            currTime = rocket.rigidBody.time
+            if currTime &lt; conditionValue and currTime + dt &gt;= conditionValue:
+                return False, conditionValue+1e-14-currTime
+            elif currTime &gt;= conditionValue:
+                return True, None
+            else:
+                return False, None
+
+        # Return the desired function
+        if endCondition == &#34;Apogee&#34;:
+            return isAfterApogee
+        elif endCondition == &#34;Altitude&#34; and rocket.rigidBody.state.position.Z &lt; conditionValue:
+            return isAboveAltitude
+        elif endCondition == &#34;Altitude&#34;:
+            return isBelowAltitude
+        else:
+            return EndTimeReached
+
+    def _setUpCachingForFlightAnimation(self, rocket):
+        flight = RocketFlight()
+        flight.times.append(rocket.rigidBody.time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:  
+            # If rocket has moving fins, record their angles for plotting
+            nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
+            flight.actuatorDefls = [ [0] for i in range(nActuators) ]
+            flight.actuatorTargetDefls = [ [0] for i in range(nActuators) ]
+        else:
+            flight.actuatorDefls = None
+            flight.actuatorTargetDefls = None
+
+        return flight
+
+    #### During sim ####
+    def createNewDetachedStage(self):
+        &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
+        if self.computeStageDropPaths:
+            newDetachedStage = self.createRocket(stage=self.stagingIndex)
+            # Set kinematic properties to match those of the current top-most stage
+            topStage = self.rocketStages[0]
+            newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
+            newDetachedStage.rigidBody.time = topStage.rigidBody.time
+            self.rocketStages.append(newDetachedStage)
+
+            # New sim termination condition function
+            self.endDetectors.append(self._getEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+            self.dts.append(self.dts[0])
+            
+            # Duplicate existing flight object
+            newFlightObject = deepcopy(self.stageFlightPaths[0]) # Will have had the same flight path as the top stage until the moment of separation
+            newFlightObject.actuatorDefls = None # Dropped stage shouldn&#39;t have any canard deflections
+            self.stageFlightPaths.append(newFlightObject)
+
+            self.stagingIndex += 1
+
+    def newForcesLogLine(self, txt):
+        try:
+            if len(self.forceEvaluationLog) &gt; 0 and self.forceEvaluationLog[-1][-1:] != &#39;\n&#39;:
+                self.forceEvaluationLog[-1] += &#34;\n&#34;
+            self.forceEvaluationLog.append(txt)
+        except AttributeError:
+            pass # Force logging not desired/set up for this simulation
+
+    def discardForceLogsForPreviousTimeStep(self, integrator):
+        if self.loggingLevel &gt;= 2:
+            # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
+            if integrator.method == &#34;RK12Adaptive&#34;:
+                numDerivativeEvals = 2
+            else:
+                numDerivativeEvals = len(integrator.tableau)-1
+
+            # Remove that number of rows from the end of the force evaluation log
+            for i in range(numDerivativeEvals):
+                self.forceEvaluationLog.pop(-1)
+
+    def _handleSimulationCrash(self):
+        &#39;&#39;&#39; After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace &#39;&#39;&#39;
+        print(&#34;ERROR: Simulation Crashed, Aborting&#34;)
+        print(&#34;Attempting to save log files and show plots&#34;)
+        self._postProcess(self.simDefinition)
+
+        # Try to print out the stack trace
+        print(&#34;Attempting to show stack trace&#34;)
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
+        print(&#34;Exiting&#34;)
+        sys.exit()
+
+    #### Post-sim ####
+    def _postProcess(self, simDefinition):
+        simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
+
+        # Log results
+        logFilePaths = self._logSimulationResults(simDefinition)
+
+        # Transfer key time info to flight objects from rocket
+        for i in range(len(self.rocketStages)):
+            self.stageFlightPaths[i].engineOffTime = self.rocketStages[i].engineShutOffTime
+            self.stageFlightPaths[i].mainChuteDeployTime = self.rocketStages[i].mainChuteDeployTime
+            self.stageFlightPaths[i].targetLocation = self.rocketStages[i].targetLocation
+
+        # Plot results
+        self._plotSimulationResults(self.rocketStages, simDefinition, self.stageFlightPaths, logFilePaths)
+
+        # Print these out after logging to avoid including the log/plot keys in the unused keys
+        # #TODO: Add exceptions for these keys, move this line to before logging so that it&#39;s output is also included in the simulation log
+        simDefinition.printUnusedKeys()
+
+        return logFilePaths
+
+    def _logSimulationResults(self, simDefinition):
+        &#39;&#39;&#39; Logs simulation results to file (as/if specified in sim definition) &#39;&#39;&#39;
+        logFilePaths = None
+        if self.loggingLevel &gt; 0:
+            logFilePaths = []
+
+            # Find new file name without overwriting old logs
+            periodIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+            fileBaseName = simDefinition.fileName[:periodIndex] + &#34;_simulationLog_run&#34;
+            mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=&#34;.txt&#34;)
+                
+            logFilePaths.append(mainLogFilePath)
+            print(&#34;Writing main log to: {}&#34;.format(mainLogFilePath))
+
+            # Write main log to file
+            with open(mainLogFilePath, &#39;w+&#39;) as file:
+                file.writelines(self.mainSimulationLog)
+
+            # Write force evaluation log to file if desired
+            if self.loggingLevel &gt;= 2:
+                forceLogFilePath = mainLogFilePath.replace(&#34;simulationLog&#34;, &#34;forceEvaluationLog&#34;)
+                print(&#34;Writing force evaluation log to: {}&#34;.format(forceLogFilePath))
+                logFilePaths.append(forceLogFilePath)
+                with open(forceLogFilePath, &#39;w+&#39;) as file:
+                    file.writelines(self.forceEvaluationLog)
+
+                # Post process / calculate force/moment coefficients if desired
+                if self.loggingLevel &gt;= 3:
+                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
+                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
+                    expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
+                    logFilePaths.append(expandedLogPath)
+
+        return logFilePaths
+
+    def _plotSimulationResults(self, rocketStages, simDefinition, flights, logFilePaths):
+        &#39;&#39;&#39; Plot simulation results (as/if specified in sim definition) &#39;&#39;&#39;
+
+        plotsToMake = simDefinition.getValue(&#34;SimControl.plot&#34;).split()
+
+        if plotsToMake != [&#34;None&#34;]:
+
+            if &#34;FlightAnimation&#34; in plotsToMake:
+                print(&#34;Showing flight animation&#34;)
+
+                # Show animation
+                Plotting.flightAnimation(flights)
+
+                # Done, remove from plotsToMake
+                plotsToMake.remove(&#34;FlightAnimation&#34;)
+
+            if &#34;FlightPaths&#34; in plotsToMake:
+                earthModel = self.simDefinition.getValue(&#34;Environment.EarthModel&#34;)
+                if earthModel in [ &#34;None&#34;, &#34;Flat&#34; ]:
+                    Plotting.plotFlightPaths_NoEarth(flights)
+                else:
+                    Plotting.plotFlightPaths_FullEarth(flights)
+
+                plotsToMake.remove(&#34;FlightPaths&#34;)
+
+            # Plot all other columns from log files
+            for plotDefinitionString in plotsToMake:
+                Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
+
+try:
+    import ray
+    rayAvailable = True
+except ImportError:
+    rayAvailable = False
+
+if rayAvailable:
+    @ray.remote
+    class RemoteSimulation(Simulation):
+        &#39;&#39;&#39; 
+            Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
+            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
+        &#39;&#39;&#39;
+        @ray.method(num_returns=2)
+        def run(self):
+            return super().run()
+else:
+    RemoteSimulation = None
+
+class WindTunnelSimulation(Simulation):
+    def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine=&#39;False&#39;):
+        self.parametersToSweep = [&#34;Rocket.velocity&#34;] if (parametersToSweep == None) else parametersToSweep
+        self.parameterValues = [[&#34;(0 0 100)&#34;, &#34;(0 0 200)&#34;, &#34;(0 0 300)&#34;]] if (parameterValues == None) else parameterValues
+        self.smoothLine = smoothLine
+
+        # Error checks
+        if len(self.parametersToSweep) != len(self.parameterValues):
+            raise ValueError(&#34;Must have a list of values for each parameter to sweep over. Currently have {} parameters, and {} lists of values.&#34;.format(len(self.parametersToSweep), len(self.parameterValues)))
+
+        paramValueCounts = [ len(x) for x in self.parameterValues ]
+        if not all([ (x == paramValueCounts[0]) for x in paramValueCounts ]):
+            raise ValueError(&#34;All lists of parameter values must be of equal length. Currently, list lengths are: {}&#34;.format(paramValueCounts))
+
+        Simulation.__init__(self, simDefinitionFilePath, simDefinition, silent)
+
+    def runSweep(self):
+        &#39;&#39;&#39;
+            Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList
+            Returns:
+                List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
+        &#39;&#39;&#39;
+        # Make sure we&#39;re logging forces (the only way to get data out of this sim runner) and avoid producing any plots
+        self.simDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;) 
+        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+        if strtobool(self.smoothLine): # interpolate between user set parameter values
+            self._addPoints() 
+
+        for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+            for j in range(len(self.parameterValues)): # j&#39;th parameter (velocity, temperature)
+                self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
+
+            # Run a single force evaluation, which creates a forces log entry for this force evaluation
+            rocket = self.createRocket()
+            self.rocketStages = [ rocket ]
+            rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+        # Write Logs to file, return path
+        return self._postProcess()
+
+    def _addPoints(self, pointMultiple=10):
+        &#39;&#39;&#39; Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values &#39;&#39;&#39;
+        for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
+            for interpPt in range(1, pointMultiple): # Loops over each new point
+                
+                intervalStartIndex = pointMultiple*i
+                # Index at which to add new point (also interval end index)
+                newPointIndex = pointMultiple*i + interpPt
+
+                for param in range(len(self.parametersToSweep)): # j&#39;th corresponds to parameters to sweep over (velocity, temperature)
+                    try:
+                        # Vector sweep
+                        first = Vector(self.parameterValues[param][intervalStartIndex])
+                        second = Vector(self.parameterValues[param][newPointIndex])
+                        change = second - first
+                        incrementalValue = str(interpPt/pointMultiple*change + first)
+                    except ValueError:
+                        # Scalar sweep
+                        first = float(self.parameterValues[param][intervalStartIndex])
+                        second = float(self.parameterValues[param][newPointIndex])
+                        change = second - first
+                        incrementalValue = str(interpPt/pointMultiple*change + first)
+                    
+                    self.parameterValues[param].insert(newPointIndex, incrementalValue)
+
+    def createRocket(self):
+        &#39;&#39;&#39; 
+            Do all the same stuff as the parent object, but also re-initialize the environment, 
+                to make sure changes to environmental properties during the parameter sweep take effect 
+        &#39;&#39;&#39;
+        self.environment = Environment(self.simDefinition, silent=self.silent)
+        return super().createRocket()
+
+    def _setUpLogging(self):
+        &#39;&#39;&#39; Override to ensure that logs aren&#39;t re-initialized for every simulation.
+            mainSimulationLog will only be absent the first time this function is run
+            Want to keep all the force data in a single log file &#39;&#39;&#39;
+        if not hasattr(self, &#39;mainSimulationLog&#39;):
+            return super()._setUpLogging()
+
+    def _createLogDataTableHeaders(self, rocket):
+        &#39;&#39;&#39; Prevents the log headers from being re-generated over and over &#39;&#39;&#39;
+        if self.forceEvaluationLog == []:
+            return super()._createLogDataTableHeaders(rocket)
+
+    def _postProcess(self):
+        &#39;&#39;&#39; Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files.
+            Removes mainSimLog from (returned) log file paths since no time steps we taken by this sim &#39;&#39;&#39;
+        # Create an empty flight path to prevent errors in the parent function)
+        self.stageFlightPaths = [ RocketFlight() ]
+        logFilePaths = Simulation._postProcess(self, self.simDefinition)
+
+        # Because no time steps were taken, the main simulation log will not contain any tabular data.
+            # Remove it from logFilePaths (but file is still generated)
+        for logPath in logFilePaths:
+            if &#34;simulationLog&#34; in logPath:
+                logFilePaths.remove(logPath)
+
+        return logFilePaths</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.loadSimDefinition"><code class="name flex">
+<span>def <span class="ident">loadSimDefinition</span></span>(<span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loads a simulation definition file into a <code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code> object - accepts either a file path or a <code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code> object as input</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    &#39;&#39;&#39; Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input &#39;&#39;&#39;
+    if simDefinition == None and simDefinitionFilePath != None:
+        return SimDefinition(simDefinitionFilePath, silent=silent) # Parse simulation definition file
+
+    elif simDefinition != None:
+        return simDefinition # Use the SimDefinition that was passed in
+
+    else:
+        raise ValueError(&#34;&#34;&#34; Insufficient information to initialize a Simulation.
+            Please provide either simDefinitionFilePath (string) or fW (SimDefinition), which has been created from the desired Sim Definition file.
+            If both are provided, the SimDefinition is used.&#34;&#34;&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation"><code class="flex name class">
+<span>class <span class="ident">Simulation</span></span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Simulation():
+
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        &#39;&#39;&#39;
+            Inputs:
+                
+                * simDefinitionFilePath:  (string) path to simulation definition file  
+                * fW:                     (`MAPLEAF.IO.SimDefinition`) object that&#39;s already loaded and parsed the desired sim definition file  
+                * silent:                 (bool) toggles optional outputs to the console  
+        &#39;&#39;&#39;
+        self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
+        &#39;&#39;&#39; Instance of `MAPLEAF.IO.SimDefinition`. Defines the current simulation &#39;&#39;&#39;
+
+        self.environment = Environment(self.simDefinition, silent=silent)
+        &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment`. Will be shared by all Rockets created by this sim runner &#39;&#39;&#39;
+
+        self.stagingIndex = None # Set in self.createRocket
+        &#39;&#39;&#39; (int) Set in `Simulation.createRocket`. Tracks how many stages have been dropped &#39;&#39;&#39;
+
+        self.silent = silent
+        &#39;&#39;&#39; (bool) &#39;&#39;&#39;
+
+        self.computeStageDropPaths = strtobool(self.simDefinition.getValue(&#34;SimControl.StageDropPaths.compute&#34;))
+
+    def run(self, rocket=None):
+        &#39;&#39;&#39; 
+            Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
+
+            Returns:
+                * stageFlightsPaths: (list[`MAPLEAF.IO.RocketFlight.RocketFlight`]) Each RocketFlight object represents the flight path of a single stage
+                * logFilePaths: (list[string]) list of paths to all log files created by this simulation
+        &#39;&#39;&#39;
+        simDefinition = self.simDefinition
+
+        # Initialize the rocket + environment models and simulation logging
+        if rocket == None:
+            rocket = self.createRocket() # Initialize rocket on launch pad, with all stages attached
+        self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
+
+        # Create progress bar if appropriate
+        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+            endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
+            progressBar = tqdm(total=endTime+0.01)
+            
+            try:
+                self.logger.continueWritingToTerminal = False
+            except AttributeError:
+                pass # Logging not set up for this sim
+        else:
+            progressBar = None
+
+        #### Main Loop Setup #### 
+        self.dts = [ float(simDefinition.getValue(&#34;SimControl.timeStep&#34;)) ]    # (Initial) time step size
+        self.endDetectors = [ self._getEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+        self.stageFlightPaths = [ self._setUpCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+
+        if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
+            print(&#34;Setting up hardware in the loop interface&#34;)
+            rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
+
+        #### Main Loop ####
+        stageIndex = 0
+        while stageIndex &lt; len(self.rocketStages):
+
+            if stageIndex &gt; 0:
+                print(&#34;Computing stage {} drop path&#34;.format(stageIndex))
+
+            endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+                
+            while not endSimulation:
+                # Take a time step
+                try:
+                    if FinalTimeStepDt != None:
+                        self.dts[stageIndex] = FinalTimeStepDt
+
+                    timeStepAdjustmentFactor, self.dts[stageIndex] = self.rocketStages[stageIndex].timeStep(self.dts[stageIndex])
+
+                    if stageIndex == 0:
+                        try:
+                            progressBar.update(self.dts[stageIndex])
+                        except AttributeError:
+                            pass
+                except:
+                    self._handleSimulationCrash()
+
+                # Adjust time step
+                self.dts[stageIndex] *= timeStepAdjustmentFactor
+
+                # HIL
+                if(self.rocketStages[stageIndex].hardwareInTheLoopControl == &#34;yes&#34;):
+                    rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
+
+                # Cache states for flight animation
+                time = self.rocketStages[stageIndex].rigidBody.time
+                self.stageFlightPaths[stageIndex].times.append(time)
+                self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
+                if self.rocketStages[stageIndex].controlSystem != None:
+                    try:
+                        for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
+                            self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                            self.stageFlightPaths[stageIndex].actuatorTargetDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                    except AttributeError:
+                        # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                        pass
+
+                # Check whether we should end the simulation, or take a modified-size final time step    
+                endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+            
+            # Log last state (would be the starting state of the next time step)
+            self.rocketStages[stageIndex]._runControlSystemAndLogStartingState(0.0)
+
+            # Move on to next (dropped) stage
+            stageIndex += 1
+
+            try:
+                progressBar.close()
+                
+                if not self.silent:
+                    sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+            except AttributeError:
+                pass
+
+        print(&#34;Simulation Complete&#34;)
+
+        logFilePaths = self._postProcess(simDefinition)
+
+        return self.stageFlightPaths, logFilePaths
+
+    #### Pre-sim ####
+    def createRocket(self, stage=None):
+        &#39;&#39;&#39; 
+            Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+            Returns an instance of Rocket with it&#39;s Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
+        &#39;&#39;&#39;
+        # Initialize Rocket
+        rocketDictReader = SubDictReader(&#34;Rocket&#34;, self.simDefinition)  
+        rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
+
+        if self.simDefinition.getValue(&#39;SimControl.RocketPlot&#39;) in [ &#39;On&#39;, &#39;on&#39; ]:
+            rocket.plotShape()  # Reference to this simRunner used to add to logs
+
+        if stage == None:
+            self._setUpLogging()
+            self._createLogDataTableHeaders(rocket)
+
+            self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+            
+        return rocket
+
+    def _setUpLogging(self):
+        self.loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if  self.loggingLevel &gt; 0:
+            # Set up logging so that the output of any print calls after this point is captured in mainSimulationLog
+            self.mainSimulationLog = []
+            if self.silent:
+                self.logger = Logging.Logger(self.mainSimulationLog, continueWritingToTerminal=False)
+            else:
+                self.logger = Logging.Logger(self.mainSimulationLog)
+            sys.stdout = self.logger
+            
+            # Output system info to console and to log
+            Logging.getSystemInfo(printToConsole=True)
+            # Output sim definition file and default value dict to the log only
+            self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
+
+            # Start force evaluation log if required
+            if self.loggingLevel &gt;= 2:
+                self.forceEvaluationLog = []
+        elif self.silent:
+            # No intention of writing things to a log file, just prevent them from being printed to the terminal
+            _ = []
+            logger = Logging.Logger(_, continueWritingToTerminal=False)
+            sys.stdout = logger
+
+    def _createLogDataTableHeaders(self, rocket):
+        print(&#34;Starting Simulation:&#34;)
+
+        if self.loggingLevel &gt; 0 or not self.silent:
+            # Create main sim log header (written to once per time step)
+            mainSimLogHeader = &#34;Time(s) TimeStep(s)&#34; 
+            mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + &#34; EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)&#34;
+            if rocket.controlSystem != None:
+                mainSimLogHeader += rocket.controlSystem.getLogHeader()
+
+            # Actually print/log the main sim log header
+            print(mainSimLogHeader)
+
+            if self.loggingLevel &gt;= 2:
+                # Create force evaluation log header (written to once per force evaluation (several time per time step for higher-order time discretizations))
+                # Columns always included
+                header = &#34;Time(s)&#34; + rocket.rigidBody.state.getLogHeader() + \
+                &#34; WindX(m/s) WindY(m/s) WindZ(m/s) AirDensity(kg/m^3)&#34; + \
+                &#34; CGX(m), CGY(m), CGZ(m) Mass(kg) MOIx(kg*m^2) MOIy(kg*m^2) MOIz(kg*m^2)&#34; + \
+                &#34; Mach UnitRe AOA(deg) RollAngle(deg)&#34;
+
+                # Columns for each rocket component
+                for stage in rocket.stages:
+                    for component in stage.components:
+                        try:
+                            header += component.getLogHeader()
+                        except AttributeError:
+                            pass
+
+                # Total force columns
+                header += &#34; CPZ(m) AeroFX(N) AeroFY(N) AeroFZ(N) AeroMX(Nm)&#34; + \
+                &#34; AeroMY(Nm) AeroMZ(Nm) GravityFX(N) GravityFY(N) GravityFZ(N)&#34; + \
+                &#34; TotalFX(N) TotalFY(N) TotalFZ(N)&#34;
+                
+                self.forceEvaluationLog.append(header)
+
+    def _getEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
+        &#39;&#39;&#39; 
+            Returns a function, which returns a boolean value and Union[None, float], indicating whether the 
+                simulation endpoint has been reached. When close to the end of a sim, the second value returned is the recommended
+                time step to take to hit the end criteria.
+                Simulation end criteria defined in sim definition file. 
+            Rocket object must be passed in because the end condition functions require a reference to the rocket, 
+                so they can access its current altitude/velocity/time attributes
+        &#39;&#39;&#39;
+        # Read desired end criteria from simulation definition file
+        if not droppedStage:
+            # Get end condition for main stage
+            endCondition = simConfig.getValue(&#34;SimControl.EndCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.EndConditionValue&#34;))
+        else:
+            # Get end condition for dropped stages
+            endCondition = simConfig.getValue(&#34;SimControl.StageDropPaths.endCondition&#34;)
+            conditionValue = float(simConfig.getValue(&#34;SimControl.StageDropPaths.endConditionValue&#34;))
+
+        # Define all possible end-detector functions
+        def isAfterApogee(dt):
+            return rocket.rigidBody.state.velocity.Z &lt;= 0 and rocket.rigidBody.time &gt; 1.0, None
+        def isAboveAltitude(dt):
+            return rocket.rigidBody.state.position.Z &gt;= conditionValue, None
+        def isBelowAltitude(dt):
+            return rocket.environment.earthModel.getAltitude(*rocket.rigidBody.state.position) &lt;= conditionValue, None
+        def EndTimeReached(dt):
+            currTime = rocket.rigidBody.time
+            if currTime &lt; conditionValue and currTime + dt &gt;= conditionValue:
+                return False, conditionValue+1e-14-currTime
+            elif currTime &gt;= conditionValue:
+                return True, None
+            else:
+                return False, None
+
+        # Return the desired function
+        if endCondition == &#34;Apogee&#34;:
+            return isAfterApogee
+        elif endCondition == &#34;Altitude&#34; and rocket.rigidBody.state.position.Z &lt; conditionValue:
+            return isAboveAltitude
+        elif endCondition == &#34;Altitude&#34;:
+            return isBelowAltitude
+        else:
+            return EndTimeReached
+
+    def _setUpCachingForFlightAnimation(self, rocket):
+        flight = RocketFlight()
+        flight.times.append(rocket.rigidBody.time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:  
+            # If rocket has moving fins, record their angles for plotting
+            nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
+            flight.actuatorDefls = [ [0] for i in range(nActuators) ]
+            flight.actuatorTargetDefls = [ [0] for i in range(nActuators) ]
+        else:
+            flight.actuatorDefls = None
+            flight.actuatorTargetDefls = None
+
+        return flight
+
+    #### During sim ####
+    def createNewDetachedStage(self):
+        &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
+        if self.computeStageDropPaths:
+            newDetachedStage = self.createRocket(stage=self.stagingIndex)
+            # Set kinematic properties to match those of the current top-most stage
+            topStage = self.rocketStages[0]
+            newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
+            newDetachedStage.rigidBody.time = topStage.rigidBody.time
+            self.rocketStages.append(newDetachedStage)
+
+            # New sim termination condition function
+            self.endDetectors.append(self._getEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+            self.dts.append(self.dts[0])
+            
+            # Duplicate existing flight object
+            newFlightObject = deepcopy(self.stageFlightPaths[0]) # Will have had the same flight path as the top stage until the moment of separation
+            newFlightObject.actuatorDefls = None # Dropped stage shouldn&#39;t have any canard deflections
+            self.stageFlightPaths.append(newFlightObject)
+
+            self.stagingIndex += 1
+
+    def newForcesLogLine(self, txt):
+        try:
+            if len(self.forceEvaluationLog) &gt; 0 and self.forceEvaluationLog[-1][-1:] != &#39;\n&#39;:
+                self.forceEvaluationLog[-1] += &#34;\n&#34;
+            self.forceEvaluationLog.append(txt)
+        except AttributeError:
+            pass # Force logging not desired/set up for this simulation
+
+    def discardForceLogsForPreviousTimeStep(self, integrator):
+        if self.loggingLevel &gt;= 2:
+            # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
+            if integrator.method == &#34;RK12Adaptive&#34;:
+                numDerivativeEvals = 2
+            else:
+                numDerivativeEvals = len(integrator.tableau)-1
+
+            # Remove that number of rows from the end of the force evaluation log
+            for i in range(numDerivativeEvals):
+                self.forceEvaluationLog.pop(-1)
+
+    def _handleSimulationCrash(self):
+        &#39;&#39;&#39; After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace &#39;&#39;&#39;
+        print(&#34;ERROR: Simulation Crashed, Aborting&#34;)
+        print(&#34;Attempting to save log files and show plots&#34;)
+        self._postProcess(self.simDefinition)
+
+        # Try to print out the stack trace
+        print(&#34;Attempting to show stack trace&#34;)
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+
+        print(&#34;Exiting&#34;)
+        sys.exit()
+
+    #### Post-sim ####
+    def _postProcess(self, simDefinition):
+        simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
+
+        # Log results
+        logFilePaths = self._logSimulationResults(simDefinition)
+
+        # Transfer key time info to flight objects from rocket
+        for i in range(len(self.rocketStages)):
+            self.stageFlightPaths[i].engineOffTime = self.rocketStages[i].engineShutOffTime
+            self.stageFlightPaths[i].mainChuteDeployTime = self.rocketStages[i].mainChuteDeployTime
+            self.stageFlightPaths[i].targetLocation = self.rocketStages[i].targetLocation
+
+        # Plot results
+        self._plotSimulationResults(self.rocketStages, simDefinition, self.stageFlightPaths, logFilePaths)
+
+        # Print these out after logging to avoid including the log/plot keys in the unused keys
+        # #TODO: Add exceptions for these keys, move this line to before logging so that it&#39;s output is also included in the simulation log
+        simDefinition.printUnusedKeys()
+
+        return logFilePaths
+
+    def _logSimulationResults(self, simDefinition):
+        &#39;&#39;&#39; Logs simulation results to file (as/if specified in sim definition) &#39;&#39;&#39;
+        logFilePaths = None
+        if self.loggingLevel &gt; 0:
+            logFilePaths = []
+
+            # Find new file name without overwriting old logs
+            periodIndex = simDefinition.fileName.rfind(&#39;.&#39;)
+            fileBaseName = simDefinition.fileName[:periodIndex] + &#34;_simulationLog_run&#34;
+            mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=&#34;.txt&#34;)
+                
+            logFilePaths.append(mainLogFilePath)
+            print(&#34;Writing main log to: {}&#34;.format(mainLogFilePath))
+
+            # Write main log to file
+            with open(mainLogFilePath, &#39;w+&#39;) as file:
+                file.writelines(self.mainSimulationLog)
+
+            # Write force evaluation log to file if desired
+            if self.loggingLevel &gt;= 2:
+                forceLogFilePath = mainLogFilePath.replace(&#34;simulationLog&#34;, &#34;forceEvaluationLog&#34;)
+                print(&#34;Writing force evaluation log to: {}&#34;.format(forceLogFilePath))
+                logFilePaths.append(forceLogFilePath)
+                with open(forceLogFilePath, &#39;w+&#39;) as file:
+                    file.writelines(self.forceEvaluationLog)
+
+                # Post process / calculate force/moment coefficients if desired
+                if self.loggingLevel &gt;= 3:
+                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
+                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
+                    expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
+                    logFilePaths.append(expandedLogPath)
+
+        return logFilePaths
+
+    def _plotSimulationResults(self, rocketStages, simDefinition, flights, logFilePaths):
+        &#39;&#39;&#39; Plot simulation results (as/if specified in sim definition) &#39;&#39;&#39;
+
+        plotsToMake = simDefinition.getValue(&#34;SimControl.plot&#34;).split()
+
+        if plotsToMake != [&#34;None&#34;]:
+
+            if &#34;FlightAnimation&#34; in plotsToMake:
+                print(&#34;Showing flight animation&#34;)
+
+                # Show animation
+                Plotting.flightAnimation(flights)
+
+                # Done, remove from plotsToMake
+                plotsToMake.remove(&#34;FlightAnimation&#34;)
+
+            if &#34;FlightPaths&#34; in plotsToMake:
+                earthModel = self.simDefinition.getValue(&#34;Environment.EarthModel&#34;)
+                if earthModel in [ &#34;None&#34;, &#34;Flat&#34; ]:
+                    Plotting.plotFlightPaths_NoEarth(flights)
+                else:
+                    Plotting.plotFlightPaths_FullEarth(flights)
+
+                plotsToMake.remove(&#34;FlightPaths&#34;)
+
+            # Plot all other columns from log files
+            for plotDefinitionString in plotsToMake:
+                Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner" href="Convergence.html#MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner">ConvergenceSimRunner</a></li>
+<li><a title="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation" href="#MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation">WindTunnelSimulation</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment"><code class="name">var <span class="ident">environment</span></code></dt>
+<dd>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.ENV.Environment" href="../ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code>. Will be shared by all Rockets created by this sim runner</p></div>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent"><code class="name">var <span class="ident">silent</span></code></dt>
+<dd>
+<div class="desc"><p>(bool)</p></div>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition"><code class="name">var <span class="ident">simDefinition</span></code></dt>
+<dd>
+<div class="desc"><p>Instance of <code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>. Defines the current simulation</p></div>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex"><code class="name">var <span class="ident">stagingIndex</span></code></dt>
+<dd>
+<div class="desc"><p>(int) Set in <code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket">Simulation.createRocket()</a></code>. Tracks how many stages have been dropped</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage"><code class="name flex">
+<span>def <span class="ident">createNewDetachedStage</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Called by Rocket._stageSeparation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def createNewDetachedStage(self):
+    &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
+    if self.computeStageDropPaths:
+        newDetachedStage = self.createRocket(stage=self.stagingIndex)
+        # Set kinematic properties to match those of the current top-most stage
+        topStage = self.rocketStages[0]
+        newDetachedStage.rigidBody.state = deepcopy(topStage.rigidBody.state)
+        newDetachedStage.rigidBody.time = topStage.rigidBody.time
+        self.rocketStages.append(newDetachedStage)
+
+        # New sim termination condition function
+        self.endDetectors.append(self._getEndDetectorFunction(newDetachedStage, self.simDefinition, droppedStage=True))
+        self.dts.append(self.dts[0])
+        
+        # Duplicate existing flight object
+        newFlightObject = deepcopy(self.stageFlightPaths[0]) # Will have had the same flight path as the top stage until the moment of separation
+        newFlightObject.actuatorDefls = None # Dropped stage shouldn&#39;t have any canard deflections
+        self.stageFlightPaths.append(newFlightObject)
+
+        self.stagingIndex += 1</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket"><code class="name flex">
+<span>def <span class="ident">createRocket</span></span>(<span>self, stage=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+Returns an instance of Rocket with it's Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def createRocket(self, stage=None):
+    &#39;&#39;&#39; 
+        Initializes a rocket, complete with an Environment object and logs, both owned by the instance of this class
+        Returns an instance of Rocket with it&#39;s Environment/Logs initialized. Can be called by external classes to obtain a prepped rocket (used a lot this way in test cases).
+    &#39;&#39;&#39;
+    # Initialize Rocket
+    rocketDictReader = SubDictReader(&#34;Rocket&#34;, self.simDefinition)  
+    rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
+
+    if self.simDefinition.getValue(&#39;SimControl.RocketPlot&#39;) in [ &#39;On&#39;, &#39;on&#39; ]:
+        rocket.plotShape()  # Reference to this simRunner used to add to logs
+
+    if stage == None:
+        self._setUpLogging()
+        self._createLogDataTableHeaders(rocket)
+
+        self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
+        
+    return rocket</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.discardForceLogsForPreviousTimeStep"><code class="name flex">
+<span>def <span class="ident">discardForceLogsForPreviousTimeStep</span></span>(<span>self, integrator)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def discardForceLogsForPreviousTimeStep(self, integrator):
+    if self.loggingLevel &gt;= 2:
+        # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
+        if integrator.method == &#34;RK12Adaptive&#34;:
+            numDerivativeEvals = 2
+        else:
+            numDerivativeEvals = len(integrator.tableau)-1
+
+        # Remove that number of rows from the end of the force evaluation log
+        for i in range(numDerivativeEvals):
+            self.forceEvaluationLog.pop(-1)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.newForcesLogLine"><code class="name flex">
+<span>def <span class="ident">newForcesLogLine</span></span>(<span>self, txt)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def newForcesLogLine(self, txt):
+    try:
+        if len(self.forceEvaluationLog) &gt; 0 and self.forceEvaluationLog[-1][-1:] != &#39;\n&#39;:
+            self.forceEvaluationLog[-1] += &#34;\n&#34;
+        self.forceEvaluationLog.append(txt)
+    except AttributeError:
+        pass # Force logging not desired/set up for this simulation</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self, rocket=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)</p>
+<h2 id="returns">Returns</h2>
+<ul>
+<li>stageFlightsPaths: (list[<code>MAPLEAF.IO.RocketFlight.RocketFlight</code>]) Each RocketFlight object represents the flight path of a single stage</li>
+<li>logFilePaths: (list[string]) list of paths to all log files created by this simulation</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self, rocket=None):
+    &#39;&#39;&#39; 
+        Runs simulation defined by self.simDefinition (which has parsed a simulation definition file)
+
+        Returns:
+            * stageFlightsPaths: (list[`MAPLEAF.IO.RocketFlight.RocketFlight`]) Each RocketFlight object represents the flight path of a single stage
+            * logFilePaths: (list[string]) list of paths to all log files created by this simulation
+    &#39;&#39;&#39;
+    simDefinition = self.simDefinition
+
+    # Initialize the rocket + environment models and simulation logging
+    if rocket == None:
+        rocket = self.createRocket() # Initialize rocket on launch pad, with all stages attached
+    self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
+
+    # Create progress bar if appropriate
+    if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+        endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
+        progressBar = tqdm(total=endTime+0.01)
+        
+        try:
+            self.logger.continueWritingToTerminal = False
+        except AttributeError:
+            pass # Logging not set up for this sim
+    else:
+        progressBar = None
+
+    #### Main Loop Setup #### 
+    self.dts = [ float(simDefinition.getValue(&#34;SimControl.timeStep&#34;)) ]    # (Initial) time step size
+    self.endDetectors = [ self._getEndDetectorFunction(rocket, simDefinition) ] # List contains a boolean function that controls sim termination for each stage
+    self.stageFlightPaths = [ self._setUpCachingForFlightAnimation(rocket) ] # List will contain resulting flight paths for each stage
+
+    if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
+        print(&#34;Setting up hardware in the loop interface&#34;)
+        rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
+
+    #### Main Loop ####
+    stageIndex = 0
+    while stageIndex &lt; len(self.rocketStages):
+
+        if stageIndex &gt; 0:
+            print(&#34;Computing stage {} drop path&#34;.format(stageIndex))
+
+        endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+            
+        while not endSimulation:
+            # Take a time step
+            try:
+                if FinalTimeStepDt != None:
+                    self.dts[stageIndex] = FinalTimeStepDt
+
+                timeStepAdjustmentFactor, self.dts[stageIndex] = self.rocketStages[stageIndex].timeStep(self.dts[stageIndex])
+
+                if stageIndex == 0:
+                    try:
+                        progressBar.update(self.dts[stageIndex])
+                    except AttributeError:
+                        pass
+            except:
+                self._handleSimulationCrash()
+
+            # Adjust time step
+            self.dts[stageIndex] *= timeStepAdjustmentFactor
+
+            # HIL
+            if(self.rocketStages[stageIndex].hardwareInTheLoopControl == &#34;yes&#34;):
+                rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
+
+            # Cache states for flight animation
+            time = self.rocketStages[stageIndex].rigidBody.time
+            self.stageFlightPaths[stageIndex].times.append(time)
+            self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
+            if self.rocketStages[stageIndex].controlSystem != None:
+                try:
+                    for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
+                        self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                        self.stageFlightPaths[stageIndex].actuatorTargetDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+                except AttributeError:
+                    # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                    pass
+
+            # Check whether we should end the simulation, or take a modified-size final time step    
+            endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+        
+        # Log last state (would be the starting state of the next time step)
+        self.rocketStages[stageIndex]._runControlSystemAndLogStartingState(0.0)
+
+        # Move on to next (dropped) stage
+        stageIndex += 1
+
+        try:
+            progressBar.close()
+            
+            if not self.silent:
+                sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+        except AttributeError:
+            pass
+
+    print(&#34;Simulation Complete&#34;)
+
+    logFilePaths = self._postProcess(simDefinition)
+
+    return self.stageFlightPaths, logFilePaths</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation"><code class="flex name class">
+<span>class <span class="ident">WindTunnelSimulation</span></span>
+<span>(</span><span>parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False')</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WindTunnelSimulation(Simulation):
+    def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine=&#39;False&#39;):
+        self.parametersToSweep = [&#34;Rocket.velocity&#34;] if (parametersToSweep == None) else parametersToSweep
+        self.parameterValues = [[&#34;(0 0 100)&#34;, &#34;(0 0 200)&#34;, &#34;(0 0 300)&#34;]] if (parameterValues == None) else parameterValues
+        self.smoothLine = smoothLine
+
+        # Error checks
+        if len(self.parametersToSweep) != len(self.parameterValues):
+            raise ValueError(&#34;Must have a list of values for each parameter to sweep over. Currently have {} parameters, and {} lists of values.&#34;.format(len(self.parametersToSweep), len(self.parameterValues)))
+
+        paramValueCounts = [ len(x) for x in self.parameterValues ]
+        if not all([ (x == paramValueCounts[0]) for x in paramValueCounts ]):
+            raise ValueError(&#34;All lists of parameter values must be of equal length. Currently, list lengths are: {}&#34;.format(paramValueCounts))
+
+        Simulation.__init__(self, simDefinitionFilePath, simDefinition, silent)
+
+    def runSweep(self):
+        &#39;&#39;&#39;
+            Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList
+            Returns:
+                List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
+        &#39;&#39;&#39;
+        # Make sure we&#39;re logging forces (the only way to get data out of this sim runner) and avoid producing any plots
+        self.simDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;) 
+        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+        if strtobool(self.smoothLine): # interpolate between user set parameter values
+            self._addPoints() 
+
+        for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+            for j in range(len(self.parameterValues)): # j&#39;th parameter (velocity, temperature)
+                self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
+
+            # Run a single force evaluation, which creates a forces log entry for this force evaluation
+            rocket = self.createRocket()
+            self.rocketStages = [ rocket ]
+            rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+        # Write Logs to file, return path
+        return self._postProcess()
+
+    def _addPoints(self, pointMultiple=10):
+        &#39;&#39;&#39; Edits the parameter sweeps to include a multiple of the previous number of points, linearly interpolated between the given values &#39;&#39;&#39;
+        for i in range(len(self.parameterValues[0]) - 1): # i corresponds to # of tests to run
+            for interpPt in range(1, pointMultiple): # Loops over each new point
+                
+                intervalStartIndex = pointMultiple*i
+                # Index at which to add new point (also interval end index)
+                newPointIndex = pointMultiple*i + interpPt
+
+                for param in range(len(self.parametersToSweep)): # j&#39;th corresponds to parameters to sweep over (velocity, temperature)
+                    try:
+                        # Vector sweep
+                        first = Vector(self.parameterValues[param][intervalStartIndex])
+                        second = Vector(self.parameterValues[param][newPointIndex])
+                        change = second - first
+                        incrementalValue = str(interpPt/pointMultiple*change + first)
+                    except ValueError:
+                        # Scalar sweep
+                        first = float(self.parameterValues[param][intervalStartIndex])
+                        second = float(self.parameterValues[param][newPointIndex])
+                        change = second - first
+                        incrementalValue = str(interpPt/pointMultiple*change + first)
+                    
+                    self.parameterValues[param].insert(newPointIndex, incrementalValue)
+
+    def createRocket(self):
+        &#39;&#39;&#39; 
+            Do all the same stuff as the parent object, but also re-initialize the environment, 
+                to make sure changes to environmental properties during the parameter sweep take effect 
+        &#39;&#39;&#39;
+        self.environment = Environment(self.simDefinition, silent=self.silent)
+        return super().createRocket()
+
+    def _setUpLogging(self):
+        &#39;&#39;&#39; Override to ensure that logs aren&#39;t re-initialized for every simulation.
+            mainSimulationLog will only be absent the first time this function is run
+            Want to keep all the force data in a single log file &#39;&#39;&#39;
+        if not hasattr(self, &#39;mainSimulationLog&#39;):
+            return super()._setUpLogging()
+
+    def _createLogDataTableHeaders(self, rocket):
+        &#39;&#39;&#39; Prevents the log headers from being re-generated over and over &#39;&#39;&#39;
+        if self.forceEvaluationLog == []:
+            return super()._createLogDataTableHeaders(rocket)
+
+    def _postProcess(self):
+        &#39;&#39;&#39; Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files.
+            Removes mainSimLog from (returned) log file paths since no time steps we taken by this sim &#39;&#39;&#39;
+        # Create an empty flight path to prevent errors in the parent function)
+        self.stageFlightPaths = [ RocketFlight() ]
+        logFilePaths = Simulation._postProcess(self, self.simDefinition)
+
+        # Because no time steps were taken, the main simulation log will not contain any tabular data.
+            # Remove it from logFilePaths (but file is still generated)
+        for logPath in logFilePaths:
+            if &#34;simulationLog&#34; in logPath:
+                logFilePaths.remove(logPath)
+
+        return logFilePaths</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation">Simulation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation.createRocket"><code class="name flex">
+<span>def <span class="ident">createRocket</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Do all the same stuff as the parent object, but also re-initialize the environment,
+to make sure changes to environmental properties during the parameter sweep take effect</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def createRocket(self):
+    &#39;&#39;&#39; 
+        Do all the same stuff as the parent object, but also re-initialize the environment, 
+            to make sure changes to environmental properties during the parameter sweep take effect 
+    &#39;&#39;&#39;
+    self.environment = Environment(self.simDefinition, silent=self.silent)
+    return super().createRocket()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation.runSweep"><code class="name flex">
+<span>def <span class="ident">runSweep</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList</p>
+<h2 id="returns">Returns</h2>
+<p>List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runSweep(self):
+    &#39;&#39;&#39;
+        Runs a single force evaluation for each value of self.parameterToSweekKey contained in self.parameterValueList
+        Returns:
+            List of log file paths. Main Sim Log will be empty. Force eval log and expanded force eval log will have one entry per sweep point
+    &#39;&#39;&#39;
+    # Make sure we&#39;re logging forces (the only way to get data out of this sim runner) and avoid producing any plots
+    self.simDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+    self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;) 
+    self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+    if strtobool(self.smoothLine): # interpolate between user set parameter values
+        self._addPoints() 
+
+    for i in range(len(self.parameterValues[0])): # i corresponds to # of conditions, ie how many times parameter values will be changed (velocity1, velocity2, ...)
+        for j in range(len(self.parameterValues)): # j&#39;th parameter (velocity, temperature)
+            self.simDefinition.setValue(self.parametersToSweep[j], self.parameterValues[j][i])
+
+        # Run a single force evaluation, which creates a forces log entry for this force evaluation
+        rocket = self.createRocket()
+        self.rocketStages = [ rocket ]
+        rocket._getAppliedForce(0.0, rocket.rigidBody.state)
+
+    # Write Logs to file, return path
+    return self._postProcess()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation">Simulation</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run">run</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="MAPLEAF Home" href="https://henrystoldt.github.io/MAPLEAF/">
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png" alt="Logo" width=75/>
+MAPLEAF
+</a>
+</header>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.SimulationRunners" href="index.html">MAPLEAF.SimulationRunners</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.loadSimDefinition" href="#MAPLEAF.SimulationRunners.SingleSimulations.loadSimDefinition">loadSimDefinition</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation">Simulation</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket">createRocket</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.discardForceLogsForPreviousTimeStep" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.discardForceLogsForPreviousTimeStep">discardForceLogsForPreviousTimeStep</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.newForcesLogLine" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.newForcesLogLine">newForcesLogLine</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run">run</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex" href="#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation" href="#MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation">WindTunnelSimulation</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation.createRocket" href="#MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation.createRocket">createRocket</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation.runSweep" href="#MAPLEAF.SimulationRunners.SingleSimulations.WindTunnelSimulation.runSweep">runSweep</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

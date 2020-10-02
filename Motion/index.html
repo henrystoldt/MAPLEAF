@@ -461,6 +461,7 @@ Can be moved to other locations - recalculates the moment accordingly.</p></div>
             location = Vector(0,0,0)
         self.location = location
 
+        # Avoids using mutable default values
         if moment == None:
             moment = Vector(0,0,0)
         self.moment = moment
@@ -546,7 +547,7 @@ Only the applied moment changes to compensate for the force application location
 </dd>
 <dt id="MAPLEAF.Motion.Inertia"><code class="flex name class">
 <span>class <span class="ident">Inertia</span></span>
-<span>(</span><span>MOI, MOICentroidLocation, mass, CG=None, componentLocation=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;)</span>
+<span>(</span><span>MOI, CG, mass, MOICentroidLocation=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><ul>
@@ -562,19 +563,15 @@ Only the applied moment changes to compensate for the force application location
 
     ___slots__ = [ &#34;MOI&#34;, &#34;MOICentroidLocation&#34;, &#34;mass&#34;, &#34;CG&#34; ]
 
-    def __init__(self, MOI, MOICentroidLocation, mass, CG=None, componentLocation=Vector(0,0,0)):
+    def __init__(self, MOI, CG, mass, MOICentroidLocation=None):
         &#34;&#34;&#34; 
             * MOIVector: Ixx, Iyy, Izz  
             * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
         &#34;&#34;&#34;
         self.MOI = MOI
-        self.MOICentroidLocation = MOICentroidLocation + componentLocation
+        self.CG = CG
         self.mass = mass
-        
-        if CG == None:
-            self.CG = MOICentroidLocation + componentLocation
-        else:
-            self.CG = CG + componentLocation
+        self.MOICentroidLocation = CG if (MOICentroidLocation == None) else MOICentroidLocation
 
     def checkDefinedAboutCG(self, inertiasList):
         &#39;&#39;&#39;
@@ -630,7 +627,7 @@ Only the applied moment changes to compensate for the force application location
         # Compute actual CG by dividing out the mass
         totalCG = totalCG / totalMass
 
-        return Inertia(totalMOI, Point, totalMass, totalCG)
+        return Inertia(totalMOI, totalCG, totalMass, MOICentroidLocation=Point)
 
     def combineInertias(self, inertiasList):
         &#34;&#34;&#34;
@@ -677,9 +674,9 @@ Only the applied moment changes to compensate for the force application location
     def __str__(self):
         &#39;&#39;&#39; Get string representation, used by str() and print() &#39;&#39;&#39;
         if self.MOICentroidLocation == self.CG:
-            return &#39;MOI=({}) calculated about CG=({}) Mass=({}) &#39;
+            return &#39;MOI=({}) calculated about CG=({}); Mass={} &#39;.format(self.MOI, self.CG, self.mass)
         else:
-            return &#39;MOI=({}) calculated about non-CG Point=({}) CG=({}) Mass=({})&#39;
+            return &#39;MOI=({}) calculated about non-CG Point=({}); CG=({}); Mass={}&#39;.format(self.MOI, self.MOICentroidLocation, self.CG, self.mass)
 
     def __eq__(self, inertia2):
         try:
@@ -830,7 +827,7 @@ Point about which summed inertias will be calculated</p>
     # Compute actual CG by dividing out the mass
     totalCG = totalCG / totalMass
 
-    return Inertia(totalMOI, Point, totalMass, totalCG)</code></pre>
+    return Inertia(totalMOI, totalCG, totalMass, MOICentroidLocation=Point)</code></pre>
 </details>
 </dd>
 </dl>
@@ -998,8 +995,7 @@ Only worth it if we rotate many vectors per quaternion</p>
             Methods
                 .timeStep(deltaT)
     &#34;&#34;&#34;
-    #TODO: Account for the effect of CG location changing between time steps?
-    #TODO (Future - for a more detailed final model): Moment of Inertia Tensor required
+    #TODO: Moment of Inertia Tensor? Required for aircraft
 
     def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod=&#34;Euler&#34;, discardedTimeStepCallback=None, simDefinition=None):
         &#39;&#39;&#39; Just calls RigidBodyState_3DoF constructor &#39;&#39;&#39;
@@ -1081,7 +1077,7 @@ Only worth it if we rotate many vectors per quaternion</p>
 </dd>
 <dt id="MAPLEAF.Motion.RigidBodyState"><code class="flex name class">
 <span>class <span class="ident">RigidBodyState</span></span>
-<span>(</span><span>position=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, velocity=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, orientation=&lt;MAPLEAF.Motion.CythonQuaternion.Quaternion object&gt;, angularVelocity=&lt;MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity object&gt;)</span>
+<span>(</span><span>position=None, velocity=None, orientation=None, angularVelocity=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
@@ -1112,11 +1108,11 @@ Angular Velocity is expected to be an Angular Velocity - Defined with reference 
 
         No other operations are defined
     &#34;&#34;&#34;
-    def __init__(self, position=Vector(0,0,0), velocity=Vector(0,0,0), orientation=Quaternion(1,0,0,0), angularVelocity=AngularVelocity(0,0,0)):
-        self.position = position
-        self.velocity = velocity
-        self.orientation = orientation
-        self.angularVelocity = angularVelocity
+    def __init__(self, position=None, velocity=None, orientation=None, angularVelocity=None):
+        self.position = Vector(0,0,0) if (position is None) else position
+        self.velocity = Vector(0,0,0) if (velocity is None) else velocity
+        self.orientation = Quaternion(1,0,0,0) if (orientation is None) else orientation
+        self.angularVelocity = AngularVelocity(0,0,0) if (angularVelocity is None) else angularVelocity
     
     def __add__(self, rigidBodyState2):
         &#39;&#39;&#39; Used in: initVal {+} (timeStep * slope) &#39;&#39;&#39;

@@ -49,6 +49,7 @@ class ForceMomentSystem():
             location = Vector(0,0,0)
         self.location = location
 
+        # Avoids using mutable default values
         if moment == None:
             moment = Vector(0,0,0)
         self.moment = moment
@@ -124,6 +125,7 @@ Can be moved to other locations - recalculates the moment accordingly.</p></div>
             location = Vector(0,0,0)
         self.location = location
 
+        # Avoids using mutable default values
         if moment == None:
             moment = Vector(0,0,0)
         self.moment = moment

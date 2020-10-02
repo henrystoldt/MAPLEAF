@@ -140,11 +140,11 @@ class RigidBodyState():
 
         No other operations are defined
     &#34;&#34;&#34;
-    def __init__(self, position=Vector(0,0,0), velocity=Vector(0,0,0), orientation=Quaternion(1,0,0,0), angularVelocity=AngularVelocity(0,0,0)):
-        self.position = position
-        self.velocity = velocity
-        self.orientation = orientation
-        self.angularVelocity = angularVelocity
+    def __init__(self, position=None, velocity=None, orientation=None, angularVelocity=None):
+        self.position = Vector(0,0,0) if (position is None) else position
+        self.velocity = Vector(0,0,0) if (velocity is None) else velocity
+        self.orientation = Quaternion(1,0,0,0) if (orientation is None) else orientation
+        self.angularVelocity = AngularVelocity(0,0,0) if (angularVelocity is None) else angularVelocity
     
     def __add__(self, rigidBodyState2):
         &#39;&#39;&#39; Used in: initVal {+} (timeStep * slope) &#39;&#39;&#39;
@@ -335,7 +335,7 @@ state1Weight should be a decimal value between 0 and 1.</p></div>
 <dl>
 <dt id="MAPLEAF.Motion.RigidBodyStates.RigidBodyState"><code class="flex name class">
 <span>class <span class="ident">RigidBodyState</span></span>
-<span>(</span><span>position=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, velocity=&lt;MAPLEAF.Motion.CythonVector.Vector object&gt;, orientation=&lt;MAPLEAF.Motion.CythonQuaternion.Quaternion object&gt;, angularVelocity=&lt;MAPLEAF.Motion.CythonAngularVelocity.AngularVelocity object&gt;)</span>
+<span>(</span><span>position=None, velocity=None, orientation=None, angularVelocity=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class created to be able to treat rigidBody states like scalars when integrating the movement of a rigid body
@@ -366,11 +366,11 @@ Angular Velocity is expected to be an Angular Velocity - Defined with reference 
 
         No other operations are defined
     &#34;&#34;&#34;
-    def __init__(self, position=Vector(0,0,0), velocity=Vector(0,0,0), orientation=Quaternion(1,0,0,0), angularVelocity=AngularVelocity(0,0,0)):
-        self.position = position
-        self.velocity = velocity
-        self.orientation = orientation
-        self.angularVelocity = angularVelocity
+    def __init__(self, position=None, velocity=None, orientation=None, angularVelocity=None):
+        self.position = Vector(0,0,0) if (position is None) else position
+        self.velocity = Vector(0,0,0) if (velocity is None) else velocity
+        self.orientation = Quaternion(1,0,0,0) if (orientation is None) else orientation
+        self.angularVelocity = AngularVelocity(0,0,0) if (angularVelocity is None) else angularVelocity
     
     def __add__(self, rigidBodyState2):
         &#39;&#39;&#39; Used in: initVal {+} (timeStep * slope) &#39;&#39;&#39;

@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.SimulationRunners.Batch API documentation</title>
+<meta name="description" content="Script to run a batch of simulations, defined in a batch definition file. Can be run directly from the command line.
+Accessible as `mapleaf-batch` if …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/SimulationRunners/Batch.html">
+<link rel="icon" href="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png">
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.SimulationRunners.Batch</code></h1>
+</header>
+<section id="section-intro">
+<p>Script to run a batch of simulations, defined in a batch definition file. Can be run directly from the command line.
+Accessible as <code>mapleaf-batch</code> if MAPLEAF is installed through pip.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#39;&#39;&#39; 
+    Script to run a batch of simulations, defined in a batch definition file. Can be run directly from the command line. 
+    Accessible as `mapleaf-batch` if MAPLEAF is installed through pip.
+&#39;&#39;&#39;
+import argparse
+import os
+import time
+from distutils.util import strtobool
+from math import isnan
+from statistics import mean
+from typing import Union
+
+import matplotlib.pyplot as plt
+import numpy as np
+from MAPLEAF.IO import (Logging, Plotting, SimDefinition, SubDictReader,
+                        gridConvergenceFunctions)
+from MAPLEAF.Motion import Vector
+from MAPLEAF.Motion.Interpolation import linInterp
+from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
+
+__all__ = [ &#34;main&#34;, &#34;run&#34;, &#34;BatchRun&#34; ]
+
+
+class BatchRun():
+    &#39;&#39;&#39; Class to hold info about and results of a mapleaf-batch run &#39;&#39;&#39;
+    def __init__(self, 
+            batchDefinition: SimDefinition, 
+            recordAll=False, 
+            printStackTraces=False, 
+            include=None, 
+            exclude=None,
+            percentErrorTolerance=0.01, 
+            resultToValidate=None
+        ):
+        self.batchDefinition = batchDefinition
+        self.recordAll = recordAll
+        self.printStackTraces = printStackTraces
+        self.include = include
+        self.exclude = exclude
+
+        self.casesRun = set()
+        self.casesFailed = set()
+        self.nTestsOk = 0
+        self.nTestsFailed = 0
+        self.totalSimErrors = 0
+        self.nComparisonSets = 0
+        self.casesWithNewRecordedResults = set()
+
+        self.warningCount = 0
+        self.percentErrorTolerance = percentErrorTolerance
+
+        self.validationErrors = []
+        self.validationDataUsed = []
+        self.resultToValidate = resultToValidate
+
+    def getCasesToRun(self):
+        subDicts = self.batchDefinition.getImmediateSubDicts(&#34;&#34;)
+        
+        if self.include == None and self.exclude == None:
+            # Run all cases
+            return subDicts
+
+        else:
+            # Only run cases that include the include string AND do not contain the exclude string
+            casesToRun = []
+            for caseDictName in subDicts:
+                if (self.include == None or self.include in caseDictName) and (self.exclude == None or self.exclude not in caseDictName):
+                    casesToRun.append(caseDictName)
+
+            return casesToRun
+    
+    def printResult(self, timeToRun=None) -&gt; int:
+        &#34;&#34;&#34; Outputs result summary &#34;&#34;&#34;
+        print(&#34;\n----------------------------------------------------------------------&#34;)
+        print(&#34;BATCH RUN RESULTS&#34;)
+
+        if timeToRun != None:
+            print(&#34;Ran {} Case(s) in {:&gt;.2f} s&#34;.format(len(self.casesRun), timeToRun))
+        else:
+            print(&#34;Ran {} Case(s)&#34;.format(len(self.casesRun)))
+
+        if self.resultToValidate != None:
+            if len(self.validationErrors) &gt; 0:
+                print(&#34;\nValidation Results for {}:&#34;.format(self.resultToValidate))
+                print(&#34;Average disagreement with validation data across {} validation data sets: {:2.2f}%&#34;.format( len(self.validationDataUsed), mean(self.validationErrors)))
+                print(&#34;Average magnitude of disgreement with validation data across {} validation data sets: {:2.2f}%&#34;.format( len(self.validationDataUsed), mean([abs(error) for error in self.validationErrors])))
+                print(&#34;Data Sets Used:&#34;)
+                for (dataSet, avgError) in zip(self.validationDataUsed, self.validationErrors):
+                    print(&#34;{}: {:2.2f}%&#34;.format(dataSet, avgError))
+                print(&#34;&#34;)
+            else:
+                self.warning(&#34;\nERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries\n&#34;.format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
+  
+        if self.warningCount &gt; 0:
+            print(&#34;Errors/Warnings: {}&#34;.format(self.warningCount))
+
+        if len(self.casesWithNewRecordedResults) &gt; 0:
+            recordedCaseList = &#34;, &#34;.join(self.casesWithNewRecordedResults)
+            print(&#34;New expected results were recorded for the following cases: {}&#34;.format(recordedCaseList))
+            _writeModifiedTestDefinitionFile(self.batchDefinition)
+
+        if len(self.casesFailed) == 0:
+            print(&#34;{} Case(s) ok&#34;.format(len(self.casesRun)))
+            print(&#34;&#34;)
+            if self.warningCount == 0:
+                print(&#34;OK&#34;)
+            else:
+                print(&#34;WARNING&#34;)
+
+            return 0
+        else:
+            nCasesFailed = len(self.casesFailed)
+            nTests = self.nTestsOk + self.nTestsFailed
+            print(&#34;{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed&#34;.format(nCasesFailed, len(self.casesRun), self.nTestsFailed, nTests))
+            print(&#34;&#34;)
+            print(&#34;Failed Cases:&#34;)
+            for case in self.casesFailed:
+                print(case)
+            print(&#34;&#34;)
+            print(&#34;FAIL&#34;)
+
+            return 1
+
+    def error(self, caseName, msg: str):
+        &#39;&#39;&#39; Currently, errors are used to indicated problems directly related to MAPLEAF simulations &#39;&#39;&#39;
+        self.warningCount += 1
+        self.nTestsFailed += 1
+        print(msg)
+        self.casesFailed.add(caseName)
+
+    def warning(self, msg: str):
+        &#39;&#39;&#39; Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data &#39;&#39;&#39;
+        self.warningCount +=1
+        print(msg)
+
+#### Command Line Parsing ####
+def main(argv=None):    
+    # Parse command line arguments
+    parser = _buildParser()
+    args = parser.parse_args(argv)
+
+    # Load definition file
+    from MAPLEAF.Main import findSimDefinitionFile  # Delayed import here to avoid circular imports
+    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
+    batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
+
+    include = args.include[0] if len(args.include) &gt; 0 else None
+    exclude = args.exclude[0] if len(args.exclude) &gt; 0 else None
+    validate = args.validate[0] if len(args.validate) &gt; 0 else None
+
+    # Create batch run object containing settings and results
+    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, include, exclude, resultToValidate=validate)
+
+    # Run Cases
+    return run(batchRun)
+
+
+#### Main ####
+def run(batchRun: BatchRun) -&gt; int:
+    &#39;&#39;&#39; Given a batchRun object (of type `BatchRun`), will run all of its test cases, and print a summary of the results &#39;&#39;&#39;
+    # Track how long running cases takes
+    startTime = time.time()
+
+    # Get all the regression test cases
+    testCases = batchRun.getCasesToRun()
+
+    for case in testCases:
+        _runCase(case, batchRun)
+        batchRun.casesRun.add(case)
+
+    runTime = time.time() - startTime
+    return batchRun.printResult(runTime)
+
+#### 1. Load / Run Sim ####
+def _runCase(caseName: str, batchRun: BatchRun):
+    &#39;&#39;&#39;
+        Runs a single regression tests case, compares the results to the expected results provided, and generates any desired plots.
+            If no comparison data is provided, comparison data is recorded
+
+        Inputs:
+            
+            *caseName:         (string) Name of current case / top-level dictionary  
+            *batchDefinition:  (`MAPLEAF.IO.SimDefinition`) Should have the batchDefinition file loaded  
+
+        Outputs:
+
+            Returns:    numTestsOk(Int), numTestsFailed(Int), resultValuesRecorded(Bool)  
+                resultValuesRecorded is True if absent ExpectedResults were added to the regressionTestDefinition  
+                    Used to remember that an updated regressionTestDefinition shoudl be written to file at the end of all the test cases  
+            Modifies:   batchDefinition - records sim results is no expected results are provided  
+            Prints:     One line to introduce case, one more line for each expected results  
+    &#39;&#39;&#39;
+    print(&#34;\nRunning Case: {}&#34;.format(caseName))
+    caseDictReader = SubDictReader(caseName, simDefinition=batchRun.batchDefinition)
+    
+    #### Load Sim definition file ####
+    simDefFilePath = caseDictReader.getString(&#34;simDefinitionFile&#34;)
+    simDefinition = SimDefinition(simDefFilePath, silent=True)
+
+    #### Parameter overrides ####
+    _implementParameterOverrides(caseName, batchRun.batchDefinition, simDefinition)
+
+    #### Run simulation ####
+    # Check whether simulation is a full flight sim or a parameter sweeping simulation
+    caseSubDictionaries = caseDictReader.getImmediateSubDicts()
+    if caseName + &#34;.ParameterSweep&#34; in caseSubDictionaries:
+        logFilePaths = _runParameterSweepCase(batchRun, caseDictReader, simDefinition)
+    else:
+        logFilePaths = _runFullFlightCase(batchRun, caseDictReader, simDefinition)
+
+    #### Generate/Save plots ####
+    if len(logFilePaths) &gt; 0: # Don&#39;t generate plots for crashed sims
+        # Get all plot subdictionaries, create plot for each one
+        plotDicts = caseDictReader.getImmediateSubDicts(&#34;PlotsToGenerate&#34;)
+        for plotDict in plotDicts:
+            plotDictReader = SubDictReader(plotDict, simDefinition=batchRun.batchDefinition)
+            _generatePlot(batchRun, plotDictReader, logFilePaths)
+
+def _implementParameterOverrides(caseName: str, batchDefinition: SimDefinition, caseSimDefinition: SimDefinition):
+    &#39;&#39;&#39;
+        Runs on each case before running any sims to implement desired modifications to simulation definition files
+
+        Inputs:
+            testCase:   (string) name of the current test case / top level dictionary
+            batchDefinition:      (SimDefinition) The sim definition object that&#39;s loaded/parsed the testDefinitions.mapleaf file
+            simDefinition:                  (SimDefinition) The sim definition object that&#39;s loaded/parsed the definition file for the current regression testing simulation
+
+        Outputs:
+            Modifies: simDefinition, according to the parameter overrides specified in the regression tests definition file
+    &#39;&#39;&#39;
+    #### Load and enact parameter overrides ####
+    # Always disable plotting and enable logging
+    caseSimDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+    caseSimDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+    caseSimDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+
+    # Look for other overrides in the definition file
+    parameterOverridesDictKey = &#34;.&#34;.join([caseName, &#34;ParameterOverrides&#34;])
+    parameterOverrides = batchDefinition.getSubKeys(parameterOverridesDictKey)
+    for paramOverrideKey in parameterOverrides:
+        overridenKey = paramOverrideKey.replace(parameterOverridesDictKey+&#34;.&#34;, &#34;&#34;)
+        overrideValue = batchDefinition.getValue(paramOverrideKey)
+
+        # Implement them
+        caseSimDefinition.setValue(overridenKey, overrideValue)
+
+def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDefinition: SimDefinition):
+    &#39;&#39;&#39; Runs a parameter sweep / wind tunnel simulation, checks+plots results &#39;&#39;&#39;
+    print(&#34;  Parameter Sweep Case&#34;)
+
+    # Find dictionaries of expected results &amp; parameter sweeps
+    ParametersToSweepOver = []
+    expectedResultsDicts = []
+    ParameterSweepDicts = caseDictReader.getImmediateSubDicts(caseDictReader.simDefDictPathToReadFrom + &#34;.ParameterSweep&#34;)
+    for SubDict in ParameterSweepDicts:
+        if &#39;Results&#39; in SubDict: # any subdict in parameterSweep that is NOT a results dict, will be assumed to be a parameter sweep dict
+            expectedResultsDicts.append(SubDict)
+        else:
+            ParametersToSweepOver.append(SubDict)
+
+    # Parse parameter sweep values
+    sweptParameters = []
+    parameterValues = []
+    for parameter in ParametersToSweepOver:
+        sweptParameters.append(caseDictReader.getString(parameter + &#39;.sweptParameter&#39;))
+        parameterValues.append(caseDictReader.getString(parameter + &#39;.parameterValues&#39;))
+    parameterValues = [ _parseParameterSweepValues(valString) for valString in parameterValues ]
+    
+    # Check whether to add points for smoother plots
+    smoothLineDefault = &#39;True&#39; if len(parameterValues) &lt; 25 else &#39;False&#39;
+    smoothLine = caseDictReader.tryGetString(&#39;ParameterSweep.smoothLine&#39;, defaultValue=smoothLineDefault)
+
+    # Run simulation
+    try:
+        simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
+        logFilePaths = simRunner.runSweep()
+    except:
+        _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
+    else:
+        Logging.removeLogger()
+
+    for expectedResultsDict in expectedResultsDicts: # loop through expected results. Manually inputed values, as well as comparisonData in the plots
+        expectedResultsCol = caseDictReader.getString(expectedResultsDict + &#34;.column&#34;) # get column header that contains results in log files
+        expectedResults = caseDictReader.getString(expectedResultsDict + &#34;.expectedValues&#34;).split(&#39;,&#39;) # get expected results values that will be compared against sim
+        expectedResults = [ float(x) for x in expectedResults ] # Convert to floatS
+            
+        ### Get results to be checked ###
+        for logPath in logFilePaths:
+            columnDataLists, columnNames = Plotting.getLoggedColumns(logPath, expectedResultsCol)
+            if len(columnNames) &gt; 0:
+                break # Stop looking on first column match
+
+        if len(columnNames) != 1:
+            batchRun.error(caseDictReader.simDefDictPathToReadFrom, &#34;   ERROR: Did not find exactly one column matching spec: {} in log files: {}. Instead, found: {} matching columns {}&#34;.format(expectedResultsCol, logFilePaths, len(columnNames), columnNames))
+            return
+        else:
+            resultData = columnDataLists[0]
+
+        ### Record / Check Results ###
+        if (len(expectedResults) == 1 and expectedResults[0].lower() == &#34;record&#34;) or batchRun.recordAll:
+            ## Record results ##
+            key = expectedResultsDict + &#34;.expectedValues&#34;
+            stringResults = &#34;, &#34;.join([ str(x) for x in resultData ])
+            batchRun.batchDefinition.setValue(key, stringResults)
+            batchRun.casesWithNewRecordedResults.add(caseDictReader.simDefDictPathToReadFrom)
+
+            # Tell user the values have been recorded
+            for value in resultData:
+                print(&#34;  {:&lt;25} Recorded {:&gt;15.7}&#34;.format(expectedResultsCol + &#34;:&#34;, value))
+
+        else:
+            ## Chcek results ##
+            resultDataStep = 10 if strtobool(smoothLine) else 1
+
+            for i in range(len(expectedResults)):
+                _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+
+    return logFilePaths
+
+def _parseParameterSweepValues(parameterValues):
+    &#39;&#39;&#39;
+        Pass in the raw string read from the parameterValues field in a testDefinition.
+        Returns a list of strings representing each parameter value to run at.
+    &#39;&#39;&#39;
+    # Check whether a range of parameter values is specified
+    if &#39;:&#39; in parameterValues:
+        # Create list of values from range
+        initVal, numSteps, finalVal = parameterValues.split(&#39;:&#39;)
+        numSteps = int(numSteps)
+
+        try:
+            # Range of Scalar values
+            initVal = float(initVal) # This line will raise a ValueError if the values are vectors
+            finalVal = float(finalVal)
+            parameterValues = list(np.linspace(initVal, finalVal, num=numSteps))
+            parameterValues = [ str(x) for x in parameterValues ] # Convert back to strings for WindTunnelSimRunner
+        
+        except ValueError:
+            # Range of Vector values
+            initVal = Vector(initVal)
+            finalVal = Vector(finalVal)
+            xVals = list(np.linspace(initVal.X, finalVal.X, num=numSteps))
+            yVals = list(np.linspace(initVal.Y, finalVal.Y, num=numSteps))
+            zVals = list(np.linspace(initVal.Z, finalVal.Z, num=numSteps))
+            
+            # Populate list with string values for WindTunnelSimRunner
+            parameterValues = []
+            for i in range(numSteps):
+                interpolatedVector = Vector(xVals[i], yVals[i], zVals[i])
+                parameterValues.append(str(interpolatedVector))
+    else:
+        # Regular list of values
+        parameterValues = parameterValues.split(&#39;,&#39;)
+
+    return parameterValues
+
+def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDefinition: SimDefinition):
+    &#39;&#39;&#39; Run a regular MAPLEAF simulation based on this case dictionary, checks+plots results &#39;&#39;&#39;
+    print(&#34;  Full Flight Case&#34;)
+    try:
+        simRunner = Simulation(simDefinition=simDefinition, silent=True)
+        _, logFilePaths = simRunner.run()
+    except:
+        _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
+    else:
+        Logging.removeLogger()
+
+    #### Compare and/or record numerical results from final simulation state, output pass/fail ####
+    expectedResultKeys = caseDictReader.getSubKeys(&#34;ExpectedFinalValues&#34;)
+
+    if len(expectedResultKeys) == 0:
+        # If no expected results are provided, record the default set
+        _setUpDefaultResultRecording(batchRun, caseDictReader, logFilePaths)
+    
+    _checkSimResults(batchRun, caseDictReader, logFilePaths, expectedResultKeys)
+
+    return logFilePaths
+
+def _handleSimCrash(batchRun: BatchRun, caseName):
+    # Simulation Failed
+    Logging.removeLogger() # Make sure we can print to the console
+    batchRun.error(caseName, &#34;  ERROR: Simulation Crashed&#34;)
+
+    if batchRun.printStackTraces:
+        import traceback
+        tb = traceback.format_exc()
+        print(tb)
+        
+    return [] # No log file paths
+
+#### 2. Checking Expected Final Results ####
+def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths):
+    &#39;&#39;&#39; If no expected results are provided, this adds some default position/velocity values to record for future runs &#39;&#39;&#39;
+    batchRun.warning(&#34;  WARNING: No expected parameter values provided. Recording Position &amp; Velocity values.&#34;)
+
+    caseName = caseDictReader.simDefDictPathToReadFrom
+    colsToRecord = [ &#34;PositionX&#34;, &#34;PositionY&#34;, &#34;PositionZ&#34;, &#34;VelocityX&#34;, &#34;VelocityY&#34;, &#34;VelocityZ&#34;]
+
+    for column in colsToRecord:
+        batchRun.batchDefinition.setValue(caseName + &#34;.ExpectedFinalValues.&#34; + column, &#34;Record&#34; )
+
+def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths, expectedResultKeys):
+    &#39;&#39;&#39; Checks every values in the expected results at end of sim dictionary &#39;&#39;&#39;
+    for resultKey in expectedResultKeys:
+        logColumnSpec = resultKey[resultKey.rfind(&#34;.&#34;)+1:] # From CaseName.ExpectedFinalValues.PositionX -&gt; PositionX
+
+        try:
+            if batchRun.recordAll:
+                raise ValueError(&#34;Let&#39;s record a value&#34;)
+
+            ## Regular Parameter Check ##
+            expectedResult = caseDictReader.getFloat(resultKey)
+            observedResult, columnName = _getSingleResultFromLogs(batchRun, logFilePaths, logColumnSpec)
+            _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, columnName, observedResult, expectedResult)
+
+        except ValueError:
+            ## Record value for this parameter? ##
+            expectedResult = caseDictReader.getString(resultKey)
+            if expectedResult.lower() == &#34;record&#34; or batchRun.recordAll:
+                # Get and save value of parameter from current simulation
+                observedValue, colName = _getSingleResultFromLogs(batchRun, logFilePaths, logColumnSpec)
+                batchRun.batchDefinition.setValue(resultKey, str(observedValue))
+                print(&#34;  {:&lt;25} Recorded {:&gt;15.7}&#34;.format(colName + &#34;:&#34;, observedValue))
+                batchRun.casesWithNewRecordedResults.add(caseDictReader.simDefDictPathToReadFrom)
+                
+            else:
+                ## Parsing error ##
+                print(&#34;  ERROR: Expected value: {} for parameter: {} not numeric or &#39;Record&#39;&#34;.format(expectedResult, resultKey))
+                batchRun.warningCount += 1
+
+def _checkResult(batchRun: BatchRun, caseName: str, columnName: str, observedResult: float, expectedResult: float):
+    &#39;&#39;&#39;
+        Checks whether the observed and expected results match to within the desired tolerance
+
+        Inputs:
+            logFilePaths:   (List (string)) List of paths to simulation log files
+            logColumnSpec:  (string) Partial or Full log column name, or regex expression. Should match exactly 1 log column
+            expectedResult: (numeric) Expected value of the data in the column identified by logColumnSpec, in the very last row of data
+
+        Outputs:
+            Returns: checkPassed(bool), columnName(string)
+            Prints: 1 line, success or failure
+
+    &#39;&#39;&#39;    
+    if observedResult == None:
+        # Could end up here if a result is not found in the log file - perhaps a column name has been mis-spelled in the batch definition file?
+        batchRun.nTestsFailed += 1
+        batchRun.casesFailed.add(caseName)
+    
+    else:
+        # Compute error %
+        if expectedResult != 0:
+            error = abs(expectedResult - observedResult)
+            errorPercent = abs(error * 100 / expectedResult)
+        else:
+            errorPercent = 0 if (expectedResult == observedResult) else 100
+
+        # Print + Save Result
+        if errorPercent &gt; batchRun.percentErrorTolerance or isnan(errorPercent):
+            print(&#34;  {:&lt;25} FAIL     {:&gt;15.7}, Expected: {:&gt;15.7}, Disagreement: {:&gt;10.2f} %&#34;.format(columnName + &#34;:&#34;, observedResult, expectedResult, errorPercent))
+            batchRun.nTestsFailed += 1
+            batchRun.casesFailed.add(caseName)
+
+        else:
+            print(&#34;  {:&lt;25} ok       {:&gt;15.7}&#34;.format(columnName + &#34;:&#34;, expectedResult))
+            batchRun.nTestsOk += 1
+
+def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
+    &#39;&#39;&#39; Returns the last value in the log column defined by logColumn Spec. Searches in each file in logFilePaths &#39;&#39;&#39;
+    for logPath in logFilePaths:
+        dataLists, columnNames = Plotting.getLoggedColumns(logPath, [ logColumnSpec ])
+
+        if len(dataLists) &gt; 1:
+            batchRun.warning(&#34;  ERROR: Column Spec &#39;{}&#39; matched more than one column: {} in log file: &#39;{}&#39;&#34;.format(logColumnSpec, columnNames, logPath))
+            return None, logColumnSpec
+
+        if len(dataLists) == 1:
+            columnName = columnNames[0]
+            observedResult = dataLists[0][-1]
+            return observedResult, columnName
+    
+    # No column was found
+    batchRun.warning(&#34;  ERROR: Column Spec {} did not match any columns&#34;.format(logColumnSpec))
+    return None, None
+
+#### 3. Plotting ####
+def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePaths):
+    &#39;&#39;&#39;
+        Called once for every plot dictionary. Handles plotting MAPLEAF&#39;s results and any provided comparison data. Saves plot.
+
+        Inputs:
+            plotDictReader:     (SubDictReader) Initialized to read from the subdirectory of PlotsToGenerate that defines the desired plot
+            logFilePaths:       (list (string)) 
+
+        Outputs:
+            Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
+    &#39;&#39;&#39;
+    # Read info from plotDictReader, create figure, set x/y limits, axes labels, etc...
+    fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim = _setUpFigure(plotDictReader)
+
+    #### Plot all the requested data from MAPLEAF&#39;s results ####
+    mapleafCols = []
+    mapleafX = []
+    mapleafData = []
+    for logFilePath in logFilePaths:
+        columnData, columnNames = Plotting.getLoggedColumns(logFilePath, columnSpecs, columnsToExclude=mapleafCols)
+        if len(columnNames) &gt; 1:
+            # Only plot if we&#39;ve found (at minimum) an X-column and a Y-column (2 columns)
+            adjustX = True if xLim == [&#34;False&#34;] else False
+            xData = _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
+            
+            # Track the x-data for each column of y-data plotted
+            for i in range(len(columnNames)):
+                mapleafX.append(xData)
+
+            # Avoid plotting columns twice!
+            for i in range(len(columnNames)):
+                if columnNames[i] != xColumnName:
+                    mapleafCols.append(columnNames[i])
+                    mapleafData.append(columnData[i])
+
+    #### Plot comparison data ####
+    compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
+    for compDataDict in compDataDictionaries:
+        compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
+        valData, valCols, valX = _plotComparisonData(batchRun, ax, compDataDictReader)
+        validationData = compDataDictReader.tryGetBool(&#34;validationData&#34;, defaultValue=True)
+
+        if batchRun.resultToValidate != None:
+            # Check whether we should validate this graph
+            dictNameMatchesValidation = (batchRun.resultToValidate in compDataDict and len(valCols) == 1)
+            columnNameMatchesValidation = (len(valCols) == 1 and batchRun.resultToValidate in valCols[0])
+            mapleafColumnNameMatchesValidation = (len(mapleafCols) == 1 and batchRun.resultToValidate in mapleafCols[0])
+            dataShouldBeUsedForCurrentValidation = validationData and any([dictNameMatchesValidation, columnNameMatchesValidation, mapleafColumnNameMatchesValidation])
+            dataExists = len(valCols) &gt; 0
+            
+            if dataShouldBeUsedForCurrentValidation and dataExists:
+                _validate(batchRun, mapleafX, mapleafData, valData, valX, compDataDict)
+    
+    #### Finalize + Save Plot ####  
+    if yLim == [&#34;False&#34;]:
+        ax.autoscale(axis=&#39;y&#39;, tight=True)
+    
+    ax.legend()
+    fig.tight_layout()
+
+    # Get save location
+    saveFilePath = plotDictReader.getString(&#34;saveLocation&#34;)
+    saveDirectory = os.path.dirname(saveFilePath)
+    saveFileName = os.path.basename(saveFilePath)
+    overwrite = plotDictReader.tryGetBool(&#34;overwrite&#34;, defaultValue=True)
+
+    # Save plot
+    gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=False, printStatementPrefix=&#34;  &#34;)
+    plt.close(fig) # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
+
+def _setUpFigure(plotDictReader: SubDictReader):
+    # Create plot
+    fig, ax = plt.subplots(figsize=(6,4))
+
+    #### Plot Data from current simulation ####
+    # Get all entries in the PlotsToGenerate dictionary
+    columnSpecs = plotDictReader.tryGetString(&#34;columnsToPlot&#34;, defaultValue=&#34;&#34;).split()
+    nLinesToPlot = len(columnSpecs)
+    if nLinesToPlot == 0:
+        return
+
+    # Make sure we&#39;re set to get the time/x column along with the y-data
+    xColumnName = plotDictReader.tryGetString(&#34;xColumnName&#34;, defaultValue=&#34;Time(s)&#34;)
+    if xColumnName not in columnSpecs:
+        columnSpecs.append(xColumnName)
+
+    lineFormats = plotDictReader.tryGetString(&#34;lineFormat&#34;, defaultValue=&#34;y--&#34;).split()
+    while len(lineFormats) &lt; nLinesToPlot:
+        lineFormats.append(&#34;&#34;)
+
+    legendLabels = plotDictReader.tryGetString(&#34;legendLabel&#34;, defaultValue=columnSpecs[0]).split(&#39;,&#39;)
+    while len(legendLabels) &lt; nLinesToPlot:
+        legendLabels.append(columnSpecs[len(legendLabels)])
+
+    scalingFactor = plotDictReader.tryGetFloat(&#34;scalingFactor&#34;, defaultValue=1.0)
+    offset = plotDictReader.tryGetFloat(&#39;offset&#39;, defaultValue=0.0)
+
+    ### Set Axes Limits
+    xLim = plotDictReader.tryGetString(&#34;xLimits&#34;, defaultValue=&#34;False&#34;).split() # Expected length: 2
+    if xLim[0] != &#34;False&#34;:
+        xLowerLim = float(xLim[0])
+        xUpperLim = float(xLim[1])
+        ax.set_xlim([xLowerLim,xUpperLim])
+    yLim = plotDictReader.tryGetString(&#34;yLimits&#34;, defaultValue=&#34;False&#34;).split() # Expected length: 2
+    if yLim[0] != &#34;False&#34;:
+        yLowerLim = float(yLim[0])
+        yUpperLim = float(yLim[1])
+        ax.set_ylim([yLowerLim,yUpperLim])
+    
+    # Set x and y labels
+    xLabel = plotDictReader.tryGetString(&#34;xLabel&#34;, defaultValue=xColumnName)
+    yLabel = plotDictReader.tryGetString(&#34;yLabel&#34;, defaultValue=columnSpecs[0])
+    ax.set_xlabel(_latexLabelTranslation(xLabel))
+    ax.set_ylabel(_latexLabelTranslation(yLabel))
+    
+    return fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim
+
+def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
+    &#39;&#39;&#39; Plot a single line of comparison data from a specified .csv file &#39;&#39;&#39;
+    # Get line formatting info
+    compDataPath = compDataDictReader.tryGetString(&#34;file&#34;, defaultValue=None)
+    compColumnSpecs = compDataDictReader.tryGetString(&#34;columnsToPlot&#34;, defaultValue=&#34;&#34;).split()
+    xColumnName = compDataDictReader.tryGetString(&#34;xColumnName&#34;, defaultValue=&#34;Time(s)&#34;)
+    lineFormat = compDataDictReader.tryGetString(&#34;lineFormat&#34;, defaultValue=&#34;k-&#34;).split()
+    legendLabel = compDataDictReader.tryGetString(&#34;legendLabel&#34;, defaultValue=&#34;Label&#34;).split(&#39;,&#39;)
+    scalingFactor = compDataDictReader.tryGetFloat(&#34;scalingFactor&#34;, defaultValue=1.0)
+
+    # If comparison data entries found in the plot dictionary, load and plot the comparison data
+    if compDataPath != None and len(compColumnSpecs) &gt; 0:
+        # Plot comparison data columns
+        if xColumnName not in compColumnSpecs:
+            compColumnSpecs.append(xColumnName)
+
+        try:
+            compColData, compColNames = Plotting.getLoggedColumns(compDataPath, compColumnSpecs, sep=&#39;,&#39;)
+
+            if len(compColData) &lt; len(compColumnSpecs):
+                batchRun.warning(&#34;  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}&#34;.format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
+
+            xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
+            return compColData, compColNames, xData
+
+        except FileNotFoundError:
+            batchRun.warning(&#34;  ERROR: Comparison data file: {} not found&#34;.format(compDataPath))
+
+    else:
+        batchRun.warning(&#34;  ERROR: Locating comparison data, file: {}, columns to plot: {}&#34;.format(compDataPath, compColumnSpecs))
+
+    return [], [], xColumnName
+
+def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, linewidth=1.5, adjustXaxisToFit=False):
+    &#39;&#39;&#39;
+        Adds MAPLEAF&#39;s results to the plot currently being created
+
+        ax:             (Matplotlib.Axes) to plot on
+        dataLists:      (list (list (float))) each sub-list should a vector of x or y data
+        columnNames:    (list (string)) list of column names, order matching that of dataLists
+        xColumnName:    (string) Name of the column that will serve as the &#39;x&#39; data. Every other column will be assumed to contain &#39;y&#39; data
+    &#39;&#39;&#39;
+    # Extract the x-column data
+    xData = []
+    for i in range(len(columnNames)):
+        if columnNames[i] == xColumnName:
+            xData = dataLists.pop(i)
+            columnNames.pop(i)
+
+    if adjustXaxisToFit:
+        ax.set_xlim([xData[0], xData[-1]])
+
+    # Scale data and apply offset:
+    for i in range(len(dataLists)):
+        for j in range(len(dataLists[i])):
+            dataLists[i][j] = scalingFactor*float(dataLists[i][j]) + offset
+
+    # Plot data
+    for i in range(len(columnNames)):
+        if len(xData) &gt; 1:
+            # Line
+            ax.plot(xData, dataLists[i], lineFormat[i], linewidth=linewidth, label=legendLabel[i])
+        else:
+            # Point
+            ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
+
+    return xData
+
+def _validate(batchRun: BatchRun, mapleafX, mapleafData, valData, validationX, validationDataPath: str) -&gt; Union[float, None]:
+    &#39;&#39;&#39;
+        Returns the average percentage disagreement between the mapleaf results and the validation data
+
+        Inputs:
+            mapleafX:           (List[List[float]]) Mapleaf X-data
+            mapleafData:        (List[List[float]]) Mapleaf data for each of the column names in mapleafCols (order should match)
+            
+            valData:            (List[List[float]]) Comparison data for each of the column names in valCols (order should match), also includes x-column data
+            validationX:        (List[float]) x-column data for the values in valData
+
+            validationDataPath: (str) Used to track the source of the data used
+
+        Outputs:
+            Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
+    &#39;&#39;&#39;
+    if len(mapleafX) != len(mapleafData):
+        batchRun.warning(&#34;  ERROR: Can&#39;t validate data without matching number of X and Y MAPLEAF data sets. Current validation data set: {}&#34;.format(validationDataPath))
+        return
+
+    def getAvgError(MAPLEAFX, MAPLEAFY, valX, valY) -&gt; float:
+        def getInterpolatedMAPLEAFResult(x):
+            # Interpolating MAPLEAF&#39;s results because we are assuming MAPLEAF&#39;s data is often denser than validation data, which decreases interpolation error
+            return linInterp(MAPLEAFX, MAPLEAFY, x)
+        
+        interpolatedMAPLEAFResults = [ getInterpolatedMAPLEAFResult(x) for x in validationX ]
+
+        # TODO: Provide/plot error distributions, not just averages?
+        errorMagnitudes = [ (mY - vY)  for  (mY, vY)  in  zip(interpolatedMAPLEAFResults, valY) ]
+        errorPercentages = [ ((error / vY) if vY != 0 else 100)  for  (error, vY)  in  zip(errorMagnitudes, valY) ]
+        
+        return mean(errorPercentages)
+
+    if len(mapleafData) == 1 and len(valData) == 1:
+        # One set of mapleaf data, one set of comparison data -&gt; straightforward
+        avgError = getAvgError(mapleafX[0], mapleafData[0], validationX, valData[0])
+    
+    elif len(mapleafData) == 1 and len(valData) &gt; 1:
+        # One set of mapleaf data, multiple sets of comparison data -&gt; compare each to the mapleaf data, return mean error across all curves
+        avgErrors = [ getAvgError(mapleafX[0], mapleafData[0], validationX, validationY) for validationY in valData ]
+        avgError = mean(avgErrors)
+
+    elif len(mapleafData) &gt; 1 and len(valData) == 1:
+        # Multiple sets of mapleaf data, one set of comparison data -&gt; compare comparison data to the mapleaf line that matches it most closely
+        avgErrors = [ getAvgError(mapleafX[i], mapleafData[i], validationX, valData[0]) for i in range(len(mapleafData)) ]
+        avgError = min(avgErrors)
+
+    else:
+        batchRun.warning(&#34;  WARNING: Unclear which set of MAPLEAF results should be validated by which set of comparison data&#34;)
+        avgError = None
+
+    if avgError != None:
+        batchRun.validationDataUsed.append(validationDataPath)
+        batchRun.validationErrors.append(avgError*100)
+
+
+#### Utility functions ####
+def _writeModifiedTestDefinitionFile(batchDefinition: SimDefinition):
+    &#39;&#39;&#39; If new expected final values were recorded during the present batch run, this function will be called to write those values to a new file, [originalFileName]_newExpectedResultsRecorded.mapleaf &#39;&#39;&#39;
+    origFilePath = batchDefinition.fileName
+    newTestDefinitionPath = origFilePath.replace(&#34;.mapleaf&#34;, &#34;_newExpectedResultsRecorded.mapleaf&#34;)
+
+    print(&#34;Writing new testDefinition file to: {}&#34;.format(newTestDefinitionPath))
+    print(&#34;  If desired, use this file (or values from this file) to replace/update testDefinitions.mapleaf\n&#34;)
+
+    batchDefinition.writeToFile(newTestDefinitionPath, writeHeader=False)
+
+def _latexLabelTranslation(labelInput: str) -&gt; str:
+    labelDict = {
+        &#39;$\alpha$&#39;: r&#39;$\alpha$&#39;,
+        &#39;$C_l$&#39;   : r&#39;$C_l$&#39;,
+        &#39;$C_d$&#39;   : r&#39;$C_d$&#39;,
+        &#39;$C_n$&#39;   : r&#39;$C_n$&#39;,
+        &#39;$C_y$&#39;   : r&#39;$C_y$&#39;,
+        &#39;$C_N$&#39;   : r&#39;$C_N$&#39;,
+        &#39;$C_A$&#39;   : r&#39;$C_A$&#39;
+    }
+    
+    if labelInput in labelDict:
+        return labelDict[labelInput]
+    else:
+        return labelInput
+
+def _buildParser() -&gt; argparse.ArgumentParser:
+    &#39;&#39;&#39; Builds the argparse parser for command-line arguments &#39;&#39;&#39;
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=&#34;&#34;&#34;
+    Batch-run MAPLEAF simulations.
+    Expects batch run to be defined by a batch definition file like MAPLEAF/Examples/Simulations/regressionTests.mapleaf
+    See ./batchRunTemplate.mapleaf for definition of all possible options.
+    &#34;&#34;&#34;)
+
+    parser.add_argument(
+        &#34;--recordAll&#34;, 
+        action=&#39;store_true&#39;, 
+        help=&#34;If present, re-records all expected results for cases that are run. Recorded data outputted to [batchDefinitionFile]_newExpectedResultsRecorded.mapleaf&#34;
+    )
+    parser.add_argument(
+        &#34;--printStackTraces&#34;, 
+        action=&#39;store_true&#39;, 
+        help=&#34;If present, stack traces are printed for crashed simulations&#34;
+    )
+    parser.add_argument(
+        &#34;--include&#34;, 
+        nargs=1, 
+        default=[], 
+        help=&#34;Only cases whose name includes this string will be run.&#34;
+    )
+    parser.add_argument(
+        &#34;--exclude&#34;,
+        nargs=1,
+        default=[],
+        help=&#34;Exclude cases whose name includes this string. Takes precedence over --include&#34;
+    )
+    parser.add_argument(
+        &#34;--validate&#34;,
+        nargs=1,
+        default=[],
+        help=&#34;The average disagreement between MAPLEAF&#39;s results and plotted comparison data will be computed for the parameter provided. Parameter must be found in one or more of: a) name of comparison data dictionary name, b) comparison data column name, c) the MAPLEAF column name.&#34;
+    )
+    parser.add_argument(
+        &#34;batchDefinitionFile&#34;, 
+        nargs=&#39;?&#39;, 
+        default=&#34;MAPLEAF/Examples/Simulations/regressionTests.mapleaf&#34;, 
+        help=&#34;Path to a batch definition (.mapleaf) file. Default = MAPLEAF/Examples/Simulations/regressionTests.mapleaf&#34;
+    )
+
+    return parser
+
+
+
+if __name__ == &#34;__main__&#34;:
+    main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.Batch.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>argv=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(argv=None):    
+    # Parse command line arguments
+    parser = _buildParser()
+    args = parser.parse_args(argv)
+
+    # Load definition file
+    from MAPLEAF.Main import findSimDefinitionFile  # Delayed import here to avoid circular imports
+    batchDefinitionPath = findSimDefinitionFile(args.batchDefinitionFile)
+    batchDefinition = SimDefinition(batchDefinitionPath, defaultDict={}, silent=True)
+
+    include = args.include[0] if len(args.include) &gt; 0 else None
+    exclude = args.exclude[0] if len(args.exclude) &gt; 0 else None
+    validate = args.validate[0] if len(args.validate) &gt; 0 else None
+
+    # Create batch run object containing settings and results
+    batchRun = BatchRun(batchDefinition, args.recordAll, args.printStackTraces, include, exclude, resultToValidate=validate)
+
+    # Run Cases
+    return run(batchRun)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.Batch.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>batchRun: <a title="MAPLEAF.SimulationRunners.Batch.BatchRun" href="#MAPLEAF.SimulationRunners.Batch.BatchRun">BatchRun</a>) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given a batchRun object (of type <code><a title="MAPLEAF.SimulationRunners.Batch.BatchRun" href="#MAPLEAF.SimulationRunners.Batch.BatchRun">BatchRun</a></code>), will run all of its test cases, and print a summary of the results</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(batchRun: BatchRun) -&gt; int:
+    &#39;&#39;&#39; Given a batchRun object (of type `BatchRun`), will run all of its test cases, and print a summary of the results &#39;&#39;&#39;
+    # Track how long running cases takes
+    startTime = time.time()
+
+    # Get all the regression test cases
+    testCases = batchRun.getCasesToRun()
+
+    for case in testCases:
+        _runCase(case, batchRun)
+        batchRun.casesRun.add(case)
+
+    runTime = time.time() - startTime
+    return batchRun.printResult(runTime)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.Batch.BatchRun"><code class="flex name class">
+<span>class <span class="ident">BatchRun</span></span>
+<span>(</span><span>batchDefinition: <a title="MAPLEAF.IO.simDefinition.SimDefinition" href="../IO/simDefinition.html#MAPLEAF.IO.simDefinition.SimDefinition">SimDefinition</a>, recordAll=False, printStackTraces=False, include=None, exclude=None, percentErrorTolerance=0.01, resultToValidate=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class to hold info about and results of a mapleaf-batch run</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BatchRun():
+    &#39;&#39;&#39; Class to hold info about and results of a mapleaf-batch run &#39;&#39;&#39;
+    def __init__(self, 
+            batchDefinition: SimDefinition, 
+            recordAll=False, 
+            printStackTraces=False, 
+            include=None, 
+            exclude=None,
+            percentErrorTolerance=0.01, 
+            resultToValidate=None
+        ):
+        self.batchDefinition = batchDefinition
+        self.recordAll = recordAll
+        self.printStackTraces = printStackTraces
+        self.include = include
+        self.exclude = exclude
+
+        self.casesRun = set()
+        self.casesFailed = set()
+        self.nTestsOk = 0
+        self.nTestsFailed = 0
+        self.totalSimErrors = 0
+        self.nComparisonSets = 0
+        self.casesWithNewRecordedResults = set()
+
+        self.warningCount = 0
+        self.percentErrorTolerance = percentErrorTolerance
+
+        self.validationErrors = []
+        self.validationDataUsed = []
+        self.resultToValidate = resultToValidate
+
+    def getCasesToRun(self):
+        subDicts = self.batchDefinition.getImmediateSubDicts(&#34;&#34;)
+        
+        if self.include == None and self.exclude == None:
+            # Run all cases
+            return subDicts
+
+        else:
+            # Only run cases that include the include string AND do not contain the exclude string
+            casesToRun = []
+            for caseDictName in subDicts:
+                if (self.include == None or self.include in caseDictName) and (self.exclude == None or self.exclude not in caseDictName):
+                    casesToRun.append(caseDictName)
+
+            return casesToRun
+    
+    def printResult(self, timeToRun=None) -&gt; int:
+        &#34;&#34;&#34; Outputs result summary &#34;&#34;&#34;
+        print(&#34;\n----------------------------------------------------------------------&#34;)
+        print(&#34;BATCH RUN RESULTS&#34;)
+
+        if timeToRun != None:
+            print(&#34;Ran {} Case(s) in {:&gt;.2f} s&#34;.format(len(self.casesRun), timeToRun))
+        else:
+            print(&#34;Ran {} Case(s)&#34;.format(len(self.casesRun)))
+
+        if self.resultToValidate != None:
+            if len(self.validationErrors) &gt; 0:
+                print(&#34;\nValidation Results for {}:&#34;.format(self.resultToValidate))
+                print(&#34;Average disagreement with validation data across {} validation data sets: {:2.2f}%&#34;.format( len(self.validationDataUsed), mean(self.validationErrors)))
+                print(&#34;Average magnitude of disgreement with validation data across {} validation data sets: {:2.2f}%&#34;.format( len(self.validationDataUsed), mean([abs(error) for error in self.validationErrors])))
+                print(&#34;Data Sets Used:&#34;)
+                for (dataSet, avgError) in zip(self.validationDataUsed, self.validationErrors):
+                    print(&#34;{}: {:2.2f}%&#34;.format(dataSet, avgError))
+                print(&#34;&#34;)
+            else:
+                self.warning(&#34;\nERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries\n&#34;.format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
+  
+        if self.warningCount &gt; 0:
+            print(&#34;Errors/Warnings: {}&#34;.format(self.warningCount))
+
+        if len(self.casesWithNewRecordedResults) &gt; 0:
+            recordedCaseList = &#34;, &#34;.join(self.casesWithNewRecordedResults)
+            print(&#34;New expected results were recorded for the following cases: {}&#34;.format(recordedCaseList))
+            _writeModifiedTestDefinitionFile(self.batchDefinition)
+
+        if len(self.casesFailed) == 0:
+            print(&#34;{} Case(s) ok&#34;.format(len(self.casesRun)))
+            print(&#34;&#34;)
+            if self.warningCount == 0:
+                print(&#34;OK&#34;)
+            else:
+                print(&#34;WARNING&#34;)
+
+            return 0
+        else:
+            nCasesFailed = len(self.casesFailed)
+            nTests = self.nTestsOk + self.nTestsFailed
+            print(&#34;{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed&#34;.format(nCasesFailed, len(self.casesRun), self.nTestsFailed, nTests))
+            print(&#34;&#34;)
+            print(&#34;Failed Cases:&#34;)
+            for case in self.casesFailed:
+                print(case)
+            print(&#34;&#34;)
+            print(&#34;FAIL&#34;)
+
+            return 1
+
+    def error(self, caseName, msg: str):
+        &#39;&#39;&#39; Currently, errors are used to indicated problems directly related to MAPLEAF simulations &#39;&#39;&#39;
+        self.warningCount += 1
+        self.nTestsFailed += 1
+        print(msg)
+        self.casesFailed.add(caseName)
+
+    def warning(self, msg: str):
+        &#39;&#39;&#39; Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data &#39;&#39;&#39;
+        self.warningCount +=1
+        print(msg)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.Batch.BatchRun.error"><code class="name flex">
+<span>def <span class="ident">error</span></span>(<span>self, caseName, msg: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Currently, errors are used to indicated problems directly related to MAPLEAF simulations</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def error(self, caseName, msg: str):
+    &#39;&#39;&#39; Currently, errors are used to indicated problems directly related to MAPLEAF simulations &#39;&#39;&#39;
+    self.warningCount += 1
+    self.nTestsFailed += 1
+    print(msg)
+    self.casesFailed.add(caseName)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.Batch.BatchRun.getCasesToRun"><code class="name flex">
+<span>def <span class="ident">getCasesToRun</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getCasesToRun(self):
+    subDicts = self.batchDefinition.getImmediateSubDicts(&#34;&#34;)
+    
+    if self.include == None and self.exclude == None:
+        # Run all cases
+        return subDicts
+
+    else:
+        # Only run cases that include the include string AND do not contain the exclude string
+        casesToRun = []
+        for caseDictName in subDicts:
+            if (self.include == None or self.include in caseDictName) and (self.exclude == None or self.exclude not in caseDictName):
+                casesToRun.append(caseDictName)
+
+        return casesToRun</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.Batch.BatchRun.printResult"><code class="name flex">
+<span>def <span class="ident">printResult</span></span>(<span>self, timeToRun=None) ‑> int</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Outputs result summary</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def printResult(self, timeToRun=None) -&gt; int:
+    &#34;&#34;&#34; Outputs result summary &#34;&#34;&#34;
+    print(&#34;\n----------------------------------------------------------------------&#34;)
+    print(&#34;BATCH RUN RESULTS&#34;)
+
+    if timeToRun != None:
+        print(&#34;Ran {} Case(s) in {:&gt;.2f} s&#34;.format(len(self.casesRun), timeToRun))
+    else:
+        print(&#34;Ran {} Case(s)&#34;.format(len(self.casesRun)))
+
+    if self.resultToValidate != None:
+        if len(self.validationErrors) &gt; 0:
+            print(&#34;\nValidation Results for {}:&#34;.format(self.resultToValidate))
+            print(&#34;Average disagreement with validation data across {} validation data sets: {:2.2f}%&#34;.format( len(self.validationDataUsed), mean(self.validationErrors)))
+            print(&#34;Average magnitude of disgreement with validation data across {} validation data sets: {:2.2f}%&#34;.format( len(self.validationDataUsed), mean([abs(error) for error in self.validationErrors])))
+            print(&#34;Data Sets Used:&#34;)
+            for (dataSet, avgError) in zip(self.validationDataUsed, self.validationErrors):
+                print(&#34;{}: {:2.2f}%&#34;.format(dataSet, avgError))
+            print(&#34;&#34;)
+        else:
+            self.warning(&#34;\nERROR: No comparison/validation data for {} found. Make sure there is a plot of {} and some comparison data, and that {} is included in the name of those plotting dictionaries\n&#34;.format(self.resultToValidate, self.resultToValidate, self.resultToValidate))
+
+    if self.warningCount &gt; 0:
+        print(&#34;Errors/Warnings: {}&#34;.format(self.warningCount))
+
+    if len(self.casesWithNewRecordedResults) &gt; 0:
+        recordedCaseList = &#34;, &#34;.join(self.casesWithNewRecordedResults)
+        print(&#34;New expected results were recorded for the following cases: {}&#34;.format(recordedCaseList))
+        _writeModifiedTestDefinitionFile(self.batchDefinition)
+
+    if len(self.casesFailed) == 0:
+        print(&#34;{} Case(s) ok&#34;.format(len(self.casesRun)))
+        print(&#34;&#34;)
+        if self.warningCount == 0:
+            print(&#34;OK&#34;)
+        else:
+            print(&#34;WARNING&#34;)
+
+        return 0
+    else:
+        nCasesFailed = len(self.casesFailed)
+        nTests = self.nTestsOk + self.nTestsFailed
+        print(&#34;{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed&#34;.format(nCasesFailed, len(self.casesRun), self.nTestsFailed, nTests))
+        print(&#34;&#34;)
+        print(&#34;Failed Cases:&#34;)
+        for case in self.casesFailed:
+            print(case)
+        print(&#34;&#34;)
+        print(&#34;FAIL&#34;)
+
+        return 1</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.Batch.BatchRun.warning"><code class="name flex">
+<span>def <span class="ident">warning</span></span>(<span>self, msg: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def warning(self, msg: str):
+    &#39;&#39;&#39; Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data &#39;&#39;&#39;
+    self.warningCount +=1
+    print(msg)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="MAPLEAF Home" href="https://henrystoldt.github.io/MAPLEAF/">
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png" alt="Logo" width=75/>
+MAPLEAF
+</a>
+</header>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.SimulationRunners" href="index.html">MAPLEAF.SimulationRunners</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.Batch.main" href="#MAPLEAF.SimulationRunners.Batch.main">main</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Batch.run" href="#MAPLEAF.SimulationRunners.Batch.run">run</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.Batch.BatchRun" href="#MAPLEAF.SimulationRunners.Batch.BatchRun">BatchRun</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.Batch.BatchRun.error" href="#MAPLEAF.SimulationRunners.Batch.BatchRun.error">error</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Batch.BatchRun.getCasesToRun" href="#MAPLEAF.SimulationRunners.Batch.BatchRun.getCasesToRun">getCasesToRun</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Batch.BatchRun.printResult" href="#MAPLEAF.SimulationRunners.Batch.BatchRun.printResult">printResult</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Batch.BatchRun.warning" href="#MAPLEAF.SimulationRunners.Batch.BatchRun.warning">warning</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>

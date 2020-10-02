@@ -62,9 +62,8 @@ plt.rcParams[&#34;font.weight&#34;] = &#34;normal&#34;
 
 logFileCache = OrderedDict()
 &#39;&#39;&#39; Will keep the contents of the last n log files loaded cached, to avoid re-loading repeatedly when making lots of plots &#39;&#39;&#39;
-
-numberOfFilesToKeepCached = 10
-&#39;&#39;&#39; Number of log files to keep cached &#39;&#39;&#39;
+maxLogFileCacheSize = 10
+&#39;&#39;&#39; Max number of log files to keep cached simultaneously &#39;&#39;&#39;
 
 ### Plot data from log files ###
 def plotFromLogFiles(logFilePaths, plotDefinitionString, showPlot=True):
@@ -138,6 +137,9 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
 
 def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34;):
     &#39;&#39;&#39;
+        Obtains columns matching one or more regex expressions in a log file.
+        By default, log file contents are cached by file name.
+
         Inputs:
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
             columnSpecs:        (list (string)) list of partial/full column names and/or regex expressions, to identify the desired columns
@@ -170,7 +172,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34
         df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine=&#39;python&#39;)
             
         logFileCache[logPath] = df
-        if len(logFileCache) &gt; numberOfFilesToKeepCached:
+        if len(logFileCache) &gt; maxLogFileCacheSize:
             logFileCache.popitem(last=False)
     
     matchingColumnData = []
@@ -784,9 +786,9 @@ def plotAndSummarizeScalarResult(scalarList, name=&#34;Apogee&#34;, monteCarloLo
 <dd>
 <div class="desc"><p>Will keep the contents of the last n log files loaded cached, to avoid re-loading repeatedly when making lots of plots</p></div>
 </dd>
-<dt id="MAPLEAF.IO.Plotting.numberOfFilesToKeepCached"><code class="name">var <span class="ident">numberOfFilesToKeepCached</span></code></dt>
+<dt id="MAPLEAF.IO.Plotting.maxLogFileCacheSize"><code class="name">var <span class="ident">maxLogFileCacheSize</span></code></dt>
 <dd>
-<div class="desc"><p>Number of log files to keep cached</p></div>
+<div class="desc"><p>Max number of log files to keep cached simultaneously</p></div>
 </dd>
 </dl>
 </section>
@@ -856,7 +858,9 @@ saveAnimFileName should be a string file name/path that the animation should be 
 <span>def <span class="ident">getLoggedColumns</span></span>(<span>logPath, columnSpecs, columnsToExclude=[], sep='\\s+')</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="inputs">Inputs</h2>
+<div class="desc"><p>Obtains columns matching one or more regex expressions in a log file.
+By default, log file contents are cached by file name.</p>
+<h2 id="inputs">Inputs</h2>
 <p>logPath:
 (string) path to a simulationLog or forceEvaluationLog file
 columnSpecs:
@@ -873,6 +877,9 @@ sep:
 </summary>
 <pre><code class="python">def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34;):
     &#39;&#39;&#39;
+        Obtains columns matching one or more regex expressions in a log file.
+        By default, log file contents are cached by file name.
+
         Inputs:
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
             columnSpecs:        (list (string)) list of partial/full column names and/or regex expressions, to identify the desired columns
@@ -905,7 +912,7 @@ sep:
         df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine=&#39;python&#39;)
             
         logFileCache[logPath] = df
-        if len(logFileCache) &gt; numberOfFilesToKeepCached:
+        if len(logFileCache) &gt; maxLogFileCacheSize:
             logFileCache.popitem(last=False)
     
     matchingColumnData = []
@@ -1268,7 +1275,7 @@ MAPLEAF
 <li><h3><a href="#header-variables">Global variables</a></h3>
 <ul class="">
 <li><code><a title="MAPLEAF.IO.Plotting.logFileCache" href="#MAPLEAF.IO.Plotting.logFileCache">logFileCache</a></code></li>
-<li><code><a title="MAPLEAF.IO.Plotting.numberOfFilesToKeepCached" href="#MAPLEAF.IO.Plotting.numberOfFilesToKeepCached">numberOfFilesToKeepCached</a></code></li>
+<li><code><a title="MAPLEAF.IO.Plotting.maxLogFileCacheSize" href="#MAPLEAF.IO.Plotting.maxLogFileCacheSize">maxLogFileCacheSize</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>

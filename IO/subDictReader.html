@@ -116,16 +116,37 @@ class SubDictReader():
     def getImmediateSubDicts(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getImmediateSubDicts(absKey)
+        
+            if len(result) != 0: # If no subdicts found, try other key
+                return result
+        
         return self.simDefinition.getImmediateSubDicts(key)
 
     def getSubKeys(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getSubKeys(key)
 
     def getImmediateSubKeys(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getImmediateSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getImmediateSubKeys(key)
 
     def getDictName(self) -&gt; str:
@@ -226,16 +247,37 @@ class SubDictReader():
     def getImmediateSubDicts(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getImmediateSubDicts(absKey)
+        
+            if len(result) != 0: # If no subdicts found, try other key
+                return result
+        
         return self.simDefinition.getImmediateSubDicts(key)
 
     def getSubKeys(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getSubKeys(key)
 
     def getImmediateSubKeys(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getImmediateSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getImmediateSubKeys(key)
 
     def getDictName(self) -&gt; str:
@@ -301,6 +343,13 @@ class SubDictReader():
 <pre><code class="python">def getImmediateSubDicts(self, key=None) -&gt; List[str]:
     if key == None:
         key = self.simDefDictPathToReadFrom
+    else:
+        absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+        result = self.simDefinition.getImmediateSubDicts(absKey)
+    
+        if len(result) != 0: # If no subdicts found, try other key
+            return result
+    
     return self.simDefinition.getImmediateSubDicts(key)</code></pre>
 </details>
 </dd>
@@ -316,6 +365,13 @@ class SubDictReader():
 <pre><code class="python">def getImmediateSubKeys(self, key=None) -&gt; List[str]:
     if key == None:
         key = self.simDefDictPathToReadFrom
+    else:
+        absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+        result = self.simDefinition.getImmediateSubKeys(absKey)
+
+        if len(result) != 0: # If nothing found, try another key
+            return result
+
     return self.simDefinition.getImmediateSubKeys(key)</code></pre>
 </details>
 </dd>
@@ -374,6 +430,13 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
 <pre><code class="python">def getSubKeys(self, key=None) -&gt; List[str]:
     if key == None:
         key = self.simDefDictPathToReadFrom
+    else:
+        absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+        result = self.simDefinition.getSubKeys(absKey)
+
+        if len(result) != 0: # If nothing found, try another key
+            return result
+
     return self.simDefinition.getSubKeys(key)</code></pre>
 </details>
 </dd>

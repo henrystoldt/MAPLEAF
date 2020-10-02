@@ -77,8 +77,8 @@ class Environment():
             # Whenever we&#39;re running a real simulation, should always end up here
             envDictReader = SubDictReader(&#34;Environment&#34;, simDefinition)
 
-            self.meanWindModel = meanWindModelFactory(simDefinition, silent=silent)
-            self.turbulenceModel = turbulenceModelFactory(simDefinition, silent=silent)
+            self.meanWindModel = meanWindModelFactory(envDictReader, silent=silent)
+            self.turbulenceModel = turbulenceModelFactory(envDictReader, silent=silent)
             self.atmosphericModel = atmosphericModelFactory(envDictReader=envDictReader)
             self.earthModel = earthModelFactory(envDictReader)
 
@@ -115,7 +115,7 @@ class Environment():
             # Need additional default value here in case a SimDefinition is not passed in (otherwise SimDefinition takes care of default values)
             self.meanWindModel = meanWindModelFactory()
             self.turbulenceModel = None
-            self.atmosphericModel = atmosphericModelFactory(defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;])
+            self.atmosphericModel = atmosphericModelFactory()
             self.earthModel = earthModelFactory()
 
             self.launchSiteElevation = float(defaultConfigValues[&#34;Environment.LaunchSite.elevation&#34;])
@@ -290,8 +290,8 @@ single interface for communication with flight vehicles</p>
             # Whenever we&#39;re running a real simulation, should always end up here
             envDictReader = SubDictReader(&#34;Environment&#34;, simDefinition)
 
-            self.meanWindModel = meanWindModelFactory(simDefinition, silent=silent)
-            self.turbulenceModel = turbulenceModelFactory(simDefinition, silent=silent)
+            self.meanWindModel = meanWindModelFactory(envDictReader, silent=silent)
+            self.turbulenceModel = turbulenceModelFactory(envDictReader, silent=silent)
             self.atmosphericModel = atmosphericModelFactory(envDictReader=envDictReader)
             self.earthModel = earthModelFactory(envDictReader)
 
@@ -328,7 +328,7 @@ single interface for communication with flight vehicles</p>
             # Need additional default value here in case a SimDefinition is not passed in (otherwise SimDefinition takes care of default values)
             self.meanWindModel = meanWindModelFactory()
             self.turbulenceModel = None
-            self.atmosphericModel = atmosphericModelFactory(defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;])
+            self.atmosphericModel = atmosphericModelFactory()
             self.earthModel = earthModelFactory()
 
             self.launchSiteElevation = float(defaultConfigValues[&#34;Environment.LaunchSite.elevation&#34;])

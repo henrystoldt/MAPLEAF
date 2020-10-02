@@ -51,7 +51,7 @@ class AtmosphericModel(abc.ABC):
     @abc.abstractmethod
     def getAirProperties(self, ASLElevation: float, time: float) -&gt; Sequence[float]:
         &#39;&#39;&#39; 
-            Should return an iterable containing: 
+            Return an iterable containing: 
                 temp(K), 
                 static pressure (Pa), 
                 density (kg/m^3), 
@@ -60,15 +60,17 @@ class AtmosphericModel(abc.ABC):
         &#39;&#39;&#39;
         return
 
-def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; AtmosphericModel:
+def atmosphericModelFactory(envDictReader=None) -&gt; AtmosphericModel:
     &#39;&#39;&#39; 
         Provide either an atmosphericModel name (&#39;USStandardAtmosphere&#39; is only option right now that doesn&#39;t require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader`)
     &#39;&#39;&#39;
-    if atmosphericModel == None:
-        atmosphericModel = envDictReader.getString(&#34;AtmosphericPropertiesModel&#34;)
+    if envDictReader == None:
+        modelType = defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;]
+    else:
+        modelType = envDictReader.getString(&#34;AtmosphericPropertiesModel&#34;)
 
-    if atmosphericModel == &#34;Constant&#34;:
+    if modelType == &#34;Constant&#34;:
         if envDictReader == None:
             raise ValueError(&#34;envDictReader required to initialize Constant atm properties model&#34;)
 
@@ -85,7 +87,7 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; Atm
 
         return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
-    elif atmosphericModel == &#34;TabulatedAtmosphere&#34;:
+    elif modelType == &#34;TabulatedAtmosphere&#34;:
         try:
             tableFilePath = envDictReader.getString(&#34;TabulatedAtmosphere.filePath&#34;)
         except AttributeError:
@@ -94,11 +96,11 @@ def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; Atm
         tableFilePath = getAbsoluteFilePath(tableFilePath)
         return TabulatedAtmosphere(tableFilePath)
 
-    elif atmosphericModel == &#34;USStandardAtmosphere&#34;:
+    elif modelType == &#34;USStandardAtmosphere&#34;:
         return USStandardAtmosphere()
 
     else:
-        raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(atmosphericModel))
+        raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(modelType))
         
 class ConstantAtmosphere(AtmosphericModel):
     def __init__(self, temp, pressure, density, viscosity):
@@ -221,7 +223,7 @@ class USStandardAtmosphere(AtmosphericModel):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.AtmosphereModelling.atmosphericModelFactory"><code class="name flex">
-<span>def <span class="ident">atmosphericModelFactory</span></span>(<span>atmosphericModel=None, envDictReader=None) ‑> MAPLEAF.ENV.AtmosphereModelling.AtmosphericModel</span>
+<span>def <span class="ident">atmosphericModelFactory</span></span>(<span>envDictReader=None) ‑> MAPLEAF.ENV.AtmosphereModelling.AtmosphericModel</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Provide either an atmosphericModel name ('USStandardAtmosphere' is only option right now that doesn't require additional info,
@@ -230,15 +232,17 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def atmosphericModelFactory(atmosphericModel=None, envDictReader=None) -&gt; AtmosphericModel:
+<pre><code class="python">def atmosphericModelFactory(envDictReader=None) -&gt; AtmosphericModel:
     &#39;&#39;&#39; 
         Provide either an atmosphericModel name (&#39;USStandardAtmosphere&#39; is only option right now that doesn&#39;t require additional info,
             or provide an envDictReader (`MAPLEAF.IO.SubDictReader`)
     &#39;&#39;&#39;
-    if atmosphericModel == None:
-        atmosphericModel = envDictReader.getString(&#34;AtmosphericPropertiesModel&#34;)
+    if envDictReader == None:
+        modelType = defaultConfigValues[&#34;Environment.AtmosphericPropertiesModel&#34;]
+    else:
+        modelType = envDictReader.getString(&#34;AtmosphericPropertiesModel&#34;)
 
-    if atmosphericModel == &#34;Constant&#34;:
+    if modelType == &#34;Constant&#34;:
         if envDictReader == None:
             raise ValueError(&#34;envDictReader required to initialize Constant atm properties model&#34;)
 
@@ -255,7 +259,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 
         return ConstantAtmosphere(constTemp, constPressure, constDensity, constViscosity)
     
-    elif atmosphericModel == &#34;TabulatedAtmosphere&#34;:
+    elif modelType == &#34;TabulatedAtmosphere&#34;:
         try:
             tableFilePath = envDictReader.getString(&#34;TabulatedAtmosphere.filePath&#34;)
         except AttributeError:
@@ -264,11 +268,11 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
         tableFilePath = getAbsoluteFilePath(tableFilePath)
         return TabulatedAtmosphere(tableFilePath)
 
-    elif atmosphericModel == &#34;USStandardAtmosphere&#34;:
+    elif modelType == &#34;USStandardAtmosphere&#34;:
         return USStandardAtmosphere()
 
     else:
-        raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(atmosphericModel))</code></pre>
+        raise ValueError(&#34;Atmospheric model: {} not implemented, try using &#39;USStandardAtmosphere&#39;&#34;.format(modelType))</code></pre>
 </details>
 </dd>
 </dl>
@@ -304,7 +308,7 @@ or provide an envDictReader (<code><a title="MAPLEAF.IO.SubDictReader" href="../
 <span>def <span class="ident">getAirProperties</span></span>(<span>self, _)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Should return an iterable containing:
+<div class="desc"><p>Return an iterable containing:
 temp(K),
 static pressure (Pa),
 density (kg/m^3),
@@ -366,7 +370,7 @@ mu(10^-5 Pa*s)</p></div>
 <span>def <span class="ident">getAirProperties</span></span>(<span>self, ASLElevation)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Should return an iterable containing:
+<div class="desc"><p>Return an iterable containing:
 temp(K),
 static pressure (Pa),
 density (kg/m^3),
@@ -532,7 +536,7 @@ in that order</p></div>
 <span>def <span class="ident">getAirProperties</span></span>(<span>self, ASLElevation, time)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Should return an iterable containing:
+<div class="desc"><p>Return an iterable containing:
 temp(K),
 static pressure (Pa),
 density (kg/m^3),

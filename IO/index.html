@@ -784,6 +784,9 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
                 findKeysContaining([&#34;class&#34;]) -&gt;  
                 [ &#34;Rocket.class&#34;, &#34;Rocket.Sustainer.class&#34;, &#34;Rocket.Sustainer.Nosecone.class&#34;, etc... ]
         &#39;&#39;&#39;
+        if not isinstance(keyContains, list):
+            keyContains = [ keyContains ]
+        
         matchingKeys = []
         for key in self.dict.keys():
             match = True
@@ -832,8 +835,9 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
                 # If so, get the part of the key that is the immediate child of currentPath
                 immediateSubkey = getImmediateSubKey(key, potentialChildKey)
                 
-                # If we haven&#39;t got it already, save it
-                results.add(immediateSubkey)
+                if immediateSubkey in self.dict:
+                    # If we haven&#39;t got it already, save it
+                    results.add(immediateSubkey)
 
         return list(results)
 
@@ -952,7 +956,11 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
             else:
                 return False
         except AttributeError:
-            return False</code></pre>
+            return False
+
+    def __contains__(self, key):
+        &#39;&#39;&#39; Only checks whether &#39;key&#39; was parsed from the file. Ignores default values &#39;&#39;&#39;
+        return key in self.dict</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -1002,6 +1010,9 @@ Monte Carlo simulation. Type: <code><a title="MAPLEAF.IO.Logging.MonteCarloLogge
             findKeysContaining([&#34;class&#34;]) -&gt;  
             [ &#34;Rocket.class&#34;, &#34;Rocket.Sustainer.class&#34;, &#34;Rocket.Sustainer.Nosecone.class&#34;, etc... ]
     &#39;&#39;&#39;
+    if not isinstance(keyContains, list):
+        keyContains = [ keyContains ]
+    
     matchingKeys = []
     for key in self.dict.keys():
         match = True
@@ -1093,8 +1104,9 @@ Monte Carlo simulation. Type: <code><a title="MAPLEAF.IO.Logging.MonteCarloLogge
             # If so, get the part of the key that is the immediate child of currentPath
             immediateSubkey = getImmediateSubKey(key, potentialChildKey)
             
-            # If we haven&#39;t got it already, save it
-            results.add(immediateSubkey)
+            if immediateSubkey in self.dict:
+                # If we haven&#39;t got it already, save it
+                results.add(immediateSubkey)
 
     return list(results)</code></pre>
 </details>
@@ -1486,16 +1498,37 @@ Newly written file will not contain any comments!</p></div>
     def getImmediateSubDicts(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getImmediateSubDicts(absKey)
+        
+            if len(result) != 0: # If no subdicts found, try other key
+                return result
+        
         return self.simDefinition.getImmediateSubDicts(key)
 
     def getSubKeys(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getSubKeys(key)
 
     def getImmediateSubKeys(self, key=None) -&gt; List[str]:
         if key == None:
             key = self.simDefDictPathToReadFrom
+        else:
+            absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+            result = self.simDefinition.getImmediateSubKeys(absKey)
+
+            if len(result) != 0: # If nothing found, try another key
+                return result
+
         return self.simDefinition.getImmediateSubKeys(key)
 
     def getDictName(self) -&gt; str:
@@ -1561,6 +1594,13 @@ Newly written file will not contain any comments!</p></div>
 <pre><code class="python">def getImmediateSubDicts(self, key=None) -&gt; List[str]:
     if key == None:
         key = self.simDefDictPathToReadFrom
+    else:
+        absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+        result = self.simDefinition.getImmediateSubDicts(absKey)
+    
+        if len(result) != 0: # If no subdicts found, try other key
+            return result
+    
     return self.simDefinition.getImmediateSubDicts(key)</code></pre>
 </details>
 </dd>
@@ -1576,6 +1616,13 @@ Newly written file will not contain any comments!</p></div>
 <pre><code class="python">def getImmediateSubKeys(self, key=None) -&gt; List[str]:
     if key == None:
         key = self.simDefDictPathToReadFrom
+    else:
+        absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+        result = self.simDefinition.getImmediateSubKeys(absKey)
+
+        if len(result) != 0: # If nothing found, try another key
+            return result
+
     return self.simDefinition.getImmediateSubKeys(key)</code></pre>
 </details>
 </dd>
@@ -1634,6 +1681,13 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
 <pre><code class="python">def getSubKeys(self, key=None) -&gt; List[str]:
     if key == None:
         key = self.simDefDictPathToReadFrom
+    else:
+        absKey = self.simDefDictPathToReadFrom + &#34;.&#34; + key
+        result = self.simDefinition.getSubKeys(absKey)
+
+        if len(result) != 0: # If nothing found, try another key
+            return result
+
     return self.simDefinition.getSubKeys(key)</code></pre>
 </details>
 </dd>

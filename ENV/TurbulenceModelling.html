@@ -37,7 +37,6 @@ import abc
 import random
 from math import cos, pi
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import Vector
 
 __all__ = [ &#34;turbulenceModelFactory&#34;, &#34;PinkNoiseGenerator&#34; ]
@@ -50,10 +49,8 @@ class TurbulenceModel(abc.ABC):
     def getTurbVelocity(self, altitude, meanWindVelocity, time):
         pass
 
-def turbulenceModelFactory(simDefinition, silent=False):
+def turbulenceModelFactory(envReader, silent=False):
     &#39;&#39;&#39; Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel &#39;&#39;&#39;
-
-    envReader = SubDictReader(&#34;Environment&#34;, simDefinition)
     turbModelType = envReader.getString(&#34;Environment.TurbulenceModel&#34;)
     
     if not silent:
@@ -63,12 +60,6 @@ def turbulenceModelFactory(simDefinition, silent=False):
         turbulenceModel = NoTurb()
         
     elif &#34;PinkNoise&#34; in turbModelType:
-        def tryGetValue(key):
-            try:
-                return int(simDefinition.getValue(key))
-            except KeyError:
-                return None
-
         measuredPinkNoiseStdDev = 2.26 # For a 2-pole PinkNoiseGenerator - re-measure if the number of poles is changed
 
         turbulenceIntensity = envReader.tryGetInt(&#34;PinkNoiseModel.turbulenceIntensity&#34;)
@@ -159,7 +150,7 @@ class PinkNoise2D(_PinkNoiseTurbModel):
         yTurbVel = self.png2.getValue(time) * velStdDev
         return Vector(xTurbVel, yTurbVel, 0)
 
-class PinkNoise3D(TurbulenceModel):
+class PinkNoise3D(_PinkNoiseTurbModel):
     def __init__(self, turbulenceIntensity, velocityStdDev, randomSeed, randomSeed2, randomSeed3):
         super().__init__(turbulenceIntensity, velocityStdDev, randomSeed)
         self.png2 = PinkNoiseGenerator(seed=randomSeed2)
@@ -297,7 +288,7 @@ class PinkNoiseGenerator():
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.TurbulenceModelling.turbulenceModelFactory"><code class="name flex">
-<span>def <span class="ident">turbulenceModelFactory</span></span>(<span>simDefinition, silent=False)</span>
+<span>def <span class="ident">turbulenceModelFactory</span></span>(<span>envReader, silent=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel</p></div>
@@ -305,10 +296,8 @@ class PinkNoiseGenerator():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def turbulenceModelFactory(simDefinition, silent=False):
+<pre><code class="python">def turbulenceModelFactory(envReader, silent=False):
     &#39;&#39;&#39; Reads data from simDefinition, initializes and returns the appropriate TurbulenceModel &#39;&#39;&#39;
-
-    envReader = SubDictReader(&#34;Environment&#34;, simDefinition)
     turbModelType = envReader.getString(&#34;Environment.TurbulenceModel&#34;)
     
     if not silent:
@@ -318,12 +307,6 @@ class PinkNoiseGenerator():
         turbulenceModel = NoTurb()
         
     elif &#34;PinkNoise&#34; in turbModelType:
-        def tryGetValue(key):
-            try:
-                return int(simDefinition.getValue(key))
-            except KeyError:
-                return None
-
         measuredPinkNoiseStdDev = 2.26 # For a 2-pole PinkNoiseGenerator - re-measure if the number of poles is changed
 
         turbulenceIntensity = envReader.tryGetInt(&#34;PinkNoiseModel.turbulenceIntensity&#34;)

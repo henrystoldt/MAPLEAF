@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rv_histogram
 
-from MAPLEAF.IO import SubDictReader, defaultConfigValues, getAbsoluteFilePath
+from MAPLEAF.IO import defaultConfigValues, getAbsoluteFilePath
 from MAPLEAF.Motion import Vector, linInterp
 
 __all__ = [ &#34;meanWindModelFactory&#34;, &#34;ConstantWind&#34;, &#34;Hellman&#34;, &#34;InterpolatedWind&#34; ]
@@ -55,14 +55,14 @@ class MeanWindModel(abc.ABC):
         pass 
 
 # Mean Wind Model Factory
-def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
+def meanWindModelFactory(envReader=None, silent=False) -&gt; MeanWindModel:
     &#39;&#39;&#39; Instantiates a mean wind model &#39;&#39;&#39;
 
-    if simDefinition == None:
+    if envReader == None:
+        # Return default zero-wind model
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
         return ConstantWind(constWind)
 
-    envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
     meanWindModelType = envReader.getString(&#34;MeanWindModel&#34;)
 
@@ -91,11 +91,11 @@ def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
 
             # Output choices parsed from input file and resulting wind
             if not silent:
-                if simDefinition.monteCarloLogger != None:
-                    simDefinition.monteCarloLogger.log(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
-                    simDefinition.monteCarloLogger.log(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
-                    simDefinition.monteCarloLogger.log(&#34;Sampling wind distribution from month of: {}&#34;.format(launchMonth))
-                    simDefinition.monteCarloLogger.log(&#34;Sampled mean ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
+                if envReader.simDefinition.monteCarloLogger != None:
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling wind distribution from month of: {}&#34;.format(launchMonth))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampled mean ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
                 else:
                     print(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
                     print(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
@@ -540,7 +540,7 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.ENV.MeanWindModelling.meanWindModelFactory"><code class="name flex">
-<span>def <span class="ident">meanWindModelFactory</span></span>(<span>simDefinition=None, silent=False) ‑> MAPLEAF.ENV.MeanWindModelling.MeanWindModel</span>
+<span>def <span class="ident">meanWindModelFactory</span></span>(<span>envReader=None, silent=False) ‑> MAPLEAF.ENV.MeanWindModelling.MeanWindModel</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Instantiates a mean wind model</p></div>
@@ -548,14 +548,14 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def meanWindModelFactory(simDefinition=None, silent=False) -&gt; MeanWindModel:
+<pre><code class="python">def meanWindModelFactory(envReader=None, silent=False) -&gt; MeanWindModel:
     &#39;&#39;&#39; Instantiates a mean wind model &#39;&#39;&#39;
 
-    if simDefinition == None:
+    if envReader == None:
+        # Return default zero-wind model
         constWind = Vector(defaultConfigValues[&#34;Environment.ConstantMeanWind.velocity&#34;])
         return ConstantWind(constWind)
 
-    envReader = SubDictReader(&#39;Environment&#39;, simDefinition)
     meanWindModel = None
     meanWindModelType = envReader.getString(&#34;MeanWindModel&#34;)
 
@@ -584,11 +584,11 @@ def _convertWindHeadingToXYPlaneWindDirection(heading, AngleBetweenYAxisandNorth
 
             # Output choices parsed from input file and resulting wind
             if not silent:
-                if simDefinition.monteCarloLogger != None:
-                    simDefinition.monteCarloLogger.log(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
-                    simDefinition.monteCarloLogger.log(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
-                    simDefinition.monteCarloLogger.log(&#34;Sampling wind distribution from month of: {}&#34;.format(launchMonth))
-                    simDefinition.monteCarloLogger.log(&#34;Sampled mean ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
+                if envReader.simDefinition.monteCarloLogger != None:
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampling wind distribution from month of: {}&#34;.format(launchMonth))
+                    envReader.simDefinition.monteCarloLogger.log(&#34;Sampled mean ground wind: {:1.2f} m/s&#34;.format(meanGroundWind))
                 else:
                     print(&#34;Sampling ground winds from: {}&#34;.format(locationsSampled))
                     print(&#34;Sampling weights for each location: {}&#34;.format(locationWeights))

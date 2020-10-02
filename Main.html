@@ -47,71 +47,64 @@ from typing import List
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, runMonteCarloSimulation,
-                                   SingleSimRunner, OptimizingSimRunner)
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
+                                       OptimizingSimRunner, Simulation,
+                                       runMonteCarloSimulation)
+from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
 
 def buildParser() -&gt; argparse.ArgumentParser:
     &#39;&#39;&#39; Builds the command-line argument parser using argparse &#39;&#39;&#39;
-    parser = argparse.ArgumentParser(description=&#34;&#34;&#34;
-    Command line interface for the rocket simulator 
-    Runs simulations defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations/ 
-    All possible options for sim definition files defined in ./SimDefinitionTemplate.txt
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=&#34;&#34;&#34;
+    Run individual MAPLEAF simulations.
+    Expects simulations to be defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations 
+    See ./SimDefinitionTemplate.mapleaf for definition of all possible options
     &#34;&#34;&#34;)
 
-    parser.add_argument(
+    mutexGroup = parser.add_mutually_exclusive_group()
+    mutexGroup.add_argument(
         &#34;--converge&#34;, 
         action=&#39;store_true&#39;, 
         help=&#34;Runs the current simulation using successively finer time steps, attempting to provide a converged final location&#34;
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         &#34;--compareIntegrationSchemes&#34;, 
         action=&#39;store_true&#39;, 
         help=&#34;Attempts to converge the current simulation using a variety of classical integration schemes.&#34;
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         &#34;--compareAdaptiveIntegrationSchemes&#34;, 
         action=&#39;store_true&#39;, 
         help=&#34;Attempts to converge the current simulation using a variety of adaptive time integration schemes&#34;
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         &#34;--plotFromLog&#34;, 
-        nargs=1, 
+        nargs=2, 
         default=[], 
-        help=&#34;Instead of a path to a sim definition file, provide a path to a log file from a previous simulation. Also provide \
-            a plotDefinitionString - works the same way the SimControl.plot entries work&#34;
+        metavar=(&#34;plotDefinition&#34;, &#34;pathToLogFile&#34;),
+        help=&#34;plotDefinition works the same way as SimControl.plot entries in simulation definition files&#34;
     )
+
     parser.add_argument(
         &#34;--nCores&#34;,
         type=int,
         nargs=1,
         default=[1],
-        help=&#34;Set this to a number &gt; 1 to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
+        help=&#34;Use to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
     )
     parser.add_argument(
         &#34;--silent&#34;, 
         action=&#39;store_true&#39;, 
-        help=&#34;If present, simulation(s) are run w/o outputting to console - which can be significantly faster on some setups&#34;
+        help=&#34;If present, does not output to console - faster on windows&#34;
     )
     parser.add_argument(
         &#34;simDefinitionFile&#34;, 
-        nargs=1, 
+        nargs=&#39;?&#39;, 
         default=&#34;MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf&#34;,
-        help=&#34;Path to a simulation definition (.mapleaf) file&#34;
+        help=&#34;Path to a simulation definition (.mapleaf) file. Not required if using --plotFromLog&#34;
     )
 
     return parser
-
-def checkForMutuallyExclusiveArgs(args):
-    &#39;&#39;&#39; Check that we haven&#39;t passed in mutually exclusive command-line arguments (ex. --converge and --plotFromLog) &#39;&#39;&#39;
-    mutuallyExclusiveArgs = [ args.converge, args.compareIntegrationSchemes, args.compareAdaptiveIntegrationSchemes, args.plotFromLog ]
-    mutExCount = 0
-    for item in mutuallyExclusiveArgs:
-        if item == True:
-            mutExCount += 1
-    if mutExCount &gt; 1:
-        print(&#34;ERROR: --converge, --compareIntegrationSchemes, --compareAdaptiveIntegrationSchemes, and --plotFromLog are mutually exclusive. Please only use one at a time.&#34;)
-        sys.exit()
 
 def findSimDefinitionFile(providedPath):
     if os.path.isfile(providedPath):
@@ -153,7 +146,17 @@ def isMonteCarloSimulation(simDefinition) -&gt; bool:
 
     return False
 
-def main(argv: List[str]=None) -&gt; int:
+def isBatchSim(batchDefinition) -&gt; bool:
+    &#39;&#39;&#39; Checks whether the file does not contain a &#39;Rocket&#39; dictionary, and instead contains dictionaries that have a simDefinitionFile key  &#39;&#39;&#39;
+    rootDicts = batchDefinition.getImmediateSubDicts(&#34;&#34;)
+
+    for rootDict in rootDicts:
+        if rootDict == &#39;Rocket&#39; and &#39;Rocket.simDefinitionFile&#39; not in batchDefinition:
+            return False
+    
+    return True
+
+def main(argv=None) -&gt; int:
     &#39;&#39;&#39; 
         Main function to run a MAPLEAF simulation. 
         Expects to be called from the command line, usually using the `mapleaf` command
@@ -161,33 +164,33 @@ def main(argv: List[str]=None) -&gt; int:
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     &#39;&#39;&#39;
     startTime = time.time()
+
+    # Parse command line call, check for errors
     parser = buildParser()
+    args = parser.parse_args(argv) 
 
-    args = parser.parse_args(argv)
-    
-    checkForMutuallyExclusiveArgs(args)    
-
-    # Check if we actually just want to plot a column from a log file, and not run a whole simulation
     if len(args.plotFromLog):
-        Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
+        # Just plot a column from a log file, and not run a whole simulation
+        Plotting.plotFromLogFiles([args.plotFromLog[1]], args.plotFromLog[0])
         print(&#34;Exiting&#34;)
         sys.exit()
      
     # Load simulation definition file
-    simDefPath = findSimDefinitionFile(args.simDefinitionFile[0])
+    simDefPath = findSimDefinitionFile(args.simDefinitionFile)
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
-    # Optimization
     if isOptimizationProblem(simDef):
         optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
         optSimRunner.runOptimization()
 
-    # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
-    # Convergence Sim
+    elif isBatchSim(simDef):
+        print(&#34;Batch Simulation\n&#34;)
+        batchMain([ simDef.fileName ])
+
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
         cSimRunner = ConvergenceSimRunner(simDefinition=simDef, silent=args.silent)
         if args.converge:
@@ -197,10 +200,10 @@ def main(argv: List[str]=None) -&gt; int:
         elif args.compareAdaptiveIntegrationSchemes:
             cSimRunner.compareAdaptiveIntegrationSchemes(convergenceResultFilePath=&#39;adaptiveConvergenceResult.csv&#39;)
     
-    # Regular, single simulation  
     else: 
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=args.silent)
-        simRunner.runSingleSimulation()
+        # Run a regular, single simulation  
+        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
+        simRunner.run()
 
     Logging.removeLogger()
 
@@ -229,75 +232,56 @@ if __name__ == &#34;__main__&#34;:
 </summary>
 <pre><code class="python">def buildParser() -&gt; argparse.ArgumentParser:
     &#39;&#39;&#39; Builds the command-line argument parser using argparse &#39;&#39;&#39;
-    parser = argparse.ArgumentParser(description=&#34;&#34;&#34;
-    Command line interface for the rocket simulator 
-    Runs simulations defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations/ 
-    All possible options for sim definition files defined in ./SimDefinitionTemplate.txt
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description=&#34;&#34;&#34;
+    Run individual MAPLEAF simulations.
+    Expects simulations to be defined by simulation definition files like those in ./MAPLEAF/Examples/Simulations 
+    See ./SimDefinitionTemplate.mapleaf for definition of all possible options
     &#34;&#34;&#34;)
 
-    parser.add_argument(
+    mutexGroup = parser.add_mutually_exclusive_group()
+    mutexGroup.add_argument(
         &#34;--converge&#34;, 
         action=&#39;store_true&#39;, 
         help=&#34;Runs the current simulation using successively finer time steps, attempting to provide a converged final location&#34;
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         &#34;--compareIntegrationSchemes&#34;, 
         action=&#39;store_true&#39;, 
         help=&#34;Attempts to converge the current simulation using a variety of classical integration schemes.&#34;
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         &#34;--compareAdaptiveIntegrationSchemes&#34;, 
         action=&#39;store_true&#39;, 
         help=&#34;Attempts to converge the current simulation using a variety of adaptive time integration schemes&#34;
     )
-    parser.add_argument(
+    mutexGroup.add_argument(
         &#34;--plotFromLog&#34;, 
-        nargs=1, 
+        nargs=2, 
         default=[], 
-        help=&#34;Instead of a path to a sim definition file, provide a path to a log file from a previous simulation. Also provide \
-            a plotDefinitionString - works the same way the SimControl.plot entries work&#34;
+        metavar=(&#34;plotDefinition&#34;, &#34;pathToLogFile&#34;),
+        help=&#34;plotDefinition works the same way as SimControl.plot entries in simulation definition files&#34;
     )
+
     parser.add_argument(
         &#34;--nCores&#34;,
         type=int,
         nargs=1,
         default=[1],
-        help=&#34;Set this to a number &gt; 1 to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
+        help=&#34;Use to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
     )
     parser.add_argument(
         &#34;--silent&#34;, 
         action=&#39;store_true&#39;, 
-        help=&#34;If present, simulation(s) are run w/o outputting to console - which can be significantly faster on some setups&#34;
+        help=&#34;If present, does not output to console - faster on windows&#34;
     )
     parser.add_argument(
         &#34;simDefinitionFile&#34;, 
-        nargs=1, 
+        nargs=&#39;?&#39;, 
         default=&#34;MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf&#34;,
-        help=&#34;Path to a simulation definition (.mapleaf) file&#34;
+        help=&#34;Path to a simulation definition (.mapleaf) file. Not required if using --plotFromLog&#34;
     )
 
     return parser</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Main.checkForMutuallyExclusiveArgs"><code class="name flex">
-<span>def <span class="ident">checkForMutuallyExclusiveArgs</span></span>(<span>args)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Check that we haven't passed in mutually exclusive command-line arguments (ex. &ndash;converge and &ndash;plotFromLog)</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def checkForMutuallyExclusiveArgs(args):
-    &#39;&#39;&#39; Check that we haven&#39;t passed in mutually exclusive command-line arguments (ex. --converge and --plotFromLog) &#39;&#39;&#39;
-    mutuallyExclusiveArgs = [ args.converge, args.compareIntegrationSchemes, args.compareAdaptiveIntegrationSchemes, args.plotFromLog ]
-    mutExCount = 0
-    for item in mutuallyExclusiveArgs:
-        if item == True:
-            mutExCount += 1
-    if mutExCount &gt; 1:
-        print(&#34;ERROR: --converge, --compareIntegrationSchemes, --compareAdaptiveIntegrationSchemes, and --plotFromLog are mutually exclusive. Please only use one at a time.&#34;)
-        sys.exit()</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Main.findSimDefinitionFile"><code class="name flex">
@@ -331,6 +315,26 @@ if __name__ == &#34;__main__&#34;:
 
     print(&#34;ERROR: Unable to locate simulation definition file: {}!&#34;.format(providedPath))
     sys.exit()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Main.isBatchSim"><code class="name flex">
+<span>def <span class="ident">isBatchSim</span></span>(<span>batchDefinition) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks whether the file does not contain a 'Rocket' dictionary, and instead contains dictionaries that have a simDefinitionFile key</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def isBatchSim(batchDefinition) -&gt; bool:
+    &#39;&#39;&#39; Checks whether the file does not contain a &#39;Rocket&#39; dictionary, and instead contains dictionaries that have a simDefinitionFile key  &#39;&#39;&#39;
+    rootDicts = batchDefinition.getImmediateSubDicts(&#34;&#34;)
+
+    for rootDict in rootDicts:
+        if rootDict == &#39;Rocket&#39; and &#39;Rocket.simDefinitionFile&#39; not in batchDefinition:
+            return False
+    
+    return True</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Main.isMonteCarloSimulation"><code class="name flex">
@@ -371,7 +375,7 @@ if __name__ == &#34;__main__&#34;:
 </details>
 </dd>
 <dt id="MAPLEAF.Main.main"><code class="name flex">
-<span>def <span class="ident">main</span></span>(<span>argv: List[str] = None) ‑> int</span>
+<span>def <span class="ident">main</span></span>(<span>argv=None) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Main function to run a MAPLEAF simulation.
@@ -381,7 +385,7 @@ Expects to be called from the command line, usually using the <code>mapleaf</cod
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def main(argv: List[str]=None) -&gt; int:
+<pre><code class="python">def main(argv=None) -&gt; int:
     &#39;&#39;&#39; 
         Main function to run a MAPLEAF simulation. 
         Expects to be called from the command line, usually using the `mapleaf` command
@@ -389,33 +393,33 @@ Expects to be called from the command line, usually using the <code>mapleaf</cod
         For testing purposes, can also pass a list of command line arguments into the argv parameter
     &#39;&#39;&#39;
     startTime = time.time()
+
+    # Parse command line call, check for errors
     parser = buildParser()
+    args = parser.parse_args(argv) 
 
-    args = parser.parse_args(argv)
-    
-    checkForMutuallyExclusiveArgs(args)    
-
-    # Check if we actually just want to plot a column from a log file, and not run a whole simulation
     if len(args.plotFromLog):
-        Plotting.plotFromLogFiles([args.simDefinitionFile[0]], args.plotFromLog[0])
+        # Just plot a column from a log file, and not run a whole simulation
+        Plotting.plotFromLogFiles([args.plotFromLog[1]], args.plotFromLog[0])
         print(&#34;Exiting&#34;)
         sys.exit()
      
     # Load simulation definition file
-    simDefPath = findSimDefinitionFile(args.simDefinitionFile[0])
+    simDefPath = findSimDefinitionFile(args.simDefinitionFile)
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
-    # Optimization
     if isOptimizationProblem(simDef):
         optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
         optSimRunner.runOptimization()
 
-    # Monte Carlo Sim
     elif isMonteCarloSimulation(simDef):
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
-    # Convergence Sim
+    elif isBatchSim(simDef):
+        print(&#34;Batch Simulation\n&#34;)
+        batchMain([ simDef.fileName ])
+
     elif args.converge or args.compareIntegrationSchemes or args.compareAdaptiveIntegrationSchemes: 
         cSimRunner = ConvergenceSimRunner(simDefinition=simDef, silent=args.silent)
         if args.converge:
@@ -425,10 +429,10 @@ Expects to be called from the command line, usually using the <code>mapleaf</cod
         elif args.compareAdaptiveIntegrationSchemes:
             cSimRunner.compareAdaptiveIntegrationSchemes(convergenceResultFilePath=&#39;adaptiveConvergenceResult.csv&#39;)
     
-    # Regular, single simulation  
     else: 
-        simRunner = SingleSimRunner(simDefinition=simDef, silent=args.silent)
-        simRunner.runSingleSimulation()
+        # Run a regular, single simulation  
+        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
+        simRunner.run()
 
     Logging.removeLogger()
 
@@ -461,8 +465,8 @@ MAPLEAF
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="MAPLEAF.Main.buildParser" href="#MAPLEAF.Main.buildParser">buildParser</a></code></li>
-<li><code><a title="MAPLEAF.Main.checkForMutuallyExclusiveArgs" href="#MAPLEAF.Main.checkForMutuallyExclusiveArgs">checkForMutuallyExclusiveArgs</a></code></li>
 <li><code><a title="MAPLEAF.Main.findSimDefinitionFile" href="#MAPLEAF.Main.findSimDefinitionFile">findSimDefinitionFile</a></code></li>
+<li><code><a title="MAPLEAF.Main.isBatchSim" href="#MAPLEAF.Main.isBatchSim">isBatchSim</a></code></li>
 <li><code><a title="MAPLEAF.Main.isMonteCarloSimulation" href="#MAPLEAF.Main.isMonteCarloSimulation">isMonteCarloSimulation</a></code></li>
 <li><code><a title="MAPLEAF.Main.isOptimizationProblem" href="#MAPLEAF.Main.isOptimizationProblem">isOptimizationProblem</a></code></li>
 <li><code><a title="MAPLEAF.Main.main" href="#MAPLEAF.Main.main">main</a></code></li>

@@ -2633,8 +2633,8 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <dd>
 <div class="desc"><p>Class used to represent a single flying rigid body composed of <code><a title="MAPLEAF.Rocket.Stage" href="#MAPLEAF.Rocket.Stage">Stage</a></code> objects.
 New instances of this class are also created to model the flight of dropped stages.</p>
-<p>Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-To get a single Rocket object, initialize a SingleSimRunner and call <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation">SingleSimRunner.prepRocketForSingleSimulation()</a></code>.<br>
+<p>Initialization of Rocket(s) is most easily completed through an instance of Simulation
+To get a single Rocket object, initialize a Simulation and call <code><a title="MAPLEAF.SimulationRunners.Simulation.createRocket" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation.createRocket">Simulation.createRocket()</a></code>.<br>
 This will return a Rocket initialized on the pad with all its stages, ready for flight.</p>
 <p>If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.</p>
 <p>Inputs:</p>
@@ -2649,7 +2649,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.
 </li>
 <li>simRunner:
-(<code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code>) reference to the current simulation driver/runner</li>
+(<code><a title="MAPLEAF.SimulationRunners.Simulation" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation">Simulation</a></code>) reference to the current simulation driver/runner</li>
 <li>environment:
 (<code><a title="MAPLEAF.ENV.Environment" href="../ENV/index.html#MAPLEAF.ENV.Environment">Environment</a></code>) environment model from which the rocket will retrieve atmospheric properties and wind speeds</li>
 </ul></div>
@@ -2665,8 +2665,8 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
     #### Initialization ####
     def __init__(self, rocketDictReader, silent=False, stageToInitialize=None, simRunner=None, environment=None):
         &#39;&#39;&#39;
-            Initialization of Rocket(s) is most easily completed through an instance of SingleSimRunner
-            To get a single Rocket object, initialize a SingleSimRunner and call `MAPLEAF.SimulationRunners.SingleSimRunner.prepRocketForSingleSimulation()`.  
+            Initialization of Rocket(s) is most easily completed through an instance of Simulation
+            To get a single Rocket object, initialize a Simulation and call `MAPLEAF.SimulationRunners.Simulation.createRocket()`.  
             This will return a Rocket initialized on the pad with all its stages, ready for flight.
 
             If initializing manually, can either provide fileName or simDefinition. If a simDefinition is provided, it will be used and fileName will be ignored.
@@ -2676,14 +2676,14 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
             * rocketDictReader:     (`MAPLEAF.IO.SubDictReader`) SubDictReader pointed at the &#34;Rocket&#34; dictionary of the desired simulation definition file.  
             * silent:               (bool) controls console output  
             * stageToInitialize:    (int or None) controls whether to initialize a complete Rocket or a single (usually dropped) stage. None = initialize complete rocket. n = initialize only stage n, where n &gt;= 1.  
-            * simRunner:            (`MAPLEAF.SimulationRunners.SingleSimRunner`) reference to the current simulation driver/runner
+            * simRunner:            (`MAPLEAF.SimulationRunners.Simulation`) reference to the current simulation driver/runner
             * environment:          (`MAPLEAF.ENV.Environment`) environment model from which the rocket will retrieve atmospheric properties and wind speeds
         &#39;&#39;&#39;
         self.rocketDictReader = rocketDictReader
         self.simDefinition = rocketDictReader.simDefinition
 
         self.simRunner = simRunner
-        &#39;&#39;&#39; Parent instance of `MAPLEAF.SimulationRunners.SingleSimRunner` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
+        &#39;&#39;&#39; Parent instance of `MAPLEAF.SimulationRunners.Simulation` (or derivative sim runner). This is usually the object that has created the current instance of Rocket. &#39;&#39;&#39;
         
         self.environment = environment
         &#39;&#39;&#39; Instance of `MAPLEAF.ENV.Environment` &#39;&#39;&#39;
@@ -2858,7 +2858,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 self._getAppliedForce, 
                 self.getInertia, 
                 integrationMethod=timeDisc, 
-                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForPreviousTimeStep, 
                 simDefinition=self.simDefinition
             )
         else:
@@ -3044,7 +3044,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 
     #### Logging ####
     def appendToForceLogLine(self, txt: str):
-        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s forceEvaluationLog &#39;&#39;&#39;
+        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
         try:
             self.simRunner.forceEvaluationLog[-1] += txt
         except AttributeError:
@@ -3155,7 +3155,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         &#39;&#39;&#39;
             Tells the simulation to take a time step of size dt.  
 
-            Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
+            Usually called by functions like `MAPLEAF.SimulationRunners.Simulation.run()`
 
             Returns:
                 * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)
@@ -3200,7 +3200,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 self.getMass, 
                 startTime=self.rigidBody.time, 
                 integrationMethod=originalTimeDiscretization, 
-                discardedTimeStepCallback=self.simRunner.discardForceLogsForLastTimeStep, 
+                discardedTimeStepCallback=self.simRunner.discardForceLogsForPreviousTimeStep, 
                 simDefinition=self.simDefinition
             )
         else:
@@ -3285,7 +3285,7 @@ Set in <code>_initializeRigidBody()</code>.</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.Rocket.simRunner"><code class="name">var <span class="ident">simRunner</span></code></dt>
 <dd>
-<div class="desc"><p>Parent instance of <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code> (or derivative sim runner). This is usually the object that has created the current instance of Rocket.</p></div>
+<div class="desc"><p>Parent instance of <code><a title="MAPLEAF.SimulationRunners.Simulation" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation">Simulation</a></code> (or derivative sim runner). This is usually the object that has created the current instance of Rocket.</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.Rocket.stage"><code class="name">var <span class="ident">stage</span></code></dt>
 <dd>
@@ -3311,13 +3311,13 @@ Populated by <code>_initializeStages</code>.</p></div>
 <span>def <span class="ident">appendToForceLogLine</span></span>(<span>self, txt: str)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Appends txt to the current line of the parent <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner">SingleSimRunner</a></code>'s forceEvaluationLog</p></div>
+<div class="desc"><p>Appends txt to the current line of the parent <code><a title="MAPLEAF.SimulationRunners.Simulation" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation">Simulation</a></code>'s forceEvaluationLog</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def appendToForceLogLine(self, txt: str):
-    &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s forceEvaluationLog &#39;&#39;&#39;
+    &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
     try:
         self.simRunner.forceEvaluationLog[-1] += txt
     except AttributeError:
@@ -3386,7 +3386,7 @@ Populated by <code>_initializeStages</code>.</p></div>
 <dd>
 <div class="desc"><p>Tells the simulation to take a time step of size dt.
 </p>
-<p>Usually called by functions like <code><a title="MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation" href="../SimulationRunners.html#MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation">SingleSimRunner.runSingleSimulation()</a></code></p>
+<p>Usually called by functions like <code><a title="MAPLEAF.SimulationRunners.Simulation.run" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation.run">Simulation.run()</a></code></p>
 <h2 id="returns">Returns</h2>
 <ul>
 <li>timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)</li>
@@ -3401,7 +3401,7 @@ Populated by <code>_initializeStages</code>.</p></div>
     &#39;&#39;&#39;
         Tells the simulation to take a time step of size dt.  
 
-        Usually called by functions like `MAPLEAF.SimulationRunners.SingleSimRunner.runSingleSimulation()`
+        Usually called by functions like `MAPLEAF.SimulationRunners.Simulation.run()`
 
         Returns:
             * timeStepAdaptationFactor: (float) indicates the factor by which the adaptive time stepping method would like to change the timestep for the next timestep (1.0 for non-adaptive methods)

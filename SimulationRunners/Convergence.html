@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.1" />
+<title>MAPLEAF.SimulationRunners.Convergence API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdoc3.github.io/pdoc/doc/MAPLEAF/SimulationRunners/Convergence.html">
+<link rel="icon" href="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png">
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>MAPLEAF.SimulationRunners.Convergence</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from MAPLEAF.SimulationRunners import Simulation
+import matplotlib.pyplot as plt
+import csv
+
+__all__ = [ &#34;ConvergenceSimRunner&#34; ]
+
+class ConvergenceSimRunner(Simulation):
+    &#39;&#39;&#39;
+        Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence
+    &#39;&#39;&#39;
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        Simulation.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+
+    def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel=&#34;Simulations&#34;, ax1=None, ax2=None):
+        &#39;&#39;&#39;
+            Takes simulation and runs it repeatedly, cutting the time step in half each time.
+            Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+            Should use with simulations that have an EndCondition of type &#34;Time&#34;
+                # Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+            This Fn called by compareIntegrationSchemes functions
+
+            Parameters:
+                simConfigFilePath       string, /path/to/simConfigFile
+                fW                      SimDefinition, overrides simConfigFilePath
+                refinementRatio         Number, Each time sim is run, time step or target error is divided by this number
+                simLimit                Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+                plot                    True/False, whether to plot the results
+                stopAtConvergence       True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+                showPlot                True/False, if True, calls plt.show()
+                plotLineLabel           string, Label of line on plot
+                ax1                     matplotlib Axes, Z-location (Y) axis
+                ax2                     matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)
+        &#39;&#39;&#39;
+        from MAPLEAF.IO.gridConvergenceFunctions import checkConvergence
+        from statistics import mean
+        import time
+
+        self._setUpConfigFileForConvergenceRun()
+        
+        timeStepMethod = self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;)
+        adaptiveTimeStepping = &#34;Adaptive&#34; in timeStepMethod
+
+        timeStepKey = &#34;SimControl.timeStep&#34;
+        targetErrorKey = &#34;SimControl.TimeStepAdaptation.targetError&#34;
+
+        #### Run Simulations ####
+        print(&#34;Starting convergence simulations&#34;)
+        if not adaptiveTimeStepping:
+            timeStep = float(self.simDefinition.getValue(timeStepKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+        else:
+            targetError = float(self.simDefinition.getValue(targetErrorKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+
+        simCount = 1
+        finalPositionHistory = []
+        convergenceHistory = []
+        timeStepHistory = []
+        simTimeHistory = []
+
+        def printConvergenceHistory(ax1=ax1, ax2=ax2):
+            print(&#34;&#34;)
+            print(&#34;Convergence History:&#34;)
+            print(&#34;Integration Method: {}&#34;.format(timeStepMethod))
+
+            xPos = []
+            yPos = []
+            zPos = []
+
+            for i in range(len(finalPositionHistory)):
+                finalPos = finalPositionHistory[i]
+                xPos.append(finalPos[0])
+                yPos.append(finalPos[1])
+                zPos.append(finalPos[2])
+                printString = &#34;FinalPosition(m): {:&gt;7.3f} WallTime(s): {:&gt;7.3f} &#34;.format(finalPos, simTimeHistory[i])
+
+                if i &gt; 1: # TODO: Get convergence results into the .csv file
+                    ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergenceHistory[i-2]
+                    printString += &#34; Avg Order: {:&gt;4.2f}, Avg Asymptotic Check: {:&gt;6.3f}&#34;.format(mean(ordersOfConvergence), mean(asymptoticChecks))
+
+                print(printString)
+
+            if plot:
+                if ax1 == None:
+                    ax1 = plt.gca()
+                if ax2 == None:
+                    ax2 = ax1.twinx()
+
+                ax1.plot(timeStepHistory, zPos, &#34;:D&#34;, label=plotLineLabel)
+                ax1.set_ylabel(&#34;Final Z Coordinate (m)&#34;)
+
+                ax2.plot(timeStepHistory, simTimeHistory, &#34;-*&#34;, label=plotLineLabel + &#34; Wall Time&#34;)
+                ax2.set_ylabel(&#34;Wall Time (s)&#34;)
+                
+                plt.xscale(&#34;log&#34;)
+                plt.xlabel(&#34;Time Step (s)&#34;)
+                plt.legend()
+                plt.tight_layout()
+
+                if showPlot:
+                    plt.show()
+
+        while simCount &lt;= simLimit:
+            if not adaptiveTimeStepping:
+                timeStep /= refinementRatio
+                self.simDefinition.setValue(timeStepKey, str(timeStep))
+                timeStepHistory.append(timeStep)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, timeStep))
+            else:
+                targetError /= refinementRatio
+                self.simDefinition.setValue(targetErrorKey, str(targetError))
+                timeStepHistory.append(targetError)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, targetError))
+
+            startTime = time.time()
+            flights, _ = self.run()
+            flight = flights[0]
+            wallTime = time.time() - startTime
+            simTimeHistory.append(wallTime)
+
+            finalPositionHistory.append(flight.rigidBodyStates[-1].position)
+            print(&#34;Final Position: {:1.3f}&#34;.format(finalPositionHistory[-1]))
+
+            if len(finalPositionHistory) &gt;= 3:
+                # Check whether result is converging
+                cV, mV, fV = finalPositionHistory[-3:]
+                print(&#34;Checking convergence&#34;)
+                convergResult = checkConvergence(cV, mV, fV, refinementRatio)
+                ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergResult
+                convergenceHistory.append(convergResult)
+                directions = [&#34;X&#34;, &#34;Y&#34;, &#34;Z&#34;]
+                for d in range(len(directions)):
+                    print(&#34;{}-Direction: Order: {:&gt;4.3f}, Asymptotic Check: {:&gt;6.3f}, RichardsonExtrap: {:&gt;7.3f}, Estimated Uncertainty: {:&gt;6.3f}&#34;.format(directions[d], ordersOfConvergence[d], asymptoticChecks[d], richardsonExtrapVals[d], uncertainties[d]))
+                
+                if stopAtConvergence and abs(sum(asymptoticChecks) / len(asymptoticChecks) - 1) &lt; 0.1 and max(asymptoticChecks) - min(asymptoticChecks) &lt; 0.2:
+                    print(&#34;Simulation Converging Asymptotically&#34;)
+                    printConvergenceHistory()
+                    return timeStepHistory, finalPositionHistory, flight
+            
+            simCount += 1
+
+        # Output whether convergence was achieved
+        if simLimit &gt;= 3:
+            print(&#34;Asymptotic convergence not reached within {} simulations&#34;.format(simLimit))
+        else:
+            print(&#34;Asymptotic convergence impossible to reach with less than 3 iterations (performed {}). Adjust the parameter &#39;simLimit&#39; to perform more iterations&#34;.format(simLimit))
+
+        printConvergenceHistory(ax1, ax2)
+
+        return timeStepHistory, finalPositionHistory, simTimeHistory
+
+    def compareClassicalIntegrationSchemes(self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes = [ &#34;Euler&#34;, &#34;RK2Midpoint&#34;, &#34;RK2Heun&#34;, &#34;RK4&#34; ], convergenceResultFilePath=&#34;convergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initTimeStep = float(self.simDefinition.getValue(&#34;SimControl.timeStep&#34;))
+
+        # Lists to store results
+        timeStepHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run series of simulations for each integration scheme
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(initTimeStep))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, simLimit=simLimit, plotLineLabel=scheme, ax1=ax1, ax2=ax2)
+            
+            timeStepHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        print(&#34;Simulations complete&#34;)
+
+        if convergenceResultFilePath != None:
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TimeStep(s)&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(timeStepHistory)):
+                    row = [ timeStepHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        print(&#34;Showing plot&#34;)
+        if showPlot:
+            plt.show()
+
+    def compareAdaptiveIntegrationSchemes(self, saveFigure=False, showPlot=True, integrationSchemes=[&#34;RK12Adaptive&#34;, &#34;RK23Adaptive&#34;, &#34;RK45Adaptive&#34;], simLimit=10, convergenceResultFilePath=&#34;adaptiveConvergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initErrorTarget = float(self.simDefinition.getValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;))
+        
+        # Lists to store results
+        targetErrorHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run simulations
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;, str(initErrorTarget))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, plotLineLabel=scheme, refinementRatio=2, simLimit=simLimit, ax1=ax1, ax2=ax2)
+            
+            targetErrorHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        # Write results to .csv file
+        if convergenceResultFilePath != None:
+            import csv
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TargetError&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(targetErrorHistory)):
+                    row = [ targetErrorHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        # Save results figure
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        # Show Plot
+        plt.xlabel(&#34;Target Error&#34;)
+
+        if showPlot:
+            plt.show()
+
+    def _setUpConfigFileForConvergenceRun(self):
+        print(&#34;Will attempt to converge final rocket position of simulation: {}&#34;.format(self.simDefinition.fileName))
+        self.simDefinition.disableDistributionSampling = True # Don&#39;t sample from probability distributions while trying to converge a sim
+
+        # Make sure no plots are created every time the sim runs
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+
+        #### Make sure End Condition is a time ####
+        endCondition = self.simDefinition.getValue(&#34;SimControl.EndCondition&#34;)
+        if endCondition != &#34;Time&#34;:
+            print(&#34;Running simulation to determine end time&#34;)
+            # Otherwise run the sim, get the end time and 
+            flights, _ = self.run()
+            endTime = flights[0].times[-1]
+            # set that to the end condition
+            print(&#34;Setting EndCondition = Time, EndConditionValue = {}&#34;.format(endTime))
+            self.simDefinition.setValue(&#34;SimControl.EndCondition&#34;, &#34;Time&#34;)
+            self.simDefinition.setValue(&#34;SimControl.EndConditionValue&#34;, str(endTime))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner"><code class="flex name class">
+<span>class <span class="ident">ConvergenceSimRunner</span></span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence</p>
+<h2 id="inputs">Inputs</h2>
+<ul>
+<li>simDefinitionFilePath:
+(string) path to simulation definition file
+</li>
+<li>fW:
+(<code><a title="MAPLEAF.IO.SimDefinition" href="../IO/index.html#MAPLEAF.IO.SimDefinition">SimDefinition</a></code>) object that's already loaded and parsed the desired sim definition file
+</li>
+<li>silent:
+(bool) toggles optional outputs to the console</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConvergenceSimRunner(Simulation):
+    &#39;&#39;&#39;
+        Runs a simulation repeatedly, decreasing the time step or target error each time, monitoring for convergence
+    &#39;&#39;&#39;
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        Simulation.__init__(self, simDefinitionFilePath=simDefinitionFilePath, simDefinition=simDefinition, silent=silent)
+
+    def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel=&#34;Simulations&#34;, ax1=None, ax2=None):
+        &#39;&#39;&#39;
+            Takes simulation and runs it repeatedly, cutting the time step in half each time.
+            Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+            Should use with simulations that have an EndCondition of type &#34;Time&#34;
+                # Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+            This Fn called by compareIntegrationSchemes functions
+
+            Parameters:
+                simConfigFilePath       string, /path/to/simConfigFile
+                fW                      SimDefinition, overrides simConfigFilePath
+                refinementRatio         Number, Each time sim is run, time step or target error is divided by this number
+                simLimit                Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+                plot                    True/False, whether to plot the results
+                stopAtConvergence       True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+                showPlot                True/False, if True, calls plt.show()
+                plotLineLabel           string, Label of line on plot
+                ax1                     matplotlib Axes, Z-location (Y) axis
+                ax2                     matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)
+        &#39;&#39;&#39;
+        from MAPLEAF.IO.gridConvergenceFunctions import checkConvergence
+        from statistics import mean
+        import time
+
+        self._setUpConfigFileForConvergenceRun()
+        
+        timeStepMethod = self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;)
+        adaptiveTimeStepping = &#34;Adaptive&#34; in timeStepMethod
+
+        timeStepKey = &#34;SimControl.timeStep&#34;
+        targetErrorKey = &#34;SimControl.TimeStepAdaptation.targetError&#34;
+
+        #### Run Simulations ####
+        print(&#34;Starting convergence simulations&#34;)
+        if not adaptiveTimeStepping:
+            timeStep = float(self.simDefinition.getValue(timeStepKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+        else:
+            targetError = float(self.simDefinition.getValue(targetErrorKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+
+        simCount = 1
+        finalPositionHistory = []
+        convergenceHistory = []
+        timeStepHistory = []
+        simTimeHistory = []
+
+        def printConvergenceHistory(ax1=ax1, ax2=ax2):
+            print(&#34;&#34;)
+            print(&#34;Convergence History:&#34;)
+            print(&#34;Integration Method: {}&#34;.format(timeStepMethod))
+
+            xPos = []
+            yPos = []
+            zPos = []
+
+            for i in range(len(finalPositionHistory)):
+                finalPos = finalPositionHistory[i]
+                xPos.append(finalPos[0])
+                yPos.append(finalPos[1])
+                zPos.append(finalPos[2])
+                printString = &#34;FinalPosition(m): {:&gt;7.3f} WallTime(s): {:&gt;7.3f} &#34;.format(finalPos, simTimeHistory[i])
+
+                if i &gt; 1: # TODO: Get convergence results into the .csv file
+                    ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergenceHistory[i-2]
+                    printString += &#34; Avg Order: {:&gt;4.2f}, Avg Asymptotic Check: {:&gt;6.3f}&#34;.format(mean(ordersOfConvergence), mean(asymptoticChecks))
+
+                print(printString)
+
+            if plot:
+                if ax1 == None:
+                    ax1 = plt.gca()
+                if ax2 == None:
+                    ax2 = ax1.twinx()
+
+                ax1.plot(timeStepHistory, zPos, &#34;:D&#34;, label=plotLineLabel)
+                ax1.set_ylabel(&#34;Final Z Coordinate (m)&#34;)
+
+                ax2.plot(timeStepHistory, simTimeHistory, &#34;-*&#34;, label=plotLineLabel + &#34; Wall Time&#34;)
+                ax2.set_ylabel(&#34;Wall Time (s)&#34;)
+                
+                plt.xscale(&#34;log&#34;)
+                plt.xlabel(&#34;Time Step (s)&#34;)
+                plt.legend()
+                plt.tight_layout()
+
+                if showPlot:
+                    plt.show()
+
+        while simCount &lt;= simLimit:
+            if not adaptiveTimeStepping:
+                timeStep /= refinementRatio
+                self.simDefinition.setValue(timeStepKey, str(timeStep))
+                timeStepHistory.append(timeStep)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, timeStep))
+            else:
+                targetError /= refinementRatio
+                self.simDefinition.setValue(targetErrorKey, str(targetError))
+                timeStepHistory.append(targetError)
+                print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, targetError))
+
+            startTime = time.time()
+            flights, _ = self.run()
+            flight = flights[0]
+            wallTime = time.time() - startTime
+            simTimeHistory.append(wallTime)
+
+            finalPositionHistory.append(flight.rigidBodyStates[-1].position)
+            print(&#34;Final Position: {:1.3f}&#34;.format(finalPositionHistory[-1]))
+
+            if len(finalPositionHistory) &gt;= 3:
+                # Check whether result is converging
+                cV, mV, fV = finalPositionHistory[-3:]
+                print(&#34;Checking convergence&#34;)
+                convergResult = checkConvergence(cV, mV, fV, refinementRatio)
+                ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergResult
+                convergenceHistory.append(convergResult)
+                directions = [&#34;X&#34;, &#34;Y&#34;, &#34;Z&#34;]
+                for d in range(len(directions)):
+                    print(&#34;{}-Direction: Order: {:&gt;4.3f}, Asymptotic Check: {:&gt;6.3f}, RichardsonExtrap: {:&gt;7.3f}, Estimated Uncertainty: {:&gt;6.3f}&#34;.format(directions[d], ordersOfConvergence[d], asymptoticChecks[d], richardsonExtrapVals[d], uncertainties[d]))
+                
+                if stopAtConvergence and abs(sum(asymptoticChecks) / len(asymptoticChecks) - 1) &lt; 0.1 and max(asymptoticChecks) - min(asymptoticChecks) &lt; 0.2:
+                    print(&#34;Simulation Converging Asymptotically&#34;)
+                    printConvergenceHistory()
+                    return timeStepHistory, finalPositionHistory, flight
+            
+            simCount += 1
+
+        # Output whether convergence was achieved
+        if simLimit &gt;= 3:
+            print(&#34;Asymptotic convergence not reached within {} simulations&#34;.format(simLimit))
+        else:
+            print(&#34;Asymptotic convergence impossible to reach with less than 3 iterations (performed {}). Adjust the parameter &#39;simLimit&#39; to perform more iterations&#34;.format(simLimit))
+
+        printConvergenceHistory(ax1, ax2)
+
+        return timeStepHistory, finalPositionHistory, simTimeHistory
+
+    def compareClassicalIntegrationSchemes(self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes = [ &#34;Euler&#34;, &#34;RK2Midpoint&#34;, &#34;RK2Heun&#34;, &#34;RK4&#34; ], convergenceResultFilePath=&#34;convergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initTimeStep = float(self.simDefinition.getValue(&#34;SimControl.timeStep&#34;))
+
+        # Lists to store results
+        timeStepHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run series of simulations for each integration scheme
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(initTimeStep))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, simLimit=simLimit, plotLineLabel=scheme, ax1=ax1, ax2=ax2)
+            
+            timeStepHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        print(&#34;Simulations complete&#34;)
+
+        if convergenceResultFilePath != None:
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TimeStep(s)&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(timeStepHistory)):
+                    row = [ timeStepHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        print(&#34;Showing plot&#34;)
+        if showPlot:
+            plt.show()
+
+    def compareAdaptiveIntegrationSchemes(self, saveFigure=False, showPlot=True, integrationSchemes=[&#34;RK12Adaptive&#34;, &#34;RK23Adaptive&#34;, &#34;RK45Adaptive&#34;], simLimit=10, convergenceResultFilePath=&#34;adaptiveConvergenceResult.csv&#34;):
+        &#39;&#39;&#39; Arguments:
+                simConfigFilePath (string)
+                saveFigure (Bool)
+                convergenceFilePath (string or None) - will overwrite old files
+
+            Outputs:
+                Plot
+                .csv file (Optional)
+
+            Returns:
+                Nothing
+        &#39;&#39;&#39;
+
+        plt.figure(figsize=(3.5,3))
+        ax1 = plt.gca()
+        ax2 = plt.twinx()
+        
+        initErrorTarget = float(self.simDefinition.getValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;))
+        
+        # Lists to store results
+        targetErrorHistory = []
+        finalPositionHistories = []
+        wallTimeHistory = []
+
+        # Run simulations
+        for scheme in integrationSchemes:
+            self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+            self.simDefinition.setValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;, str(initErrorTarget))
+            timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, plotLineLabel=scheme, refinementRatio=2, simLimit=simLimit, ax1=ax1, ax2=ax2)
+            
+            targetErrorHistory = timeSteps
+            finalPositionHistories.append(finalPositions)
+            wallTimeHistory.append(wallTimes)
+
+        # Write results to .csv file
+        if convergenceResultFilePath != None:
+            import csv
+            print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+            with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+                writer = csv.writer(file)
+                
+                # Write Column Headers
+                headerRow = [ &#34;TargetError&#34; ]
+                for timeStep in range(len(integrationSchemes)):
+                    intScheme = integrationSchemes[timeStep]
+                    headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+                
+                writer.writerow(headerRow)
+                
+                # Write convergence results, time step by time step
+                for timeStep in range(len(targetErrorHistory)):
+                    row = [ targetErrorHistory[timeStep] ]
+
+                    for integrationScheme in range(len(integrationSchemes)):
+                        row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                        row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                        row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                    writer.writerow(row)
+
+        # Save results figure
+        if saveFigure:
+            try:
+                plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+            except:
+                plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+        # Show Plot
+        plt.xlabel(&#34;Target Error&#34;)
+
+        if showPlot:
+            plt.show()
+
+    def _setUpConfigFileForConvergenceRun(self):
+        print(&#34;Will attempt to converge final rocket position of simulation: {}&#34;.format(self.simDefinition.fileName))
+        self.simDefinition.disableDistributionSampling = True # Don&#39;t sample from probability distributions while trying to converge a sim
+
+        # Make sure no plots are created every time the sim runs
+        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+
+        #### Make sure End Condition is a time ####
+        endCondition = self.simDefinition.getValue(&#34;SimControl.EndCondition&#34;)
+        if endCondition != &#34;Time&#34;:
+            print(&#34;Running simulation to determine end time&#34;)
+            # Otherwise run the sim, get the end time and 
+            flights, _ = self.run()
+            endTime = flights[0].times[-1]
+            # set that to the end condition
+            print(&#34;Setting EndCondition = Time, EndConditionValue = {}&#34;.format(endTime))
+            self.simDefinition.setValue(&#34;SimControl.EndCondition&#34;, &#34;Time&#34;)
+            self.simDefinition.setValue(&#34;SimControl.EndConditionValue&#34;, str(endTime))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation">Simulation</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.compareAdaptiveIntegrationSchemes"><code class="name flex">
+<span>def <span class="ident">compareAdaptiveIntegrationSchemes</span></span>(<span>self, saveFigure=False, showPlot=True, integrationSchemes=['RK12Adaptive', 'RK23Adaptive', 'RK45Adaptive'], simLimit=10, convergenceResultFilePath='adaptiveConvergenceResult.csv')</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="arguments">Arguments</h2>
+<p>simConfigFilePath (string)
+saveFigure (Bool)
+convergenceFilePath (string or None) - will overwrite old files</p>
+<h2 id="outputs">Outputs</h2>
+<p>Plot
+.csv file (Optional)</p>
+<h2 id="returns">Returns</h2>
+<p>Nothing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compareAdaptiveIntegrationSchemes(self, saveFigure=False, showPlot=True, integrationSchemes=[&#34;RK12Adaptive&#34;, &#34;RK23Adaptive&#34;, &#34;RK45Adaptive&#34;], simLimit=10, convergenceResultFilePath=&#34;adaptiveConvergenceResult.csv&#34;):
+    &#39;&#39;&#39; Arguments:
+            simConfigFilePath (string)
+            saveFigure (Bool)
+            convergenceFilePath (string or None) - will overwrite old files
+
+        Outputs:
+            Plot
+            .csv file (Optional)
+
+        Returns:
+            Nothing
+    &#39;&#39;&#39;
+
+    plt.figure(figsize=(3.5,3))
+    ax1 = plt.gca()
+    ax2 = plt.twinx()
+    
+    initErrorTarget = float(self.simDefinition.getValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;))
+    
+    # Lists to store results
+    targetErrorHistory = []
+    finalPositionHistories = []
+    wallTimeHistory = []
+
+    # Run simulations
+    for scheme in integrationSchemes:
+        self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+        self.simDefinition.setValue(&#34;SimControl.TimeStepAdaptation.targetError&#34;, str(initErrorTarget))
+        timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, plotLineLabel=scheme, refinementRatio=2, simLimit=simLimit, ax1=ax1, ax2=ax2)
+        
+        targetErrorHistory = timeSteps
+        finalPositionHistories.append(finalPositions)
+        wallTimeHistory.append(wallTimes)
+
+    # Write results to .csv file
+    if convergenceResultFilePath != None:
+        import csv
+        print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+        with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+            writer = csv.writer(file)
+            
+            # Write Column Headers
+            headerRow = [ &#34;TargetError&#34; ]
+            for timeStep in range(len(integrationSchemes)):
+                intScheme = integrationSchemes[timeStep]
+                headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+            
+            writer.writerow(headerRow)
+            
+            # Write convergence results, time step by time step
+            for timeStep in range(len(targetErrorHistory)):
+                row = [ targetErrorHistory[timeStep] ]
+
+                for integrationScheme in range(len(integrationSchemes)):
+                    row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                    row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                writer.writerow(row)
+
+    # Save results figure
+    if saveFigure:
+        try:
+            plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+        except:
+            plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/TimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+    # Show Plot
+    plt.xlabel(&#34;Target Error&#34;)
+
+    if showPlot:
+        plt.show()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.compareClassicalIntegrationSchemes"><code class="name flex">
+<span>def <span class="ident">compareClassicalIntegrationSchemes</span></span>(<span>self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes=['Euler', 'RK2Midpoint', 'RK2Heun', 'RK4'], convergenceResultFilePath='convergenceResult.csv')</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="arguments">Arguments</h2>
+<p>simConfigFilePath (string)
+saveFigure (Bool)
+convergenceFilePath (string or None) - will overwrite old files</p>
+<h2 id="outputs">Outputs</h2>
+<p>Plot
+.csv file (Optional)</p>
+<h2 id="returns">Returns</h2>
+<p>Nothing</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compareClassicalIntegrationSchemes(self, saveFigure=False, showPlot=True, simLimit=10, integrationSchemes = [ &#34;Euler&#34;, &#34;RK2Midpoint&#34;, &#34;RK2Heun&#34;, &#34;RK4&#34; ], convergenceResultFilePath=&#34;convergenceResult.csv&#34;):
+    &#39;&#39;&#39; Arguments:
+            simConfigFilePath (string)
+            saveFigure (Bool)
+            convergenceFilePath (string or None) - will overwrite old files
+
+        Outputs:
+            Plot
+            .csv file (Optional)
+
+        Returns:
+            Nothing
+    &#39;&#39;&#39;
+
+    plt.figure(figsize=(3.5,3))
+    ax1 = plt.gca()
+    ax2 = plt.twinx()
+    
+    initTimeStep = float(self.simDefinition.getValue(&#34;SimControl.timeStep&#34;))
+
+    # Lists to store results
+    timeStepHistory = []
+    finalPositionHistories = []
+    wallTimeHistory = []
+
+    # Run series of simulations for each integration scheme
+    for scheme in integrationSchemes:
+        self.simDefinition.setValue(&#34;SimControl.timeDiscretization&#34;, scheme)
+        self.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(initTimeStep))
+        timeSteps, finalPositions, wallTimes = self.convergeSimEndPosition(showPlot=False, simLimit=simLimit, plotLineLabel=scheme, ax1=ax1, ax2=ax2)
+        
+        timeStepHistory = timeSteps
+        finalPositionHistories.append(finalPositions)
+        wallTimeHistory.append(wallTimes)
+
+    print(&#34;Simulations complete&#34;)
+
+    if convergenceResultFilePath != None:
+        print(&#34;Writing convergence results to: {}&#34;.format(convergenceResultFilePath))
+
+        with open(convergenceResultFilePath, &#39;w&#39;, newline=&#39;&#39;) as file:
+            writer = csv.writer(file)
+            
+            # Write Column Headers
+            headerRow = [ &#34;TimeStep(s)&#34; ]
+            for timeStep in range(len(integrationSchemes)):
+                intScheme = integrationSchemes[timeStep]
+                headerRow += [ &#34;{}_FinalX(m)&#34;.format(intScheme), &#34;{}_FinalY(m)&#34;.format(intScheme), &#34;{}_FinalZ(m)&#34;.format(intScheme), &#34;{}_WallTime(s)&#34;.format(intScheme) ]
+            
+            writer.writerow(headerRow)
+            
+            # Write convergence results, time step by time step
+            for timeStep in range(len(timeStepHistory)):
+                row = [ timeStepHistory[timeStep] ]
+
+                for integrationScheme in range(len(integrationSchemes)):
+                    row.append(finalPositionHistories[integrationScheme][timeStep].X)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Y)
+                    row.append(finalPositionHistories[integrationScheme][timeStep].Z)
+                    row += [ wallTimeHistory[integrationScheme][timeStep] ]
+
+                writer.writerow(row)
+
+    if saveFigure:
+        try:
+            plt.savefig(&#34;/home/hhstoldt/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+        except:
+            plt.savefig(&#34;C:/Users/rando/Documents/flightSimPaper/Figures/Images/AdaptTimeStepConvergence_ConstTimeStep.eps&#34;, bbox_inches=&#34;tight&#34;, pad_inches=0)
+
+    print(&#34;Showing plot&#34;)
+    if showPlot:
+        plt.show()</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.convergeSimEndPosition"><code class="name flex">
+<span>def <span class="ident">convergeSimEndPosition</span></span>(<span>self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel='Simulations', ax1=None, ax2=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Takes simulation and runs it repeatedly, cutting the time step in half each time.
+Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+Should use with simulations that have an EndCondition of type "Time"
+# Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+This Fn called by compareIntegrationSchemes functions</p>
+<h2 id="parameters">Parameters</h2>
+<p>simConfigFilePath
+string, /path/to/simConfigFile
+fW
+SimDefinition, overrides simConfigFilePath
+refinementRatio
+Number, Each time sim is run, time step or target error is divided by this number
+simLimit
+Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+plot
+True/False, whether to plot the results
+stopAtConvergence
+True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+showPlot
+True/False, if True, calls plt.show()
+plotLineLabel
+string, Label of line on plot
+ax1
+matplotlib Axes, Z-location (Y) axis
+ax2
+matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convergeSimEndPosition(self, refinementRatio=2, simLimit=10, plot=True, stopAtConvergence=False, showPlot=True, plotLineLabel=&#34;Simulations&#34;, ax1=None, ax2=None):
+    &#39;&#39;&#39;
+        Takes simulation and runs it repeatedly, cutting the time step in half each time.
+        Once convergence is approximately asymptotic, exits and returns series of final positions, convergence order, and extrapolated final position
+        Should use with simulations that have an EndCondition of type &#34;Time&#34;
+            # Otherwise sim will be run using current settings, and its endtime will be taken as the new end time for future convergence sims
+        This Fn called by compareIntegrationSchemes functions
+
+        Parameters:
+            simConfigFilePath       string, /path/to/simConfigFile
+            fW                      SimDefinition, overrides simConfigFilePath
+            refinementRatio         Number, Each time sim is run, time step or target error is divided by this number
+            simLimit                Number, Max number of simulations to run (takes exponentially more time to run more simulations)
+            plot                    True/False, whether to plot the results
+            stopAtConvergence       True/False, if False, runs simLimit simulations even if asymptotic convergence is reached earlier
+            showPlot                True/False, if True, calls plt.show()
+            plotLineLabel           string, Label of line on plot
+            ax1                     matplotlib Axes, Z-location (Y) axis
+            ax2                     matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)
+    &#39;&#39;&#39;
+    from MAPLEAF.IO.gridConvergenceFunctions import checkConvergence
+    from statistics import mean
+    import time
+
+    self._setUpConfigFileForConvergenceRun()
+    
+    timeStepMethod = self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;)
+    adaptiveTimeStepping = &#34;Adaptive&#34; in timeStepMethod
+
+    timeStepKey = &#34;SimControl.timeStep&#34;
+    targetErrorKey = &#34;SimControl.TimeStepAdaptation.targetError&#34;
+
+    #### Run Simulations ####
+    print(&#34;Starting convergence simulations&#34;)
+    if not adaptiveTimeStepping:
+        timeStep = float(self.simDefinition.getValue(timeStepKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+    else:
+        targetError = float(self.simDefinition.getValue(targetErrorKey))*refinementRatio # Multiplied by 2 to give correct time step in first iteration
+
+    simCount = 1
+    finalPositionHistory = []
+    convergenceHistory = []
+    timeStepHistory = []
+    simTimeHistory = []
+
+    def printConvergenceHistory(ax1=ax1, ax2=ax2):
+        print(&#34;&#34;)
+        print(&#34;Convergence History:&#34;)
+        print(&#34;Integration Method: {}&#34;.format(timeStepMethod))
+
+        xPos = []
+        yPos = []
+        zPos = []
+
+        for i in range(len(finalPositionHistory)):
+            finalPos = finalPositionHistory[i]
+            xPos.append(finalPos[0])
+            yPos.append(finalPos[1])
+            zPos.append(finalPos[2])
+            printString = &#34;FinalPosition(m): {:&gt;7.3f} WallTime(s): {:&gt;7.3f} &#34;.format(finalPos, simTimeHistory[i])
+
+            if i &gt; 1: # TODO: Get convergence results into the .csv file
+                ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergenceHistory[i-2]
+                printString += &#34; Avg Order: {:&gt;4.2f}, Avg Asymptotic Check: {:&gt;6.3f}&#34;.format(mean(ordersOfConvergence), mean(asymptoticChecks))
+
+            print(printString)
+
+        if plot:
+            if ax1 == None:
+                ax1 = plt.gca()
+            if ax2 == None:
+                ax2 = ax1.twinx()
+
+            ax1.plot(timeStepHistory, zPos, &#34;:D&#34;, label=plotLineLabel)
+            ax1.set_ylabel(&#34;Final Z Coordinate (m)&#34;)
+
+            ax2.plot(timeStepHistory, simTimeHistory, &#34;-*&#34;, label=plotLineLabel + &#34; Wall Time&#34;)
+            ax2.set_ylabel(&#34;Wall Time (s)&#34;)
+            
+            plt.xscale(&#34;log&#34;)
+            plt.xlabel(&#34;Time Step (s)&#34;)
+            plt.legend()
+            plt.tight_layout()
+
+            if showPlot:
+                plt.show()
+
+    while simCount &lt;= simLimit:
+        if not adaptiveTimeStepping:
+            timeStep /= refinementRatio
+            self.simDefinition.setValue(timeStepKey, str(timeStep))
+            timeStepHistory.append(timeStep)
+            print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, timeStep))
+        else:
+            targetError /= refinementRatio
+            self.simDefinition.setValue(targetErrorKey, str(targetError))
+            timeStepHistory.append(targetError)
+            print(&#34;Simulation {}, Time step: {}&#34;.format(simCount, targetError))
+
+        startTime = time.time()
+        flights, _ = self.run()
+        flight = flights[0]
+        wallTime = time.time() - startTime
+        simTimeHistory.append(wallTime)
+
+        finalPositionHistory.append(flight.rigidBodyStates[-1].position)
+        print(&#34;Final Position: {:1.3f}&#34;.format(finalPositionHistory[-1]))
+
+        if len(finalPositionHistory) &gt;= 3:
+            # Check whether result is converging
+            cV, mV, fV = finalPositionHistory[-3:]
+            print(&#34;Checking convergence&#34;)
+            convergResult = checkConvergence(cV, mV, fV, refinementRatio)
+            ordersOfConvergence, GCI12s, GCI23s, asymptoticChecks, richardsonExtrapVals, uncertainties = convergResult
+            convergenceHistory.append(convergResult)
+            directions = [&#34;X&#34;, &#34;Y&#34;, &#34;Z&#34;]
+            for d in range(len(directions)):
+                print(&#34;{}-Direction: Order: {:&gt;4.3f}, Asymptotic Check: {:&gt;6.3f}, RichardsonExtrap: {:&gt;7.3f}, Estimated Uncertainty: {:&gt;6.3f}&#34;.format(directions[d], ordersOfConvergence[d], asymptoticChecks[d], richardsonExtrapVals[d], uncertainties[d]))
+            
+            if stopAtConvergence and abs(sum(asymptoticChecks) / len(asymptoticChecks) - 1) &lt; 0.1 and max(asymptoticChecks) - min(asymptoticChecks) &lt; 0.2:
+                print(&#34;Simulation Converging Asymptotically&#34;)
+                printConvergenceHistory()
+                return timeStepHistory, finalPositionHistory, flight
+        
+        simCount += 1
+
+    # Output whether convergence was achieved
+    if simLimit &gt;= 3:
+        print(&#34;Asymptotic convergence not reached within {} simulations&#34;.format(simLimit))
+    else:
+        print(&#34;Asymptotic convergence impossible to reach with less than 3 iterations (performed {}). Adjust the parameter &#39;simLimit&#39; to perform more iterations&#34;.format(simLimit))
+
+    printConvergenceHistory(ax1, ax2)
+
+    return timeStepHistory, finalPositionHistory, simTimeHistory</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation">Simulation</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createNewDetachedStage">createNewDetachedStage</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.createRocket">createRocket</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.environment">environment</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.run">run</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.silent">silent</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.simDefinition">simDefinition</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex" href="SingleSimulations.html#MAPLEAF.SimulationRunners.SingleSimulations.Simulation.stagingIndex">stagingIndex</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="MAPLEAF Home" href="https://henrystoldt.github.io/MAPLEAF/">
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png" alt="Logo" width=75/>
+MAPLEAF
+</a>
+</header>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="MAPLEAF.SimulationRunners" href="index.html">MAPLEAF.SimulationRunners</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner" href="#MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner">ConvergenceSimRunner</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.compareAdaptiveIntegrationSchemes" href="#MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.compareAdaptiveIntegrationSchemes">compareAdaptiveIntegrationSchemes</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.compareClassicalIntegrationSchemes" href="#MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.compareClassicalIntegrationSchemes">compareClassicalIntegrationSchemes</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.convergeSimEndPosition" href="#MAPLEAF.SimulationRunners.Convergence.ConvergenceSimRunner.convergeSimEndPosition">convergeSimEndPosition</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.1</a>.</p>
+</footer>
+</body>
+</html>
