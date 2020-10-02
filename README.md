@@ -92,7 +92,7 @@ Then, MAPLEAF can produce distributions of outputs like landing locations:
 MAPLEAF uses [pyswarms](https://github.com/ljvmiranda921/pyswarms) to optimize arbitrary scalar parameters according to arbitrary cost functions using Particle Swarm Optimization.
 To define an optimization problem, include the top-level 'Optimization' dictionary (see [SimDefinitionTemplate.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/SimDefinitionTemplate.mapleaf)):
 
-<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinition_Optimization.png?raw=true" alt="Optimization Dict"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/SimDefinition_Optimization.PNG?raw=true" alt="Optimization Dict"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 Pyswarms will produce a plot of the optimization results after completion:
@@ -110,7 +110,7 @@ Provides ability to check the final state of a rocket in each case, to produce d
 <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/CantedFinRocketPlot.png?raw=true" alt="Canted Fin Roll Rate"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
-<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/ParametricFin5CAvsMach.png?raw=true" alt="Wind Tunnel Comparison"
+<img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/ParametricFin5CAvsMach.png?raw=true" alt="Wind Tunnel Comparison"
   title="MAPLEAF" height=300 style="padding-right: 10px;"/>
 
 Used for regression and verification/validation testing in MAPLEAF.  
