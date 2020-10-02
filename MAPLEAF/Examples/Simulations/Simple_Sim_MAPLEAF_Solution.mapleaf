@@ -50,7 +50,7 @@ Rocket{
             class           AeroForce            
             position        (0 0 0) # Force application location
             Aref            0.0182414654525 # m^2 Reference area for all coefficients
-            Cd           0 # Applied parallel to wind direction
+            Cd              0 # Applied parallel to wind direction
         }
     }
 }
