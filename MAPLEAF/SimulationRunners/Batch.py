@@ -8,6 +8,7 @@ import time
 from distutils.util import strtobool
 from math import isnan
 from statistics import mean
+from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -474,8 +475,7 @@ def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
         dataLists, columnNames = Plotting.getLoggedColumns(logPath, [ logColumnSpec ])
 
         if len(dataLists) > 1:
-            print("  ERROR: Column Spec '{}' matched more than one column: {} in log file: '{}'".format(logColumnSpec, columnNames, logPath))
-            batchRun.warningCount += 1
+            batchRun.warning("  ERROR: Column Spec '{}' matched more than one column: {} in log file: '{}'".format(logColumnSpec, columnNames, logPath))
             return None, logColumnSpec
 
         if len(dataLists) == 1:
@@ -484,8 +484,7 @@ def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
             return observedResult, columnName
     
     # No column was found
-    print("  ERROR: Column Spec {} did not match any columns".format(logColumnSpec))
-    batchRun.warningCount += 1
+    batchRun.warning("  ERROR: Column Spec {} did not match any columns".format(logColumnSpec))
     return None, None
 
 #### 3. Plotting ####
@@ -513,7 +512,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
             # Only plot if we've found (at minimum) an X-column and a Y-column (2 columns)
             adjustX = True if xLim == ["False"] else False
             xData = _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
-            mapleafX.append(xData)
+            
+            # Track the x-data for each column of y-data plotted
+            for i in range(len(columnNames)):
+                mapleafX.append(xData)
 
             # Avoid plotting columns twice!
             for i in range(len(columnNames)):
@@ -671,22 +673,26 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
 
     return xData
 
-def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, valData, validationX, validationDataPath: str) -> float:
+def _validate(batchRun: BatchRun, mapleafX, mapleafData, valData, validationX, validationDataPath: str) -> Union[float, None]:
     '''
         Returns the average percentage disagreement between the mapleaf results and the validation data
 
         Inputs:
-            mapleafCols:    (List[str]) List of the column names plotted against the present comparison data by MAPLEAF
-            mapleafX:       (List[float]) Mapleaf X-data
-            mapleafData:    (List[List[float]]) Mapleaf data for each of the column names in mapleafCols (order should match)
+            mapleafX:           (List[List[float]]) Mapleaf X-data
+            mapleafData:        (List[List[float]]) Mapleaf data for each of the column names in mapleafCols (order should match)
             
-            valCols:        (List[str]) List of column names of validation data to be plotted, including x-column
-            valData:        (List[List[float]]) Comparison data for each of the column names in valCols (order should match), also includes x-column data
-            valXCol:        (str) Name of the x-column data in valCols / valData
+            valData:            (List[List[float]]) Comparison data for each of the column names in valCols (order should match), also includes x-column data
+            validationX:        (List[float]) x-column data for the values in valData
+
+            validationDataPath: (str) Used to track the source of the data used
 
         Outputs:
             Computes average disagreement b/w linearly-interpolated mapleaf data and validation data, saves it in the batchRun object
     '''
+    if len(mapleafX) != len(mapleafData):
+        batchRun.warning("  ERROR: Can't validate data without matching number of X and Y MAPLEAF data sets. Current validation data set: {}".format(validationDataPath))
+        return
+
     def getAvgError(MAPLEAFX, MAPLEAFY, valX, valY) -> float:
         def getInterpolatedMAPLEAFResult(x):
             # Interpolating MAPLEAF's results because we are assuming MAPLEAF's data is often denser than validation data, which decreases interpolation error
@@ -700,23 +706,21 @@ def _validate(batchRun: BatchRun, mapleafCols, mapleafX, mapleafData, valCols, v
         
         return mean(errorPercentages)
 
-    if len(mapleafCols) == 1 and len(valCols) == 1:
+    if len(mapleafData) == 1 and len(valData) == 1:
         # One set of mapleaf data, one set of comparison data -> straightforward
         avgError = getAvgError(mapleafX[0], mapleafData[0], validationX, valData[0])
     
-    elif len(mapleafCols) == 1 and len(valCols) > 1:
+    elif len(mapleafData) == 1 and len(valData) > 1:
         # One set of mapleaf data, multiple sets of comparison data -> compare each to the mapleaf data, return mean error across all curves
         avgErrors = [ getAvgError(mapleafX[0], mapleafData[0], validationX, validationY) for validationY in valData ]
         avgError = mean(avgErrors)
 
-    elif len(mapleafCols) > 1 and len(valCols) == 1:
+    elif len(mapleafData) > 1 and len(valData) == 1:
         # Multiple sets of mapleaf data, one set of comparison data -> compare comparison data to the mapleaf line that matches it most closely
         avgErrors = [ getAvgError(mapleafX[i], mapleafData[i], validationX, valData[0]) for i in range(len(mapleafData)) ]
         avgError = min(avgErrors)
 
     else:
-        # Error: Unclear which MAPLEAF data should be validated by which set of comparison data
-        # Skip
         batchRun.warning("  WARNING: Unclear which set of MAPLEAF results should be validated by which set of comparison data")
         avgError = None
 
