@@ -16,10 +16,11 @@
 </p>
 
 ## Install:
-Requires:
+Prerequisites:
 
-- Python 3.6+ (**64-bit**)
-- A C/C++ compiler or an existing fully-functional installation of [Cython](https://cython.readthedocs.io/en/latest/src/quickstart/install.html)
+- [Python 3.6+](https://www.python.org/downloads/) (**[64-bit](https://stackoverflow.com/questions/1842544/how-do-i-detect-if-python-is-running-as-a-64-bit-application)**)
+- C/C++ compilers OR an existing installation of [Cython](https://cython.readthedocs.io/en/latest/src/quickstart/install.html)
+- (Recommended) A Python [virtual environment](https://towardsdatascience.com/virtual-environments-104c62d48c54). See [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md#create-python-virtual-environment-with-virtualenvwrapper)
 
 `$ pip install MAPLEAF`
     
