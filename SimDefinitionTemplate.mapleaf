@@ -6,9 +6,9 @@
         # Everything after the first whitespace in a key-value line becomes the value
 
   #### Working with sim definition files ####
-  # Recommend viewing/editing these dictionary files programmatically or in a code editor with highlighting set to YAML or Python - if in the git repository, VS Code will do this automatically
-    # Recommend using "code-folding" to gain an overview of the file
-  # To edit programmatically, use the SimDefinition class to load the file, edit the parsed values (SimDefinition.setValue(key, value)), and write the result to file (SimDefinition.writeToFile())
+  # Recommend viewing/editing these dictionary files programmatically (using the MAPLEAF.IO.SimDefinition class) or in VS Code with the MAPLEAF extension installed
+    # Use "code-folding" to maintain an overview of the files: (https://code.visualstudio.com/docs/editor/codebasics#_folding
+    # To edit programmatically, use the SimDefinition class to parse the file, edit the values (SimDefinition.setValue(key, value)), and write the result to file (SimDefinition.writeToFile())
 
   #### Default Values ####
   # If a value is omitted from the simulation definition file, the simulator will attempt to retrieve it from the
@@ -18,11 +18,11 @@
   #### Derived Dictionaries ####
   # In .mapleaf files, new dictionaries can be defined as modifications of previously-defined ones, 
     # using the syntax defined in ./test/test_IO/testDerivedDicts.mapleaf
-    # Meaning of ./test/test_IO/testDerivedDicts.mapleaf is equivalent to ./test/test_IO/testDerivedDictsFinal.mapleaf
+    # Meaning of ./test/test_IO/testDerivedDicts.mapleaf is equivalent to that of ./test/test_IO/testDerivedDictsFinal.mapleaf
 
 #### Coordinate Systems: #### 
     # Depending on the value of Environment.EarthModel, motion integration can happen in different global (always inertial) frames.
-        # In the code, whichever frame is being used is referred to as the 'global inertial frame'
+        # In the code, whichever frame is the one in which motion is integrated is referred to as the 'global inertial frame'
     # Global Inertial Frame by Earth Model:
         # No Earth:     Launch Tower
         # Flat Earth:   Launch Tower
@@ -63,7 +63,7 @@
         # Y: Radial axis 2
 
 #### Units ####
-    # Unless stated otherwise, all units are SI
+    # Unless stated otherwise, all units are SI:
         # Position/length:      m
         # Time:                 s
         # Velocity:             m/s
@@ -159,14 +159,14 @@ SimControl{
         # Each string in the space-separated list defines a plot. Each string can be either: 
             # 1) a partial/full log column name -> any column whose name contains the string will be plotted
             # 2) a regex expression -> any column whose name matches is plotted
-            # 3) A combination of 1) and 2), joined using & (ex: BodyTubeF&NoseconeF)
+            # 3) A combination of and arbitrary number of 1) and 2), joined using & (ex: BodyTubeF&NoseconeF)
             # 4) 'Special' strings: 'FlightAnimation' or 'FlightsPaths' or 'None'
 		# Ex: Add "NoseconeF" for a plot of the Nosecone's X,Y,Z forces, "NoseconeM" for the X,Y,Z moments, or "Nosecone" for a plot of both.
         # Look in your simulation log files for more column names
     plot                    FlightAnimation FlightPaths Position Velocity NoseconeF
     
     # 0, 1, 2, 3
-        # 0:    No log files created
+        # 0:    No logging
         # 1:    Logs the rocket's kinematic state at the beginning of each time step, in a file called [simDefinitionFileName]_mainSimulationLog_runX.txt, where X increments each time the sim is run
         # 2:    Level 1 + logs a breakdown of rocket state and forces applied to the rocket at each force evaluation (which can happen several times in a time step), 
                     # in an additional file called [simDefinitionFileName]_forceEvaluationLog_runX.txt
@@ -239,7 +239,7 @@ Environment{
     AtmosphericPropertiesModel  USStandardAtmosphere
 
     TabulatedAtmosphere{
-        # Tabulated atmospheres are expected to match the format of US_Standard_Atmosphere.txt
+        # Tabulated atmospheres are expected to match the format of ./MAPLEAF/ENV/US_Standard_Atmosphere.txt
             # Should have the following columns h(m ASL) T(K) P(Pa) rho(kg/m^3) mu(10^-5 Pa*s)
         filePath                MAPLEAF/ENV/US_Standard_Atmosphere.txt
     }
@@ -279,7 +279,7 @@ Environment{
         groundWindModel         Constant
 
         alphaCoeff              0.1429
-        altitudeLimit           1000 # m, constant wind velocity above this altitude
+        altitudeLimit           1000 # m, wind velocity stops changing above this altitude
     }
 
     CustomWindProfile{
@@ -287,7 +287,7 @@ Environment{
     }
 
     #### Turbulence / Gust Modelling ####
-    # None, PinkNoise1D (Amplitude modulation only), PinkNoise2D (x-y plane), PinkNoise3D, customSineGust
+    # None, PinkNoise1D (Amplitude modulation only), PinkNoise2D (gusts parallel to x-y plane in ENU frame), PinkNoise3D, customSineGust
     TurbulenceModel             None
     turbulenceOffWhenUnderChute True # Increases time step we can take while descending
 
@@ -298,7 +298,7 @@ Environment{
         velocityStdDeviation    1 # m/s standard deviation of pink noise model
 
         # Set the random seeds for each pink noise generator for repeatable simulations
-            # PinkNoise1D only uses 1, 2D uses 2, 3D uses 3
+            # PinkNoise1D only uses 1, 2D uses 2, 3D uses all 3
         randomSeed1             63583 # Integer
         randomSeed2             63583 # Integer
         randomSeed3             63583 # Integer
@@ -395,7 +395,7 @@ Rocket{
 
         position            (0 0 0) #m - Position of stage tip, relative to tip of rocket
 
-        # No stage separation conditions for top stage
+        # No stage separation conditions for top stage (see firstStage below for those options)
 
         # Constant mass overrides for the stage - remove to use component-buildup mass/cg/MOI
         constCG             (0 0 -2.65) #m
@@ -403,10 +403,10 @@ Rocket{
         constMOI            (85 85 0.5) # kg*m^2
 
         # For all fixed-mass rocket components (everything except propulsion system):
-        # position:                 position RELATIVE to stage 'position' - definition for each component given below
-                                        # The 'position' usually defines the location at the TOP (local minZ), CENTER (local X/Y Axes) of the component
-        # cg:                       cg location RELATIVE to the 'position' of the component
-        # MOI:      MOI about the component's cg location
+        # position:         position RELATIVE to stage tip - definition for each component given below
+                                # The 'position' usually defines the location at the TOP (local maxZ), CENTER (local X/Y Axes) of the component
+        # cg:               cg location RELATIVE to the 'position' of the component
+        # MOI:              MOI about the component's cg location
 
         #### Rocket Components which define combinations of aerodynamic & inertia / shape models ####
         Nosecone{
@@ -422,12 +422,12 @@ Rocket{
         }
 
         RecoverySystem{
-            # Stages can only have <= 1 recovery systems
+            # Stages can have a maximum of one recovery system
             class           RecoverySystem
             mass            5
             position        (0 0 -1) # Position mostly meaningless - convenient to put it at the CG location
             cg              (0 0 0)
-            numStages       2
+            numStages       2 # Can have arbitrary number of stages
 
             stage1Trigger       Apogee # Apogee, Time, Altitude
             stage1TriggerValue  30 # sec from launch (Time), m ASL, reached while descending (Altitude), unneeded for Apogee
@@ -445,7 +445,7 @@ Rocket{
         BodyTube{
             class           Bodytube
             mass            1 
-            position        (0 0 -0.762) # Position of top of nosecone
+            position        (0 0 -0.762) # Position of top of tube
             cg              (0 0 -1.5)
             
             outerDiameter   0.1524
@@ -490,7 +490,7 @@ Rocket{
                 radius        0.001 # Used for 'Round' edge
             }
 
-            Actuators{ # Only required if the FinSet is to be controlled by a control system
+            Actuators{ # Only required if the FinSet is the system controlled by the control system
                 controller              TableInterpolating
                 
                 deflectionTablePath     MAPLEAF/Examples/TabulatedData/linearCanardDefls.txt
@@ -504,7 +504,7 @@ Rocket{
                 maxDeflection           15 # So these actuator limits translate into limiting fin deflection to +/- 15 degrees
 
                 responseModel           FirstOrder # Only Choice
-                responseTime            0.1 # seconds
+                responseTime            0.1 # sec
             }
         }
 
@@ -524,17 +524,18 @@ Rocket{
         DiameterChange{
             class           Transition
             mass            0.1
-            position        (0 0 -2.6)
+            position        (0 0 -2.6) # Position of top, center of diameter change
             cg              (0 0 0)
             MOI             (0.01 0.01 0.0001)
 
             length          0.15 # m
-            startDiameter   0.1524 # m
-            endDiameter     0.16 # m
+            startDiameter   0.1524 # m, Diameter at top
+            endDiameter     0.16 # m, Diameter at bottom
             surfaceRoughness 0.000060 # m
         }
 
         BoatTail{
+            # Only difference wrt DiameterChange object is that the BoatTail accounts for base drag (when the engine is off)
             class           BoatTail
             mass            0.1
             position        (0 0 -2.75)
@@ -569,9 +570,9 @@ Rocket{
         AeroForce{
             class           AeroForce
             
-            position        (0 0 0) # Force application location
-            Aref            0.25 # m^2 Reference area for all coefficients
-            Lref            0.25 # m Reference length for all moment coefficients
+            position        (0 0 0) # m, Force application location
+            Aref            0.25 # m^2, Reference area for all coefficients
+            Lref            0.25 # m, Reference length for all moment coefficients
 
             Cd              0 # Applied parallel to wind direction
             Cl              0 # Applied normal to wind direction
@@ -588,7 +589,7 @@ Rocket{
             Lref                0.25 # m - used to redimensionalize coefficients
 
             # Each damping coefficient is named:
-            # For each axis, damping coefficients are in order: ( x, y, z )
+            # For each axis below (x/y/z), damping coefficients are in order: ( x, y, z )
             #   Example xDampingCoeffs[0] == d{xMomentCoefficient}/d{AngularRate_x * Lref / (2 * Airspeed)}
             #   Example xDampingCoeffs[1] == d{xMomentCoefficient}/d{AngularRate_y * Lref / (2 * Airspeed)}
             #   etc...
