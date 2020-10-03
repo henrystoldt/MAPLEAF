@@ -16,7 +16,12 @@
 </p>
 
 ## Install:
-`pip install MAPLEAF`
+Requires:
+
+- Python 3.6+ (**64-bit**)
+- A C/C++ compiler or an existing fully-functional installation of [Cython](https://cython.readthedocs.io/en/latest/src/quickstart/install.html)
+
+`$ pip install MAPLEAF`
     
 ## Running a Simulation
 `$ mapleaf path/to/SimDefinitionFile.mapleaf`  
