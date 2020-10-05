@@ -33,7 +33,7 @@ class PIDController():
                 # Check if vector valued
                 testIter = iter(self.errorIntegral)
                 for i in range(len(self.errorIntegral)):
-                    if abs(self.errorIntegral[i] > self.maxIntegralMagnitude[i]):
+                    if abs(self.errorIntegral[i]) > self.maxIntegralMagnitude[i]:
                         self.errorIntegral[i] = self.errorIntegral[i] * self.maxIntegralMagnitude[i] / abs(self.errorIntegral[i])
 
             except TypeError:
