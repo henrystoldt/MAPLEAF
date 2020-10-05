@@ -146,11 +146,14 @@ def main(argv=None) -> int:
 
     #### Run simulation(s) ####
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nProcesses=args.nCores[0])
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
         optSimRunner.runOptimization()
 
     elif isMonteCarloSimulation(simDef):
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+
+    elif args.nCores[0] > 1:
+        raise ValueError("ERROR: Can only run Monte Carlo of Optimization-type simulations in multi-threaded mode. Support for multi-threaded batch simulations coming soon.")
 
     elif isBatchSim(simDef):
         print("Batch Simulation\n")
