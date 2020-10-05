@@ -144,7 +144,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
             columnSpecs:        (list (string)) list of partial/full column names and/or regex expressions, to identify the desired columns
             columnsToExcluse:   (list (string)) list of full column names to exclude
-            sep:                (string) controls the separator pandas.read_csv uses to load the file (&#39;\s+&#39; / whitespace) for rocketSimulator&#39;s log files. &#34;,&#34; for .csv
+            sep:                (string) controls the separator pandas.read_csv uses to load the file (&#39;\s+&#39; / whitespace) for MAPLEAF&#39;s log files. &#34;,&#34; for .csv
 
         Outputs:
             Returns: matchingColumnData (list (list (float))), matchingColumnNames (list (string))
@@ -868,7 +868,7 @@ columnSpecs:
 columnsToExcluse:
 (list (string)) list of full column names to exclude
 sep:
-(string) controls the separator pandas.read_csv uses to load the file ('\s+' / whitespace) for rocketSimulator's log files. "," for .csv</p>
+(string) controls the separator pandas.read_csv uses to load the file ('\s+' / whitespace) for MAPLEAF's log files. "," for .csv</p>
 <h2 id="outputs">Outputs</h2>
 <p>Returns: matchingColumnData (list (list (float))), matchingColumnNames (list (string))</p></div>
 <details class="source">
@@ -884,7 +884,7 @@ sep:
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
             columnSpecs:        (list (string)) list of partial/full column names and/or regex expressions, to identify the desired columns
             columnsToExcluse:   (list (string)) list of full column names to exclude
-            sep:                (string) controls the separator pandas.read_csv uses to load the file (&#39;\s+&#39; / whitespace) for rocketSimulator&#39;s log files. &#34;,&#34; for .csv
+            sep:                (string) controls the separator pandas.read_csv uses to load the file (&#39;\s+&#39; / whitespace) for MAPLEAF&#39;s log files. &#34;,&#34; for .csv
 
         Outputs:
             Returns: matchingColumnData (list (list (float))), matchingColumnNames (list (string))
