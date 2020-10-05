@@ -64,7 +64,7 @@ Shows results in console, generates plots in `./test/regressionTesting/`
 
 ## Create Python virtual environment with virtualenvwrapper:
 1. [Install virtualenvwrapper](#install-virtualenvwrapper-(linux))
-2. Create environment: `$ mkvirtualenv -a ~/Documents/rocketSimulator -r ~/Documents/rocketSimulator/requirements_Dev.txt MAPLEAF`  
+2. Create environment: `$ mkvirtualenv -a ~/Documents/MAPLEAF -r ~/Documents/MAPLEAF/requirements_Dev.txt MAPLEAF`  
 3. Environment will be automatically activated. To re-activate in the future: `$ workon MAPLEAF`  
 4. To deactivate: `$ deactivate`  
 5. To delete: `$ rmvirtualenv MAPLEAF`  

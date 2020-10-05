@@ -111,7 +111,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
             logPath:            (string) path to a simulationLog or forceEvaluationLog file
             columnSpecs:        (list (string)) list of partial/full column names and/or regex expressions, to identify the desired columns
             columnsToExcluse:   (list (string)) list of full column names to exclude
-            sep:                (string) controls the separator pandas.read_csv uses to load the file ('\s+' / whitespace) for rocketSimulator's log files. "," for .csv
+            sep:                (string) controls the separator pandas.read_csv uses to load the file ('\s+' / whitespace) for MAPLEAF's log files. "," for .csv
 
         Outputs:
             Returns: matchingColumnData (list (list (float))), matchingColumnNames (list (string))
