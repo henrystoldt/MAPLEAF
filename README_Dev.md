@@ -15,9 +15,9 @@
 
 ## Install from source code:
 1. Clone this repository
-2. Install Python 3.6+
+2. Install Python 3.6+ **(64-bit**)
     - (Linux only): Install corresponding Python3.X-dev package
-    - (Windows): Install Visual Studio build tools (search for 'Build Tools for Visual Studio' [here](https://visualstudio.microsoft.com/downloads/))
+    - (Windows): Install Visual Studio build tools (search for 'Build Tools for Visual Studio' a ways down the page in the 'All Downloads' section [here](https://visualstudio.microsoft.com/downloads/))
     - (Optional) - [create dedicated Python environment](#create-python-virtual-environment-with-virtualenvwrapper)  
 3. Install MAPLEAF: `$ pip install -e .` (needs to be run from the cloned repository)
     - Just like a normal pip install, but changes made to MAPLEAF's code will take effect without reinstalling
@@ -34,7 +34,7 @@ For more options: `python3 test/runTests.py -h`
 See below for how to run unit and regression tests individually  
 
 ## Running Unit Tests
-**Note:** The Tests Github action runs these tests after every commit to master
+**Note:** The Tests Github action runs these tests after every push to master
 Unit Testing Framework Info:
 https://docs.python.org/3/library/unittest.html
   
@@ -90,7 +90,7 @@ Requires [twine](https://pypi.org/project/twine/)
 3. `twine upload dist/MAPLEAF-X.X.X.tar.gz`
 
 ## Linting (static error checking)
-**Note:** The Linting Github action runs these checks after every commit to master
+**Note:** The Linting Github action runs these checks after every push to master
 1. `$ python3 -m flake8 --max-complexity 12`
 2. Search for "import" in results (Powershell): `$ python3 -m flake8 --max-complexity 12 | findstr "import"`
 3. Search for "import" in results (Bash): `$ python3 -m flake8 --max-complexity 12 | grep "import"`
@@ -98,7 +98,7 @@ Requires [twine](https://pypi.org/project/twine/)
 5. Exact version GitHub auto-runs on commits to master (2 (check for all errors)): `python3 -m flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics`
 
 ## Checking test coverage
-**Note:** The Tests Github action runs this check after every commit to master
+**Note:** The Tests Github action runs this check after every push to master
 1. `$ python3 -m coverage run --source=./MAPLEAF -m unittest discover -v`
 2. `$ python3 -m coverage html`
 3. open ./htmlcov/index.html with a web browser to see line-by-line coverage results
