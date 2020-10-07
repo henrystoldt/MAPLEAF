@@ -87,58 +87,52 @@ class Simulation():
             rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
 
         #### Main Loop ####
-        stageIndex = 0
-        while stageIndex < len(self.rocketStages):
+        s = 0 # Stage Index
+        while s < len(self.rocketStages):
 
-            if stageIndex > 0:
-                print("Computing stage {} drop path".format(stageIndex))
+            if s > 0:
+                print("Computing stage {} drop path".format(s))
 
-            endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+            rocket = self.rocketStages[s]
+            endDetector = self.endDetectors[s]
+            flight = self.stageFlightPaths[s]
+
+            endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
                 
             while not endSimulation:
                 # Take a time step
                 try:
                     if FinalTimeStepDt != None:
-                        self.dts[stageIndex] = FinalTimeStepDt
+                        self.dts[s] = FinalTimeStepDt
 
-                    timeStepAdjustmentFactor, self.dts[stageIndex] = self.rocketStages[stageIndex].timeStep(self.dts[stageIndex])
+                    timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
 
-                    if stageIndex == 0:
+                    if s == 0: # Currently, progress bar only works for bottom stage
                         try:
-                            progressBar.update(self.dts[stageIndex])
+                            progressBar.update(self.dts[s])
                         except AttributeError:
                             pass
                 except:
                     self._handleSimulationCrash()
 
                 # Adjust time step
-                self.dts[stageIndex] *= timeStepAdjustmentFactor
+                self.dts[s] *= timeStepAdjustmentFactor
 
                 # HIL
-                if(self.rocketStages[stageIndex].hardwareInTheLoopControl == "yes"):
+                if(rocket.hardwareInTheLoopControl == "yes"):
                     rocket.hilInterface.performHIL(rocket.rigidBody.state,rocket.rigidBody.time)
 
                 # Cache states for flight animation
-                time = self.rocketStages[stageIndex].rigidBody.time
-                self.stageFlightPaths[stageIndex].times.append(time)
-                self.stageFlightPaths[stageIndex].rigidBodyStates.append(self.rocketStages[stageIndex].rigidBody.state)
-                if self.rocketStages[stageIndex].controlSystem != None:
-                    try:
-                        for a in range(len(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList)):
-                            self.stageFlightPaths[stageIndex].actuatorDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
-                            self.stageFlightPaths[stageIndex].actuatorTargetDefls[a].append(self.rocketStages[stageIndex].controlSystem.controlledSystem.actuatorList[a].targetDeflection)
-                    except AttributeError:
-                        # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn't have canards
-                        pass
+                self.cacheState(rocket, flight)
 
                 # Check whether we should end the simulation, or take a modified-size final time step    
-                endSimulation, FinalTimeStepDt = self.endDetectors[stageIndex](self.dts[stageIndex])
+                endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
             
             # Log last state (would be the starting state of the next time step)
-            self.rocketStages[stageIndex]._runControlSystemAndLogStartingState(0.0)
+            rocket._runControlSystemAndLogStartingState(0.0)
 
             # Move on to next (dropped) stage
-            stageIndex += 1
+            s += 1
 
             try:
                 progressBar.close()
@@ -153,6 +147,20 @@ class Simulation():
         logFilePaths = self._postProcess(simDefinition)
 
         return self.stageFlightPaths, logFilePaths
+
+    def cacheState(self, rocket: Rocket, flight: RocketFlight):
+        ''' Adds the rocket's current state to the flight object '''
+        time = rocket.rigidBody.time
+        flight.times.append(time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:
+            try:
+                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
+                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+            except AttributeError:
+                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn't have canards
+                pass
 
     #### Pre-sim ####
     def createRocket(self, stage=None):

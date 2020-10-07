@@ -93,6 +93,7 @@ Optimization{
         # 2. OR a custom function, which gets passed an array of log file paths (str)
             # Number of log file paths received depends on SimControl.loggingLevel
             # costFunction                      [PathToModule]:[FunctionName]
+                # Function must be importable by running: from [PathToModule] import [FunctionName] in a Python console
     costFunction                                MAPLEAF.MyCustomCodeFile:MyCustomCostFunction
     
     IndependentVariables{

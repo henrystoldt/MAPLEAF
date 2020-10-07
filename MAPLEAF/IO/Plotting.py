@@ -640,6 +640,7 @@ def flightAnimation(flights, showPlot=True, saveAnimFileName=None):
         flight.mainChuteTimeStep = _findEventTimeStepNumber(flight, flight.mainChuteDeployTime)
 
     if flights[0].actuatorDefls != None:
+        # Assume all actuated systems are canards #TODO: This needs updating
         # Assuming canards always on the top stage
         nCanards = len(flights[0].actuatorDefls)
     else:
