@@ -148,20 +148,6 @@ class Simulation():
 
         return self.stageFlightPaths, logFilePaths
 
-    def cacheState(self, rocket: Rocket, flight: RocketFlight):
-        ''' Adds the rocket's current state to the flight object '''
-        time = rocket.rigidBody.time
-        flight.times.append(time)
-        flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:
-            try:
-                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
-                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
-                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
-            except AttributeError:
-                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn't have canards
-                pass
-
     #### Pre-sim ####
     def createRocket(self, stage=None):
         ''' 
@@ -306,6 +292,20 @@ class Simulation():
         return flight
 
     #### During sim ####
+    def cacheState(self, rocket: Rocket, flight: RocketFlight):
+        ''' Adds the rocket's current state to the flight object '''
+        time = rocket.rigidBody.time
+        flight.times.append(time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:
+            try:
+                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
+                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+            except AttributeError:
+                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn't have canards
+                pass
+                
     def createNewDetachedStage(self):
         ''' Called by Rocket._stageSeparation '''
         if self.computeStageDropPaths:
