@@ -180,20 +180,6 @@ class Simulation():
 
         return self.stageFlightPaths, logFilePaths
 
-    def cacheState(self, rocket: Rocket, flight: RocketFlight):
-        &#39;&#39;&#39; Adds the rocket&#39;s current state to the flight object &#39;&#39;&#39;
-        time = rocket.rigidBody.time
-        flight.times.append(time)
-        flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:
-            try:
-                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
-                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
-                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
-            except AttributeError:
-                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
-                pass
-
     #### Pre-sim ####
     def createRocket(self, stage=None):
         &#39;&#39;&#39; 
@@ -338,6 +324,20 @@ class Simulation():
         return flight
 
     #### During sim ####
+    def cacheState(self, rocket: Rocket, flight: RocketFlight):
+        &#39;&#39;&#39; Adds the rocket&#39;s current state to the flight object &#39;&#39;&#39;
+        time = rocket.rigidBody.time
+        flight.times.append(time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:
+            try:
+                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
+                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+            except AttributeError:
+                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                pass
+                
     def createNewDetachedStage(self):
         &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
         if self.computeStageDropPaths:
@@ -779,20 +779,6 @@ class WindTunnelSimulation(Simulation):
 
         return self.stageFlightPaths, logFilePaths
 
-    def cacheState(self, rocket: Rocket, flight: RocketFlight):
-        &#39;&#39;&#39; Adds the rocket&#39;s current state to the flight object &#39;&#39;&#39;
-        time = rocket.rigidBody.time
-        flight.times.append(time)
-        flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:
-            try:
-                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
-                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
-                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
-            except AttributeError:
-                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
-                pass
-
     #### Pre-sim ####
     def createRocket(self, stage=None):
         &#39;&#39;&#39; 
@@ -937,6 +923,20 @@ class WindTunnelSimulation(Simulation):
         return flight
 
     #### During sim ####
+    def cacheState(self, rocket: Rocket, flight: RocketFlight):
+        &#39;&#39;&#39; Adds the rocket&#39;s current state to the flight object &#39;&#39;&#39;
+        time = rocket.rigidBody.time
+        flight.times.append(time)
+        flight.rigidBodyStates.append(rocket.rigidBody.state)
+        if rocket.controlSystem != None:
+            try:
+                for a in range(len(rocket.controlSystem.controlledSystem.actuatorList)):
+                    flight.actuatorDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].getDeflection(time))
+                    flight.actuatorTargetDefls[a].append(rocket.controlSystem.controlledSystem.actuatorList[a].targetDeflection)
+            except AttributeError:
+                # Expecting to arrive here when timestepping a dropped stage of a controlled rocket, which doesn&#39;t have canards
+                pass
+                
     def createNewDetachedStage(self):
         &#39;&#39;&#39; Called by Rocket._stageSeparation &#39;&#39;&#39;
         if self.computeStageDropPaths:
