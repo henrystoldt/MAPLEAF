@@ -28,6 +28,8 @@ class FirstOrderSystem():
         errorFractionRemoved = (1 - e**(-dt/self.responseTime))
         newPosition = lastPosition + lastError*errorFractionRemoved
 
+        ## gets/evaluates/updates position of rocket to follow trajectory? - sergio
+
         return newPosition
 
 

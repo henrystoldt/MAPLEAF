@@ -1,7 +1,7 @@
 SimControl{
     timeDiscretization RK45Adaptive
     timeStep 0.01 #sec, CanardDeflections
-    plot Position Velocity AngularVelocity Deflection&canardsFin FlightAnimation
+    plot Position Velocity AngularVelocity Deflection&Thrust_vector FlightAnimation
     loggingLevel 2
 
     EndCondition Apogee
@@ -74,14 +74,11 @@ Rocket{
         }
 
         ThrustVector{
-            class           FinSet
+            class           ThrustVector
 
             mass            1 # kg
             position        (0 0 -4.2672)
             cg              (0 0 -4.2672)
- 
-            thickness       0.0047625 # m
-            surfaceRoughness    0.000050
 
             Actuators{
                 class                   Actuator
