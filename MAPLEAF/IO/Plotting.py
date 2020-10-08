@@ -371,10 +371,11 @@ def _keepNTimeSteps(flights, nFramesToKeep=600):
     else:
         return flights
 
-def _get3DPlotSize(Positions, sizeMultiple=1.1):
+def _get3DPlotSize(flight, sizeMultiple=1.1):
     '''
         Finds max X, Y, or Z distance from the origin reached during the a flight. Used to set the 3D plot size (which will be equal in all dimensions)
     '''
+    Positions = flight.Positions
     centerOfPlot = Vector(mean(Positions[0]), mean(Positions[1]), mean(Positions[2]))
 
     xRange = max(Positions[0]) - min(Positions[0])
@@ -632,7 +633,7 @@ def flightAnimation(flights, showPlot=True, saveAnimFileName=None):
         flight.Positions = Positions
 
     # Set xyz size of plot - equal in all dimensions
-    axisDimensions, centerOfPlot = _get3DPlotSize(flights[0].Positions) # Assumes the top stage travels the furthest
+    axisDimensions, centerOfPlot = _get3DPlotSize(flights[0]) # Assumes the top stage travels the furthest
 
     # Calculate frames at which engine turns off and main chute deploys
     for flight in flights:
