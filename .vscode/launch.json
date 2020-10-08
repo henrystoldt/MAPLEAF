@@ -1,0 +1,53 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+
+        {
+            "name": "Run Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "unittest",
+            "args": [ "discover", "-v" ],
+            "console": "integratedTerminal"
+        },
+
+        {
+            "name": "RSim Curr Sim Def",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/MAPLEAF/Main.py",
+            "args": [ "${file}" ],
+            "console": "integratedTerminal"
+        },
+
+        {
+            "name": "Regression Tests Conventional",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/regressionTesting/runCases.py",
+            "args": [ "--filter", "Conventional", "--printStackTraces" ],
+            "console": "integratedTerminal"
+        },
+
+        {
+            "name": "RSim Compare Integration Schemes",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Main.py",
+            "args": [ "--compareIntegrationSchemes", "${file}" ],
+            "console": "integratedTerminal"
+        },
+    ]
+}
