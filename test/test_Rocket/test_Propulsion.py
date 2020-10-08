@@ -11,10 +11,8 @@ import unittest
 from test.testUtilities import (assertInertiasAlmostEqual,
                                 assertIterablesAlmostEqual)
 
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import Inertia
+from MAPLEAF.IO import SimDefinition, SubDictReader
+from MAPLEAF.Motion import Inertia, Vector
 from MAPLEAF.Rocket import Rocket, TabulatedMotor
 
 

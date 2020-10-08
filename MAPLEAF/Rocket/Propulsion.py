@@ -1,10 +1,7 @@
 import re
 
-from MAPLEAF.Motion import linInterp
 from MAPLEAF.IO import SubDictReader
-from MAPLEAF.Motion import Vector
-from MAPLEAF.Motion import ForceMomentSystem
-from MAPLEAF.Motion import Inertia
+from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 
 __all__ = [ "TabulatedMotor" ]
