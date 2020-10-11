@@ -43,10 +43,10 @@ To run a single test module: `python3 -m unittest -v test.test_Vector`
 To easily run restricted sets of tests: `python3 test/runTests.py -h`
 
 ## Running Regression Testing / V & V Suite
-All regression and V&V tests are defined in batch file [test/regressionTesting/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/regressionTesting/testDefinitions.mapleaf)  
+All regression and V&V tests are defined in batch file [MAPLEAF/Examples/BatchSims/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/regressionTesting/testDefinitions.mapleaf)  
 
 To run them:
-`mapleaf-batch MAPLEAF/Examples/Simulations/regressionTests.mapleaf`  
+`mapleaf-batch MAPLEAF/Examples/BatchSims/regressionTests.mapleaf`  
 For more info: `mapleaf-batch -h`
 
 Shows results in console, generates plots in `./test/regressionTesting/`  

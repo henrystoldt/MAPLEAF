@@ -756,7 +756,7 @@ def _buildParser() -> argparse.ArgumentParser:
     ''' Builds the argparse parser for command-line arguments '''
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description="""
     Batch-run MAPLEAF simulations.
-    Expects batch run to be defined by a batch definition file like MAPLEAF/Examples/Simulations/regressionTests.mapleaf
+    Expects batch run to be defined by a batch definition file like MAPLEAF/Examples/BatchSims/regressionTests.mapleaf
     See ./batchRunTemplate.mapleaf for definition of all possible options.
     """)
 
@@ -792,7 +792,7 @@ def _buildParser() -> argparse.ArgumentParser:
         "batchDefinitionFile", 
         nargs='?', 
         default="MAPLEAF/Examples/BatchSims/regressionTests.mapleaf", 
-        help="Path to a batch definition (.mapleaf) file. Default = MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
+        help="Path to a batch definition (.mapleaf) file. Default = MAPLEAF/Examples/BatchSims/regressionTests.mapleaf"
     )
 
     return parser
