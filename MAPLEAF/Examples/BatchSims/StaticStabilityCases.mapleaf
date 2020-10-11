@@ -1,0 +1,698 @@
+StaticStabilityLongFinsOn{
+
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
+
+	ParameterOverrides{
+		Rocket.Sustainer.UpperBodyTube.length			1.042972
+		Rocket.Sustainer.TailFins.position				(0 0 -1.26629)
+		Rocket.Sustainer.BoatTail.position				(0 0 -1.31221)
+		Rocket.Sustainer.TailFins.finCantAngle			0
+		Rocket.Sustainer.TailFins.numFins				4
+		Rocket.Sustainer.constCG             (0 0 -0.9017)
+	}
+	ParameterSweep{
+		smoothLine              True
+
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(0 0 208.4576),(0 0 270.9225),(0 0 300.299),(0 0 314.4915),(0 0 328.3774),(0 0 380.3534),(0 0 459.57),(0 0 517.2983),(0 0 591.496693),(0 0 658.2478028),(0 0 732.9289),(0 0 757.9394)
+		}
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.87244,0.645271,0.56893,0.536423,0.507188,0.413811,0.327,0.260401, 0.18672, 0.126984, 0.077863, 0.057276
+		}
+		viscositySweep{
+			sweptParameter		Environment.ConstantAtmosphere.viscosity
+			parameterValues		1.848e-05,1.776e-05,1.736e-05,1.714e-05,1.692e-05,1.599e-05,1.527e-05, 1.3686e-05, 1.1218e-05, 8.4924e-06, 5.7981e-06, 4.4107e-06
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		75211.3, 52872.8, 45242.6, 41999.2, 39065, 29695.2, 21748.97, 15263.53, 8783.653, 4484.918, 1921.416, 1110.404
+		}
+		tempSweep{
+			sweptParameter		Environment.ConstantAtmosphere.temp
+			parameterValues		27.22, 12.31, 3.958, -0.39, -4.817, -23.15, -39.56, -67.6248, -108.57, -150.088, -187.907, -206.464
+		}
+
+		MachResults{
+			expectedValues		0.6,0.8,0.9,0.95,1,1.2,1.5,1.8,2.3,2.96,3.96,4.63
+			column              Mach
+		}
+	}
+
+	PlotsToGenerate{
+
+		DragCoefficientPlot{
+			columnsToPlot			AeroCFZ
+			xColumnName				Mach
+			lineFormat				*r
+			yLabel					$C_A$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCAFin.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CA
+			xColumnName				Mach
+			lineFormat		.k
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCAFin.csv
+			}					 
+		}
+
+		PitchingMomentCoefficientPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_m$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCmFin.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cm
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCmFin.csv
+			}					 
+		}
+
+		NormalCoefficientPlot{
+			columnsToPlot			AeroCFX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_N$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCNFin.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CN
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCNFin.csv
+			}					 
+		}
+	}	
+}
+
+StaticStabilityLongFinsOff{
+
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnelFinsOff.mapleaf
+
+	ParameterOverrides{
+		Rocket.Sustainer.UpperBodyTube.length			1.042972
+		Rocket.Sustainer.BoatTail.position				(0 0 -1.31221)
+		Rocket.Sustainer.constCG             (0 0 -0.9017)
+	}
+
+	ParameterSweep{
+		smoothLine              True
+
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(0 0 208.4576),(0 0 270.9225),(0 0 300.299),(0 0 314.4915),(0 0 328.3774),(0 0 380.3534),(0 0 459.57),(0 0 517.2983),(0 0 591.496693),(0 0 658.2478028),(0 0 732.9289),(0 0 757.9394)
+		}
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.87244,0.645271,0.56893,0.536423,0.507188,0.413811,0.327,0.260401, 0.18672, 0.126984, 0.077863, 0.057276
+		}
+		viscositySweep{
+			sweptParameter		Environment.ConstantAtmosphere.viscosity
+			parameterValues		1.848e-05,1.776e-05,1.736e-05,1.714e-05,1.692e-05,1.599e-05,1.527e-05, 1.3686e-05, 1.1218e-05, 8.4924e-06, 5.7981e-06, 4.4107e-06
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		75211.3, 52872.8, 45242.6, 41999.2, 39065, 29695.2, 21748.97, 15263.53, 8783.653, 4484.918, 1921.416, 1110.404
+		}
+		tempSweep{
+			sweptParameter		Environment.ConstantAtmosphere.temp
+			parameterValues		27.22, 12.31, 3.958, -0.39, -4.817, -23.15, -39.56, -67.6248, -108.57, -150.088, -187.907, -206.464
+		}
+
+
+		MachResults{
+			expectedValues		0.6,0.8,0.9,0.95,1,1.2,1.5,1.8,2.3,2.96,3.96,4.63
+			column              Mach
+		}
+	}
+
+	PlotsToGenerate{
+
+		DragCoefficientPlot{
+			columnsToPlot			AeroCFZ
+			xColumnName				Mach
+			lineFormat				*r
+			yLabel					$C_A$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCAFinsOff.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CA
+			xColumnName				Mach
+			lineFormat		.k
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCAFinsOff.csv
+			}		 
+		}
+
+		PitchingMomentCoefficientPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_m$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCmFinsOff.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cm
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCmFinsOff.csv
+			}					 
+		}
+
+		NormalCoefficientPlot{
+			columnsToPlot			AeroCFX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_N$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCNFinsOff.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CN
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCNFinsOff.csv
+			}					 
+		}
+	}	
+}
+
+StaticStabilityLongFinsCant{
+
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
+
+	ParameterOverrides{
+		Rocket.Sustainer.UpperBodyTube.length			1.042972
+		Rocket.Sustainer.TailFins.position				(0 0 -1.26629)
+		Rocket.Sustainer.BoatTail.position				(0 0 -1.31221)
+		Rocket.Sustainer.TailFins.finCantAngle			2
+		Rocket.Sustainer.TailFins.numFins				4
+		Rocket.Sustainer.constCG             (0 0 -0.9017)
+	}
+
+	ParameterSweep{
+		smoothLine              True
+
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(0 0 208.4576),(0 0 270.9225),(0 0 300.299),(0 0 314.4915),(0 0 328.3774),(0 0 380.3534),(0 0 459.57),(0 0 517.2983),(0 0 591.496693),(0 0 658.2478028),(0 0 732.9289),(0 0 757.9394)
+		}
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.87244,0.645271,0.56893,0.536423,0.507188,0.413811,0.327,0.260401, 0.18672, 0.126984, 0.077863, 0.057276
+		}
+		viscositySweep{
+			sweptParameter		Environment.ConstantAtmosphere.viscosity
+			parameterValues		1.848e-05,1.776e-05,1.736e-05,1.714e-05,1.692e-05,1.599e-05,1.527e-05, 1.3686e-05, 1.1218e-05, 8.4924e-06, 5.7981e-06, 4.4107e-06
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		75211.3, 52872.8, 45242.6, 41999.2, 39065, 29695.2, 21748.97, 15263.53, 8783.653, 4484.918, 1921.416, 1110.404
+		}
+		tempSweep{
+			sweptParameter		Environment.ConstantAtmosphere.temp
+			parameterValues		27.22, 12.31, 3.958, -0.39, -4.817, -23.15, -39.56, -67.6248, -108.57, -150.088, -187.907, -206.464
+		}
+
+
+		MachResults{
+			expectedValues		0.6,0.8,0.9,0.95,1,1.2,1.5,1.8,2.3,2.96,3.96,4.63
+			column              Mach
+		}
+	}
+
+	PlotsToGenerate{
+
+		DragCoefficientPlot{
+			columnsToPlot			AeroCFZ
+			xColumnName				Mach
+			lineFormat				*r
+			yLabel					$C_A$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCACant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CA
+			xColumnName				Mach
+			lineFormat		.k
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCACant.csv
+			}		 
+		}	
+
+		CoefficientOfLiftPlot{
+			columnsToPlot			AeroCMZ
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_l$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongClCant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cl
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongClCant.csv
+			}			
+		}
+
+		PitchingMomentCoefficientPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_m$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCmCant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cm
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCmCant.csv
+			}					 
+		}
+
+		NormalCoefficientPlot{
+			columnsToPlot			AeroCFX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_N$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityLongCNCant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CN
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityLongCNCant.csv
+			}					 
+		}		
+	}	
+}
+
+StaticStabilityShortFinsOn{
+
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
+
+	ParameterOverrides{
+		Rocket.Sustainer.UpperBodyTube.length			0.7242
+		Rocket.Sustainer.TailFins.position				(0 0 -0.94742)
+		Rocket.Sustainer.BoatTail.position				(0 0 -0.99344)
+		Rocket.Sustainer.TailFins.finCantAngle			0
+		Rocket.Sustainer.TailFins.numFins				4
+		Rocket.Sustainer.constCG             (0 0 -0.65913)
+	}
+
+	ParameterSweep{
+		smoothLine              True
+
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(0 0 208.4576),(0 0 270.9225),(0 0 300.299),(0 0 314.4915),(0 0 328.3774),(0 0 380.3534),(0 0 459.57),(0 0 517.2983),(0 0 591.496693),(0 0 658.2478028),(0 0 732.9289),(0 0 757.9394)
+		}
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.87244,0.645271,0.56893,0.536423,0.507188,0.413811,0.327,0.260401, 0.18672, 0.126984, 0.077863, 0.057276
+		}
+		viscositySweep{
+			sweptParameter		Environment.ConstantAtmosphere.viscosity
+			parameterValues		1.848e-05,1.776e-05,1.736e-05,1.714e-05,1.692e-05,1.599e-05,1.527e-05, 1.3686e-05, 1.1218e-05, 8.4924e-06, 5.7981e-06, 4.4107e-06
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		75211.3, 52872.8, 45242.6, 41999.2, 39065, 29695.2, 21748.97, 15263.53, 8783.653, 4484.918, 1921.416, 1110.404
+		}
+		tempSweep{
+			sweptParameter		Environment.ConstantAtmosphere.temp
+			parameterValues		27.22, 12.31, 3.958, -0.39, -4.817, -23.15, -39.56, -67.6248, -108.57, -150.088, -187.907, -206.464
+		}
+
+		MachResults{
+			expectedValues		0.6,0.8,0.9,0.95,1,1.2,1.5,1.8,2.3,2.96,3.96,4.63
+			column              Mach
+		}
+	}
+
+	PlotsToGenerate{
+
+		DragCoefficientPlot{
+			columnsToPlot			AeroCFZ
+			xColumnName				Mach
+			lineFormat				*r
+			yLabel					$C_A$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCAFin.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CA
+			xColumnName				Mach
+			lineFormat		.k
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilitySHortCAFin.csv
+			}		 
+		}	
+
+		PitchingMomentCoefficientPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_m$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCmFin.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cm
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCmFin.csv
+			}					 
+		}
+
+		NormalCoefficientPlot{
+			columnsToPlot			AeroCFX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_N$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCNFin.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CN
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCNFin.csv
+			}					 
+		}
+	}	
+}
+
+StaticStabilityShortFinsOff{
+
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnelFinsOff.mapleaf
+
+	ParameterOverrides{
+		Rocket.Sustainer.UpperBodyTube.length			0.7242
+		Rocket.Sustainer.BoatTail.position				(0 0 -0.99344)
+		Rocket.Sustainer.constCG             (0 0 -0.65913)
+	}
+
+	ParameterSweep{
+		smoothLine              True
+
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(0 0 208.4576),(0 0 270.9225),(0 0 300.299),(0 0 314.4915),(0 0 328.3774),(0 0 380.3534),(0 0 459.57),(0 0 517.2983),(0 0 591.496693),(0 0 658.2478028),(0 0 732.9289),(0 0 757.9394)
+		}
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.87244,0.645271,0.56893,0.536423,0.507188,0.413811,0.327,0.260401, 0.18672, 0.126984, 0.077863, 0.057276
+		}
+		viscositySweep{
+			sweptParameter		Environment.ConstantAtmosphere.viscosity
+			parameterValues		1.848e-05,1.776e-05,1.736e-05,1.714e-05,1.692e-05,1.599e-05,1.527e-05, 1.3686e-05, 1.1218e-05, 8.4924e-06, 5.7981e-06, 4.4107e-06
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		75211.3, 52872.8, 45242.6, 41999.2, 39065, 29695.2, 21748.97, 15263.53, 8783.653, 4484.918, 1921.416, 1110.404
+		}
+		tempSweep{
+			sweptParameter		Environment.ConstantAtmosphere.temp
+			parameterValues		27.22, 12.31, 3.958, -0.39, -4.817, -23.15, -39.56, -67.6248, -108.57, -150.088, -187.907, -206.464
+		}
+
+
+		MachResults{
+			expectedValues		0.6,0.8,0.9,0.95,1,1.2,1.5,1.8,2.3,2.96,3.96,4.63
+			column              Mach
+		}
+	}
+
+	PlotsToGenerate{
+
+		DragCoefficientPlot{
+			columnsToPlot			AeroCFZ
+			xColumnName				Mach
+			lineFormat				*r
+			yLabel					$C_A$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCAFinsOff.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CA
+			xColumnName				Mach
+			lineFormat		.k
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCAFinsOff.csv
+			}		 
+		}
+
+		PitchingMomentCoefficientPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_m$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCmFinsOff.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cm
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCmFinsOff.csv
+			}					 
+		}
+
+		NormalCoefficientPlot{
+			columnsToPlot			AeroCFX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_N$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCNFinsOff.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CN
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCNFinsOff.csv
+			}					 
+		}			
+	}	
+}
+
+StaticStabilityShortFinsCant{
+
+	simDefinitionFile			./MAPLEAF/Examples/Simulations/WindTunnel.mapleaf
+
+	ParameterOverrides{
+		Rocket.Sustainer.UpperBodyTube.length			0.7242
+		Rocket.Sustainer.TailFins.position				(0 0 -0.94742)
+		Rocket.Sustainer.BoatTail.position				(0 0 -0.99344)
+		Rocket.Sustainer.TailFins.finCantAngle			2
+		Rocket.Sustainer.TailFins.numFins				4
+		Rocket.Sustainer.constCG             (0 0 -0.65913)
+	}
+
+	ParameterSweep{
+		smoothLine              True
+
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(0 0 208.4576),(0 0 270.9225),(0 0 300.299),(0 0 314.4915),(0 0 328.3774),(0 0 380.3534),(0 0 459.57),(0 0 517.2983),(0 0 591.496693),(0 0 658.2478028),(0 0 732.9289),(0 0 757.9394)
+		}
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.87244,0.645271,0.56893,0.536423,0.507188,0.413811,0.327,0.260401, 0.18672, 0.126984, 0.077863, 0.057276
+		}
+		viscositySweep{
+			sweptParameter		Environment.ConstantAtmosphere.viscosity
+			parameterValues		1.848e-05,1.776e-05,1.736e-05,1.714e-05,1.692e-05,1.599e-05,1.527e-05, 1.3686e-05, 1.1218e-05, 8.4924e-06, 5.7981e-06, 4.4107e-06
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		75211.3, 52872.8, 45242.6, 41999.2, 39065, 29695.2, 21748.97, 15263.53, 8783.653, 4484.918, 1921.416, 1110.404
+		}
+		tempSweep{
+			sweptParameter		Environment.ConstantAtmosphere.temp
+			parameterValues		27.22, 12.31, 3.958, -0.39, -4.817, -23.15, -39.56, -67.6248, -108.57, -150.088, -187.907, -206.464
+		}
+
+
+		MachResults{
+			expectedValues		0.6,0.8,0.9,0.95,1,1.2,1.5,1.8,2.3,2.96,3.96,4.63
+			column              Mach
+		}
+	}
+
+	PlotsToGenerate{
+
+		DragCoefficientPlot{
+			columnsToPlot			AeroCFZ
+			xColumnName				Mach
+			lineFormat				*r
+			yLabel					$C_A$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCACant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CA
+			xColumnName				Mach
+			lineFormat		.k
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCACant.csv
+			}		 
+		}	
+
+		CoefficientOfLiftPlot{
+			columnsToPlot			AeroCMZ
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_l$
+			xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortClCant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cl
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortClCant.csv
+			}			
+		}
+
+		PitchingMomentCoefficientPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_m$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCmCant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			Cm
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCmCant.csv
+			}					 
+		}
+
+		NormalCoefficientPlot{
+			columnsToPlot			AeroCFX
+			xColumnName				Mach
+			lineFormat				*b
+			yLabel					$C_N$
+			# xLimits				    0 5
+			# yLimits				    0 1.0
+      scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite			True
+			saveLocation			./test/regressionTesting/StaticStability/StaticStabilityShortCNCant.pdf
+		 
+			ComparisonDataExp{
+			columnsToPlot			CN
+			xColumnName				Mach
+			lineFormat		.y
+			legendLabel		WindTunnel			
+			file							./test/regressionTesting/StaticStability/StaticStabilityShortCNCant.csv
+			}					 
+		}
+	}	
+}

@@ -1,0 +1,194 @@
+ExampleWindTunnelCase{
+	simDefinitionFile                   ./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
+
+	ParameterOverrides{
+		Environment.MeanWindModel			Constant
+		Environment.ConstantMeanWind.velocity	(0 0 0)
+	}
+		
+  ParameterSweep{
+
+		smoothLine						False
+
+		velocitySweep{
+			sweptParameter                 	Rocket.velocity # Can be any parameter in the simulation definition file
+      		parameterValues               	(0 0 10):100:(0 0 550) # Provide COMMA-separated list of values - can also just be a single value
+		}
+
+		DragResults{
+			column	AeroCFZ
+			expectedValues	-0.5160343370411836,-0.4743394712796772,-0.4543158608597846,-0.4766415060449775,-0.4764857165813025,-0.4763040249018742,-0.4760903533914659,-0.4758504481131774,-0.4755795750596008,-0.4752814499929584,-0.4749529904648326,-0.4745971566361664,-0.4742123813741624,-0.4737974533623172,-0.4733549548170017,-0.4728826428466781,-0.4723825192219834,-0.47185271205749696,-0.4712951568985681,-0.4707080501715802,-0.4700931140319944,-0.4694488252020408,-0.4687767103026243,-0.4680760394797915,-0.4673462546774781,-0.4665887155528318,-0.4658022528097481,-0.4649881909141454,-0.4641454546287447,-0.4632753749280276,-0.462377022002771,-0.4614518251132527,-0.4604990809782653,-0.4595203670242245,-0.4585159777159855,-0.4574864612342866,-0.4564342342965224,-0.4553604017969528,-0.45426867907066903,-0.4531620338144226,-0.4520465232620178,-0.4509284924327568,-0.4498183353925269,-0.4487282167003526,-0.4476761770404695,-0.4466847986829,-0.4457840871997125,-0.4450146144726135,-0.4444279344539948,-0.4440926511028287,-0.44409619652198185,-0.4445529240703858,-0.4456084494185042,-0.4474508785733382,-0.4503196470792815,-0.4551662216628316,-0.4620390055616229,-0.4711204202208502,-0.4829880293051346,-0.49835871482649996,-0.5181222789763742,-0.5557611963481004,-0.5763527658067772,-0.5921345132380971,-0.6035504512527788,-0.6110433437747592,-0.6150573828476874,-0.6156019484681933,-0.6118698248559776,-0.6058412220281344,-0.5979542091431951,-0.5886481273285389,-0.5783610774597572,-0.5675323723567326,-0.5566001489575074,-0.5460036757342481,-0.5361811421131006,-0.5275717664524329,-0.5206140067671565,-0.5157463420542213,-0.512692238000638,-0.5098453406485507,-0.5071073542603249,-0.5044653900197261,-0.5019093492517039,-0.4994297951756905,-0.4970194237270623,-0.4946711467238286,-0.4923795707264044,-0.4901394365298475,-0.4879461045801453,-0.4857960729352246,-0.4836855006646965,-0.4816117073976542,-0.4795715965687629,-0.4775631089363794,-0.4755837100321764,-0.473631801988772,-0.4717052791493262,-0.4698029099802321
+		}
+
+		MachResults{
+			column	Mach
+			expectedValues	0.0294,0.0454,0.0614,0.0775,0.0935,0.1095,0.1256,0.1416,0.1576,0.1737,0.1897,0.2057,0.2218,0.2378,0.2538,0.2698,0.2859,0.3019,0.3179,0.33399999999999996,0.35,0.366,0.3821,0.3981,0.4141,0.4301,0.4462,0.4622,0.4782,0.4943,0.5103,0.5263,0.5424,0.5584,0.5744,0.5905,0.6065,0.6225,0.6385,0.6546,0.6706,0.6866,0.7027,0.7187,0.7347,0.7508,0.7668,0.7828,0.7988,0.8149,0.8309,0.8469,0.863,0.879,0.895,0.9111,0.9271,0.9431,0.9592,0.9752,0.9912,1.0072,1.0233,1.0393,1.0553,1.0714,1.0874,1.1034,1.1195,1.1355,1.1515,1.1675,1.1836,1.1996,1.2156,1.2317,1.2477,1.2637,1.2798,1.2958,1.3118,1.3279,1.3439,1.3599,1.3759,1.392,1.4080000000000001,1.4240000000000002,1.4401,1.4561,1.4721,1.4882,1.5042,1.5202,1.5362,1.5523,1.5683,1.5843,1.6004,1.6164
+		}
+  }
+    
+  PlotsToGenerate{
+    SamplePlot{
+      columnsToPlot               Cd AeroCFZ NoseconeCFZ TailFinsCFZ BodyTubeCFZ
+      xColumnName                 Mach
+      overwrite             True
+      lineFormat					--b
+      xLabel						Mach
+      yLabel						Coefficient of Drag
+      xLimits						0.2 1.6
+      yLimits						-1.2 1.2
+			scalingFactor				-1
+      plotTitle					Example Wind Tunnel
+      legendLabel					Total
+      saveLocation                ./test/regressionTesting/SampleWindTunnelPlot.pdf
+    }
+  }
+}
+
+ExampleCase1{
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
+
+	ExpectedFinalValues{
+		Mach	    	0.3514
+		PositionX		-0.332
+		Time(s)	    	1.001
+	}
+
+	ParameterOverrides{
+
+		SimControl{
+			EndCondition	    Time
+			EndConditionValue	1
+		}
+	}
+
+	PlotsToGenerate{
+
+		SamplePlot{
+			columnsToPlot	PositionZ ^VelocityZ
+			lineFormat			:b :k
+			xLabel					Time (s)
+			yLabel					Altitude (m)
+			xLimits					0 1
+			yLimits					0 100	
+			plotTitle				Example Plot
+			legendLabel			Altitude Sim, Velocity Sim
+			saveLocation	./test/regressionTesting/SamplePlot.pdf
+
+			comparisonData{
+				columnsToPlot	posZ velZ
+				lineFormat		 --b --k
+				legendLabel		Altitude Comparison, Velocity Comparison
+				file	        ./test/regressionTesting/sampleComparisonData.csv
+			}
+		}
+	}
+}
+
+ConventionalRocketCase{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/Conventional.mapleaf
+
+	ParameterSweep{
+		smoothLine		True
+		velocitySweep{
+			sweptParameter			Rocket.velocity
+			parameterValues			(538.58 0 0),(536.5305 46.94 0),(530.3977 93.523 0),(520.228 139.395 0),(506.09965 184.205 0)
+		}
+		MachResults{
+			expectedValues			2,2,2,2,2
+			column							Mach
+		}
+		AOAResults{
+			expectedValues			0,5,10,15,20
+			column							AOA(deg)
+		}
+	}
+
+	PlotsToGenerate{
+		CmPlot{
+			columnsToPlot			AeroCMX
+			xColumnName				AOA(deg)
+			lineFormat				*r
+			xLabel						$\alpha$
+			yLabel						$C_m$
+			legendLabel				MAPLEAF
+			overwrite		True
+			saveLocation			./test/regressionTesting/Conventional/ConventionalCm.pdf
+			
+			ComparisonDataAP98{
+				columnsToPlot			Cm
+				xColumnName				AOA
+				lineFormat				-c
+				legendLabel				Aeroprediction98
+				file							./test/regressionTesting/Conventional/ConventionalAP98Cm.csv
+			}
+			ComparisonDataDC97{
+				columnsToPlot			Cm
+				xColumnName				AOA
+				lineFormat				--m
+				legendLabel				Datcom97
+				file							./test/regressionTesting/Conventional/ConventionalDC97Cm.csv
+			}
+			ComparisonDataWT{
+				columnsToPlot			Cm
+				xColumnName				AOA
+				lineFormat				.k
+				legendLabel				Wind Tunnel
+				file							./test/regressionTesting/Conventional/ConventionalWTCm.csv
+			}
+		}	
+
+		CNPlot{
+			columnsToPlot				AeroCFY
+			xColumnName					AOA(deg)
+			lineFormat					*r
+			xLabel							$\alpha$
+			yLabel							$C_N$
+			legendLabel					MAPLEAF
+			scalingFactor			-1
+			overwrite			True
+			saveLocation				./test/regressionTesting/Conventional/ConventionalCN.pdf
+
+			ComparisonDataAP98{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				-c
+				legendLabel				Aeroprediction98
+				file							./test/regressionTesting/Conventional/ConventionalAP98CN.csv
+			}
+			ComparisonDataDC97{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				--m
+				legendLabel				Datcom97
+				file							./test/regressionTesting/Conventional/ConventionalDC97CN.csv
+			}
+			ComparisonDataWT{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormmat				DC97
+				lineFormat				.k
+				legendLabel				Wind Tunnel
+				file							./test/regressionTesting/Conventional/ConventionalWTCN.csv
+			}
+		}
+
+		!create CPPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CP'
+
+			columnsToPlot				CPZ
+			yLabel							$X_{CP}$
+			offset							-8 # Make CP location relative to moment reference instead of nose cone
+			saveLocation				./test/regressionTesting/Conventional/ConventionalCP.pdf
+		}
+	}
+}
+
+!include OpenRocketCases.mapleaf
+
+!include SparrowCases.mapleaf
+
+!include ParametricFinBodyCases.mapleaf
+
+!include NASAVerificationCases.mapleaf
+
+!include StaticStabilityCases.mapleaf

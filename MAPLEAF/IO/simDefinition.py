@@ -143,7 +143,7 @@ simDefinitionHelpMessage = \
     key value
 """
 class SimDefinition():
-    
+
     #### Parsing / Initialization ####
     def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None, simDefParseStack=None):
         '''
@@ -235,7 +235,7 @@ class SimDefinition():
             return subSimDef
         
         else:
-            raise ValueError("Encountered circular reference while trying to parse SimDefinition file: {}, which references: {}, which is in the current parse stack: {}".format(self.fileName, filePath, self.simDefParseStack))
+            raise ValueError("Encountered circular reference while trying to parse SimDefinition file: {}, which references: {}, which is already in the current parse stack: {}".format(self.fileName, filePath, self.simDefParseStack))
 
     def _parseDictionaryContents(self, Dict, workingText, startLine: int, currDictName: str, allowKeyOverwriting=False) -> int:
         ''' 
@@ -264,7 +264,11 @@ class SimDefinition():
 
                 # Add keys to current sim definition, inside current dictionary
                 for subDefkey in subDef.dict:
-                    key = currDictName + "." + subDefkey
+                    if currDictName == "":
+                        key = subDefkey
+                    else:
+                        key = currDictName + "." + subDefkey
+
                     Dict[key] = subDef.dict[subDefkey]
 
             elif line[-1] == '{':

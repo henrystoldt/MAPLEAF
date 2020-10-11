@@ -1,0 +1,373 @@
+
+
+NASADraglessSphere{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
+
+	ParameterOverrides{
+		Rocket.Stage.AeroForce.Cd 	0.0 # Sphere is dragless
+	}
+
+	# Expected values from NASA Sim 4
+	ExpectedFinalValues{
+		PositionX		6382876.054
+		PositionY   	13969.82281
+		PositionZ		0.0
+		VelocityX(m/s)	-293.7167128
+		VelocityY(m/s)	465.4464411
+		VelocityZ(m/s)	0.0
+	}
+
+	PlotsToGenerate{
+		XLoc{
+			columnsToPlot				PositionX
+			lineFormat					--b
+			yLabel							ECI X Position (ft)
+			yLimits							2.0940e7 2.0956e7
+			legendLabel					MAPLEAF
+			saveLocation				./test/regressionTesting/NASADraglessSphere/X.pdf
+			scalingFactor				3.280840 # Convert to feet
+
+			SIM4{
+				columnsToPlot			eiPosition_ft_X
+				xColumnName				time
+				lineFormat				-
+				legendLabel				NASA SIM 4
+				file							./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_04.csv
+			}
+			
+			SIM5{
+				columnsToPlot			eiPosition_ft_X
+				xColumnName				time
+				lineFormat				-.
+				legendLabel				NASA SIM 5
+				file							./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_05.csv
+			}
+			
+			SIM6{
+				columnsToPlot			eiPosition_ft_X
+				xColumnName				time
+				lineFormat				--
+				legendLabel				NASA SIM 6
+				file					./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_06.csv
+			}
+		}
+
+		!create YLoc from NASADraglessSphere.PlotsToGenerate.XLoc{
+			!replace 'eiPosition_ft_X' with 'eiPosition_ft_Y'
+			!removeKeysContaining 'yLimits'
+			columnsToPlot				PositionY
+			yLabel							ECI Y Position (ft)
+			saveLocation				./test/regressionTesting/NASADraglessSphere/Y.pdf
+		}
+
+		!create ZLoc from NASADraglessSphere.PlotsToGenerate.YLoc{
+			!replace 'eiPosition_ft_Y' with 'eiPosition_ft_Z'
+			columnsToPlot				PositionZ
+			yLabel							ECI Z Position (ft)
+			saveLocation				./test/regressionTesting/NASADraglessSphere/Z.pdf
+		}
+
+		!create XVel from NASADraglessSphere.PlotsToGenerate.YLoc{
+			!replace 'eiPosition_ft_Y' with 'eiVelocity_ft_s_X'
+			columnsToPlot				VelocityX(m/s)
+			yLabel							ECI X Velocity (ft/s)
+			saveLocation				./test/regressionTesting/NASADraglessSphere/XVel.pdf
+		}
+
+		!create YVel from NASADraglessSphere.PlotsToGenerate.YLoc{
+			!replace 'eiPosition_ft_Y' with 'eiVelocity_ft_s_Y'
+			columnsToPlot				VelocityY(m/s)
+			yLabel							ECI Y Velocity (ft/s)
+			saveLocation				./test/regressionTesting/NASADraglessSphere/YVel.pdf
+		}
+
+		!create ZVel from NASADraglessSphere.PlotsToGenerate.YLoc{
+			!replace 'eiPosition_ft_Y' with 'eiVelocity_ft_s_Z'
+			columnsToPlot				VelocityZ(m/s)
+			yLabel							ECI Z Velocity (ft/s)
+			saveLocation				./test/regressionTesting/NASADraglessSphere/ZVel.pdf
+		}
+	}
+}
+
+NASACdSphere_RoundEarth{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
+
+	ParameterOverrides{
+		Environment.EarthModel		Round
+	}
+
+	# Expected values from NASA Sim 4
+	ExpectedFinalValues{
+		PositionX				6375952.953
+		PositionY   		13954.22714
+		PositionZ				0.0
+		VelocityX(m/s)	-264.5117166
+		VelocityY(m/s)	464.9271675
+		VelocityZ(m/s)	0.0
+	}
+
+	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
+		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASASphere_RoundEarth/'
+		!replace '/Atmos_01' with '/Atmos_05'
+	}
+}
+
+NASACdSphere_WGS84{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
+
+	# Expected values from NASA Sim 4
+	ExpectedFinalValues{
+		PositionX				6383085.212
+		PositionY   		13969.82655
+		PositionZ				0.0
+		VelocityX(m/s)	-264.3698185
+		VelocityY(m/s)	465.4472786
+		VelocityZ(m/s)	0.0
+	}
+
+	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
+		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASASphere_WGS84Wind/'
+		!replace '/Atmos_01' with '/Atmos_07'
+	}
+}
+
+NASACdSphere_WGS84Wind{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASASphere.mapleaf
+
+	ParameterOverrides{
+		Environment.MeanWindModel				Constant
+		Environment.ConstantMeanWind.velocity	(6.096 0 0) # 20 ft/s
+	}
+
+	# Expected values from NASA Sim 4
+	ExpectedFinalValues{
+		PositionX			6383085.4118580
+		PositionY   		13978.2005101
+		PositionZ			0.0
+		VelocityX(m/s)		-264.3589523
+		VelocityY(m/s)		466.3203626
+		VelocityZ(m/s)		0.0
+	}
+
+	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
+		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASASphere_WGS84Wind/'
+		!replace '/Atmos_01' with '/Atmos_07'
+	}
+}
+
+NASADampedBrick{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASABrick.mapleaf
+
+	# Expected values from NASA Sim 4
+	ExpectedFinalValues{
+		PositionX		6382876.054
+		PositionY   	13969.82281
+		PositionZ		0.0
+		VelocityX(m/s)	-293.7167128
+		VelocityY(m/s)	465.4464411
+		VelocityZ(m/s)	0.0
+		EulerAngleX		-0.08899 # Actual value from SIM 4: -0.08891
+		EulerAngleY		-0.67699
+		EulerAngleZ		-1.94402
+	}
+
+	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
+		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASADampedBrick/'
+		!replace '/Atmos_01' with '/Atmos_03'
+		!removeKeysContaining 'yLimit'
+
+		XAngle{
+			columnsToPlot				EulerAngleX
+			lineFormat					--b
+			yLabel							NED X (Roll) Euler Angle (deg)
+			legendLabel					MAPLEAF
+			saveLocation				./test/regressionTesting/NASADampedBrick/NED_XAngle.pdf
+			scalingFactor				57.2957795131 # Convert to degrees
+
+			SIM2{
+				columnsToPlot			eulerAngle_deg_Roll
+				xColumnName				time
+				lineFormat				-
+				legendLabel				NASA SIM 2
+				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_02.csv
+			}
+
+			SIM4{
+				columnsToPlot			eulerAngle_deg_Roll
+				xColumnName				time
+				lineFormat				-
+				legendLabel				NASA SIM 4
+				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_04.csv
+			}
+			
+			SIM5{
+				columnsToPlot			eulerAngle_deg_Roll
+				xColumnName				time
+				lineFormat				-.
+				legendLabel				NASA SIM 5
+				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_05.csv
+			}
+			
+			SIM6{
+				columnsToPlot			eulerAngle_deg_Roll
+				xColumnName				time
+				lineFormat				--
+				legendLabel				NASA SIM 6
+				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_06.csv
+			}
+		}
+
+		!create YAngle from NASADampedBrick.PlotsToGenerate.XAngle{
+			!replace 'eulerAngle_deg_Roll' with 'eulerAngle_deg_Pitch'
+			columnsToPlot				EulerAngleY
+			yLabel							NED Y (Pitch) Euler Angle (deg)
+			saveLocation				./test/regressionTesting/NASADampedBrick/NED_YAngle.pdf
+		}
+
+		!create ZAngle from NASADampedBrick.PlotsToGenerate.XAngle{
+			!replace 'eulerAngle_deg_Roll' with 'eulerAngle_deg_Yaw'
+			columnsToPlot				EulerAngleZ
+			yLabel							NED Z (Yaw) Euler Angle (deg)
+			saveLocation				./test/regressionTesting/NASADampedBrick/NED_ZAngle.pdf
+		}
+	}
+}
+
+!create NASABrick from NASADampedBrick{
+	!replace 'regressionTesting/NASADampedBrick/' with 'regressionTesting/NASABrick/'
+	!replace '/Atmos_03' with '/Atmos_02'
+
+	ParameterOverrides{
+		# No damping for this version of the case
+		Rocket.Stage.AeroDamping.zDampingCoeffs		(0 0 0)
+		Rocket.Stage.AeroDamping.yDampingCoeffs		(0 0 0)
+		Rocket.Stage.AeroDamping.xDampingCoeffs		(0 0 0)
+		SimControl.timeStep												0.025
+	}
+
+	# Final orientation is different than in the NASADampedBrick case due to lack of damping
+	# Position / Velocity results are the same
+	ExpectedFinalValues{
+		EulerAngleX		-0.980025197
+		EulerAngleY		-0.066646 # -0.066665555 with tighter time step
+		EulerAngleZ		-0.074831 # -0.074863368 with tighter time step
+	}
+}
+
+NASATwoStageOrbitalRocket{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/NASATwoStageOrbitalRocket.mapleaf
+
+	ParameterOverrides{
+		SimControl.StageDropPaths.compute false
+	}
+
+	ExpectedFinalValues{
+		PositionX(m)	6598829.9
+		PositionY(m)	637702.775
+		PositionZ(m)	0.0
+		VelocityX(m/s)	2303.5448
+		VelocityY(m/s)	8478.6648
+		VelocityZ(m/s)	0.0
+	}
+
+	!create PlotsToGenerate from NASADampedBrick.PlotsToGenerate{
+		!replace 'regressionTesting/NASADampedBrick/' with 'regressionTesting/NASAOrbitalRocket/'
+		!replace '/Atmos_03' with '/Atmos_17'
+		!removeKeysContaining 'SIM2'	# No SIM 2 results present for this case
+
+		YAngle.offset  					90
+		YAngle.xlimits					0 50
+
+		Density{
+			columnsToPlot				Density
+			lineFormat					--b
+			yLimits							0	0.0001
+			yLabel							Air Density (slug / ft^3)
+			legendLabel					MAPLEAF
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/Density.pdf
+			scalingFactor				0.00194032 # Convert to slug / ft^3 from kg/m^3
+
+			SIM4{
+				columnsToPlot			airDensity_slug_ft3
+				xColumnName				time
+				lineFormat				-
+				legendLabel				NASA SIM 4
+				file							./test/regressionTesting/NASAOrbitalRocket/Atmos_17_sim_04.csv
+			}
+			
+			SIM5{
+				columnsToPlot			airDensity_slug_ft3
+				xColumnName				time
+				lineFormat				-.
+				legendLabel				NASA SIM 5
+				file							./test/regressionTesting/NASAOrbitalRocket/Atmos_17_sim_05.csv
+			}
+			
+			SIM6{
+				columnsToPlot			airDensity_slug_ft3
+				xColumnName				time
+				lineFormat				--
+				legendLabel				NASA SIM 6
+				file							./test/regressionTesting/NASAOrbitalRocket/Atmos_17_sim_06.csv
+			}
+		}
+
+		!create DynamicPressure from NASATwoStageOrbitalRocket.PlotsToGenerate.Density{
+			!replace "airDensity_slug_ft3" with "dynamicPressure_lbf_ft2"
+			!removeKeysContaining 'yLimits'
+			columnsToPlot				DynamicP
+			yLabel							Dynamic Pressure (psf)
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/DynamicP.pdf
+			scalingFactor				0.021 # Convert to psf from Pa
+		}		
+		
+		!create Mach from NASATwoStageOrbitalRocket.PlotsToGenerate.DynamicPressure{
+			!replace "dynamicPressure_lbf_ft2" with "mach"
+			columnsToPlot				Mach
+			yLabel							Mach
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/Mach.pdf
+			scalingFactor				1 
+		}
+
+		!create AeroMY from NASATwoStageOrbitalRocket.PlotsToGenerate.DynamicPressure{
+			!replace "dynamicPressure_lbf_ft2" with "aero_bodyMoment_ftlbf_M"
+			columnsToPlot				AeroMY
+			yLabel							Aerodynamic Pitching Moment (ft lb)
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroPitchMoment.pdf
+			scalingFactor				-0.7375621493 # Convert from Nm to ft lb
+		}
+
+		!create AeroMX from NASATwoStageOrbitalRocket.PlotsToGenerate.DynamicPressure{
+			!replace "dynamicPressure_lbf_ft2" with "aero_bodyMoment_ftlbf_N"
+			columnsToPlot				AeroMX
+			yLabel							Aerodynamic Yawing Moment (ft lb)
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroYawMoment.pdf
+			scalingFactor				0.7375621493 # Convert from Nm to ft lb
+		}
+
+		!create AeroFX from NASATwoStageOrbitalRocket.PlotsToGenerate.DynamicPressure{
+			!replace "dynamicPressure_lbf_ft2" with "aero_bodyForce_lbf_Z"
+			columnsToPlot				AeroFX
+			yLabel							Aerodynamic Z-Force (lbf)
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroXForce.pdf
+			scalingFactor				0.22480894244319 # Convert from N to lb
+		}
+
+		!create AeroFY from NASATwoStageOrbitalRocket.PlotsToGenerate.DynamicPressure{
+			!replace "dynamicPressure_lbf_ft2" with "aero_bodyForce_lbf_Y"
+			columnsToPlot				AeroFY
+			yLabel							Aerodynamic Y-Force (lbf)
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroYForce.pdf
+			scalingFactor				0.22480894244319 # Convert from N to lb
+		}
+
+		!create AeroFZ from NASATwoStageOrbitalRocket.PlotsToGenerate.DynamicPressure{
+			!replace "dynamicPressure_lbf_ft2" with "aero_bodyForce_lbf_X"
+			columnsToPlot				TabulatedAeroForcesFZ
+			yLabel						Aerodynamic Axial Force (lbf)
+			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroAxialForce.pdf
+			scalingFactor				0.22480894244319 # Convert from N to lb
+		}
+	}
+}

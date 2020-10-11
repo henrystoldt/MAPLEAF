@@ -791,7 +791,7 @@ def _buildParser() -> argparse.ArgumentParser:
     parser.add_argument(
         "batchDefinitionFile", 
         nargs='?', 
-        default="MAPLEAF/Examples/Simulations/regressionTests.mapleaf", 
+        default="MAPLEAF/Examples/BatchSims/regressionTests.mapleaf", 
         help="Path to a batch definition (.mapleaf) file. Default = MAPLEAF/Examples/Simulations/regressionTests.mapleaf"
     )
 
