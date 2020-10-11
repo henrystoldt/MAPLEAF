@@ -2,9 +2,10 @@
 # January 2019
 
 ''' 
-Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
+Contains a class to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
 default values for simulation definitions, and a few utility functions for working with string dictionary keys
 '''
+import os
 import random
 import re
 import shlex
@@ -144,7 +145,7 @@ simDefinitionHelpMessage = \
 class SimDefinition():
     
     #### Parsing / Initialization ####
-    def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None):
+    def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None, simDefParseStack=None):
         '''
         Parse simulation definition files into a dictionary of string values accessible by string keys.
 
@@ -155,6 +156,8 @@ class SimDefinition():
             * disableDistributionSampling: (bool) Turn Monte Carlo sampling of normally-distributed parameters on/off
             * silent: (bool) Console output control
             * defaultDict: (dict[str,str] provide a custom dictionary of default values. If none is provided, defaultConfigValues is used.)
+            * simDefParseStack: set(str) list of sim definition files in the current parse stack. Will throw an error if any of these files need to be loaded to generate the current sim definition
+                # !include and !create [] from [] statements must form an acyclic graph of files to load (no circular loads)
         
         Example:
             The file contents:  
@@ -181,6 +184,9 @@ class SimDefinition():
 
         self.dict = None # type: Dict[str:str]
         ''' Main dictionary of values, usually populated from a simulation definition file '''
+
+        self.simDefParseStack = set() if (simDefParseStack == None) else simDefParseStack
+        ''' Keeps track of which files have already been loaded in the current parse stack. If these are loaded again we're in a parsing loop '''
 
         # Parse/Assign main values dictionary
         if dictionary != None:
@@ -283,44 +289,66 @@ class SimDefinition():
         # workingText[initializationLine] should be something like:
             # '    !create SubDictionary2 from Dictionary1.SubDictionary1{'
         definitionLine = workingText[initializationLine].split()
+
+        # Figure out complete name of new dictionary
         if currDictName == '':
             derivedDictName = definitionLine[1]
         else:
             derivedDictName = currDictName + '.' + definitionLine[1]
 
-        # Parent dict is last command. Remove opening curly bracket (last character)
-        parentDictName = definitionLine[-1][:-1]
+        # Parent dict is last command. Remove opening curly bracket (last character), if present
+        dictPath = definitionLine[-1][:-1] if ('{' == definitionLine[-1][-1]) else definitionLine[-1]
 
+        def loadSubFile(path) -> SimDefinition:
+            self.simDefParseStack.add(filePath)
+            subSimDef = SimDefinition(filePath, simDefParseStack=self.simDefParseStack)
+            self.simDefParseStack.remove(filePath)
+            return subSimDef
+
+        if ":" in dictPath:
+            # Importing dictionary from another file
+            fileName = dictPath.split(":")[0]
+            dictPath = dictPath.split(":")[1]
+
+            filePath = getAbsoluteFilePath(fileName, str( Path(self.fileName).parent ))                   
+
+            if filePath not in self.simDefParseStack:
+                subSimDef = loadSubFile(filePath)
+                keysInParentDict = subSimDef.getSubKeys(dictPath)
+            else:
+                raise ValueError("Encountered circular reference while trying to parse SimDefinition file: {}, which references: {}, which is in the current parse stack: {}".format(currPath, filePath, self.simDefParseStack))
+        
+        else:
+            # Deriving from dictionary in current file
+            # Get keys from parent dict
+            keysInParentDict = self.getSubKeys(dictPath, Dict)
+        
+        if len(keysInParentDict) == 0:
+            raise ValueError("ERROR: Dictionary to derive from: {} is not defined before {} in {}.".format(dictPath, derivedDictName, self.fileName))
+        
         # Fill out temporary dict, after applying all modifiers, add values to main Dict
         derivedDict = {}
 
-        #### Get keys from parent dict ####
-        keysInParentDict = self.getSubKeys(parentDictName)
-        
-        if len(keysInParentDict) == 0:
-            raise ValueError("ERROR: Dictionary to derive from: {} is not defined before {} in {}.".format(parentDictName, derivedDictName, self.fileName))
-
+        # Rename all the keys in the parentDict -> relocate them to the new (sub)dictionary
         for parentKey in keysInParentDict:
-            key = parentKey.replace(parentDictName, derivedDictName)
+            key = parentKey.replace(dictPath, derivedDictName)
             derivedDict[key] = Dict[parentKey]
+
 
         #### Apply additional commands ####
         i = initializationLine + 1
         while i < len(workingText):
             line = workingText[i]
-            possibleCommand = line.split()[0]
+            command = shlex.split(line)
 
-            if possibleCommand == "!replace":
-                # Replace some text in the keys/values of the derived dictionary
-                replaceCommand = shlex.split(line)
+            def removeQuotes(string):
+                string = string.replace("'", "")
+                return string.replace('"', "")
 
-                # Get string to replace (w/o quotations)
-                toReplace = replaceCommand[1].replace("'", "")
-                toReplace = toReplace.replace('"', "")
-
-                # Get string to replace it with (w/o quotation)
-                replaceWith = replaceCommand[-1].replace("'", "")
-                replaceWith = replaceWith.replace('"', "")
+            if command[0] == "!replace":
+                # Get string to replace and its replacement
+                toReplace = removeQuotes(command[1])
+                replaceWith = removeQuotes(command[-1])
 
                 derivedDictAfterReplace = {}
                 for key in derivedDict:
@@ -331,9 +359,8 @@ class SimDefinition():
 
                 derivedDict = derivedDictAfterReplace
 
-            elif possibleCommand == "!removeKeysContaining":
-                removeCommand = shlex.split(line)
-                stringToDelete = removeCommand[1]
+            elif command[0] == "!removeKeysContaining":
+                stringToDelete = command[1]
 
                 # Search for and remove any keys that contain stringToDelete
                 keysToDelete = []
@@ -345,8 +372,7 @@ class SimDefinition():
                     del derivedDict[key]                
 
             elif line[0] != "!":
-                # Done commands - let the regular parser handle the rest
-                break
+                break # Done special commands - let the regular parser handle the rest
 
             else:
                 raise ValueError("Command: {} not implemented. Try using !replace or !removeKeysContaining".format(line.split()[0]))
@@ -601,7 +627,7 @@ class SimDefinition():
         else:
             return None
 
-    def getSubKeys(self, key: str) -> List[str]:
+    def getSubKeys(self, key: str, Dict=None) -> List[str]:
         '''
             Returns a list of all keys that are children of key
 
@@ -609,8 +635,11 @@ class SimDefinition():
                 getSubKeys("Rocket") ->  
                 [ "Rocket.position", "Rocket.Sustainer.NoseCone.mass", "Rocket.Sustainer.RecoverySystem.position", etc... ]
         '''
+        #TODO: Improve speed by keeping dict sorted, then use binary search to locate first/last subkeys
+        Dict = self.dict if (Dict == None) else Dict
+
         subKeys = []
-        for currentKey in self.dict.keys():
+        for currentKey in Dict.keys():
             if isSubKey(key, currentKey):
                 subKeys.append(currentKey)
         
@@ -832,19 +861,31 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -> Tuple[str]:
     suffix = ".".join(keyNames[n:])
     return prefix, suffix
 
-def getAbsoluteFilePath(relativePath: str) -> str:
+def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") -> str:
     ''' 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
+        alternateRelativeLocation (str) location of an alternate file/folder the path could be relative to
         Returns original relativePath if an absolute path is not found
     '''
+    # Check if path is relative to MAPLEAF installation location
     # This file is at MAPLEAF/IO/SimDefinition, so MAPLEAF's install directory is three levels up
     pathToMAPLEAFInstallation = Path(__file__).parent.parent.parent
 
     relativePath = Path(relativePath)
     absolutePath = pathToMAPLEAFInstallation / relativePath
 
-    if absolutePath.exists:
+    if absolutePath.exists():
         return str(absolutePath)
     else:
-        print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
-        return relativePath
+        if alternateRelativeLocation != "":
+            # Try alternate location
+            if os.path.isfile(alternateRelativeLocation):
+                absolutePath = Path(alternateRelativeLocation).parent / relativePath
+            else:
+                absolutePath = Path(alternateRelativeLocation) / relativePath
+
+            if absolutePath.exists():
+                return str(absolutePath)
+                
+    print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+    return relativePath

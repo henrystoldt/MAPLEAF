@@ -37,7 +37,7 @@ Dictionary2{
 
     # Can also create dictionaries from dictionaries in other files.
         # !create [newDictName] from [filePath]:[PathToSubDictionary]
-    !create SubDictionary3 from Path/to/otherSimDefinitionFile:Dictionary1.SubDictionary1{
+    !create SubDictionary3 from testDerivedDict_DictToInclude.mapleaf:Dictionary1.SubDictionary1{
         # Content options same as SubDictionary2 above
     }
 
