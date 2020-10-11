@@ -185,7 +185,7 @@ class SimDefinition():
         self.dict = None # type: Dict[str:str]
         ''' Main dictionary of values, usually populated from a simulation definition file '''
 
-        self.simDefParseStack = set() if (simDefParseStack == None) else simDefParseStack
+        self.simDefParseStack = { self.fileName } if (simDefParseStack == None) else simDefParseStack
         ''' Keeps track of which files have already been loaded in the current parse stack. If these are loaded again we're in a parsing loop '''
 
         # Parse/Assign main values dictionary
