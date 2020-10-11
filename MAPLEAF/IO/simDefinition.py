@@ -218,6 +218,25 @@ class SimDefinition():
             self.rng = random.Random(randomSeed)
             ''' Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. '''
 
+    def _loadSubSimDefinition(self, path: str):
+        ''' 
+            In the parsing process, may need to load other sim definition files, use this function when doing that to detect circular references 
+            path can be relative to the location of the current file, absolute, or relative to the MAPLEAF install directory
+            
+            Throws ValueError if circular parsing detected.
+            Returns a new SimDefinition object
+        '''
+        filePath = getAbsoluteFilePath(path, str( Path(self.fileName).parent ))
+
+        if filePath not in self.simDefParseStack:
+            self.simDefParseStack.add(filePath)
+            subSimDef = SimDefinition(filePath, simDefParseStack=self.simDefParseStack)
+            self.simDefParseStack.remove(filePath)
+            return subSimDef
+        
+        else:
+            raise ValueError("Encountered circular reference while trying to parse SimDefinition file: {}, which references: {}, which is in the current parse stack: {}".format(self.fileName, filePath, self.simDefParseStack))
+
     def _parseDictionaryContents(self, Dict, workingText, startLine: int, currDictName: str, allowKeyOverwriting=False) -> int:
         ''' 
             Parses an individual subdictionary in a simdefinition file.
@@ -237,6 +256,16 @@ class SimDefinition():
             if splitLine[0] == "!create":
                 # Parse derived subdictionary
                 i = self._parseDerivedDictionary(Dict, workingText, i, currDictName)
+
+            elif splitLine[0] == "!include":
+                # Include contents of another sim definition file
+                filePath = line[line.index(" "):].strip() # Handle file names with spaces
+                subDef = self._loadSubSimDefinition(filePath)
+
+                # Add keys to current sim definition, inside current dictionary
+                for subDefkey in subDef.dict:
+                    key = currDictName + "." + subDefkey
+                    Dict[key] = subDef.dict[subDefkey]
 
             elif line[-1] == '{':
                 # Parse regular Subdictionary
@@ -269,7 +298,7 @@ class SimDefinition():
             else:
                 # Error: Line not recognized as a dict start/end or a key/value pair
                 print(simDefinitionHelpMessage)
-                raise ValueError("Problem reading line {}: {}".format(i, line))
+                raise ValueError("Problem parsing line {}: {}".format(i, line))
 
             # Next line
             i += 1
@@ -288,7 +317,7 @@ class SimDefinition():
         '''
         # workingText[initializationLine] should be something like:
             # '    !create SubDictionary2 from Dictionary1.SubDictionary1{'
-        definitionLine = workingText[initializationLine].split()
+        definitionLine = shlex.split(workingText[initializationLine])
 
         # Figure out complete name of new dictionary
         if currDictName == '':
@@ -299,29 +328,21 @@ class SimDefinition():
         # Parent dict is last command. Remove opening curly bracket (last character), if present
         dictPath = definitionLine[-1][:-1] if ('{' == definitionLine[-1][-1]) else definitionLine[-1]
 
-        def loadSubFile(path) -> SimDefinition:
-            self.simDefParseStack.add(filePath)
-            subSimDef = SimDefinition(filePath, simDefParseStack=self.simDefParseStack)
-            self.simDefParseStack.remove(filePath)
-            return subSimDef
-
+        #### Load Parent/Source (Sub)Dictionary ####
         if ":" in dictPath:
             # Importing dictionary from another file
-            fileName = dictPath.split(":")[0]
+            fileName = dictPath.split(":")[0]              
+            subSimDef = self._loadSubSimDefinition(fileName)
+            sourceDict = subSimDef.dict
+            
             dictPath = dictPath.split(":")[1]
-
-            filePath = getAbsoluteFilePath(fileName, str( Path(self.fileName).parent ))                   
-
-            if filePath not in self.simDefParseStack:
-                subSimDef = loadSubFile(filePath)
-                keysInParentDict = subSimDef.getSubKeys(dictPath)
-            else:
-                raise ValueError("Encountered circular reference while trying to parse SimDefinition file: {}, which references: {}, which is in the current parse stack: {}".format(currPath, filePath, self.simDefParseStack))
+            keysInParentDict = subSimDef.getSubKeys(dictPath)                
         
         else:
             # Deriving from dictionary in current file
             # Get keys from parent dict
             keysInParentDict = self.getSubKeys(dictPath, Dict)
+            sourceDict = Dict
         
         if len(keysInParentDict) == 0:
             raise ValueError("ERROR: Dictionary to derive from: {} is not defined before {} in {}.".format(dictPath, derivedDictName, self.fileName))
@@ -332,7 +353,7 @@ class SimDefinition():
         # Rename all the keys in the parentDict -> relocate them to the new (sub)dictionary
         for parentKey in keysInParentDict:
             key = parentKey.replace(dictPath, derivedDictName)
-            derivedDict[key] = Dict[parentKey]
+            derivedDict[key] = sourceDict[parentKey]
 
 
         #### Apply additional commands ####
@@ -517,10 +538,8 @@ class SimDefinition():
         '''
             Will add the entry if it's not present
         '''
-        # Remove whitespace
-        key = key.strip()
-        
-        self.dict[key] = value
+        # The .strip() removes whitespace
+        self.dict[key.strip()] = value
 
     def removeKey(self, key: str):
         if key in self.dict:
@@ -879,10 +898,13 @@ def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") 
     else:
         if alternateRelativeLocation != "":
             # Try alternate location
-            if os.path.isfile(alternateRelativeLocation):
-                absolutePath = Path(alternateRelativeLocation).parent / relativePath
+            alternateLocation = Path(alternateRelativeLocation)
+            
+            if alternateLocation.is_file():
+                # If the alternate location provided is a file path, check if the file is in the parent directory
+                absolutePath = alternateLocation.parent / relativePath
             else:
-                absolutePath = Path(alternateRelativeLocation) / relativePath
+                absolutePath = alternateLocation / relativePath
 
             if absolutePath.exists():
                 return str(absolutePath)

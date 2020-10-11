@@ -194,6 +194,8 @@ class TestSimDefinition(unittest.TestCase):
         filePath = getAbsoluteFilePath("testDerivedDicts.mapleaf", "./test/test_IO/")
         self.assertTrue(os.path.isfile(filePath))
 
+    #TODO: Test for detecting circular references in SimDefinition files
+
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()
