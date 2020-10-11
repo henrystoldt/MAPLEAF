@@ -102,7 +102,7 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
     
     return names
 
-def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
+def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+", enableCache=True):
     '''
         Obtains columns matching one or more regex expressions in a log file.
         By default, log file contents are cached by file name.
@@ -120,7 +120,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
     if isinstance(columnSpecs, str):
         columnSpecs = [ columnSpecs ]
     
-    if logPath in logFileCache:
+    if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
         with open(logPath, 'r') as file:
