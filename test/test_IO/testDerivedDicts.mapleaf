@@ -34,4 +34,13 @@ Dictionary2{
         # Add/override values like in a normal dictionary
         key5            value5
     }
+
+    # Can also create dictionaries from dictionaries in other files.
+        # !create [newDictName] from [filePath]:[PathToSubDictionary]
+    !create SubDictionary3 from Path/to/otherSimDefinitionFile:Dictionary1.SubDictionary1{
+        # Content options same as SubDictionary2 above
+    }
+
+    # Or can include the parsed contents of a whole other file
+    !include Path/to/otherSimDefinitionFile
 }
