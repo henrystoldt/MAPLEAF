@@ -78,7 +78,7 @@ defaultConfigValues = {
     "Rocket.HIL.imuBaudrate":                           "57600",
 
     "Rocket.ControlSystem.desiredFlightDirection":      "(0 0 1)",
-    "Rocket.ControlSystem.MomentController.Type":       "GainScheduledPIDRocket",
+    "Rocket.ControlSystem.MomentController.Type":       "ScheduledGainPIDRocket",
     "Rocket.ControlSystem.updateRate":                  "0",
 
     "Rocket.name":                                      "Rocket",

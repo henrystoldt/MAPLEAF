@@ -4,14 +4,14 @@ from math import pi
 import numpy as np
 
 from MAPLEAF.GNC import \
-    GainScheduledPIDRocketMomentController
+    ScheduledGainPIDRocketMomentController
 from MAPLEAF.GNC import Stabilizer
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 
 
-class TestGainScheduledPIDRocketMomentController(unittest.TestCase):
+class TestScheduledGainPIDRocketMomentController(unittest.TestCase):
     def setUp(self):
-        self.momentController = GainScheduledPIDRocketMomentController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", ["Mach", "Altitude"])
+        self.momentController = ScheduledGainPIDRocketMomentController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", ["Mach", "Altitude"])
         self.stabilizer = Stabilizer(Vector(0,0,1))
 
     def test_getOrientationErrorAndGetTargetOrientation(self):

@@ -55,7 +55,7 @@ class TestRocketControlSystem(unittest.TestCase):
             # Altitude = 0.5
             return 0.5
 
-        # Fake functions in GainScheduledPIDMomentController
+        # Fake functions in ScheduledGainPIDMomentController
         self.rocket.controlSystem.momentController.keyFunctionList = [ fakeMach, fakeAltitude ]
         # Fake functions in TableInterpolatingActuatorController
         self.rocket.controlSystem.controlledSystem.actuatorController.keyFunctionList = [ fakeMach, fakeAltitude ]
