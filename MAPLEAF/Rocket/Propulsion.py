@@ -146,10 +146,20 @@ class TabulatedMotor(RocketComponent, SubDictReader):
             thrustMagnitude = 0
         else:
             thrustMagnitude = linInterp(self.times, self.thrustLevels, timeSinceIgnition)
+
+#### If control system exists, use actuator deflections 1:1 to set thrust vectoring angles ####
+        
+        if self.controlSystem != None:
+            # Update actuator angles -> Should come from the PID corrections where a unit change in deflection is one radian change.
+            
+            # Copied the implementation from fins.py and changed 'numfins' to numTVC', 'finList' to 'TVCList', 'finAngle' to 'TVCAngle'. Need to define what these are somewhere else most likely?
+            for i in range(self.numTVC): # numTVC should always be equal to 2 for thrust vectoring
+                self.TVCList[i].TVCAngle = self.TVCList[i].getDeflection(time)
         
         # Create Vector
-        thrust = Vector(0,0, thrustMagnitude)
-
+        #TODO: Define xAngle, yAngle, zAngle, probably come from the acxtuatorList. Need to verify the form the values will be returned in (x = [0], y=[1], z=[2]?)
+        thrust = Vector(thrustMagnitude*xAngle, thrustMagnitude*yAngle, thrustMagnitude*zAngle) # Scale these by the thrust vectoring angles. x = cosasinbx, y = cosacosby, z = sinc, need to get these.
+        
         # Log and return
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
