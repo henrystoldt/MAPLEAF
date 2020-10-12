@@ -1,5 +1,6 @@
 # tag: numpy
 # You can ignore the previous line.
+# cython: language_level=3
 # It's for internal testing of the cython documentation.
 
 import numpy as np

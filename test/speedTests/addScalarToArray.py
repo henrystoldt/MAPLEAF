@@ -3,8 +3,8 @@ from timeit import timeit
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numba import jit, njit
-from numba.typed import List
+# from numba import jit, njit
+# from numba.typed import List
 from statistics import mean
 import ray
 from multiprocessing import Pool
@@ -14,13 +14,13 @@ import warnings
 warnings.filterwarnings('ignore')
 
 #### OPTIONS ####
-# testCppFunctions = False - set up for PyBind11 - only installed on one of my computers
-# testJuliaFunctions = False - excessively slow - only installed on one of my computers
-testCython = True
+testCppFunctions = False #- set up for PyBind11 - only installed on one of my computers
+testJuliaFunctions = True # - excessively slow - only installed on one of my computers
+testCython = False
 nTests=50
 
-maxArraySize=100
-step=1
+maxArraySize=1000
+step=50
 arrayLengths = list(range(1, maxArraySize, step))
 #### END OPTIONS ####
 
@@ -58,7 +58,7 @@ def addFive_Python_Multiprocessing(array):
         results = p.map(addFive_Python, [ array[:chunk], array[chunk:]])
     return results[0] + results[1]
 
-@njit()
+# @njit()
 def addFive_Numba(array):
     for i in range(len(array)):
         array[i] += 5.0
@@ -106,6 +106,13 @@ def plotSpeedupForEachArrayLength(function, label="Unlabelled", comparisonFuncti
     else:
         plt.plot(arrayLengths, ratios, label=label)
 
+if testJuliaFunctions:
+    import julia
+    from julia import Main
+    Main.include("addScalar.jl")
+    # function to test is Main.addFive - seems very slow, must be converting types or not being compiled
+    addFive_Julia = Main.addFive_Julia
+
 #### Main ####
 if __name__ == "__main__":
     print("Each operation performed {} times".format(nTests))
@@ -114,13 +121,13 @@ if __name__ == "__main__":
     plotSpeedupForEachArrayLength(addFive_Python, label="Python loop: list", comparisonFunctionListGenerator="createPythonList")
     plotSpeedupForEachArrayLength(addFive_Numpy, label="numpy +=: ndarray")
 
-    plotSpeedupForEachArrayLength(addFive_Numba, label="numba: list", comparisonFunctionListGenerator="createPythonList")
-    plotSpeedupForEachArrayLength(addFive_Numba, label="numba: numba.typed.List", comparisonFunctionListGenerator="createNumbaTypedList")
-    plotSpeedupForEachArrayLength(addFive_Numba, label="numba: ndarray")
+    # plotSpeedupForEachArrayLength(addFive_Numba, label="numba: list", comparisonFunctionListGenerator="createPythonList")
+    # plotSpeedupForEachArrayLength(addFive_Numba, label="numba: numba.typed.List", comparisonFunctionListGenerator="createNumbaTypedList")
+    # plotSpeedupForEachArrayLength(addFive_Numba, label="numba: ndarray")
 
     if testCython:
-        # Must have compiled the 'addScalar.pyx' file on your machine using Cython to make this work
-        # Run `python setup.py build_ext --inplace`
+        # Must have compiled the 'addScalarCython.pyx' file on your machine using Cython to make this work
+        # Run `cythonize addScalar.pyx`
         # https://cython.readthedocs.io/en/latest/MAPLEAF/tutorial/cython_tutorial.html
         import addScalarCython
         plotSpeedupForEachArrayLength(addScalarCython.addFive_Numpy, comparisonFnModule="addScalarCython",  label="Cython - strongly-typed: ndarray")
@@ -131,24 +138,19 @@ if __name__ == "__main__":
     # plotSpeedupForEachArrayLength(addFive_Python_Multiprocessing, label="Multiprocessing: 2 cores")
 
     # Also very slow, but less so because processes are only launched once
-    ray.init()
-    plotSpeedupForEachArrayLength(addFive_Python_Ray, label="Ray: 2 cores")
+    # ray.init()
+    # plotSpeedupForEachArrayLength(addFive_Python_Ray, label="Ray: 2 cores")
 
-    # if testCppFunctions:
-        # import example
-        # Functions to test are:
-        # example.addToList_Cpp - (converts to std::vector and back)
-        # example.addFive(nV1) - (no conversion, loops in C++)
-        # example.vectorizedAddFive - (C++ function wrapped with py::vectorize to work on an array)
+    if testCppFunctions:
+        import example
+        #Functions to test are:
+        example.addToList_Cpp # - (converts to std::vector and back)
+        example.addFive(nV1) # - (no conversion, loops in C++)
+        example.vectorizedAddFive #- (C++ function wrapped with py::vectorize to work on an array)
 
-    # if testJuliaFunctions:
-        # import julia
-        # from julia import Main
-        # Main.include("addScalar.jl")
-        # # Precompile the function
-        # a = createNumpyArray(5)
-        # Main.addFive(a)
-        # # function to test is Main.addFive - seems very slow, must be converting types or not being compiled
+    if testJuliaFunctions:
+        plotSpeedupForEachArrayLength(Main.addFive_Julia, label="Julia, ndarray")
+        plotSpeedupForEachArrayLength(Main.addFive_Julia, label="Julia, list", comparisonFunctionListGenerator="createPythonList")
 
     plt.xlabel("Array size")
     plt.ylabel("Speedup")
