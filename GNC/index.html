@@ -336,6 +336,137 @@ def setTargetActuatorDeflections(self, desiredMoments, state, environment, time)
 </dd>
 </dl>
 </dd>
+<dt id="MAPLEAF.GNC.ConstantGainPIDController"><code class="flex name class">
+<span>class <span class="ident">ConstantGainPIDController</span></span>
+<span>(</span><span>P=0, I=0, D=0, initialError=0, maxIntegral=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>P:
+(int) Proportional Gain
+I:
+(int) Integral Gain
+D:
+(int) Derivative Gain
+DCol:
+(int) zero-indexed column number of D Coefficient</p>
+<p>Note:
+It is assumed that PCol, ICol, and DCol exist one after another in the table</p>
+<p>Inputs passed through to parent class (PICController):
+initialError, maxIntegral</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConstantGainPIDController(PIDController):
+
+    def __init__(self, P=0, I=0, D=0, initialError=0, maxIntegral=None):
+        &#39;&#39;&#39;
+            Inputs:
+                P:                  (int) Proportional Gain
+                I:                  (int) Integral Gain
+                D:                  (int) Derivative Gain
+                DCol:               (int) zero-indexed column number of D Coefficient
+
+                Note:
+                    It is assumed that PCol, ICol, and DCol exist one after another in the table
+                
+                Inputs passed through to parent class (PICController):
+                    initialError, maxIntegral
+        &#39;&#39;&#39;
+        PIDController.__init__(self, P,I,D, initialError=initialError, maxIntegral=maxIntegral)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.ConstantGainPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.ConstantGainPIDRocketMomentController">ConstantGainPIDRocketMomentController</a></li>
+</ul>
+</dd>
+<dt id="MAPLEAF.GNC.ConstantGainPIDRocketMomentController"><code class="flex name class">
+<span>class <span class="ident">ConstantGainPIDRocketMomentController</span></span>
+<span>(</span><span>Pxy, Ixy, Dxy, Pz, Iz, Dz)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<p>Constant PID coefficient controller</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConstantGainPIDRocketMomentController(MomentController, ConstantGainPIDController):
+    def __init__(self, Pxy, Ixy, Dxy, Pz, Iz, Dz):
+        &#39;&#39;&#39;
+            Constant PID coefficient controller
+        &#39;&#39;&#39;
+        ConstantGainPIDController.__init__(self)
+        
+        P = np.array([Pxy, Pxy, Pz])
+        I = np.array([Ixy, Ixy, Iz])
+        D = np.array([Dxy, Dxy, Dz])
+        self.updateCoefficients(P,I,D)
+
+    def _getOrientationError(self, rocketState, targetOrientation):
+        return np.array((targetOrientation / rocketState.orientation).toRotationVector())
+
+    def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+        &#39;&#39;&#39;
+            Inputs: 
+                gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+                rocketState:        must have .orientation attribute (Quaternion)
+                targetOrientation:  (Quaternion)
+                _:                  currently unused (time argument)
+                dt:                 (numeric) time since last execution of the control system
+        &#39;&#39;&#39;
+        orientationError = self._getOrientationError(rocketState, targetOrientation)
+        return self.getNewSetPoint(orientationError, dt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.MomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.MomentController">MomentController</a></li>
+<li>abc.ABC</li>
+<li><a title="MAPLEAF.GNC.PID.ConstantGainPIDController" href="PID.html#MAPLEAF.GNC.PID.ConstantGainPIDController">ConstantGainPIDController</a></li>
+<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.ConstantGainPIDRocketMomentController.getDesiredMoments"><code class="name flex">
+<span>def <span class="ident">getDesiredMoments</span></span>(<span>self, rocketState, environment, targetOrientation, time, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Inputs:
+gainKeyList:
+iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+rocketState:
+must have .orientation attribute (Quaternion)
+targetOrientation:
+(Quaternion)
+_:
+currently unused (time argument)
+dt:
+(numeric) time since last execution of the control system</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+    &#39;&#39;&#39;
+        Inputs: 
+            gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+            rocketState:        must have .orientation attribute (Quaternion)
+            targetOrientation:  (Quaternion)
+            _:                  currently unused (time argument)
+            dt:                 (numeric) time since last execution of the control system
+    &#39;&#39;&#39;
+    orientationError = self._getOrientationError(rocketState, targetOrientation)
+    return self.getNewSetPoint(orientationError, dt)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="MAPLEAF.GNC.ControlSystem"><code class="flex name class">
 <span>class <span class="ident">ControlSystem</span></span>
 </code></dt>
@@ -365,7 +496,16 @@ def setTargetActuatorDeflections(self, desiredMoments, state, environment, time)
 
     @abc.abstractmethod
     def getLogHeader(self):
-        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;</code></pre>
+        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;
+
+    def calculateAngularError(self, currentOrientation, targetOrientation):
+
+        errors = np.array((targetOrientation / currentOrientation).toRotationVector())
+        pitchError = errors[0]
+        yawError = errors[1]
+        rollError = errors[2]
+
+        return pitchError, yawError, rollError</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -377,6 +517,25 @@ def setTargetActuatorDeflections(self, desiredMoments, state, environment, time)
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="MAPLEAF.GNC.ControlSystem.calculateAngularError"><code class="name flex">
+<span>def <span class="ident">calculateAngularError</span></span>(<span>self, currentOrientation, targetOrientation)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculateAngularError(self, currentOrientation, targetOrientation):
+
+    errors = np.array((targetOrientation / currentOrientation).toRotationVector())
+    pitchError = errors[0]
+    yawError = errors[1]
+    rollError = errors[2]
+
+    return pitchError, yawError, rollError</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.GNC.ControlSystem.getLogHeader"><code class="name flex">
 <span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
 </code></dt>
@@ -566,202 +725,6 @@ Motion does not need to be integrated</p>
 </dd>
 </dl>
 </dd>
-<dt id="MAPLEAF.GNC.GainScheduledPIDController"><code class="flex name class">
-<span>class <span class="ident">GainScheduledPIDController</span></span>
-<span>(</span><span>gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="inputs">Inputs</h2>
-<p>gainTableFilePath:
-(string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
-nKeyColumns:
-(int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
-PCol:
-(int) zero-indexed column number of P Coefficient
-DCol:
-(int) zero-indexed column number of D Coefficient</p>
-<p>Note:
-It is assumed that PCol, ICol, and DCol exist one after another in the table</p>
-<p>Inputs passed through to parent class (PICController):
-initialError, maxIntegral</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GainScheduledPIDController(PIDController):
-    def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
-        &#39;&#39;&#39;
-            Inputs:
-                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt&#39;
-                nKeyColumns:        (int) Number of &#39;key&#39; columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
-                PCol:               (int) zero-indexed column number of P Coefficient
-                DCol:               (int) zero-indexed column number of D Coefficient
-
-                Note:
-                    It is assumed that PCol, ICol, and DCol exist one after another in the table
-                
-                Inputs passed through to parent class (PICController):
-                    initialError, maxIntegral
-        &#39;&#39;&#39;
-        PIDController.__init__(self, 0,0,0, initialError=initialError, maxIntegral=maxIntegral)
-
-        # Columns are: Mach, Altitude(ASL), P1, I1, D1
-        pidData = np.loadtxt(gainTableFilePath, skiprows=1)
-        keys = pidData[:,0:nKeyColumns]
-        pidData = pidData[:,PCol:DCol+1]
-
-        #Create interpolation function for PID coefficients
-        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
-
-    def updateCoefficientsFromGainTable(self, keyList):
-        P, I, D = self._getPIDCoeffs(keyList)
-        self.updateCoefficients(P, I, D)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController">GainScheduledPIDRocketMomentController</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.GNC.GainScheduledPIDController.updateCoefficientsFromGainTable"><code class="name flex">
-<span>def <span class="ident">updateCoefficientsFromGainTable</span></span>(<span>self, keyList)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def updateCoefficientsFromGainTable(self, keyList):
-    P, I, D = self._getPIDCoeffs(keyList)
-    self.updateCoefficients(P, I, D)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="MAPLEAF.GNC.GainScheduledPIDRocketMomentController"><code class="flex name class">
-<span>class <span class="ident">GainScheduledPIDRocketMomentController</span></span>
-<span>(</span><span>gainTableFilePath, keyColumnNames)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p>
-<p>Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
-Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
-Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GainScheduledPIDRocketMomentController(MomentController, GainScheduledPIDController):
-    def __init__(self, gainTableFilePath, keyColumnNames):
-        &#39;&#39;&#39;
-            Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
-            Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
-            Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt
-        &#39;&#39;&#39;
-        self.keyFunctionList = [ AeroParameters.stringToAeroFunctionMap[x] for x in keyColumnNames ]
-        nKeyColumns = len(keyColumnNames)
-        GainScheduledPIDController.__init__(self, gainTableFilePath, nKeyColumns, PCol=nKeyColumns, DCol=nKeyColumns+5)
-        
-    def updateCoefficientsFromGainTable(self, keyList):
-        &#39;&#39;&#39; Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller &#39;&#39;&#39;
-        Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
-
-        # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
-        # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)
-        P = np.array([Pxy, Pxy, Pz])
-        I = np.array([Ixy, Ixy, Iz])
-        D = np.array([Dxy, Dxy, Dz])
-        self.updateCoefficients(P, I, D)
-
-    def _getOrientationError(self, rocketState, targetOrientation):
-        return np.array((targetOrientation / rocketState.orientation).toRotationVector())
-
-    def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
-        &#39;&#39;&#39;
-            Inputs: 
-                gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
-                rocketState:        must have .orientation attribute (Quaternion)
-                targetOrientation:  (Quaternion)
-                _:                  currently unused (time argument)
-                dt:                 (numeric) time since last execution of the control system
-        &#39;&#39;&#39;
-        orientationError = self._getOrientationError(rocketState, targetOrientation)
-        gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
-        self.updateCoefficientsFromGainTable(gainKeyList)
-        return self.getNewSetPoint(orientationError, dt)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="MAPLEAF.GNC.MomentControllers.MomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.MomentController">MomentController</a></li>
-<li>abc.ABC</li>
-<li><a title="MAPLEAF.GNC.PID.GainScheduledPIDController" href="PID.html#MAPLEAF.GNC.PID.GainScheduledPIDController">GainScheduledPIDController</a></li>
-<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.getDesiredMoments"><code class="name flex">
-<span>def <span class="ident">getDesiredMoments</span></span>(<span>self, rocketState, environment, targetOrientation, time, dt)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Inputs:
-gainKeyList:
-iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
-rocketState:
-must have .orientation attribute (Quaternion)
-targetOrientation:
-(Quaternion)
-_:
-currently unused (time argument)
-dt:
-(numeric) time since last execution of the control system</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
-    &#39;&#39;&#39;
-        Inputs: 
-            gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
-            rocketState:        must have .orientation attribute (Quaternion)
-            targetOrientation:  (Quaternion)
-            _:                  currently unused (time argument)
-            dt:                 (numeric) time since last execution of the control system
-    &#39;&#39;&#39;
-    orientationError = self._getOrientationError(rocketState, targetOrientation)
-    gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
-    self.updateCoefficientsFromGainTable(gainKeyList)
-    return self.getNewSetPoint(orientationError, dt)</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.updateCoefficientsFromGainTable"><code class="name flex">
-<span>def <span class="ident">updateCoefficientsFromGainTable</span></span>(<span>self, keyList)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def updateCoefficientsFromGainTable(self, keyList):
-    &#39;&#39;&#39; Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller &#39;&#39;&#39;
-    Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
-
-    # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
-    # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)
-    P = np.array([Pxy, Pxy, Pz])
-    I = np.array([Ixy, Ixy, Iz])
-    D = np.array([Dxy, Dxy, Dz])
-    self.updateCoefficients(P, I, D)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 <dt id="MAPLEAF.GNC.MomentController"><code class="flex name class">
 <span>class <span class="ident">MomentController</span></span>
 </code></dt>
@@ -783,7 +746,8 @@ inheritance.</p></div>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.GainScheduledPIDRocketMomentController">GainScheduledPIDRocketMomentController</a></li>
+<li><a title="MAPLEAF.GNC.MomentControllers.ConstantGainPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.ConstantGainPIDRocketMomentController">ConstantGainPIDRocketMomentController</a></li>
+<li><a title="MAPLEAF.GNC.MomentControllers.ScheduledGainPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.ScheduledGainPIDRocketMomentController">ScheduledGainPIDRocketMomentController</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -909,7 +873,8 @@ def getTargetOrientation(self, rocketState, targetState, time):
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="MAPLEAF.GNC.PID.GainScheduledPIDController" href="PID.html#MAPLEAF.GNC.PID.GainScheduledPIDController">GainScheduledPIDController</a></li>
+<li><a title="MAPLEAF.GNC.PID.ConstantGainPIDController" href="PID.html#MAPLEAF.GNC.PID.ConstantGainPIDController">ConstantGainPIDController</a></li>
+<li><a title="MAPLEAF.GNC.PID.ScheduledGainPIDController" href="PID.html#MAPLEAF.GNC.PID.ScheduledGainPIDController">ScheduledGainPIDController</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1017,12 +982,20 @@ def getTargetOrientation(self, rocketState, targetState, time):
 
         ### Create Moment Controller ###
         momentControllerType = controlSystemDictReader.getString(&#34;MomentController.Type&#34;)
-        if momentControllerType == &#34;GainScheduledPIDRocket&#34;:
+        if momentControllerType == &#34;ConstantGainPIDRocket&#34;:
+            Pxy = controlSystemDictReader.getFloat(&#34;MomentController.Pxy&#34;)
+            Ixy = controlSystemDictReader.getFloat(&#34;MomentController.Ixy&#34;)
+            Dxy = controlSystemDictReader.getFloat(&#34;MomentController.Dxy&#34;)
+            Pz = controlSystemDictReader.getFloat(&#34;MomentController.Pz&#34;)
+            Iz = controlSystemDictReader.getFloat(&#34;MomentController.Iz&#34;)
+            Dz = controlSystemDictReader.getFloat(&#34;MomentController.Dz&#34;)
+            self.momentController = ConstantGainPIDRocketMomentController(Pxy,Ixy,Dxy,Pz,Iz,Dz)
+        elif momentControllerType == &#34;ScheduledGainPIDRocket&#34;:
             gainTableFilePath = controlSystemDictReader.getString(&#34;MomentController.gainTableFilePath&#34;)
             keyColumnNames = controlSystemDictReader.getString(&#34;MomentController.scheduledBy&#34;).split()
-            self.momentController = GainScheduledPIDRocketMomentController(gainTableFilePath, keyColumnNames)
+            self.momentController = ScheduledGainPIDRocketMomentController(gainTableFilePath, keyColumnNames)
         else:
-            raise ValueError(&#34;Moment Controller Type: {} not implemented. Try GainScheduledPIDRocket&#34;.format(momentControllerType))
+            raise ValueError(&#34;Moment Controller Type: {} not implemented. Try ScheduledGainPIDRocket&#34;.format(momentControllerType))
 
         ### Set update rate ###
         self.updateRate = controlSystemDictReader.getFloat(&#34;updateRate&#34;)
@@ -1094,6 +1067,7 @@ def getTargetOrientation(self, rocketState, targetState, time):
 
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         # Run control loop if enough time has passed
+
         if (currentTime - self.lastControlLoopRunTime) + 0.0000000001 &gt;= self.controlTimeStep:
             dt = currentTime - self.lastControlLoopRunTime
 
@@ -1108,13 +1082,26 @@ def getTargetOrientation(self, rocketState, targetState, time):
 
             self.lastControlLoopRunTime = currentTime
 
+            pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
+
+            if self.rocket.simRunner.loggingLevel &gt;= 4:
+                self.rocket.simRunner.newControlSystemLogLine(&#34;{:&lt;7.3f} &#34;.format(currentTime))      # Start a new line in the control system evaluation log 
+                self.appendToControlSystemLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(pitchError, yawError, rollError))
+
             return newActuatorPositionTargets
         else:
             return False
 
     def getLogHeader(self):
         headerStrings = [ &#34; Actuator_{}_TargetDeflection&#34;.format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
-        return &#34;&#34;.join(headerStrings)</code></pre>
+        return &#34;&#34;.join(headerStrings)
+
+    def appendToControlSystemLogLine(self, txt: str):
+        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s controlSystemEvaluationLog &#39;&#39;&#39;
+        try:
+            self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
+        except AttributeError:
+            pass # Force logging not set up for this sim</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1124,6 +1111,23 @@ def getTargetOrientation(self, rocketState, targetState, time):
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="MAPLEAF.GNC.RocketControlSystem.appendToControlSystemLogLine"><code class="name flex">
+<span>def <span class="ident">appendToControlSystemLogLine</span></span>(<span>self, txt: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Appends txt to the current line of the parent <code>MAPLEAF.SimulationRunners.SingleSimRunner</code>'s controlSystemEvaluationLog</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def appendToControlSystemLogLine(self, txt: str):
+    &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s controlSystemEvaluationLog &#39;&#39;&#39;
+    try:
+        self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
+    except AttributeError:
+        pass # Force logging not set up for this sim</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.GNC.RocketControlSystem.restoreOriginalTimeStepping"><code class="name flex">
 <span>def <span class="ident">restoreOriginalTimeStepping</span></span>(<span>self)</span>
 </code></dt>
@@ -1166,6 +1170,202 @@ def getTargetOrientation(self, rocketState, targetState, time):
 </ul>
 </li>
 </ul>
+</dd>
+<dt id="MAPLEAF.GNC.ScheduledGainPIDController"><code class="flex name class">
+<span>class <span class="ident">ScheduledGainPIDController</span></span>
+<span>(</span><span>gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="inputs">Inputs</h2>
+<p>gainTableFilePath:
+(string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
+nKeyColumns:
+(int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
+PCol:
+(int) zero-indexed column number of P Coefficient
+DCol:
+(int) zero-indexed column number of D Coefficient</p>
+<p>Note:
+It is assumed that PCol, ICol, and DCol exist one after another in the table</p>
+<p>Inputs passed through to parent class (PICController):
+initialError, maxIntegral</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ScheduledGainPIDController(PIDController):
+    def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
+        &#39;&#39;&#39;
+            Inputs:
+                gainTableFilePath:  (string) Path to gain table text file ex: &#39;./MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt&#39;
+                nKeyColumns:        (int) Number of &#39;key&#39; columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
+                PCol:               (int) zero-indexed column number of P Coefficient
+                DCol:               (int) zero-indexed column number of D Coefficient
+
+                Note:
+                    It is assumed that PCol, ICol, and DCol exist one after another in the table
+                
+                Inputs passed through to parent class (PICController):
+                    initialError, maxIntegral
+        &#39;&#39;&#39;
+        PIDController.__init__(self, 0,0,0, initialError=initialError, maxIntegral=maxIntegral)
+
+        # Columns are: Mach, Altitude(ASL), P1, I1, D1
+        pidData = np.loadtxt(gainTableFilePath, skiprows=1)
+        keys = pidData[:,0:nKeyColumns]
+        pidData = pidData[:,PCol:DCol+1]
+
+        #Create interpolation function for PID coefficients
+        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
+
+    def updateCoefficientsFromGainTable(self, keyList):
+        P, I, D = self._getPIDCoeffs(keyList)
+        self.updateCoefficients(P, I, D)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.ScheduledGainPIDRocketMomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.ScheduledGainPIDRocketMomentController">ScheduledGainPIDRocketMomentController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.ScheduledGainPIDController.updateCoefficientsFromGainTable"><code class="name flex">
+<span>def <span class="ident">updateCoefficientsFromGainTable</span></span>(<span>self, keyList)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateCoefficientsFromGainTable(self, keyList):
+    P, I, D = self._getPIDCoeffs(keyList)
+    self.updateCoefficients(P, I, D)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="MAPLEAF.GNC.ScheduledGainPIDRocketMomentController"><code class="flex name class">
+<span>class <span class="ident">ScheduledGainPIDRocketMomentController</span></span>
+<span>(</span><span>gainTableFilePath, keyColumnNames)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<p>Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
+Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
+Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ScheduledGainPIDRocketMomentController(MomentController, ScheduledGainPIDController):
+    def __init__(self, gainTableFilePath, keyColumnNames):
+        &#39;&#39;&#39;
+            Assumes the longitudinal (Pitch/Yaw) PID coefficients are in columns nKeyColumns:nKeyColumns+2
+            Assumes the roll PID coefficients are in columns nKeyColumns+3:nKeyColumns+5
+            Sample gain file: MAPLEAF/Examples/TabulatedData/testPIDCoeffs.txt
+        &#39;&#39;&#39;
+        self.keyFunctionList = [ AeroParameters.stringToAeroFunctionMap[x] for x in keyColumnNames ]
+        nKeyColumns = len(keyColumnNames)
+        ScheduledGainPIDController.__init__(self, gainTableFilePath, nKeyColumns, PCol=nKeyColumns, DCol=nKeyColumns+5)
+        
+    def updateCoefficientsFromGainTable(self, keyList):
+        &#39;&#39;&#39; Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller &#39;&#39;&#39;
+        Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
+
+        # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
+        # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)
+        P = np.array([Pxy, Pxy, Pz])
+        I = np.array([Ixy, Ixy, Iz])
+        D = np.array([Dxy, Dxy, Dz])
+        self.updateCoefficients(P, I, D)
+
+    def _getOrientationError(self, rocketState, targetOrientation):
+        return np.array((targetOrientation / rocketState.orientation).toRotationVector())
+
+    def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+        &#39;&#39;&#39;
+            Inputs: 
+                gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+                rocketState:        must have .orientation attribute (Quaternion)
+                targetOrientation:  (Quaternion)
+                _:                  currently unused (time argument)
+                dt:                 (numeric) time since last execution of the control system
+        &#39;&#39;&#39;
+        orientationError = self._getOrientationError(rocketState, targetOrientation)
+        gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
+        self.updateCoefficientsFromGainTable(gainKeyList)
+        return self.getNewSetPoint(orientationError, dt)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.GNC.MomentControllers.MomentController" href="MomentControllers.html#MAPLEAF.GNC.MomentControllers.MomentController">MomentController</a></li>
+<li>abc.ABC</li>
+<li><a title="MAPLEAF.GNC.PID.ScheduledGainPIDController" href="PID.html#MAPLEAF.GNC.PID.ScheduledGainPIDController">ScheduledGainPIDController</a></li>
+<li><a title="MAPLEAF.GNC.PID.PIDController" href="PID.html#MAPLEAF.GNC.PID.PIDController">PIDController</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.GNC.ScheduledGainPIDRocketMomentController.getDesiredMoments"><code class="name flex">
+<span>def <span class="ident">getDesiredMoments</span></span>(<span>self, rocketState, environment, targetOrientation, time, dt)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Inputs:
+gainKeyList:
+iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+rocketState:
+must have .orientation attribute (Quaternion)
+targetOrientation:
+(Quaternion)
+_:
+currently unused (time argument)
+dt:
+(numeric) time since last execution of the control system</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+    &#39;&#39;&#39;
+        Inputs: 
+            gainKeyList:        iterable of length nKeyColumns, containing the data required to interpolate the PIDxy and PIDz coefficients in the gain table
+            rocketState:        must have .orientation attribute (Quaternion)
+            targetOrientation:  (Quaternion)
+            _:                  currently unused (time argument)
+            dt:                 (numeric) time since last execution of the control system
+    &#39;&#39;&#39;
+    orientationError = self._getOrientationError(rocketState, targetOrientation)
+    gainKeyList = AeroParameters.getAeroPropertiesList(self.keyFunctionList, rocketState, environment)
+    self.updateCoefficientsFromGainTable(gainKeyList)
+    return self.getNewSetPoint(orientationError, dt)</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.GNC.ScheduledGainPIDRocketMomentController.updateCoefficientsFromGainTable"><code class="name flex">
+<span>def <span class="ident">updateCoefficientsFromGainTable</span></span>(<span>self, keyList)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateCoefficientsFromGainTable(self, keyList):
+    &#39;&#39;&#39; Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller &#39;&#39;&#39;
+    Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
+
+    # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
+    # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)
+    P = np.array([Pxy, Pxy, Pz])
+    I = np.array([Ixy, Ixy, Iz])
+    D = np.array([Dxy, Dxy, Dz])
+    self.updateCoefficients(P, I, D)</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="MAPLEAF.GNC.Stabilizer"><code class="flex name class">
 <span>class <span class="ident">Stabilizer</span></span>
@@ -1346,8 +1546,18 @@ MAPLEAF
 </ul>
 </li>
 <li>
+<h4><code><a title="MAPLEAF.GNC.ConstantGainPIDController" href="#MAPLEAF.GNC.ConstantGainPIDController">ConstantGainPIDController</a></code></h4>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.ConstantGainPIDRocketMomentController" href="#MAPLEAF.GNC.ConstantGainPIDRocketMomentController">ConstantGainPIDRocketMomentController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.ConstantGainPIDRocketMomentController.getDesiredMoments" href="#MAPLEAF.GNC.ConstantGainPIDRocketMomentController.getDesiredMoments">getDesiredMoments</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="MAPLEAF.GNC.ControlSystem" href="#MAPLEAF.GNC.ControlSystem">ControlSystem</a></code></h4>
 <ul class="">
+<li><code><a title="MAPLEAF.GNC.ControlSystem.calculateAngularError" href="#MAPLEAF.GNC.ControlSystem.calculateAngularError">calculateAngularError</a></code></li>
 <li><code><a title="MAPLEAF.GNC.ControlSystem.getLogHeader" href="#MAPLEAF.GNC.ControlSystem.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.GNC.ControlSystem.runControlLoopIfRequired" href="#MAPLEAF.GNC.ControlSystem.runControlLoopIfRequired">runControlLoopIfRequired</a></code></li>
 </ul>
@@ -1362,19 +1572,6 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.GNC.FirstOrderSystem" href="#MAPLEAF.GNC.FirstOrderSystem">FirstOrderSystem</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.GNC.FirstOrderSystem.getPosition" href="#MAPLEAF.GNC.FirstOrderSystem.getPosition">getPosition</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.GNC.GainScheduledPIDController" href="#MAPLEAF.GNC.GainScheduledPIDController">GainScheduledPIDController</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.GNC.GainScheduledPIDController.updateCoefficientsFromGainTable" href="#MAPLEAF.GNC.GainScheduledPIDController.updateCoefficientsFromGainTable">updateCoefficientsFromGainTable</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="MAPLEAF.GNC.GainScheduledPIDRocketMomentController" href="#MAPLEAF.GNC.GainScheduledPIDRocketMomentController">GainScheduledPIDRocketMomentController</a></code></h4>
-<ul class="">
-<li><code><a title="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.getDesiredMoments" href="#MAPLEAF.GNC.GainScheduledPIDRocketMomentController.getDesiredMoments">getDesiredMoments</a></code></li>
-<li><code><a title="MAPLEAF.GNC.GainScheduledPIDRocketMomentController.updateCoefficientsFromGainTable" href="#MAPLEAF.GNC.GainScheduledPIDRocketMomentController.updateCoefficientsFromGainTable">updateCoefficientsFromGainTable</a></code></li>
 </ul>
 </li>
 <li>
@@ -1401,7 +1598,21 @@ MAPLEAF
 <li>
 <h4><code><a title="MAPLEAF.GNC.RocketControlSystem" href="#MAPLEAF.GNC.RocketControlSystem">RocketControlSystem</a></code></h4>
 <ul class="">
+<li><code><a title="MAPLEAF.GNC.RocketControlSystem.appendToControlSystemLogLine" href="#MAPLEAF.GNC.RocketControlSystem.appendToControlSystemLogLine">appendToControlSystemLogLine</a></code></li>
 <li><code><a title="MAPLEAF.GNC.RocketControlSystem.restoreOriginalTimeStepping" href="#MAPLEAF.GNC.RocketControlSystem.restoreOriginalTimeStepping">restoreOriginalTimeStepping</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.ScheduledGainPIDController" href="#MAPLEAF.GNC.ScheduledGainPIDController">ScheduledGainPIDController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.ScheduledGainPIDController.updateCoefficientsFromGainTable" href="#MAPLEAF.GNC.ScheduledGainPIDController.updateCoefficientsFromGainTable">updateCoefficientsFromGainTable</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.GNC.ScheduledGainPIDRocketMomentController" href="#MAPLEAF.GNC.ScheduledGainPIDRocketMomentController">ScheduledGainPIDRocketMomentController</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.GNC.ScheduledGainPIDRocketMomentController.getDesiredMoments" href="#MAPLEAF.GNC.ScheduledGainPIDRocketMomentController.getDesiredMoments">getDesiredMoments</a></code></li>
+<li><code><a title="MAPLEAF.GNC.ScheduledGainPIDRocketMomentController.updateCoefficientsFromGainTable" href="#MAPLEAF.GNC.ScheduledGainPIDRocketMomentController.updateCoefficientsFromGainTable">updateCoefficientsFromGainTable</a></code></li>
 </ul>
 </li>
 <li>

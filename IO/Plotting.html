@@ -135,7 +135,7 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
     
     return names
 
-def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34;):
+def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34;, enableCache=True):
     &#39;&#39;&#39;
         Obtains columns matching one or more regex expressions in a log file.
         By default, log file contents are cached by file name.
@@ -153,7 +153,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34
     if isinstance(columnSpecs, str):
         columnSpecs = [ columnSpecs ]
     
-    if logPath in logFileCache:
+    if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
         with open(logPath, &#39;r&#39;) as file:
@@ -858,7 +858,7 @@ saveAnimFileName should be a string file name/path that the animation should be 
 </details>
 </dd>
 <dt id="MAPLEAF.IO.Plotting.getLoggedColumns"><code class="name flex">
-<span>def <span class="ident">getLoggedColumns</span></span>(<span>logPath, columnSpecs, columnsToExclude=[], sep='\\s+')</span>
+<span>def <span class="ident">getLoggedColumns</span></span>(<span>logPath, columnSpecs, columnsToExclude=[], sep='\\s+', enableCache=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Obtains columns matching one or more regex expressions in a log file.
@@ -878,7 +878,7 @@ sep:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34;):
+<pre><code class="python">def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep=&#34;\s+&#34;, enableCache=True):
     &#39;&#39;&#39;
         Obtains columns matching one or more regex expressions in a log file.
         By default, log file contents are cached by file name.
@@ -896,7 +896,7 @@ sep:
     if isinstance(columnSpecs, str):
         columnSpecs = [ columnSpecs ]
     
-    if logPath in logFileCache:
+    if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
         with open(logPath, &#39;r&#39;) as file:
