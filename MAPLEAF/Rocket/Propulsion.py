@@ -168,12 +168,8 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
                 self.TVCList[i].TVCAngle = self.TVCList[i].getDeflection(time) 
                 
         TVCList = []
-        
-        tx = thrustMagnitude*sin(TVCList[0].TVCAngle)
-        ty = thrustMagnitude*sin(TVCList[1].TVCAngle)
-        tz = thrustMagnitude - tx - ty
         # Create Vector
-        thrust = Vector(tx, ty, tz)  #scale the thrust vector by the angle of plume deflection in the x,y, and z axis 
+        thrust = Vector(thrustMagnitude*sin(TVCList[0].TVCAngle), thrustMagnitude*sin(TVCList[1].TVCAngle), thrustMagnitude*cos(TVCList[0].TVCAngle)*cos(TVCList[1].TVCAngle))  #scale the thrust vector by the angle of plume deflection in the x,y, and z axis 
         
         # Log and return
         self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.x, thrust.y, thrust.Z))
