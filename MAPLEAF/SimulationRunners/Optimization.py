@@ -372,8 +372,7 @@ class BatchOptimizingSimRunner(OptimizingSimRunner):
         caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
         for case in caseDictNames:
             # Get sim definition file path
-            caseDictReader = SubDictReader(case, simDefinition=batchDefinition)
-            simDefPath = caseDictReader.getString("simDefinitionFile")
+            simDefPath = batchDefinition.getValue("{}.simDefinitionFile".format(case))
             simDefPath = getAbsoluteFilePath(simDefPath)
 
             # Load it, implement overrides
@@ -383,7 +382,7 @@ class BatchOptimizingSimRunner(OptimizingSimRunner):
             # Save
             self.batchCaseDefinitions.append(caseDefinition)       
 
-    def _computeCostFunction_SingleThreaded(self, trialSolutions):
+    def _computeCostFunctionValues(self, trialSolutions):
         ''' 
             trialSolutions: (list[list[float]]) Array of particle positions. Each position represents a trial solution in n-dimensional space. Where n = number of independent variables.
             Returns a list of n cost function values, one for each trial solution.
