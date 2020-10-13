@@ -456,6 +456,7 @@ class SimDefinition():
         return Dict
 
     #### Normal Usage ####
+    #TODO: Move distribution sampling for probabilistic parameters to the parsing stage (do not re-sample if a value is requested multiple times)
     def getValue(self, key: str) -> str:
         """
             Input:
