@@ -3,10 +3,12 @@ import re
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
+from MAPLEAF.GNC import ActuatedSystem
+from math import cos, sin, radians, sqrt
 
 __all__ = [ "TabulatedMotor" ]
 
-class TabulatedMotor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
     '''
     Interface:
         Initialization:
@@ -46,7 +48,16 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         # Set the position to the initial CG location
         initInertia = self.getInertia(0, "fakeState")
         self.position = initInertia.CG
+        
+        self.controlSystem = None
+        self.actuatorList = None
 
+    def initializeActuators(self, controlSystem):
+        self.controlSystem = controlSystem
+        numTVC = 2
+        # Initialize an actuator model for each TVC axis actuator, this should always be 2
+        ActuatedSystem.__init__(self, self.numTVC)
+    
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
 
     def _parseMotorDefinitionFile(self, motorFilePath):
@@ -146,8 +157,8 @@ class TabulatedMotor(RocketComponent, SubDictReader):
             thrustMagnitude = 0
         else:
             thrustMagnitude = linInterp(self.times, self.thrustLevels, timeSinceIgnition)
-
-#### If control system exists, use actuator deflections 1:1 to set thrust vectoring angles ####
+            
+        #### If control system exists, use actuator deflections 1:1 to set thrust vectoring angles ####
         
         if self.controlSystem != None:
             # Update actuator angles -> Should come from the PID corrections where a unit change in deflection is one radian change.
@@ -156,9 +167,9 @@ class TabulatedMotor(RocketComponent, SubDictReader):
             for i in range(self.numTVC): # numTVC should always be equal to 2 for thrust vectoring
                 self.TVCList[i].TVCAngle = self.TVCList[i].getDeflection(time) 
                 
-        
+        TVCList = []
         # Create Vector
-        thrust = Vector(thrustMagnitude*TVCList[0].TVCAngle, thrustMagnitude*TVCList[1].TVCAngle, thrustMagnitude) #scale the thrust vector by the angle of plume deflection in the x,y, and z axis 
+        thrust = Vector(thrustMagnitude*sin(TVCList[0].TVCAngle), thrustMagnitude*sin(TVCList[1].TVCAngle), thrustMagnitude*cos(0)) #scale the thrust vector by the angle of plume deflection in the x,y, and z axis 
         
         # Log and return
         self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.x, thrust.y, thrust.Z))

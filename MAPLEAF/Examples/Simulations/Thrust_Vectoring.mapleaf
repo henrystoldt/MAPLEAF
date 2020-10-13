@@ -1,7 +1,7 @@
 SimControl{
     timeDiscretization RK45Adaptive
     timeStep 0.01 #sec, CanardDeflections
-    plot Position Velocity AngularVelocity Deflection&Thrust_vector FlightAnimation
+    plot Position Velocity AngularVelocity FlightAnimation
     loggingLevel 2
 
     EndCondition Apogee
@@ -38,7 +38,7 @@ Rocket{
                     # errors predicted/estimated by the adaptive time stepping methods will not include errors due to low control system update rates.
         updateRate                  100 # Hz
 
-        controlledSystem            Rocket.Sustainer.ThrustVector # Enter path to the controlled component in the Rocket
+        controlledSystem            Rocket.Sustainer.Motor # Enter path to the controlled component in the Rocket
     }
 
     Sustainer{
@@ -73,31 +73,6 @@ Rocket{
             surfaceRoughness    0.000050
         }
 
-        ThrustVector{
-            class           ThrustVector
-
-            mass            1 # kg
-            position        (0 0 -4.2672)
-            cg              (0 0 -4.2672)
-
-            Actuators{
-                class                   Actuator
-                controller              TableInterpolating
-                
-                deflectionTablePath     MAPLEAF/Examples/TabulatedData/linearCanardDefls.txt
-                
-                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
-                    # Desired moments must come last
-                deflectionKeyColumns    Mach Altitude DesiredMx DesiredMy DesiredMz
-
-                minDeflection           -45
-                maxDeflection           45                
-
-                responseModel           FirstOrder # Only Choice
-                responseTime            0.1 # seconds
-            }
-        }
-
         GeneralMass{
             class           Mass
             mass            5
@@ -108,6 +83,23 @@ Rocket{
         Motor{
             class           Motor
             path            MAPLEAF/Examples/Motors/test2.txt
+            
+            Actuators{
+                class                   Actuator
+                controller              TableInterpolating
+                
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                    # Desired moments must come last
+                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz
+
+                minDeflection           -45
+                maxDeflection           45                
+
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # seconds
+            }
         }
 
         TailFins{
