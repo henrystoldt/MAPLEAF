@@ -1,13 +1,17 @@
 import importlib
 from copy import deepcopy
+from statistics import mean
 
 import matplotlib.pyplot as plt
-
-from MAPLEAF.IO import SubDictReader
-from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
+from MAPLEAF.IO import SimDefinition, SubDictReader
+from MAPLEAF.IO.simDefinition import getAbsoluteFilePath
+from MAPLEAF.SimulationRunners import (RemoteSimulation, Simulation,
+                                       loadSimDefinition)
+from MAPLEAF.SimulationRunners.Batch import (BatchRun,
+                                             _implementParameterOverrides)
 from MAPLEAF.Utilities import evalExpression
 
-__all__ = [ "OptimizingSimRunner" ]
+__all__ = [ "OptimizingSimRunner", "ParallelOptimizingSimRunner", "BatchOptimizingSimRunner" ]
 
 try:
     import ray
@@ -21,13 +25,12 @@ class OptimizingSimRunner():
         Configurable using the top-level 'Optimization' dictionary in .mapleaf files
     '''
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
         ''' 
             Pass in nProcesses > 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
             At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
         '''
         self.silent = silent
-        self.nCores = nCores
         self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
 
         if not silent:
@@ -41,6 +44,8 @@ class OptimizingSimRunner():
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
+
+        self.costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")      
 
     def _loadIndependentVariables(self):
         ''' 
@@ -134,7 +139,8 @@ class OptimizingSimRunner():
         nVars = len(self.varNames)
         varBounds = (self.minVals, self.maxVals)
 
-        from pyswarms.single import GlobalBestPSO # Import here because for most sims it's not required
+        from pyswarms.single import \
+            GlobalBestPSO  # Import here because for most sims it's not required
         optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
 
         showConvergence = pSwarmReader.getBool("Optimization.showConvergencePlot")
@@ -151,118 +157,54 @@ class OptimizingSimRunner():
 
         return optimizer, nIterations, showConvergence
 
-    #### Running the optimization ####
-    def _computeCostFunction_Parallel(self, trialSolutions) -> float:
-        ''' Given a values the independent variable, returns the cost function value '''
-        results = []
-
-        costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")
-
-        def postProcess(rayFlightPathsID, rayLogPathsID):
-            if ":" in costFunctionDefinition:
-                # Get log file paths results
-                logFilePaths = ray.get(rayLogPathsID)
-
-                # Cost function is expected to be a custom function defined in an importable module
-                modulePath, funcName = costFunctionDefinition.split(':')
-
-                customModule = importlib.import_module(modulePath)
-                customCostFunction = getattr(customModule, funcName)
-
-                # Call the user's custom function, passing in the paths to all log files from the present run
-                # User's function is expected to return a scalar value           
-                results.append(float( customCostFunction(logFilePaths) ))
-
-            else:
-                # Get flight path results
-                stageFlights = ray.get(rayFlightPathsID)
-
-                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
-                topStageFlight = stageFlights[0]
-                varVals = {
-                    "flightTime":   topStageFlight.getFlightTime(),
-                    "apogee":       topStageFlight.getApogee(),
-                    "maxSpeed":     topStageFlight.getMaxSpeed(),
-                    "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
-                }
-                results.append(evalExpression(costFunctionDefinition, varVals))
-
-        flightPathFutures = []
-        logPathFutures = []
+    #### Running the optimization ####    
+    def _runSim(self, simDefinition, indVarValues):
+        # Create new sim definition
+        simDef = deepcopy(simDefinition)
         
-        nSims = len(trialSolutions)
-        for i in range(nSims):
-            # Don't start more sims than we have cores
-            if i >= self.nCores:
-                # Post-process sims in order to ensure order of results matches order of inputs
-                index = i-self.nCores
-                postProcess(flightPathFutures[index], logPathFutures[index])
+        # Update variable values
+        varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+        self._updateDependentVariableValues(simDef, varDict)
 
-            indVarValues = trialSolutions[i]
+        # Run the simulation
+        simRunner = Simulation(simDefinition=simDef, silent=True)
+        stageFlights, logFilePaths = simRunner.run()
 
-            # Create new sim definition
-            simDef = deepcopy(self.simDefinition)
-            
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-            self._updateDependentVariableValues(simDef, varDict)
+        return stageFlights, logFilePaths
 
-            # Run the simulation
-            simRunner = RemoteSimulation.remote(simDefinition=simDef, silent=True)
-            rayFlightPathsID, rayLogPathsID = simRunner.run.remote()
-            
-            # Save futures
-            flightPathFutures.append(rayFlightPathsID)
-            logPathFutures.append(rayLogPathsID)
+    def _postProcessSim(self, logFilePaths, stageFlights):
+        if ":" in self.costFunctionDefinition:
+            # Cost function is expected to be a custom function defined in an importable module
+            modulePath, funcName = self.costFunctionDefinition.split(':')
 
-        # Post process remaining sims
-        nRemaining = min(nSims, self.nCores)
-        if nRemaining > 0:
-            for i in range(nRemaining):
-                index = i - nRemaining
-                postProcess(flightPathFutures[index], logPathFutures[index])
+            customModule = importlib.import_module(modulePath)
+            customCostFunction = getattr(customModule, funcName)
 
-        return results
+            # Call the user's custom function, passing in the paths to all log files from the present run
+            # User's function is expected to return a scalar value           
+            return float( customCostFunction(logFilePaths) )
 
-    def _computeCostFunction_SingleThreaded(self, trialSolutions) -> float:
-        ''' Given a values the independent variable, returns the cost function value '''
+        else:
+            # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+            topStageFlight = stageFlights[0]
+            varVals = {
+                "flightTime":   topStageFlight.getFlightTime(),
+                "apogee":       topStageFlight.getApogee(),
+                "maxSpeed":     topStageFlight.getMaxSpeed(),
+                "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
+            }
+            return evalExpression(self.costFunctionDefinition, varVals)
+
+    def _computeCostFunctionValues(self, trialSolutions):
+        ''' 
+            trialSolutions: (list[list[float]]) Array of particle positions. Each position represents a trial solution in n-dimensional space. Where n = number of independent variables.
+            Returns a list of n cost function values, one for each trial solution.
+        '''
         results = []
         for indVarValues in trialSolutions:
-            # Create new sim definition
-            simDef = deepcopy(self.simDefinition)
-            
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-            self._updateDependentVariableValues(simDef, varDict)
-
-            # Run the simulation
-            simRunner = Simulation(simDefinition=simDef, silent=True)
-            stageFlights, logFilePaths = simRunner.run()
-
-            # Evaluate the cost function
-            costFunctionDefinition = simDef.getValue("Optimization.costFunction")
-
-            if ":" in costFunctionDefinition:
-                # Cost function is expected to be a custom function defined in an importable module
-                modulePath, funcName = costFunctionDefinition.split(':')
-
-                customModule = importlib.import_module(modulePath)
-                customCostFunction = getattr(customModule, funcName)
-
-                # Call the user's custom function, passing in the paths to all log files from the present run
-                # User's function is expected to return a scalar value           
-                results.append(float( customCostFunction(logFilePaths) ))
-
-            else:
-                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
-                topStageFlight = stageFlights[0]
-                varVals = {
-                    "flightTime":   topStageFlight.getFlightTime(),
-                    "apogee":       topStageFlight.getApogee(),
-                    "maxSpeed":     topStageFlight.getMaxSpeed(),
-                    "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
-                }
-                results.append(evalExpression(costFunctionDefinition, varVals))
+            stageFlights, logFilePaths = self._runSim(self.simDefinition, indVarValues)
+            costFunctionValue = self._postProcessSim(logFilePaths, stageFlights) 
+            results.append(costFunctionValue)
 
         return results
 
@@ -299,17 +241,8 @@ class OptimizingSimRunner():
 
     #### Main Function ####
     def runOptimization(self):
-        ''' Run the Optimization and show convergence history '''
-        if self.nCores > 1 and rayAvailable:
-            ray.init()
-            self.optimizer.optimize(self._computeCostFunction_Parallel, iters=self.nIterations)
-            ray.shutdown()
-        
-        else:
-            if self.nCores > 1 and not rayAvailable:
-                print("ERROR: ray not found. Reverting to single-threaded mode.")
-                
-            self.optimizer.optimize(self._computeCostFunction_SingleThreaded, iters=self.nIterations)
+        ''' Run the Optimization and show convergence history '''                
+        self.optimizer.optimize(self._computeCostFunctionValues, iters=self.nIterations)
         
         if self.showConvergence:
             print("Showing optimization convergence plot")
@@ -318,3 +251,157 @@ class OptimizingSimRunner():
             from pyswarms.utils.plotters import plot_cost_history
             plot_cost_history(self.optimizer.cost_history)
             plt.show()
+
+class ParallelOptimizingSimRunner(OptimizingSimRunner):
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
+        super().__init__(simDefinitionFilePath, simDefinition, silent)
+        self.nCores = nCores
+
+    def _runSim(self, indVarValues):
+        # Create new sim definition
+        simDef = deepcopy(self.simDefinition)
+        
+        # Update variable values
+        varDict = self._updateIndependentVariableValues(simDef, indVarValues)
+        self._updateDependentVariableValues(simDef, varDict)
+
+        # Run the simulation
+        simRunner = RemoteSimulation.remote(simDefinition=simDef, silent=True)
+        rayFlightPathsID, rayLogPathsID = simRunner.run.remote()
+
+        return rayFlightPathsID, rayLogPathsID
+
+    def _postProcessSim(self, rayFlightPathsID, rayLogPathsID) -> float:
+        if ":" in self.costFunctionDefinition:
+            # Get log file paths results
+            logFilePaths = ray.get(rayLogPathsID)
+
+            # Cost function is expected to be a custom function defined in an importable module
+            modulePath, funcName = self.costFunctionDefinition.split(':')
+
+            customModule = importlib.import_module(modulePath)
+            customCostFunction = getattr(customModule, funcName)
+
+            # Call the user's custom function, passing in the paths to all log files from the present run
+            # User's function is expected to return a scalar value           
+            return float( customCostFunction(logFilePaths) )
+
+        else:
+            # Get flight path results
+            stageFlights = ray.get(rayFlightPathsID)
+
+            # Cost function is expected to be an anonymous function defined in costFunctionDefinition
+            topStageFlight = stageFlights[0]
+            varVals = {
+                "flightTime":   topStageFlight.getFlightTime(),
+                "apogee":       topStageFlight.getApogee(),
+                "maxSpeed":     topStageFlight.getMaxSpeed(),
+                "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
+            }
+            return evalExpression(self.costFunctionDefinition, varVals)
+
+    def _computeCostFunctionValues(self, trialSolutions):
+        ''' Given a values the independent variable, returns the cost function value '''
+        results = []
+
+        flightPathFutures = []
+        logPathFutures = []
+        
+        nSims = len(trialSolutions)
+        for i in range(nSims):
+            # Don't start more sims than we have cores
+            if i >= self.nCores:
+                # Post-process sims in order to ensure order of results matches order of inputs
+                index = i-self.nCores
+                results.append(self._postProcessSim(flightPathFutures[index], logPathFutures[index]))
+
+            # Start a new simulation
+            rayFlightPathsID, rayLogPathsID = self._runSim(trialSolutions[i])
+            
+            # Save futures
+            flightPathFutures.append(rayFlightPathsID)
+            logPathFutures.append(rayLogPathsID)
+
+        # Post process remaining sims
+        nRemaining = min(nSims, self.nCores)
+        if nRemaining > 0:
+            for i in range(nRemaining):
+                index = i - nRemaining
+                results.append(self._postProcessSim(flightPathFutures[index], logPathFutures[index]))
+
+        return results
+
+    def runOptimization(self):
+        if self.nCores > 1 and rayAvailable:
+            ray.init()
+            self.optimizer.optimize(self._computeCostFunctionValues, iters=self.nIterations)
+            ray.shutdown()
+        
+        else:
+            if self.nCores > 1 and not rayAvailable:
+                print("ERROR: ray not found. Reverting to single-threaded mode.")
+                
+            self.optimizer.optimize(super()._computeCostFunctionValues, iters=self.nIterations)
+        
+        if self.showConvergence:
+            print("Showing optimization convergence plot")
+
+            # Show optimization history
+            from pyswarms.utils.plotters import plot_cost_history
+            plot_cost_history(self.optimizer.cost_history)
+            plt.show()
+
+class BatchOptimizingSimRunner(OptimizingSimRunner):
+
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
+        super().__init__(simDefinitionFilePath, simDefinition, silent)
+
+        # Optimization dictionary now requires an entry called batchDefinition
+            # TODO: Rename/re-locate this to wherever you want, and put it in the SimDefinitionTemplate
+            # In this case the 'simDefinition' might only contain an Optimization dictionary?
+                # Could also contain the Rocket definition, if the same 'simDefinition' file is referenced in the Batch Definition
+        batchDefinitionPath = self.simDefinition.getValue("Optimization.batchDefinition")
+        batchDefinitionPath = getAbsoluteFilePath(batchDefinitionPath) # Make sure path points to a real file, turn it into an absolute path
+        
+        # Load batch definition file
+        batchDefinition = SimDefinition(batchDefinitionPath)
+
+        # Prep and store the cases it references
+        self.batchCaseDefinitions = []
+
+        caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
+        for case in caseDictNames:
+            # Get sim definition file path
+            caseDictReader = SubDictReader(case, simDefinition=batchDefinition)
+            simDefPath = caseDictReader.getString("simDefinitionFile")
+            simDefPath = getAbsoluteFilePath(simDefPath)
+
+            # Load it, implement overrides
+            caseDefinition = SimDefinition(simDefPath, silent=True)
+            _implementParameterOverrides(case, batchDefinition, caseDefinition)
+
+            # Save
+            self.batchCaseDefinitions.append(caseDefinition)       
+
+    def _computeCostFunction_SingleThreaded(self, trialSolutions):
+        ''' 
+            trialSolutions: (list[list[float]]) Array of particle positions. Each position represents a trial solution in n-dimensional space. Where n = number of independent variables.
+            Returns a list of n cost function values, one for each trial solution.
+        '''
+        resultsForEachSolution = []
+        for indVarValues in trialSolutions:
+            
+            # Calculate cost function for each case in our batch, store in batchResults
+            batchResults = []
+            for caseDef in self.batchCaseDefinitions:    
+                
+                stageFlights, logFilePaths = self._runSim(caseDef, indVarValues)
+                costFunctionValue = self._postProcessSim(logFilePaths, stageFlights) 
+                batchResults.append(costFunctionValue)
+
+            # TODO: Currently using mean() here, could use some other operation to combine results from each case in the batch
+            resultsForEachSolution.append(mean(batchResults))
+
+        return resultsForEachSolution
+
+#TODO: Parallel Batch Optimizing Runner
