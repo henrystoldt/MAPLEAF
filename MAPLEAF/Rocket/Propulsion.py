@@ -161,7 +161,7 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         thrust = Vector(thrustMagnitude*TVCList[0].TVCAngle, thrustMagnitude*TVCList[1].TVCAngle, thrustMagnitude) #scale the thrust vector by the angle of plume deflection in the x,y, and z axis 
         
         # Log and return
-        self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
+        self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.x, thrust.y, thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
