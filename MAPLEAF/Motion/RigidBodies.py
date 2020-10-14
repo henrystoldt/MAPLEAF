@@ -99,3 +99,46 @@ class RigidBody(RigidBody_3DoF):
         dAngVelDt = AngularVelocity(dAngVelDtX, dAngVelDtY, dAngVelDtZ)
 
         return RigidBodyStateDerivative(state.velocity+CGVel_global, linAccel_global, angVel_global, dAngVelDt)
+
+class StatefulRigidBody(RigidBody):
+    def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod="Euler", discardedTimeStepCallback=None, simDefinition=None):
+        super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod, discardedTimeStepCallback, simDefinition)
+
+        self.parametersToIntegrate = RocketState([ rigidBodyState ])
+        self.derivativeFuncs = [ self.rigidBodyStateDerivative ]
+
+    def addParameter(self, currentValue, derivativeFunction):
+        ''' 
+            Pass in the current value of a parameter which needs to be integrated, and a derivative function
+            Derivative function should accept the current time and RocketState as inputs and return the derivative of the new parameter
+        '''
+        self.parametersToIntegrate.append(currentValue)
+        self.derivativeFuncs.append(derivativeFunction)
+
+    def getStateDerivative(self, time, state):
+        return RocketState([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ])
+
+class RocketState(list):
+    ''' 
+        Contains a list of parameters that define the rocket state, all of which are to be integrated
+        Overrides operators to make operations elementwise
+
+        Example: RocketState([ initRigidBodyState, tankLevel1, actuatorPosition1 ])
+    '''
+    def __add__(self, state2):
+        return RocketState([ x + y for x, y in zip(self, state2) ])
+
+    def __sub__(self, state2):
+        return RocketState([ x - y for x, y in zip(self, state2) ])
+
+    def __mul__(self, scalar):
+        return RocketState([ x*scalar for x in self ])
+
+    def __abs__(self):
+        return sum([ abs(x) for x in self ])
+
+    def __eq__(self, state2):
+        return all([ x == y for x,y in zip(self, state2) ])
+
+    def __neg__(self, state2):
+        return RocketState([ -x for x in self ])

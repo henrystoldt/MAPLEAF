@@ -217,6 +217,9 @@ class Rocket(CompositeObject):
         # Get desired time discretization method
         timeDisc = self.rocketDictReader.getString("SimControl.timeDiscretization")
 
+        #TODO: Check for additional parameters to integrate - if they exist create a StatefulRigidBody + RocketState instead!
+            # Ask each rocket component whether it would like to add parameters to integrate after all the components have been initialized
+
         #### Initialize the rigid body ####
         if self.simRunner != None:
             self.rigidBody = RigidBody(
