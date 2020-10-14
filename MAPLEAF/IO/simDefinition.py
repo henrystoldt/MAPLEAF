@@ -2,9 +2,10 @@
 # January 2019
 
 ''' 
-Contains a class meant to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
+Contains a class to read, write and modify simulation definition (.mapleaf) files, the master dictionary of 
 default values for simulation definitions, and a few utility functions for working with string dictionary keys
 '''
+import os
 import random
 import re
 import shlex
@@ -77,7 +78,7 @@ defaultConfigValues = {
     "Rocket.HIL.imuBaudrate":                           "57600",
 
     "Rocket.ControlSystem.desiredFlightDirection":      "(0 0 1)",
-    "Rocket.ControlSystem.MomentController.Type":       "GainScheduledPIDRocket",
+    "Rocket.ControlSystem.MomentController.Type":       "ScheduledGainPIDRocket",
     "Rocket.ControlSystem.updateRate":                  "0",
 
     "Rocket.name":                                      "Rocket",
@@ -142,18 +143,21 @@ simDefinitionHelpMessage = \
     key value
 """
 class SimDefinition():
-    
+
     #### Parsing / Initialization ####
-    def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None):
+    def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None, simDefParseStack=None):
         '''
         Parse simulation definition files into a dictionary of string values accessible by string keys.
 
         Inputs:
             * fileName: (str) path to simulation definition file
-            * dictionary: (dict[str,str]) if not providing a fileName, provide a pre-parsed dictionary equivalent to a simulation definition file
+            * dictionary: (dict[str,str]) Provide a pre-parsed dictionary equivalent to a simulation definition file - OVERRIDES fileName
+            
             * disableDistributionSampling: (bool) Turn Monte Carlo sampling of normally-distributed parameters on/off
             * silent: (bool) Console output control
             * defaultDict: (dict[str,str] provide a custom dictionary of default values. If none is provided, defaultConfigValues is used.)
+            * simDefParseStack: set(str) list of sim definition files in the current parse stack. Will throw an error if any of these files need to be loaded to generate the current sim definition
+                # !include and !create [] from [] statements must form an acyclic graph of files to load (no circular loads)
         
         Example:
             The file contents:  
@@ -167,35 +171,33 @@ class SimDefinition():
         self.silent = silent
         ''' Boolean, controls console output '''
 
+        self.fileName = fileName
+
         self.disableDistributionSampling = disableDistributionSampling
         ''' Boolean - controls whether parameters which have standard deviations specified are actually sampled from a normal distribution. If True, the mean value is always returned. Chief use case for disabling sampling: Checking simulation convergence as the time step / target error is decreased. '''
 
-        self.dict = None # type: Dict[str:str]
-        ''' Main dictionary of values, usually populated from a simulation definition file '''
-
-        self.defaultDict = None
+        self.defaultDict = defaultConfigValues if (defaultDict == None) else defaultDict
         ''' Holds all of the defined default values. These will fill in for missing values in self.dict. Unless a different dictionary is specified, will hold a reference to `defaultConfigValues` '''
         
         self.monteCarloLogger = None 
         ''' Filled in by  Main.runMonteCarloSimulation() if running  Monte Carlo simulation. Type: `MAPLEAF.IO.Logging.MonteCarloLogger` '''
 
-        # Assign default dictionary
-        if defaultDict == None:
-            self.defaultDict = defaultConfigValues
-        else:
-            self.defaultDict = defaultDict
+        self.dict = None # type: Dict[str:str]
+        ''' Main dictionary of values, usually populated from a simulation definition file '''
+
+        self.simDefParseStack = { self.fileName } if (simDefParseStack == None) else simDefParseStack
+        ''' Keeps track of which files have already been loaded in the current parse stack. If these are loaded again we're in a parsing loop '''
 
         # Parse/Assign main values dictionary
-        if fileName != None:
-            self._parseSimDefinitionFile(fileName)
-        elif dictionary != None:
+        if dictionary != None:
             self.dict = dictionary
-            self.fileName=fileName
+        elif fileName != None:
+            self.dict = self._parseSimDefinitionFile(fileName)
         else:
             raise ValueError("No fileName or dictionary provided to initialize the SimDefinition")
 
         # Initialize tracking of default values used and unaccessed keys
-        self._resetUsedAndUnusedKeyTrackers()
+        self._resetUsageTrackers()
 
         # Check if any probabilistic keys exist
         containsProbabilisticValues = False
@@ -216,63 +218,96 @@ class SimDefinition():
             self.rng = random.Random(randomSeed)
             ''' Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. '''
 
-    def _parseDictionaryContents(self, workingText, startLine, currDictName, allowKeyOverwriting=False) -> int:
+    def _loadSubSimDefinition(self, path: str):
+        ''' 
+            In the parsing process, may need to load other sim definition files, use this function when doing that to detect circular references 
+            path can be relative to the location of the current file, absolute, or relative to the MAPLEAF install directory
+            
+            Throws ValueError if circular parsing detected.
+            Returns a new SimDefinition object
+        '''
+        filePath = getAbsoluteFilePath(path, str( Path(self.fileName).parent ))
+
+        if filePath not in self.simDefParseStack:
+            self.simDefParseStack.add(filePath)
+            subSimDef = SimDefinition(filePath, simDefParseStack=self.simDefParseStack)
+            self.simDefParseStack.remove(filePath)
+            return subSimDef
+        
+        else:
+            raise ValueError("Encountered circular reference while trying to parse SimDefinition file: {}, which references: {}, which is already in the current parse stack: {}".format(self.fileName, filePath, self.simDefParseStack))
+
+    def _parseDictionaryContents(self, Dict, workingText, startLine: int, currDictName: str, allowKeyOverwriting=False) -> int:
         ''' 
             Parses an individual subdictionary in a simdefinition file.
             Calls itself recursively to parse further sub dictionaries.
-            Saves parsed key-value pairs to self.dict
+            Saves parsed key-value pairs to Dict
+
+            workingText should be of type list[str]
 
             Returns index of next line to parse
         '''
         i = startLine
 
         while i < len(workingText):
-            line = workingText[i]
+            line = workingText[i].strip()
+            splitLine = line.split()
             
-            if line.split()[0] == "!create":
+            if splitLine[0] == "!create":
                 # Parse derived subdictionary
-                i = self._parseDerivedDictionary(workingText, i, currDictName)
+                i = self._parseDerivedDictionary(Dict, workingText, i, currDictName)
 
-            elif line.strip()[-1] == '{':
+            elif splitLine[0] == "!include":
+                # Include contents of another sim definition file
+                filePath = line[line.index(" "):].strip() # Handle file names with spaces
+                subDef = self._loadSubSimDefinition(filePath)
+
+                # Add keys to current sim definition, inside current dictionary
+                for subDefkey in subDef.dict:
+                    if currDictName == "":
+                        key = subDefkey
+                    else:
+                        key = currDictName + "." + subDefkey
+
+                    Dict[key] = subDef.dict[subDefkey]
+
+            elif line[-1] == '{':
                 # Parse regular Subdictionary
-                subDictName = line.strip()[:-1] # Remove whitespace and dict start bracket
+                subDictName = line[:-1] # Remove whitespace and dict start bracket
                 
                 # Recursive call to parse subdictionary
                 if currDictName == "":
-                    i = self._parseDictionaryContents(workingText, i+1, subDictName, allowKeyOverwriting)
+                    i = self._parseDictionaryContents(Dict, workingText, i+1, subDictName, allowKeyOverwriting)
                 else:
-                    i = self._parseDictionaryContents(workingText, i+1, currDictName + "." + subDictName, allowKeyOverwriting)
+                    i = self._parseDictionaryContents(Dict, workingText, i+1, currDictName + "." + subDictName, allowKeyOverwriting)
 
-            elif line.strip() == '}':
+            elif line == '}':
                 #End current dictionary - continue parsing at next line
                 return i
                         
-            elif len(line.split()) > 1:
-                #Add a key value pair
-                keyVal = line.split()
-                
-                # Save the space-separated key-value pair
-                key = keyVal[0]
-                value = " ".join(keyVal[1:])
+            elif len(splitLine) > 1:
+                # Save a space-separated key-value pair
+                key = splitLine[0]
+                value = " ".join(splitLine[1:])
                 if currDictName == "":
                     keyString = key
                 else:
                     keyString = currDictName + "." + key
 
-                if not keyString in self.dict or allowKeyOverwriting:
-                    self.dict[keyString] = value
+                if not keyString in Dict or allowKeyOverwriting:
+                    Dict[keyString] = value
                 else:
                     raise ValueError("Duplicate Key: " + keyString + " in File: " + self.fileName)
             
             else:
                 # Error: Line not recognized as a dict start/end or a key/value pair
                 print(simDefinitionHelpMessage)
-                raise ValueError("Problem reading line {}".format(line))
+                raise ValueError("Problem parsing line {}: {}".format(i, line))
 
             # Next line
             i += 1
 
-    def _parseDerivedDictionary(self, workingText, initializationLine, currDictName) -> int:
+    def _parseDerivedDictionary(self, Dict, workingText, initializationLine: int, currDictName: str) -> int:
         '''
             Parse a 'derived' subdictionary, defined with the !create command in .mapleaf files
 
@@ -286,45 +321,59 @@ class SimDefinition():
         '''
         # workingText[initializationLine] should be something like:
             # '    !create SubDictionary2 from Dictionary1.SubDictionary1{'
-        definitionLine = workingText[initializationLine].split()
+        definitionLine = shlex.split(workingText[initializationLine])
+
+        # Figure out complete name of new dictionary
         if currDictName == '':
             derivedDictName = definitionLine[1]
         else:
             derivedDictName = currDictName + '.' + definitionLine[1]
 
-        # Parent dict is last command. Remove opening curly bracket (last character)
-        parentDictName = definitionLine[-1][:-1]
+        # Parent dict is last command. Remove opening curly bracket (last character), if present
+        dictPath = definitionLine[-1][:-1] if ('{' == definitionLine[-1][-1]) else definitionLine[-1]
 
-        # Fill out temporary dict, after applying all modifiers, add values to main self.dict
-        derivedDict = {}
-
-        #### Get keys from parent dict ####
-        keysInParentDict = self.getSubKeys(parentDictName)
+        #### Load Parent/Source (Sub)Dictionary ####
+        if ":" in dictPath:
+            # Importing dictionary from another file
+            fileName = dictPath.split(":")[0]              
+            subSimDef = self._loadSubSimDefinition(fileName)
+            sourceDict = subSimDef.dict
+            
+            dictPath = dictPath.split(":")[1]
+            keysInParentDict = subSimDef.getSubKeys(dictPath)                
+        
+        else:
+            # Deriving from dictionary in current file
+            # Get keys from parent dict
+            keysInParentDict = self.getSubKeys(dictPath, Dict)
+            sourceDict = Dict
         
         if len(keysInParentDict) == 0:
-            raise ValueError("ERROR: Dictionary to derive from: {} is not defined before {} in {}.".format(parentDictName, derivedDictName, self.fileName))
+            raise ValueError("ERROR: Dictionary to derive from: {} is not defined before {} in {}.".format(dictPath, derivedDictName, self.fileName))
+        
+        # Fill out temporary dict, after applying all modifiers, add values to main Dict
+        derivedDict = {}
 
+        # Rename all the keys in the parentDict -> relocate them to the new (sub)dictionary
         for parentKey in keysInParentDict:
-            key = parentKey.replace(parentDictName, derivedDictName)
-            derivedDict[key] = self.dict[parentKey]
+            key = parentKey.replace(dictPath, derivedDictName)
+            derivedDict[key] = sourceDict[parentKey]
+
 
         #### Apply additional commands ####
         i = initializationLine + 1
         while i < len(workingText):
             line = workingText[i]
-            possibleCommand = line.split()[0]
+            command = shlex.split(line)
 
-            if possibleCommand == "!replace":
-                # Replace some text in the keys/values of the derived dictionary
-                replaceCommand = shlex.split(line)
+            def removeQuotes(string):
+                string = string.replace("'", "")
+                return string.replace('"', "")
 
-                # Get string to replace (w/o quotations)
-                toReplace = replaceCommand[1].replace("'", "")
-                toReplace = toReplace.replace('"', "")
-
-                # Get string to replace it with (w/o quotation)
-                replaceWith = replaceCommand[-1].replace("'", "")
-                replaceWith = replaceWith.replace('"', "")
+            if command[0] == "!replace":
+                # Get string to replace and its replacement
+                toReplace = removeQuotes(command[1])
+                replaceWith = removeQuotes(command[-1])
 
                 derivedDictAfterReplace = {}
                 for key in derivedDict:
@@ -335,9 +384,8 @@ class SimDefinition():
 
                 derivedDict = derivedDictAfterReplace
 
-            elif possibleCommand == "!removeKeysContaining":
-                removeCommand = shlex.split(line)
-                stringToDelete = removeCommand[1]
+            elif command[0] == "!removeKeysContaining":
+                stringToDelete = command[1]
 
                 # Search for and remove any keys that contain stringToDelete
                 keysToDelete = []
@@ -349,33 +397,32 @@ class SimDefinition():
                     del derivedDict[key]                
 
             elif line[0] != "!":
-                # Done commands - let the regular parser handle the rest
-                break
+                break # Done special commands - let the regular parser handle the rest
 
             else:
                 raise ValueError("Command: {} not implemented. Try using !replace or !removeKeysContaining".format(line.split()[0]))
 
             i += 1
 
-        #### Add derivedDict values to self.dict ####
+        #### Add derivedDict values to Dict ####
         for key in derivedDict:
             # Make sure we don't clobber existing values with poorly thought-out replace commands
-            if key not in self.dict:
-                self.dict[key] = derivedDict[key]
+            if key not in Dict:
+                Dict[key] = derivedDict[key]
             else:
                 raise ValueError("Derived dict key {} already exists".format(key, self.fileName))
 
         #### Parse any regular values in derived dict ####
-        return self._parseDictionaryContents(workingText, i, derivedDictName, allowKeyOverwriting=True)
+        return self._parseDictionaryContents(Dict, workingText, i, derivedDictName, allowKeyOverwriting=True)
 
-    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self):
+    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self, Dict):
         ''' 
             Tries to detect paths relative to the MAPLEAF installation directory and replaces them with absolute paths.
             This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
         '''
-        for key in self.dict:
+        for key in Dict:
             # Iterate over all keys, looking for file path relative to the MAPLEAF repo
-            val = self.dict[key]
+            val = Dict[key]
             
             # Remove leading dot/slash
             if val[:2] == "./":
@@ -383,11 +430,10 @@ class SimDefinition():
 
             if len(val) > 8 and val[:8] == "MAPLEAF/":
                 # Replace the relative path with an absolute one
-                self.dict[key] = getAbsoluteFilePath(val)
+                Dict[key] = getAbsoluteFilePath(val)
 
     def _parseSimDefinitionFile(self, fileName):
-        self.fileName = fileName
-        self.dict = {}
+        Dict = {}
         
         # Read all of the file's contents
         file = open(fileName, "r+")
@@ -402,11 +448,15 @@ class SimDefinition():
         workingText = [line for line in workingText.split('\n') if line.strip() != '']
         
         # Start recursive parse by asking to parse the root-level dictionary
-        self._parseDictionaryContents(workingText, 0, "")
+        self._parseDictionaryContents(Dict, workingText, 0, "")
 
-        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths()
+        # Look for file paths relative to the MAPLEAF install location, replace them with absolute paths
+        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(Dict)
+
+        return Dict
 
     #### Normal Usage ####
+    #TODO: Move distribution sampling for probabilistic parameters to the parsing stage (do not re-sample if a value is requested multiple times)
     def getValue(self, key: str) -> str:
         """
             Input:
@@ -493,10 +543,8 @@ class SimDefinition():
         '''
             Will add the entry if it's not present
         '''
-        # Remove whitespace
-        key = key.strip()
-        
-        self.dict[key] = value
+        # The .strip() removes whitespace
+        self.dict[key.strip()] = value
 
     def removeKey(self, key: str):
         if key in self.dict:
@@ -603,7 +651,7 @@ class SimDefinition():
         else:
             return None
 
-    def getSubKeys(self, key: str) -> List[str]:
+    def getSubKeys(self, key: str, Dict=None) -> List[str]:
         '''
             Returns a list of all keys that are children of key
 
@@ -611,8 +659,11 @@ class SimDefinition():
                 getSubKeys("Rocket") ->  
                 [ "Rocket.position", "Rocket.Sustainer.NoseCone.mass", "Rocket.Sustainer.RecoverySystem.position", etc... ]
         '''
+        #TODO: Improve speed by keeping dict sorted, then use binary search to locate first/last subkeys
+        Dict = self.dict if (Dict == None) else Dict
+
         subKeys = []
-        for currentKey in self.dict.keys():
+        for currentKey in Dict.keys():
             if isSubKey(key, currentKey):
                 subKeys.append(currentKey)
         
@@ -731,7 +782,7 @@ class SimDefinition():
                 print("{:<45}{}".format(key+":", value))
             print("\nIf this was not intended, override the default values by adding the above information to your simulation definition file.\n")
         
-    def _resetUsedAndUnusedKeyTrackers(self):
+    def _resetUsageTrackers(self):
         # Create a dictionary to keep track of which attributed have been accessed (initially none)
         self.unaccessedFields = set(self.dict.keys())
         # Create a list to track which default values have been used
@@ -834,19 +885,34 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -> Tuple[str]:
     suffix = ".".join(keyNames[n:])
     return prefix, suffix
 
-def getAbsoluteFilePath(relativePath: str) -> str:
+def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") -> str:
     ''' 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
+        alternateRelativeLocation (str) location of an alternate file/folder the path could be relative to
         Returns original relativePath if an absolute path is not found
     '''
+    # Check if path is relative to MAPLEAF installation location
     # This file is at MAPLEAF/IO/SimDefinition, so MAPLEAF's install directory is three levels up
     pathToMAPLEAFInstallation = Path(__file__).parent.parent.parent
 
     relativePath = Path(relativePath)
     absolutePath = pathToMAPLEAFInstallation / relativePath
 
-    if absolutePath.exists:
+    if absolutePath.exists():
         return str(absolutePath)
     else:
-        print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
-        return relativePath
+        if alternateRelativeLocation != "":
+            # Try alternate location
+            alternateLocation = Path(alternateRelativeLocation)
+            
+            if alternateLocation.is_file():
+                # If the alternate location provided is a file path, check if the file is in the parent directory
+                absolutePath = alternateLocation.parent / relativePath
+            else:
+                absolutePath = alternateLocation / relativePath
+
+            if absolutePath.exists():
+                return str(absolutePath)
+                
+    print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+    return relativePath

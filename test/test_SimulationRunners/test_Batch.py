@@ -82,7 +82,7 @@ class TestBatchSim(unittest.TestCase):
         self.assertEqual(self.batchRun.validationDataUsed, ["Test.Case.Data"])
 
     def test_getCasesToRun(self):
-        regressionTestsDefinition = SimDefinition("MAPLEAF/Examples/Simulations/regressionTests.mapleaf")
+        regressionTestsDefinition = SimDefinition("MAPLEAF/Examples/BatchSims/regressionTests.mapleaf")
         batchRun = BatchRun(regressionTestsDefinition, include="ParametricFin", exclude="0AOA")
         casesToRun = sorted(batchRun.getCasesToRun())
 

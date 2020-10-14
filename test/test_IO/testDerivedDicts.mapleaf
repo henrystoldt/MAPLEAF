@@ -1,8 +1,8 @@
 # MAPLEAF
 
 Dictionary1{         
-    key1    value1
-    key2    value2
+    key1        value1
+    key2        value2
 
     SubDictionary1{
         key3    value3
@@ -32,6 +32,22 @@ Dictionary2{
         !removeKeysContaining  'bad'
 
         # Add/override values like in a normal dictionary
-        key5            value5
+        key5                    value5
     }
+
+    # Can also create dictionaries from dictionaries in other files.
+        # !create [newDictName] from [filePath]:[PathToSubDictionaryToGetFromFile]
+            # filePath can be:
+                # absolute, 
+                # relative to the location of the sim definition file, or 
+                # relative to the MAPLEAF install directory
+            # Spaces in file name -> add quotes, Example:
+                # !create Dict from 'file with spaces.mapleaf:Dict1{'
+    !create SubDictionary3 from testDerivedDict_DictToInclude.mapleaf:Dict1.SubDict1{
+        # Same commands available as in SubDictionary2 above (!replace, !removeKeysContaining, etc.)
+    } # Even if no commands are used, closing bracket needs its own line
+
+    # Include the (parsed) contents of a whole other file
+        # Spaces in filename work fine, don't use quotes
+    !include testDerivedDict_DictToInclude.mapleaf
 }

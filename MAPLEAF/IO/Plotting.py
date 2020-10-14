@@ -102,7 +102,7 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
     
     return names
 
-def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
+def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+", enableCache=True):
     '''
         Obtains columns matching one or more regex expressions in a log file.
         By default, log file contents are cached by file name.
@@ -120,7 +120,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
     if isinstance(columnSpecs, str):
         columnSpecs = [ columnSpecs ]
     
-    if logPath in logFileCache:
+    if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
         with open(logPath, 'r') as file:
@@ -371,10 +371,11 @@ def _keepNTimeSteps(flights, nFramesToKeep=600):
     else:
         return flights
 
-def _get3DPlotSize(Positions, sizeMultiple=1.1):
+def _get3DPlotSize(flight, sizeMultiple=1.1):
     '''
         Finds max X, Y, or Z distance from the origin reached during the a flight. Used to set the 3D plot size (which will be equal in all dimensions)
     '''
+    Positions = flight.Positions
     centerOfPlot = Vector(mean(Positions[0]), mean(Positions[1]), mean(Positions[2]))
 
     xRange = max(Positions[0]) - min(Positions[0])
@@ -632,7 +633,7 @@ def flightAnimation(flights, showPlot=True, saveAnimFileName=None):
         flight.Positions = Positions
 
     # Set xyz size of plot - equal in all dimensions
-    axisDimensions, centerOfPlot = _get3DPlotSize(flights[0].Positions) # Assumes the top stage travels the furthest
+    axisDimensions, centerOfPlot = _get3DPlotSize(flights[0]) # Assumes the top stage travels the furthest
 
     # Calculate frames at which engine turns off and main chute deploys
     for flight in flights:
