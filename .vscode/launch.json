@@ -29,7 +29,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/MAPLEAF/Main.py",
             "args": [ "${file}" ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
 
         {

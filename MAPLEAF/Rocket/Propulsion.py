@@ -51,12 +51,12 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         
         self.controlSystem = None
         self.actuatorList = None
+        self.TVCAngleList = [0, 0]
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
-        numTVC = 2
         # Initialize an actuator model for each TVC axis actuator, this should always be 2
-        ActuatedSystem.__init__(self, self.numTVC)
+        ActuatedSystem.__init__(self, 2)
     
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
 
@@ -164,16 +164,17 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
             # Update actuator angles -> Should come from the PID corrections where a unit change in deflection is one radian change.
             
             # Copied the implementation from fins.py and changed 'numfins' to numTVC', 'finList' to 'TVCList', 'finAngle' to 'TVCAngle'. Need to define what these are somewhere else most likely?
-            for i in range(self.numTVC): # numTVC should always be equal to 2 for thrust vectoring
-                self.TVCList[i].TVCAngle = self.TVCList[i].getDeflection(time) 
-                
-        TVCList = []
+            for i in range(2): # numTVC should always be equal to 2 for thrust vectoring
+                self.TVCAngleList[i] = self.actuatorList[i].getDeflection(time) # rads
         # Create Vector
-        thrust = Vector(thrustMagnitude*sin(TVCList[0].TVCAngle), thrustMagnitude*sin(TVCList[1].TVCAngle), thrustMagnitude*cos(TVCList[0].TVCAngle)*cos(TVCList[1].TVCAngle))  #scale the thrust vector by the angle of plume deflection in the x,y, and z axis 
+        thrustX = thrustMagnitude*sin(self.TVCAngleList[0])
+        thrustY = thrustMagnitude*sin(self.TVCAngleList[1])
+        thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1]) # Probs not right, check trig more
+        thrust = Vector(thrustX, thrustY, thrustZ)  #scale the thrust vector by the angle of plume deflection in the x, y, and z axis
         
         # Log and return
-        self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.x, thrust.y, thrust.Z))
-        return ForceMomentSystem(thrust)
+        self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.X, thrust.Y, thrust.Z))
+        return ForceMomentSystem(thrust, location=Vector(0, 0, -4.3))
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
         self.ignitionTime = ignitionTime
@@ -182,7 +183,7 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
 
     def getLogHeader(self):
-        return " {}Thrust(N)".format(self.name)
+        return " {}ThrustX(N) {}ThrustY(N) {}ThrustZ(N)".format(self.name, self.name, self.name)
 
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -> midpoint rule integrates this perfectly
