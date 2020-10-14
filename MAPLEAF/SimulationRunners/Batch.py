@@ -276,6 +276,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         logFilePaths = simRunner.runSweep()
     except:
         _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
+        logFilePaths = []
     else:
         Logging.removeLogger()
 
@@ -362,6 +363,7 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
         _, logFilePaths = simRunner.run()
     except:
         _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
+        logFilePaths = []
     else:
         Logging.removeLogger()
 
@@ -385,8 +387,6 @@ def _handleSimCrash(batchRun: BatchRun, caseName):
         import traceback
         tb = traceback.format_exc()
         print(tb)
-        
-    return [] # No log file paths
 
 #### 2. Checking Expected Final Results ####
 def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths):
