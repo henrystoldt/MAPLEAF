@@ -268,6 +268,8 @@ class Rocket(CompositeObject):
                 newStage = Stage(stageDictReader, self)
                 self.stages.append(newStage)
 
+            #TODO: Use setattr to make stages accessible as attributes of the rocket object
+
         self.stages = PlanarInterface.sortByZLocation(self.stages)
         self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
 
