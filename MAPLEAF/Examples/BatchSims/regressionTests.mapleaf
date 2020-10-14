@@ -183,6 +183,26 @@ ConventionalRocketCase{
 	}
 }
 
+ThrustVectoringCase{
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Thrust_Vectoring.mapleaf
+
+	ExpectedFinalValues{
+		PositionX		623.709
+		PositionY		0
+		PositionZ		571.022
+	}
+
+	ParameterOverrides{
+
+		SimControl{
+			EndCondition	    					Time
+			EndConditionValue						5
+		}
+		Rocket.initialDirection						(0 0 1)
+		Rocket.ControlSystem.desiredFlightDirection	(0.5 0 0.5)
+	}
+}
+
 !include OpenRocketCases.mapleaf
 
 !include SparrowCases.mapleaf
