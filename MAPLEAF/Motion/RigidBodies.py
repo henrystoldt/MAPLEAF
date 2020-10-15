@@ -6,7 +6,7 @@ Rigid body classes contain the logic for calculating rigid body state derivative
 from MAPLEAF.Motion import (AngularVelocity, RigidBodyStateDerivative,
                             RigidBodyStateDerivative_3DoF, integratorFactory)
 
-__all__ = [ "RigidBody_3DoF", "RigidBody" ]
+__all__ = [ "RigidBody_3DoF", "RigidBody", "StatefulRigidBody", "StateList" ]
 
 #### 3 DoF ####
 class RigidBody_3DoF:
@@ -101,38 +101,46 @@ class RigidBody(RigidBody_3DoF):
         return RigidBodyStateDerivative(state.velocity+CGVel_global, linAccel_global, angVel_global, dAngVelDt)
 
 class StatefulRigidBody(RigidBody):
+    '''
+        Intended to represent rigid bodies that have additional stateful properties outside of their rigd body state (ex. tank levels, actuator positions).
+        State is defined a by a `StateList` instead of by a `MAPLEAF.Motion.RigidBodyState`.
+    '''
     def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod="Euler", discardedTimeStepCallback=None, simDefinition=None):
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod, discardedTimeStepCallback, simDefinition)
 
-        self.parametersToIntegrate = RocketState([ rigidBodyState ])
+        self.parametersToIntegrate = StateList([ rigidBodyState ])
         self.derivativeFuncs = [ self.rigidBodyStateDerivative ]
 
     def addParameter(self, currentValue, derivativeFunction):
         ''' 
             Pass in the current value of a parameter which needs to be integrated, and a derivative function
-            Derivative function should accept the current time and RocketState as inputs and return the derivative of the new parameter
+            Derivative function should accept the current time and StateList as inputs and return the derivative of the new parameter
         '''
         self.parametersToIntegrate.append(currentValue)
         self.derivativeFuncs.append(derivativeFunction)
 
     def getStateDerivative(self, time, state):
-        return RocketState([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ])
+        return StateList([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ])
 
-class RocketState(list):
+class StateList(list):
     ''' 
-        Contains a list of parameters that define the rocket state, all of which are to be integrated
-        Overrides operators to make operations elementwise
+        Purpose is to provide a generalized version of RigidBodyState, which can be integrated like a scalar, but allows MAPLEAF to integrate arbitrary additional parameters.
+
+        Contains a list of parameters that define the (rocket) state, all of which are to be integrated
+        Overrides operators to make +-* operations elementwise
+
+        Called StateList instead of StateVector because it can contain objects of any type, like a Python list, and unlike a Vector.
 
         Example: RocketState([ initRigidBodyState, tankLevel1, actuatorPosition1 ])
     '''
     def __add__(self, state2):
-        return RocketState([ x + y for x, y in zip(self, state2) ])
+        return StateList([ x + y for x, y in zip(self, state2) ])
 
     def __sub__(self, state2):
-        return RocketState([ x - y for x, y in zip(self, state2) ])
+        return StateList([ x - y for x, y in zip(self, state2) ])
 
     def __mul__(self, scalar):
-        return RocketState([ x*scalar for x in self ])
+        return StateList([ x*scalar for x in self ])
 
     def __abs__(self):
         return sum([ abs(x) for x in self ])
@@ -140,5 +148,5 @@ class RocketState(list):
     def __eq__(self, state2):
         return all([ x == y for x,y in zip(self, state2) ])
 
-    def __neg__(self, state2):
-        return RocketState([ -x for x in self ])
+    def __neg__(self):
+        return StateList([ -x for x in self ])

@@ -15,7 +15,7 @@ from test.testUtilities import (assertAngVelAlmostEqual,
 
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
-                            Quaternion, RigidBody, RigidBodyState, Vector)
+                            Quaternion, RigidBody, RigidBodyState, Vector, StateList, StatefulRigidBody)
 
 
 class TestRigidBody(unittest.TestCase):
@@ -204,6 +204,28 @@ class TestRigidBody(unittest.TestCase):
         expectedAngVel = AngularVelocity(rotationVector=Vector(cos(omega*totalTime), sin(omega*totalTime) ,1))
 
         assertAngVelAlmostEqual(self, finalAngVel, expectedAngVel)
+
+class TestStateList(unittest.TestCase):
+    def test_arithmetic(self):
+        state1 = StateList([1, 2])
+        state2 = StateList([2, 4])
+
+        additionResult = state1 + state2
+        self.assertEqual(additionResult, StateList([3, 6]))
+
+        subtractionResult = state2 - state1
+        self.assertEqual(subtractionResult, StateList([1, 2]))
+
+        multiplicationResult = state1 * 3
+        self.assertEqual(multiplicationResult, StateList([3, 6]))
+
+        negateResult = -state1
+        self.assertEqual(negateResult, StateList([-1, -2]))
+
+        absVal = abs(state2)
+        absVal2 = abs(negateResult)
+        self.assertEqual(absVal, 6)
+        self.assertEqual(absVal2, 3)
 
 #If the file is run by itself, run the tests above
 if __name__ == '__main__':
