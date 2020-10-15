@@ -37,6 +37,8 @@ class RigidBody_3DoF:
         self.integrate = integratorFactory(integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
 
     def rigidBodyStateDerivative(self, time, state):
+        if isinstance(state, StateList):
+            state = state[0]
         force = self.forceFunc(time, state).force
         
         DposDt = state.velocity
@@ -73,6 +75,9 @@ class RigidBody(RigidBody_3DoF):
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
 
     def rigidBodyStateDerivative(self, time, state):
+        if isinstance(state, StateList):
+            state = state[0]
+
         # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
         appliedForce_localFrame = self.forceFunc(time, state)
         inertia = self.inertiaFunc(time, state)
@@ -108,19 +113,24 @@ class StatefulRigidBody(RigidBody):
     def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod="Euler", discardedTimeStepCallback=None, simDefinition=None):
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod, discardedTimeStepCallback, simDefinition)
 
-        self.parametersToIntegrate = StateList([ rigidBodyState ])
+        self.state = StateList([ rigidBodyState ])
         self.derivativeFuncs = [ self.rigidBodyStateDerivative ]
 
-    def addParameter(self, currentValue, derivativeFunction):
+    def addStateParameter(self, currentValue, derivativeFunction):
         ''' 
             Pass in the current value of a parameter which needs to be integrated, and a derivative function
             Derivative function should accept the current time and StateList as inputs and return the derivative of the new parameter
         '''
-        self.parametersToIntegrate.append(currentValue)
+        self.state.append(currentValue)
         self.derivativeFuncs.append(derivativeFunction)
 
     def getStateDerivative(self, time, state):
         return StateList([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ])
+
+    def timeStep(self, deltaT):
+        self.state, timeStepAdaptationFactor, deltaT = self.integrate(self.state, self.time, self.getStateDerivative, deltaT)
+        self.time += deltaT
+        return timeStepAdaptationFactor, deltaT
 
 class StateList(list):
     ''' 
@@ -141,6 +151,9 @@ class StateList(list):
 
     def __mul__(self, scalar):
         return StateList([ x*scalar for x in self ])
+
+    def __truediv__(self, scalar):
+        return StateList([ x/scalar for x in self ])
 
     def __abs__(self):
         return sum([ abs(x) for x in self ])

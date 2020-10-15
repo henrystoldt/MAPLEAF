@@ -17,6 +17,10 @@ from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
                             Quaternion, RigidBody, RigidBodyState, Vector, StateList, StatefulRigidBody)
 
+# https://lpsa.swarthmore.edu/NumInt/NumIntSecond.html
+def sampleDerivative(time, state):
+    val = state[1]
+    return -2 * val
 
 class TestRigidBody(unittest.TestCase):
     def setUp(self):
@@ -205,8 +209,49 @@ class TestRigidBody(unittest.TestCase):
 
         assertAngVelAlmostEqual(self, finalAngVel, expectedAngVel)
 
+    def test_dualUniformXMotion(self):
+        movingXState = RigidBodyState(self.zeroVec, Vector(1,0,0), self.zeroQuat, self.zeroAngVel)
+        constInertia = Inertia(self.oneVec, self.zeroVec, 1)
+        def constInertiaFunc(*allArgs):
+            return constInertia
+        def zeroForceFunc(*allArgs):
+            return self.zeroForce
+        movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, simDefinition=self.simDefinition)
+        # Add the same rigid body state and state derivative function as a second state variable to be integrated
+        movingXBody.addStateParameter(movingXState, movingXBody.rigidBodyStateDerivative)
+        
+        movingXBody.timeStep(1)
+
+        # Check that both rigid body states have been integrated correctly
+        newPos = movingXBody.state[0].position
+        newPos2 = movingXBody.state[1].position
+        assertVectorsAlmostEqual(self, newPos, Vector(1,0,0))
+        assertVectorsAlmostEqual(self, newPos2, Vector(1,0,0))
+
+    def test_UniformXMotionAndScalarIntegration(self):
+        movingXState = RigidBodyState(self.zeroVec, Vector(1,0,0), self.zeroQuat, self.zeroAngVel)
+        constInertia = Inertia(self.oneVec, self.zeroVec, 1)
+        
+        def constInertiaFunc(*allArgs):
+            return constInertia
+        def zeroForceFunc(*allArgs):
+            return self.zeroForce
+
+        movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, integrationMethod="RK4", simDefinition=self.simDefinition)
+        movingXBody.addStateParameter(3, sampleDerivative)
+        movingXBody.timeStep(0.2)
+
+        # Check that the rigid body state has been integrated correctly
+        newPos = movingXBody.state[0].position
+        assertVectorsAlmostEqual(self, newPos, Vector(0.2,0,0))
+
+        # Check that the scalar function has been integrated correctly
+        finalVal = movingXBody.state[1]
+        self.assertAlmostEqual(finalVal, 2.0112)
+
 class TestStateList(unittest.TestCase):
-    def test_arithmetic(self):
+
+    def test_arithmeticOperators(self):
         state1 = StateList([1, 2])
         state2 = StateList([2, 4])
 
@@ -218,6 +263,9 @@ class TestStateList(unittest.TestCase):
 
         multiplicationResult = state1 * 3
         self.assertEqual(multiplicationResult, StateList([3, 6]))
+
+        divisionResult = state1 / 2
+        self.assertEqual(divisionResult, StateList([ 0.5, 1]))
 
         negateResult = -state1
         self.assertEqual(negateResult, StateList([-1, -2]))

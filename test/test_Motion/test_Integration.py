@@ -21,7 +21,7 @@ class TestIntegrator(unittest.TestCase):
         integrate = Integrator(method="RK2Midpoint")
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         v2 = integrate(v1, 0.1, sampleDerivative, 0.1)[0]
-        self.assertEqual(v2, 2.0172)
+        self.assertEqual(v2, 2.0172) # Exact solution = 2.010960138
 
         v1 = integrate(1200, 0, sampleDerivative2, 240)[0]
         v2 = integrate(v1, 240, sampleDerivative2, 240)[0]
@@ -32,7 +32,7 @@ class TestIntegrator(unittest.TestCase):
         integrate = AdaptiveIntegrator(method="RK12Adaptive", controller="PID", targetError=1500)
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         v2 = integrate(v1, 0.1, sampleDerivative, 0.1)[0]
-        self.assertAlmostEqual(v2, 2.0172)
+        self.assertAlmostEqual(v2, 2.0172) # Exact solution = 2.010960138
 
         v1 = integrate(1200, 0, sampleDerivative2, 240)[0]
         v2 = integrate(v1, 240, sampleDerivative2, 240)[0]
@@ -43,21 +43,21 @@ class TestIntegrator(unittest.TestCase):
         integrate = AdaptiveIntegrator(method="RK23Adaptive", controller="PID", targetError=1500)
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         v2 = integrate(v1, 0.1, sampleDerivative, 0.1)[0]
-        self.assertAlmostEqual(v2, 2.01064533)
+        self.assertAlmostEqual(v2, 2.01064533) # Exact solution = 2.010960138
 
     def test_IntegrateRK45Adaptive_DormandPrince(self):
         #Simple test case, original result from website was 2.0175!
         integrate = AdaptiveIntegrator(method="RK45Adaptive", controller="PID", targetError=1500)
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         v2 = integrate(v1, 0.1, sampleDerivative, 0.1)[0]
-        self.assertAlmostEqual(v2, 2.0109602376)
+        self.assertAlmostEqual(v2, 2.0109602376) # Exact solution = 2.010960138
 
     def test_IntegrateRK78Adaptive_DormandPrince(self):
         #Simple test case, original result from website was 2.0175!
         integrate = AdaptiveIntegrator(method="RK78Adaptive", controller="PID", targetError=1500)
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         v2 = integrate(v1, 0.1, sampleDerivative, 0.1)[0]
-        self.assertAlmostEqual(v2, 2.010960138)
+        self.assertAlmostEqual(v2, 2.010960138) # Exact solution = 2.010960138
 
     def test_IntegratorRK2Heun(self):
         #More complicated test case, based on radiative cooling
@@ -69,17 +69,17 @@ class TestIntegrator(unittest.TestCase):
     def test_IntegrateEuler(self):
         integrate = Integrator(method="Euler")
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
-        self.assertEqual(v1, 2.4)
+        self.assertEqual(v1, 2.4) # Exact solution = 2.010960138
 
     def test_IntegrateRK4(self):
         integrate = Integrator(method="RK4")
         v1 = integrate(3, 0, sampleDerivative, 0.2)[0]
-        self.assertEqual(v1, 2.0112)
+        self.assertEqual(v1, 2.0112) # Exact solution = 2.010960138
 
     def test_IntegrateRK4_38(self):    
         integrate = Integrator(method="RK4_3/8")
         v1 = integrate(3, 0, sampleDerivative, 0.2)[0]
-        self.assertAlmostEqual(v1, 2.0112)
+        self.assertAlmostEqual(v1, 2.0112) # Exact solution = 2.010960138
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
