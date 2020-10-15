@@ -519,8 +519,10 @@ Rocket{
         }
 
         Motor{
-            class           Motor
-            path            MAPLEAF/Examples/Motors/test.txt
+            class                           Motor
+            path                            MAPLEAF/Examples/Motors/test.txt
+            # If thrust vectoring is going to be used, specify an application point for the thrust. This should be wherever the force transfer system of rocket is located, generally, it is the gimbal bearing location, however, the nozzle inlet should also be a good approximation.
+            thrustApplicationPosition       (0 0 -4.5) # m
 
             # To add uncertainty to the Motor's total impulse and burn time in Monte Carlo simulations
             # For both of the adjustment factors below: 1.0 = no effect, 1.10 = +10%, etc. 

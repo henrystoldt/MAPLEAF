@@ -49,11 +49,13 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         initInertia = self.getInertia(0, "fakeState")
         self.position = initInertia.CG
         
-        # 
+        # Thrust vectoring actuated control system, optional, None by default
         self.controlSystem = None
         self.actuatorList = None
-        self.TVCAngleList = [0, 0]
+        self.TVCAngleList = [0, 0] # only need 2 actuators currently
+        self.thrustApplicationPosition = componentDictReader.getVector("thrustApplicationPosition")
 
+    # Thrust vectoring actuated system inherited class initialization
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
         # Initialize an actuator model for each TVC axis actuator, this should always be 2 currently.
@@ -170,18 +172,11 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1])
         thrust = Vector(thrustX, thrustY, thrustZ)
         
-        n = (sqrt((thrustX**2)+(thrustY**2)+(thrustZ**2)))
-        
-        testMath = (thrustMagnitude==n)
-        print(testMath)
-        error = thrustMagnitude-n
-        print(error)
-        
         # Log and return the three components of the thrust vector
         self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.X, thrust.Y, thrust.Z))
         
-        # Return the thrust vector of the motor applied at the location of the nozzle outlet
-        return ForceMomentSystem(thrust, location=Vector(0, 0, -4.3)) # Currently the location of the applied force is determined by estimating it from the 'RocketPlot On' option in the .mapleaf definition
+        # Return the thrust vector of the motor applied at the location specified in the simulation definition
+        return ForceMomentSystem(thrust, self.thrustApplicationPosition)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
         self.ignitionTime = ignitionTime
