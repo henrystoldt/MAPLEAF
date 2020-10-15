@@ -32,6 +32,27 @@ class RocketComponent(ABC):
     def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -> ForceMomentSystem:
         return
 
+    #### Other optional functions ####
+    # def getLogHeader(self):
+    ''' 
+        Override this method to add columns to the log for that component, should return a string like:
+            " LogColumn1Name LogColumn2Name2"
+            string must begin with whitespace
+            Method will be called before running a simulation to set up logs
+    '''
+
+    # def getExtraParametersToIntegrate(self):
+    '''
+        Override this method to make MAPLEAF integrate additional parameters (in addition to rigid body motion)
+        Should return three lists
+            - A list of (string) parameter names
+                - The parameter will then be accessible under state.parameterName whenever the rocket state is available
+            - A list of intial parameter values
+                - Values can be scalars or vectors, or any other parameter that implements addition, subtraction and multiplication/division by scalars
+            - A list of parameter derivative functions
+                - Derivative functions should accept two parameters, the current time and the current state object and return the corresponding derivative of the value of that parameter
+    '''
+
 class BodyComponent(ABC):
     ''' 
         Class that defines interface for axisymmetric body components.
