@@ -53,7 +53,14 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         self.controlSystem = None
         self.actuatorList = None
         self.TVCAngleList = [0, 0] # only need 2 actuators currently
-        self.thrustApplicationPosition = componentDictReader.getVector("thrustApplicationPosition")
+
+        try:
+            self.thrustApplicationPosition = componentDictReader.getVector("thrustApplicationPosition")
+        except KeyError:
+            # If the stage's bottom interface location can't be computed (No body components modelled)
+                # The thrustApplicationPosition will be None
+                    # This means thrust forces will be applied at the CG
+            self.thrustApplicationPosition = stage.getBottomInterfaceLocation()                
 
     # Thrust vectoring actuated system inherited class initialization
     def initializeActuators(self, controlSystem):
@@ -180,6 +187,7 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         if self.controlSystem != None:
             for i in range(len(self.actuatorList)):
                 forceLogLine += " {:>6.4}".format(self.TVCAngleList[i])
+        self.rocket.appendToForceLogLine(forceLogLine)
         
         return thrust
 
