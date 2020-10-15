@@ -4,7 +4,7 @@ from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 from MAPLEAF.GNC import ActuatedSystem
-from math import cos, sin, radians, sqrt
+from math import cos, sin, sqrt
 
 __all__ = [ "TabulatedMotor" ]
 
@@ -49,13 +49,14 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         initInertia = self.getInertia(0, "fakeState")
         self.position = initInertia.CG
         
+        # 
         self.controlSystem = None
         self.actuatorList = None
         self.TVCAngleList = [0, 0]
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
-        # Initialize an actuator model for each TVC axis actuator, this should always be 2
+        # Initialize an actuator model for each TVC axis actuator, this should always be 2 currently.
         ActuatedSystem.__init__(self, 2)
     
     #TODO: Build converter/parser for standard engine format like rasp/.eng or something like that
@@ -158,23 +159,29 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         else:
             thrustMagnitude = linInterp(self.times, self.thrustLevels, timeSinceIgnition)
             
-        #### If control system exists, use actuator deflections 1:1 to set thrust vectoring angles ####
-        
+        #### If control system exists, use actuator deflections 1:1 to set thrust vectoring angles of the nozle ####
         if self.controlSystem != None:
-            # Update actuator angles -> Should come from the PID corrections where a unit change in deflection is one radian change.
-            
-            # Copied the implementation from fins.py and changed 'numfins' to numTVC', 'finList' to 'TVCList', 'finAngle' to 'TVCAngle'. Need to define what these are somewhere else most likely?
-            for i in range(2): # numTVC should always be equal to 2 for thrust vectoring
-                self.TVCAngleList[i] = self.actuatorList[i].getDeflection(time) # rads
-        # Create Vector
+            for i in range(2): # Only two actuators are needed (x, y) in order to rotate the rocket about the two short axis. Roll has NOT been implemented here
+                self.TVCAngleList[i] = self.actuatorList[i].getDeflection(time) # deflections are 1:1 radians change of the nozzle in x and y axis of the local frame respectively
+
+        # Create Vector of thrust based on the angle of the nozzle and the known thrust magnitude
         thrustX = thrustMagnitude*sin(self.TVCAngleList[0])
         thrustY = thrustMagnitude*sin(self.TVCAngleList[1])
-        thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1]) # Probs not right, check trig more
-        thrust = Vector(thrustX, thrustY, thrustZ)  #scale the thrust vector by the angle of plume deflection in the x, y, and z axis
+        thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1])
+        thrust = Vector(thrustX, thrustY, thrustZ)
         
-        # Log and return
+        n = (sqrt((thrustX**2)+(thrustY**2)+(thrustZ**2)))
+        
+        testMath = (thrustMagnitude==n)
+        print(testMath)
+        error = thrustMagnitude-n
+        print(error)
+        
+        # Log and return the three components of the thrust vector
         self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.X, thrust.Y, thrust.Z))
-        return ForceMomentSystem(thrust, location=Vector(0, 0, -4.3))
+        
+        # Return the thrust vector of the motor applied at the location of the nozzle outlet
+        return ForceMomentSystem(thrust, location=Vector(0, 0, -4.3)) # Currently the location of the applied force is determined by estimating it from the 'RocketPlot On' option in the .mapleaf definition
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
         self.ignitionTime = ignitionTime

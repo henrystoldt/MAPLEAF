@@ -1,25 +1,25 @@
 SimControl{
-    timeDiscretization RK45Adaptive
-    timeStep 0.04 #sec, CanardDeflections
-    plot Position Velocity AngularVelocity FlightAnimation Thrust 
-    loggingLevel 2
+    timeDiscretization  RK45Adaptive
+    timeStep            0.04 # sec, nozzle deflection 
+    plot                Position Velocity AngularVelocity FlightAnimation Thrust 
+    loggingLevel        2
 
-    EndCondition Apogee
-    EndConditionValue 0
+    EndCondition        Apogee
+    EndConditionValue   0
 
     TimeStepAdaptation{
-        controller PID
+        controller      PID
     }
 
-    RocketPlot  On
+    RocketPlot          On
 }
 
 Rocket{             
     
     # Initial state
     position            (0 0 10) # m
-    initialDirection    (0 1 1)
-    velocity            (0 0 0) #m/s
+    initialDirection    (0 1 1)  # m
+    velocity            (0 0 0)  # m/s
 
 
     ControlSystem{
@@ -44,60 +44,60 @@ Rocket{
     }
 
     Sustainer{
-        class           Stage
-        stageNumber      0 #First and only stage
+        class                       Stage
+        stageNumber                 0 # First and only stage
         
         # Constant mass properties - remove to use component-buildup mass/cg/MOI
-        constCG             (0 0 -2.65) #m
-        constMass           50 # kg
-        constMOI            (85 85 0.5) # kg*m^2
+        constCG                     (0 0 -2.65) #m
+        constMass                   50 # kg
+        constMOI                    (85 85 0.5) # kg*m^2
 
         Nosecone{
-            class           Nosecone
-            mass            20.0
-            position        (0 0 0)
-            cg              (0 0 -0.2)
-            baseDiameter    0.1524
-            aspectRatio     5
-            shape           tangentOgive
+            class                   Nosecone
+            mass                    20.0
+            position                (0 0 0)
+            cg                      (0 0 -0.2)
+            baseDiameter            0.1524
+            aspectRatio             5
+            shape                   tangentOgive
 
-            surfaceRoughness    0.000050
+            surfaceRoughness        0.000050
         }
 
         UpperBodyTube{
-            class           Bodytube
-            mass            5 
-            position        (0 0 -0.762)
-            cg              (0 0 -1)
-            outerDiameter   0.1524
-            length          3.81
+            class                   Bodytube
+            mass                    5 
+            position                (0 0 -0.762)
+            cg                      (0 0 -1)
+            outerDiameter           0.1524
+            length                  3.81
 
-            surfaceRoughness    0.000050
+            surfaceRoughness        0.000050
         }
 
         GeneralMass{
-            class           Mass
-            mass            5
-            position        (0 0 -2.762)
-            cg              (0 0 -2.762)
+            class                   Mass
+            mass                    5
+            position                (0 0 -2.762)
+            cg                      (0 0 -2.762)
         }
 
         Motor{
-            class           Motor
-            path            MAPLEAF/Examples/Motors/test2.txt
+            class                   Motor
+            path                    MAPLEAF/Examples/Motors/test2.txt
             
             Actuators{
-                class                   Actuator
-                controller              TableInterpolating
+                class               Actuator
+                controller          TableInterpolating
                 
-                deflectionTablePath     MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
+                deflectionTablePath MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
                 
                 # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
                     # Desired moments must come last
-                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz
+                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz # Need to have Mz even though we don't vector it. Otherwise the program will break
 
-                minDeflection           -45
-                maxDeflection           45                
+                minDeflection           -0.2182 # rads, equivalent to 12.5 degrees, based on Rocketdyne gimbal bearing deflection spec from a released report
+                maxDeflection           0.2181  # rads   
 
                 responseModel           FirstOrder # Only Choice
                 responseTime            0.1 # seconds
