@@ -170,13 +170,18 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         thrustX = thrustMagnitude*sin(self.TVCAngleList[0])
         thrustY = thrustMagnitude*sin(self.TVCAngleList[1])
         thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1])
-        thrust = Vector(thrustX, thrustY, thrustZ)
+        thrustForce = Vector(thrustX, thrustY, thrustZ)
         
+        # Thrust force applied at the location specified in the simulation definition
+        thrust = ForceMomentSystem(thrustForce, self.thrustApplicationPosition)
+
         # Log and return the three components of the thrust vector
-        self.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f} {:>10.4f}".format(thrust.X, thrust.Y, thrust.Z))
+        forceLogLine = " {:>10.4f} {:>10.4f}".format(thrust.force, thrust.moment)
+        if self.controlSystem != None:
+            for i in range(len(self.actuatorList)):
+                forceLogLine += " {:>6.4}".format(self.TVCAngleList[i])
         
-        # Return the thrust vector of the motor applied at the location specified in the simulation definition
-        return ForceMomentSystem(thrust, self.thrustApplicationPosition)
+        return thrust
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
         self.ignitionTime = ignitionTime
@@ -185,7 +190,13 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
 
     def getLogHeader(self):
-        return " {}ThrustX(N) {}ThrustY(N) {}ThrustZ(N)".format(self.name, self.name, self.name)
+        header = " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
+        
+        if self.controlSystem != None:
+            for tvcAngleNumber in [1,2]:
+                header += " {}TVCAngle{}(deg)".format(self.name, tvcAngleNumber)
+
+        return header
 
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -> midpoint rule integrates this perfectly
