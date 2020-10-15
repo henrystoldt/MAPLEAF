@@ -295,6 +295,23 @@ class TestStateList(unittest.TestCase):
         with self.assertRaises(AttributeError):
             invalidAttribute = state1.var3
 
+        # Test assigning to a variable
+        state1.var1 = 3
+        self.assertEqual(state1.var1, 3)
+
+        # Test assigning to non-existent attribute
+        with self.assertRaises(AttributeError):
+            state1.var3 = "invalidValue"
+
+        # Shouldn't work because item 0 isn't a rigidbodystate
+        with self.assertRaises(AttributeError):
+            state1.position = Vector(0,0,1)
+
+        # Make item 0 one and try again
+        state1[0] = RigidBodyState()
+        state1.position = Vector(0,0,1)
+        self.assertEqual(state1.position, Vector(0,0,1))
+
 #If the file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()

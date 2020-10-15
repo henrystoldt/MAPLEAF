@@ -186,6 +186,16 @@ class StateList(list):
             except AttributeError:
                 return super().__getattr__(name)
 
+    def __setattr__(self, name, value):
+        if name in self.__dict__ or name == "nameToIndexMap":
+            self.__dict__[name] = value
+        elif name in self.nameToIndexMap:
+            # Check if the attribute name is in the nameToIndexMap - set item at that index
+            self[self.nameToIndexMap[name]] = value
+        elif name in self[0].__dict__:
+            # Try getting the attribute from the rigidBodyState (assumed first element)
+            setattr(self[0], name, value)
+
     def __add__(self, state2):
         return StateList([ x + y for x, y in zip(self, state2) ])
 
