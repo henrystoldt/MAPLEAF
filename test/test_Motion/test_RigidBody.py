@@ -275,6 +275,26 @@ class TestStateList(unittest.TestCase):
         self.assertEqual(absVal, 6)
         self.assertEqual(absVal2, 3)
 
+    def test_variableNames(self):
+        state1 = StateList([1, 2], ["var1", "var2"])
+
+        self.assertEqual(state1.nameToIndexMap, {"var1":0, "var2":1})
+
+        self.assertEqual(state1.var1, 1)
+        self.assertEqual(state1.var2, 2)
+
+        with self.assertRaises(ValueError):
+            forbiddenNameState = StateList([1, 2], ["position", "var2"])
+        
+        with self.assertRaises(ValueError):
+            duplicateNameState = StateList([1, 2], ["var", "var"])
+
+        with self.assertRaises(ValueError):
+            tooManyVarNamesState = StateList([1, 2], ["var1", "var2", "var3"])
+
+        with self.assertRaises(AttributeError):
+            invalidAttribute = state1.var3
+
 #If the file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()

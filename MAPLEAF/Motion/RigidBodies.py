@@ -143,6 +143,49 @@ class StateList(list):
 
         Example: RocketState([ initRigidBodyState, tankLevel1, actuatorPosition1 ])
     '''
+    def __init__(self, stateVariables, variableNames=None, _nameToIndexMap=None):
+        '''
+            stateVariables: (`list`) of state variable values (RigidBodyState assumed to be in position 0)
+            variableNames:  (`list[str]`) of state variable names. If passed in, can access values as attributes: stateList.varName
+           _ nameToIndexMap:(`dict[str:int]`) maps variable names to indices in the itemList. If not provided, but a nameList is, will be generated from the nameList
+
+            Pass in a nameList to be able to access variables by name - order must match that of the itemList.
+                For unnamed variables, put None in the namelist
+
+            Only pass in one of nameList or _nameToIndexMap. When both are passed in, _nameToIndexMap takes precedence.
+                _nameToIndexMap intended for internal use only, no correctness checks performed on it
+        '''
+        super().__init__(stateVariables) # Pass itemList to parent (list) constructor
+
+        if _nameToIndexMap != None:
+            # Does not check whether each variable is in the nameToIndexMap - could omit some if desired
+            self.nameToIndexMap = _nameToIndexMap
+
+        elif variableNames != None:
+            # Generate nameToIndexMap from variableNames list
+            if len(variableNames) == len(stateVariables):
+                forbiddenVarNames = [ "position", "velocity", "orientation", "angularVelocity" ]
+                for forbiddenName in forbiddenVarNames:
+                    if forbiddenName in variableNames:
+                        raise ValueError("ERROR: The following variable names are reserved for rigid body states: {}".format(forbiddenVarNames))
+
+                self.nameToIndexMap = { variableNames[i]:i for i in range(len(variableNames)) }
+                if len(variableNames) != len(self.nameToIndexMap.keys()):
+                    raise ValueError("ERROR: Duplicate state variable name in: {}".format(variableNames))
+            else:
+                raise ValueError("ERROR: Number of state variables must match number of variable names provided")
+
+    def __getattr__(self, name):
+        try:
+            # Check if the attribute name is in the nameToIndexMap - return item from that index
+            return self[self.nameToIndexMap[name]]
+        except KeyError:
+            try:
+                # Try getting the attribute from the rigidBodyState (assumed first element)
+                return getattr(self[0], name)
+            except AttributeError:
+                return super().__getattr__(name)
+
     def __add__(self, state2):
         return StateList([ x + y for x, y in zip(self, state2) ])
 
