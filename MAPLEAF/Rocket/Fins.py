@@ -80,12 +80,7 @@ class FinSet(FixedMass, ActuatedSystem):
             self.trailingEdgeThickness = componentDictReader.getFloat("TrailingEdge.thickness")
         elif self.trailingEdgeShape != "Tapered":
             raise ValueError("ERROR: Trailing edge shape: {} not implemented. Use 'Round', 'Blunt', or 'Tapered'".format(self.trailingEdgeShape))
-
-        # Common fin properties for all child fins
-        self._precomputeGeometry()
         
-        # Initialize all the child fins in the self.finList list
-        self._initChildFins(componentDictReader, rocket, stage)
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
@@ -93,7 +88,7 @@ class FinSet(FixedMass, ActuatedSystem):
         # Initialize an actuator model for each fin
         ActuatedSystem.__init__(self, self.numFins)
 
-    def _precomputeGeometry(self):
+    def precomputeProperties(self):
         self._calculateSweepAngles()
 
         ### Compute Other Simple Properties ####
@@ -113,6 +108,9 @@ class FinSet(FixedMass, ActuatedSystem):
 
         self._precomputeSubsonicFinThicknessDrag()
         self._precomputeCPInterpolationPolynomial()
+
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(self.componentDictReader, self.rocket, self.stage)
     
     def _calculateSweepAngles(self):
         ''' Compute Trailing Edge (TE) and Mid Chord sweep angles '''

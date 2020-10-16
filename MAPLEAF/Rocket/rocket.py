@@ -9,14 +9,14 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 import math
 
 import matplotlib.pyplot as plt
-
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
-                            RigidBodyState, RigidBodyState_3DoF, Vector)
+                            RigidBodyState, RigidBodyState_3DoF,
+                            StatefulRigidBody, Vector)
 from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
                             PlanarInterface, SimEventDetector, Stage)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
@@ -142,9 +142,12 @@ class Rocket(CompositeObject):
             self.hardwareInTheLoopControl = "no"
 
         #### Init Components ####
+        self._createStages()
         self._initializeRigidBody()
-        self._initializeStages()
+        self._switchToStatefulRigidBodyIfRequired()
+        self._sortStagesAndComponents()
         self._initializeStagingTriggers()
+        self._precomputeComponentProperties()
 
         #### Init Parent classes ####
         CompositeObject.__init__(self, self.stages)
@@ -220,26 +223,19 @@ class Rocket(CompositeObject):
         #TODO: Check for additional parameters to integrate - if they exist create a StatefulRigidBody + RocketState instead!
             # Ask each rocket component whether it would like to add parameters to integrate after all the components have been initialized
 
-        #### Initialize the rigid body ####
-        if self.simRunner != None:
-            self.rigidBody = RigidBody(
-                initState_globalInertialFrame, 
-                self._getAppliedForce, 
-                self.getInertia, 
-                integrationMethod=timeDisc, 
-                discardedTimeStepCallback=self.simRunner.discardForceLogsForPreviousTimeStep, 
-                simDefinition=self.simDefinition
-            )
-        else:
-            self.rigidBody = RigidBody(
-                initState_globalInertialFrame, 
-                self._getAppliedForce, 
-                self.getInertia, 
-                integrationMethod=timeDisc, 
-                simDefinition=self.simDefinition
-            )
+        discardDtCallback = None if (self.simRunner == None) else self.simRunner.discardForceLogsForPreviousTimeStep
 
-    def _initializeStages(self):
+        #### Initialize the rigid body ####
+        self.rigidBody = RigidBody(
+            initState_globalInertialFrame, 
+            self._getAppliedForce, 
+            self.getInertia, 
+            integrationMethod=timeDisc, 
+            discardedTimeStepCallback=discardDtCallback,
+            simDefinition=self.simDefinition
+        )
+
+    def _createStages(self):
         ''' Initialize each of the stages and all of their subcomponents. '''
         stageDicts = self._getStageSubDicts()
 
@@ -268,9 +264,17 @@ class Rocket(CompositeObject):
                 newStage = Stage(stageDictReader, self)
                 self.stages.append(newStage)
 
-            #TODO: Use setattr to make stages accessible as attributes of the rocket object
+                if newStage.name not in self.__dict__: # Avoid clobbering existing info
+                    setattr(self, newStage.name, newStage) # Make stage available as rocket.stageName
 
-        self.stages = PlanarInterface.sortByZLocation(self.stages)
+    def _sortStagesAndComponents(self):
+        # Create Planar Interfaces b/w components inside stages
+        for stage in self.stages:
+            stage.components = PlanarInterface.sortByZLocation(stage.components, self.rigidBody.state)
+            stage.componentInterfaces = PlanarInterface.createPlanarComponentInterfaces(stage.components) 
+
+        # Create planar interfaces b/w stages
+        self.stages = PlanarInterface.sortByZLocation(self.stages, self.rigidBody.state)
         self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
 
         if self.bodyTubeDiameter > 0:
@@ -278,7 +282,7 @@ class Rocket(CompositeObject):
             self._ensureBaseDragIsAccountedFor()
 
     def _initializeStagingTriggers(self):
-        ''' Set up trigger conditions for staging '''
+        ''' Set up trigger conditions for staging '''       
         # Self.stage is not passed in if the current instance represents a rocket ready to launch - then we have to set up staging events
         if self.stage == None:
             for stageIndex in range(len(self.stages)):
@@ -301,6 +305,52 @@ class Rocket(CompositeObject):
             # Motor is burned out
             self.stages[0].motor.updateIgnitionTime(-1000000000, fakeValue=True)
     
+    def _switchToStatefulRigidBodyIfRequired(self):
+        varNames = []
+        initVals = []
+        derivativeFuncs = []
+
+        for stage in self.stages:
+            for component in stage.components:
+                try:
+                    paramNames, initValues, derivativeFunctions = component.getExtraParametersToIntegrate()
+                    varNames += paramNames
+                    initVals += initValues
+                    derivativeFuncs += derivativeFunctions
+                except AttributeError:
+                    pass # No extra parameters to integrate
+
+        if len(varNames) > 0:
+            if len(varNames) != len(initVals) or len(initVals) != len(derivativeFuncs):
+                raise ValueError("ERROR: Mismatch in number of extra parameters names ({}), init values({}), and derivative functions({}) to integrate".format(len(varNames), len(initVals), len(derivativeFuncs)))
+            
+            # Switch to a stateful rigid body
+            initState = self.rigidBody.state
+            forceFunc = self.rigidBody.forceFunc
+            inertiaFunc = self.rigidBody.inertiaFunc
+            integrationMethod = self.rocketDictReader.getString("SimControl.timeDiscretization")
+            discardDtCallback = None if (self.simRunner == None) else self.simRunner.discardForceLogsForPreviousTimeStep
+            self.rigidBody = StatefulRigidBody(
+                initState,
+                forceFunc,
+                inertiaFunc,
+                integrationMethod=integrationMethod,
+                discardedTimeStepCallback=discardDtCallback,
+                simDefinition=self.simDefinition
+            )
+
+            # Add the additional state variables
+            for i in range(len(varNames)):
+                self.rigidBody.addStateVariable(varNames[i], initVals[i], derivativeFuncs[i])
+
+    def _precomputeComponentProperties(self):
+        for stage in self.stages:
+            for component in stage.components:
+                try:
+                    component.precomputeProperties()
+                except AttributeError:
+                    pass
+
     def _moveStatePositionToCG(self):
         ''' Moves self.rigidBody.state.position to have it represent the rocket's initial CG position, not the initial nose cone position '''
         initInertia = self.getInertia(0, self.rigidBody.state)
@@ -363,6 +413,7 @@ class Rocket(CompositeObject):
 
     def _dropStage(self, stageIndex=-1):
         droppedStage = self.stages.pop(stageIndex)
+        delattr(self, droppedStage.name)
         self.recomputeFixedMassInertia()
 
         if self.controlSystem != None:

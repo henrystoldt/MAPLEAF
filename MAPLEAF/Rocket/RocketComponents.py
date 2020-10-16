@@ -140,7 +140,7 @@ class PlanarInterface():
         return componentInterfaces
 
     @classmethod
-    def sortByZLocation(cls, components) -> List[RocketComponent]:
+    def sortByZLocation(cls, components, state) -> List[RocketComponent]:
         ''' 
             Sort the components in order from top to bottom, component.position.Z
             This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
@@ -149,8 +149,7 @@ class PlanarInterface():
             try:
                 return component.position.Z
             except AttributeError:
-                zeroState = RigidBodyState()
-                return component.getInertia(0, zeroState).CG.Z
+                return component.getInertia(0, state).CG.Z
 
         components.sort(key=getZPosition, reverse=True)
         return components

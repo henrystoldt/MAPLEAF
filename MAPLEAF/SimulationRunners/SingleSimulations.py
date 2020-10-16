@@ -101,19 +101,19 @@ class Simulation():
                 
             while not endSimulation:
                 # Take a time step
-                try:
-                    if FinalTimeStepDt != None:
-                        self.dts[s] = FinalTimeStepDt
+                # try:
+                if FinalTimeStepDt != None:
+                    self.dts[s] = FinalTimeStepDt
 
-                    timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
+                timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
 
-                    if s == 0: # Currently, progress bar only works for bottom stage
+                if s == 0: # Currently, progress bar only works for bottom stage
                         try:
                             progressBar.update(self.dts[s])
                         except AttributeError:
                             pass
-                except:
-                    self._handleSimulationCrash()
+                # except:
+                #     self._handleSimulationCrash()
 
                 # Adjust time step
                 self.dts[s] *= timeStepAdjustmentFactor

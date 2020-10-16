@@ -37,8 +37,6 @@ class RigidBody_3DoF:
         self.integrate = integratorFactory(integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
 
     def rigidBodyStateDerivative(self, time, state):
-        if isinstance(state, StateList):
-            state = state[0]
         force = self.forceFunc(time, state).force
         
         DposDt = state.velocity
@@ -75,9 +73,6 @@ class RigidBody(RigidBody_3DoF):
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
 
     def rigidBodyStateDerivative(self, time, state):
-        if isinstance(state, StateList):
-            state = state[0]
-
         # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
         appliedForce_localFrame = self.forceFunc(time, state)
         inertia = self.inertiaFunc(time, state)
@@ -116,16 +111,16 @@ class StatefulRigidBody(RigidBody):
         self.state = StateList([ rigidBodyState ])
         self.derivativeFuncs = [ self.rigidBodyStateDerivative ]
 
-    def addStateParameter(self, currentValue, derivativeFunction):
+    def addStateVariable(self, name, currentValue, derivativeFunction):
         ''' 
             Pass in the current value of a parameter which needs to be integrated, and a derivative function
             Derivative function should accept the current time and StateList as inputs and return the derivative of the new parameter
         '''
-        self.state.append(currentValue)
+        self.state.addStateVariable(name, currentValue)
         self.derivativeFuncs.append(derivativeFunction)
 
     def getStateDerivative(self, time, state):
-        return StateList([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ])
+        return StateList([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ], _nameToIndexMap=state.nameToIndexMap)
 
     def timeStep(self, deltaT):
         self.state, timeStepAdaptationFactor, deltaT = self.integrate(self.state, self.time, self.getStateDerivative, deltaT)
@@ -174,45 +169,53 @@ class StateList(list):
                     raise ValueError("ERROR: Duplicate state variable name in: {}".format(variableNames))
             else:
                 raise ValueError("ERROR: Number of state variables must match number of variable names provided")
+        
+        else:
+            self.nameToIndexMap = dict()
 
     def __getattr__(self, name):
         try:
             # Check if the attribute name is in the nameToIndexMap - return item from that index
             return self[self.nameToIndexMap[name]]
         except KeyError:
-            try:
-                # Try getting the attribute from the rigidBodyState (assumed first element)
-                return getattr(self[0], name)
-            except AttributeError:
-                return super().__getattr__(name)
+            # Try getting the attribute from the rigidBodyState (assumed first element)
+            return getattr(self[0], name)
 
     def __setattr__(self, name, value):
         if name in self.__dict__ or name == "nameToIndexMap":
             self.__dict__[name] = value
         elif name in self.nameToIndexMap:
             # Check if the attribute name is in the nameToIndexMap - set item at that index
-            self[self.nameToIndexMap[name]] = value
+            indexToSet = self.nameToIndexMap[name]
+            self[indexToSet] = value
         elif name in self[0].__dict__:
             # Try getting the attribute from the rigidBodyState (assumed first element)
             setattr(self[0], name, value)
 
     def __add__(self, state2):
-        return StateList([ x + y for x, y in zip(self, state2) ])
+        return StateList([ x + y for x, y in zip(self, state2) ], _nameToIndexMap=self.nameToIndexMap)
 
     def __sub__(self, state2):
-        return StateList([ x - y for x, y in zip(self, state2) ])
+        return StateList([ x - y for x, y in zip(self, state2) ], _nameToIndexMap=self.nameToIndexMap)
 
     def __mul__(self, scalar):
-        return StateList([ x*scalar for x in self ])
+        return StateList([ x*scalar for x in self ], _nameToIndexMap=self.nameToIndexMap)
 
     def __truediv__(self, scalar):
-        return StateList([ x/scalar for x in self ])
+        return StateList([ x/scalar for x in self ], _nameToIndexMap=self.nameToIndexMap)
 
     def __abs__(self):
         return sum([ abs(x) for x in self ])
 
     def __eq__(self, state2):
-        return all([ x == y for x,y in zip(self, state2) ])
+        try:
+            return all([ x == y for x,y in zip(self, state2) ])
+        except TypeError:
+            return False
 
     def __neg__(self):
-        return StateList([ -x for x in self ])
+        return StateList([ -x for x in self ], _nameToIndexMap=self.nameToIndexMap)
+
+    def addStateVariable(self, name, currentValue):
+        self.append(currentValue)
+        self.nameToIndexMap[name] = len(self)-1

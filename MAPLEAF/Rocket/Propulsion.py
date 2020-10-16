@@ -215,7 +215,7 @@ class SampleStatefulComponent(RocketComponent):
         self.rocket = rocket
         self.stage = stage
 
-    def getExtraParameterToIntegrate(self):
+    def getExtraParametersToIntegrate(self):
         # Examples below for a single parameter to be integrated, can put as many as required in these lists
         paramNames = [ "tankLevel" ]
         initValues = [ 1.0 ]
@@ -230,10 +230,10 @@ class SampleStatefulComponent(RocketComponent):
         return -2*rocketState.tankLevel # tankLevel will asymptotically approach 0
 
     def getAppliedForce(self, rocketState, time, envConditions, rocketCG):
-        mag = 2*rocketStatate.tankLevel # Force magnitude proportional to flow rate (tank level derivative)
+        mag = 2*rocketState.tankLevel # Force magnitude proportional to flow rate (tank level derivative)
         forceVector = Vector(0, 0, mag)
 
-        self.rocket.appendToFrceLogLine(" {:>6.4f}".format(mag)) # This will end up in the log file, in the SampleZForce column
+        self.rocket.appendToForceLogLine(" {:>6.4f}".format(mag)) # This will end up in the log file, in the SampleZForce column
         
         return ForceMomentSystem(forceVector)
 

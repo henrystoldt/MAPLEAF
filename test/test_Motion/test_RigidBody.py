@@ -218,7 +218,7 @@ class TestRigidBody(unittest.TestCase):
             return self.zeroForce
         movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, simDefinition=self.simDefinition)
         # Add the same rigid body state and state derivative function as a second state variable to be integrated
-        movingXBody.addStateParameter(movingXState, movingXBody.rigidBodyStateDerivative)
+        movingXBody.addStateVariable("secondRigidBodyState", movingXState, movingXBody.rigidBodyStateDerivative)
         
         movingXBody.timeStep(1)
 
@@ -238,7 +238,7 @@ class TestRigidBody(unittest.TestCase):
             return self.zeroForce
 
         movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, integrationMethod="RK4", simDefinition=self.simDefinition)
-        movingXBody.addStateParameter(3, sampleDerivative)
+        movingXBody.addStateVariable("scalarVar", 3, sampleDerivative)
         movingXBody.timeStep(0.2)
 
         # Check that the rigid body state has been integrated correctly
@@ -311,6 +311,11 @@ class TestStateList(unittest.TestCase):
         state1[0] = RigidBodyState()
         state1.position = Vector(0,0,1)
         self.assertEqual(state1.position, Vector(0,0,1))
+
+    def test_addStateVariables(self):
+        state1 = StateList([1, 2], ["var1", "var2"])
+        state1.addStateVariable("var3", 3)
+        self.assertEqual(state1.var3, 3)
 
 #If the file is run by itself, run the tests above
 if __name__ == '__main__':
