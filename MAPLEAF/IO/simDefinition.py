@@ -441,8 +441,11 @@ class SimDefinition():
         file.close()
         
         # Remove comments
-        comment = re.compile("#.*") 
-        workingText = re.sub(comment, "", workingText)
+        comment = re.compile("(?<!\\\)#.*") 
+        workingText = re.sub(comment, "", workingText) 
+        
+        # Remove escape characters
+        workingText = re.sub(r"\\", "", workingText) 
         
         # Remove blank lines
         workingText = [line for line in workingText.split('\n') if line.strip() != '']
