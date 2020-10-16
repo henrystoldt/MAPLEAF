@@ -101,7 +101,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             # Disable adaptive time stepping during the ascent portion of the flight (if it's enabled)
             timeDiscretization = self.controlSystemDictReader.getString("SimControl.timeDiscretization")
             if "Adaptive" in timeDiscretization:
-                print("WARNING: Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate")
+                print("Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate")
                 print("Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.")
                 print("Switching to RK4 time stepping")
                 self.rocket.rigidBody.integrate = integratorFactory(integrationMethod='RK4')
