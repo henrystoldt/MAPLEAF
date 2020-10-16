@@ -124,7 +124,7 @@ class Transition(FixedMass, BodyComponent):
         plt.plot(Xvals, Yvals, color = 'k')
 
     @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
@@ -185,7 +185,7 @@ class BoatTail(Transition):
     ''' Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket '''
 
     @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         

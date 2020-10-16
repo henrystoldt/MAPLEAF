@@ -29,7 +29,7 @@ class RocketComponent(ABC):
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -> ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG) -> ForceMomentSystem:
         return
 
     #### Other optional functions ####
@@ -190,7 +190,7 @@ class FixedMass(RocketComponent):
     def getCG(self, time):
         return self.inertia.CG
 
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
 class FixedForce(RocketComponent):
@@ -214,7 +214,7 @@ class FixedForce(RocketComponent):
         return self.inertia
 
     @logForceResult
-    def getAeroForce(self, rocketState, time, environment, rocketCG):
+    def getAppliedForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
     def getLogHeader(self):
@@ -245,7 +245,7 @@ class AeroForce(RocketComponent):
         return self.inertia
 
     @logForceResult
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
@@ -270,7 +270,7 @@ class AeroDamping(AeroForce):
         self.xDampingCoeffs = componentDictReader.getVector("xDampingCoeffs")
     
     @logForceResult
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
@@ -363,7 +363,7 @@ class TabulatedAeroForce(AeroForce):
         return aeroCoefficients
 
     @logForceResult
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
@@ -398,7 +398,7 @@ class TabulatedInertia(RocketComponent):
         # MOI is last three columns, CG is the three before that, and mass is column 0
         return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])
     
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
 class FractionalJetDamping(RocketComponent):
@@ -416,7 +416,7 @@ class FractionalJetDamping(RocketComponent):
         self.dampingFraction = componentDictReader.getFloat("fraction")
 
     @logForceResult
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage's engine is firing
             # (Other stage's motors will have different exit planes)
         if time > self.stage.motor.ignitionTime and time < self.stage.engineShutOffTime:

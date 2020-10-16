@@ -252,7 +252,7 @@ class FinSet(FixedMass, ActuatedSystem):
         return header
 
     ### Functions used during simulation ###
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         #### If control system exists, use actuator deflections 1:1 to set fin angles ####
         if self.controlSystem != None:
             # Update fin angles
@@ -265,7 +265,7 @@ class FinSet(FixedMass, ActuatedSystem):
         #### Add up forces from all child Fins ####
         aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
         for fin in self.finList:
-            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+            aeroForce += fin.getAppliedForce(rocketState, time, environment, CG, precomputedData)
 
         # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
         
@@ -535,6 +535,6 @@ class Fin(FixedMass):
         totalForce = normalForce + axialForce
         return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
 
-    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+    def getAppliedForce(self, rocketState, time, environment, CG, precomputedData):
         [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
         return aeroForce

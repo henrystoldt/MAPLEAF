@@ -464,12 +464,12 @@ class Rocket(CompositeObject):
             # Log current rocket / flight conditions
             self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle))
 
-            # This function will be the inherited function CompositeObject.getAeroForce
-            componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
+            # This function will be the inherited function CompositeObject.getAppliedForce
+            componentForces = self.getAppliedForce(state, time, environment, rocketInertia.CG) 
 
         else:
             # When under chute, neglect forces from other components
-            componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
+            componentForces = self.recoverySystem.getAppliedForce(state, time, environment, Vector(0,0,-1))
 
         componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
 

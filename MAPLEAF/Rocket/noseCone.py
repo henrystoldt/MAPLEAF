@@ -172,7 +172,7 @@ class NoseCone(FixedMass, BodyComponent):
 
     #### Operation Functions ####
     @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
 

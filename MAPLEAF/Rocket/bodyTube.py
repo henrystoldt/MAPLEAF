@@ -34,7 +34,7 @@ class BodyTube(FixedMass, BodyComponent):
 
     #### Operational Functions ####
     @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
 
         # Normal Force ----------------------------------------------------------------------------------------

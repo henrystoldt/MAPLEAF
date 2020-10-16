@@ -49,7 +49,7 @@ class RecoverySystem(FixedMass):
 
     #### Operational Functions ####
     @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         '''
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
         '''

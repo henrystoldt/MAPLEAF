@@ -36,7 +36,7 @@ class TestBodyTube(unittest.TestCase):
 
     #     bodyTube = self.rocket.stages[0].getComponentsOfType(Bodytube)[0]
 
-    #     aeroForce = bodyTube.getAeroForce(self.rocketState1, time, self.currentConditions, self.rocket.getCG(0, self.rocketState1))
+    #     aeroForce = bodyTube.getAppliedForce(self.rocketState1, time, self.currentConditions, self.rocket.getCG(0, self.rocketState1))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState1, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 0
@@ -51,7 +51,7 @@ class TestBodyTube(unittest.TestCase):
     #     assertVectorsAlmostEqual(self, bodyTube.CPLocation, Vector(0,0,-1.762))
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 4)
     
-    #     aeroForce = bodyTube.getAeroForce(self.rocketState2, time, self.currentConditions, self.rocket.getCG(0, self.rocketState2))
+    #     aeroForce = bodyTube.getAppliedForce(self.rocketState2, time, self.currentConditions, self.rocket.getCG(0, self.rocketState2))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState2, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 9.820304
@@ -66,7 +66,7 @@ class TestBodyTube(unittest.TestCase):
     #     assertVectorsAlmostEqual(self, bodyTube.CPLocation, Vector(0,0,-1.762))
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 6)
 
-    #     aeroForce = bodyTube.getAeroForce(self.rocketState3, time, self.currentConditions, self.rocket.getCG(0, self.rocketState3))
+    #     aeroForce = bodyTube.getAppliedForce(self.rocketState3, time, self.currentConditions, self.rocket.getCG(0, self.rocketState3))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState3, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 61.3769010

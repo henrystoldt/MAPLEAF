@@ -136,7 +136,7 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         
         return oxInertia + fuelInertia
 
-    def getAeroForce(self, state, time, environment, CG):
+    def getAppliedForce(self, state, time, environment, CG):
         #TODO: Model "thrust damping" - where gases moving quickly in the engine act to damp out rotation about the x and y axes
         #TODO: Thrust vs altitude compensation
         timeSinceIgnition = max(0, time - self.ignitionTime)
@@ -209,3 +209,19 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         fuelMOI = linInterp(self.times, self.fuelMOIs, timeSinceIgnition)
 
         return Inertia(fuelMOI, fuelCG, fuelWeight)
+
+class SampleStatefulComponent(RocketComponent):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+
+    def getTankLevelDerivative(self, time, rocketState):
+        return -2*rocketState.tankLevel # tankLevel will asymptotically approach 0
+
+    def getExtraParameterToIntegrate(self):
+        # Examples below for a single parameter to be integrated, can put as many as required in these lists
+        paramNames = [ "tankLevel" ]
+        initValues = [ 1.0 ]
+        derivativeFunctions = [ self.getTankLevelDerivative ]
+        
+        return paramNames, initValues, derivativeFunctions

@@ -41,7 +41,7 @@ class TestNosecone(unittest.TestCase):
     # def test_noseconeOpenRocketAeroCoefficients(self):
     #     nosecone = self.rocket.stages[0].getComponentsOfType(Nosecone)[0]
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState1, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState1))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState1, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState1))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState1, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 0
@@ -55,7 +55,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState2, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState2))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState2, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState2))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState2, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 30.618783938108784
@@ -69,7 +69,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState3, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState3))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState3, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState3))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState3, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 191.3673996131799
@@ -83,7 +83,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState4, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState4))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState4, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState4))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState4, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 0
@@ -97,7 +97,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState5, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState5))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState5, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState5))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState5, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 30.618783938108784
@@ -111,7 +111,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState6, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState6))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState6, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState6))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState6, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 30.618783938108784
@@ -125,7 +125,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState7, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState7))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState7, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState7))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState7, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 877.27104
@@ -139,7 +139,7 @@ class TestNosecone(unittest.TestCase):
         
     #     assertForceMomentSystemsAlmostEqual(self, aeroForce, correctAeroForce, 0)
 
-    #     aeroForce = nosecone.getAeroForce(self.rocketState8, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState8))
+    #     aeroForce = nosecone.getAppliedForce(self.rocketState8, 0, self.currentConditions, self.rocket.getCG(0, self.rocketState8))
     #     normalForceDirection = AeroParameters.getNormalAeroForceDirection(self.rocketState8, self.currentConditions)
     #     axialForceDirection = Vector(0, 0, -1) #By definition of axial force
     #     normalForceHandCalc = 65.6

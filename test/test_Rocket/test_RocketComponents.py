@@ -92,7 +92,7 @@ class TestRocketComponents(unittest.TestCase):
 
         fixedForce = rocket.stages[0].getComponentsOfType(FixedForce)[0]
 
-        force = fixedForce.getAeroForce("fakeState", 0, "fakeEnv", Vector(0,0,0))
+        force = fixedForce.getAppliedForce("fakeState", 0, "fakeEnv", Vector(0,0,0))
         expectedForce = ForceMomentSystem(Vector(0,0,0), moment=Vector(0,1,0))
         self.assertEqual(force.force, expectedForce.force)
         self.assertEqual(force.moment, expectedForce.moment)
@@ -139,7 +139,7 @@ class TestRocketComponents(unittest.TestCase):
 
                 try:
                     headerItemsCount = len(component.getLogHeader().split())
-                    component.getAeroForce(state, time, self.currentConditions, Vector(0,0,0))
+                    component.getAppliedForce(state, time, self.currentConditions, Vector(0,0,0))
                     loggedItemsCount = len(simRunner.forceEvaluationLog[0].split())
                     self.assertEqual(headerItemsCount, loggedItemsCount)
                 except AttributeError:

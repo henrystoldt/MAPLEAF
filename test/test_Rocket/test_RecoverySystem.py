@@ -59,7 +59,7 @@ class TestRecoverySystem(unittest.TestCase):
         airProps = self.environment.getAirProperties(Vector(0,0,0))
 
         expectedForce = Vector(0, 0, 1.52 * 100**2 * airProps.Density * 15 / 2)
-        calculatedForce = self.rSys.getAeroForce(testState, self.descendingTime, airProps, Vector(0,0,0))
+        calculatedForce = self.rSys.getAppliedForce(testState, self.descendingTime, airProps, Vector(0,0,0))
         self.almostEqualVectors(calculatedForce.force, expectedForce)
 
     def test_ApogeeDeployment(self):
@@ -133,7 +133,7 @@ class TestRecoverySystem(unittest.TestCase):
         # Check that recovery stage has not deployed
         self.assertEqual(self.rSys.currentStage, 2)
 
-        # Run getAeroForce once to recognize Altitude
+        # Run getAppliedForce once to recognize Altitude
         self.recoveryRocket.rigidBody.time = 301
         self.recoveryRocket.rigidBody.state = self.descendingState_3DoF
         self.recoveryRocket.timeStep(0.01)
