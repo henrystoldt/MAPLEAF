@@ -3,6 +3,10 @@
 
 SimControl{
     timeDiscretization RK4
+
+    EndCondition Apogee
+
+    plot tankLevel StatefulComponentFZ(N)
 }
 
 Rocket{

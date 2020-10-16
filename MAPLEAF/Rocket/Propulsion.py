@@ -214,6 +214,10 @@ class SampleStatefulComponent(RocketComponent):
     def __init__(self, componentDictReader, rocket, stage):
         self.rocket = rocket
         self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+    def getLogHeader(self):
+        return " {}FZ(N)".format(self.name) # This will be in the header of the force logging file
 
     def getExtraParametersToIntegrate(self):
         # Examples below for a single parameter to be integrated, can put as many as required in these lists
@@ -223,14 +227,11 @@ class SampleStatefulComponent(RocketComponent):
         
         return paramNames, initValues, derivativeFunctions
 
-    def getLogHeader(self):
-        return " SampleZForce(N)" # This will be in the header of the force logging file
-
     def getTankLevelDerivative(self, time, rocketState):
         return -2*rocketState.tankLevel # tankLevel will asymptotically approach 0
 
     def getAppliedForce(self, rocketState, time, envConditions, rocketCG):
-        mag = 2*rocketState.tankLevel # Force magnitude proportional to flow rate (tank level derivative)
+        mag = -2000*self.getTankLevelDerivative(time, rocketState) # Force magnitude proportional to flow rate out of the tank
         forceVector = Vector(0, 0, mag)
 
         self.rocket.appendToForceLogLine(" {:>6.4f}".format(mag)) # This will end up in the log file, in the SampleZForce column

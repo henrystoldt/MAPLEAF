@@ -133,11 +133,13 @@ class StateList(list):
 
         Contains a list of parameters that define the (rocket) state, all of which are to be integrated
         Overrides operators to make +-* operations elementwise
+        Capable of representing a StateList and the derivative of a StateList
 
         Called StateList instead of StateVector because it can contain objects of any type, like a Python list, and unlike a Vector.
 
         Example: RocketState([ initRigidBodyState, tankLevel1, actuatorPosition1 ])
     '''
+    #### Initialization and setting/getting attributes ####
     def __init__(self, stateVariables, variableNames=None, _nameToIndexMap=None):
         '''
             stateVariables: (`list`) of state variable values (RigidBodyState assumed to be in position 0)
@@ -192,6 +194,11 @@ class StateList(list):
             # Try getting the attribute from the rigidBodyState (assumed first element)
             setattr(self[0], name, value)
 
+    def addStateVariable(self, name, currentValue):
+        self.append(currentValue)
+        self.nameToIndexMap[name] = len(self)-1
+
+    #### Arithmetic ####
     def __add__(self, state2):
         return StateList([ x + y for x, y in zip(self, state2) ], _nameToIndexMap=self.nameToIndexMap)
 
@@ -216,6 +223,30 @@ class StateList(list):
     def __neg__(self):
         return StateList([ -x for x in self ], _nameToIndexMap=self.nameToIndexMap)
 
-    def addStateVariable(self, name, currentValue):
-        self.append(currentValue)
-        self.nameToIndexMap[name] = len(self)-1
+    #### String functions ####
+    def getLogHeader(self):
+        header = ""
+        for i in range(len(self)):
+            try:
+                # If the variable defines a getLogHeader function, use it
+                header += self[i].getLogHeader()
+            
+            except AttributeError:
+                # Item doesn't have a getLogHeader function (ex. it's a float)
+                # Try to find it in nameToIndexMap
+                varName = None
+                for key, val in self.nameToIndexMap.items():
+                    if val == i:
+                        varName = " " + key
+                
+                # Otherwise just call it stateVariableN
+                if varName == None:
+                    varName = " StateVariable{}".format(i)
+
+                header += varName
+        
+        return header
+
+    def __str__(self):
+        varStrings = [ x.__str__() for x in self ]
+        return " ".join(varStrings)
