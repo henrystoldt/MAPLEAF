@@ -245,7 +245,7 @@ class StateList(list):
 
                 header += varName
         
-        return header
+        return header.strip()
 
     def __str__(self):
         varStrings = [ x.__str__() for x in self ]
