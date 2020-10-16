@@ -211,6 +211,9 @@ class StateList(list):
     def __truediv__(self, scalar):
         return StateList([ x/scalar for x in self ], _nameToIndexMap=self.nameToIndexMap)
 
+    def __rmul__(self, scalar):
+        return self * scalar # Call regular __mul__ function
+
     def __abs__(self):
         return sum([ abs(x) for x in self ])
 
@@ -245,7 +248,7 @@ class StateList(list):
 
                 header += varName
         
-        return header.strip()
+        return header
 
     def __str__(self):
         varStrings = [ x.__str__() for x in self ]

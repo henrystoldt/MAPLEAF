@@ -240,9 +240,9 @@ class SampleStatefulComponent(RocketComponent):
 
     def getInertia(self, time, rocketState):
         mass = 5 + rocketState.tankLevel*4.56 # Fixed Mass + fluid mass
-        MOI = Vector(mass, mass, mass*0.05)
+        MOI = Vector(mass, mass, mass*0.05) # Related to current mass
 
-        CGz = -3 + rocketState.tankLevel
+        CGz = -3 + rocketState.tankLevel # Moves depending on current tank level
         CG = Vector(0, 0, CGz)
         
         return Inertia(MOI, CG, mass)

@@ -1,11 +1,6 @@
 #Created by: Henry Stoldt
 #May 2019
 
-#To run tests:
-#In this file: [test_rigidBody.py]
-#In all files in the current directory: [python -m unittest discover]
-#Add [-v] for verbose output (displays names of all test functions)
-
 import math
 import unittest
 from math import cos, pi, sin
@@ -320,11 +315,11 @@ class TestStateList(unittest.TestCase):
     def test_getLogHeader(self):
         state1 = StateList([1, 2], ["var1", "var2"])
         header = state1.getLogHeader()
-        self.assertEqual(header, "var1 var2")
+        self.assertEqual(header, " var1 var2")
 
         state2 = StateList([1, 2])
         header = state2.getLogHeader()
-        self.assertEqual(header, "StateVariable0 StateVariable1")
+        self.assertEqual(header, " StateVariable0 StateVariable1")
 
     def test_str(self):
         state1 = StateList([1, 2], ["var1", "var2"])
