@@ -521,6 +521,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
 
     #### Plot comparison data ####
     compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
+    compDataDictionaries.sort()
     for compDataDict in compDataDictionaries:
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
         valData, valCols, valX = _plotComparisonData(batchRun, ax, compDataDictReader)
