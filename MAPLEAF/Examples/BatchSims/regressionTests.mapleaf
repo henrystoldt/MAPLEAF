@@ -88,97 +88,124 @@ ConventionalRocketCase{
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/Conventional.mapleaf
 
 	ParameterSweep{
-		smoothLine		True
+		smoothLine					True
+		
 		velocitySweep{
 			sweptParameter			Rocket.velocity
-			parameterValues			(538.58 0 0),(536.5305 46.94 0),(530.3977 93.523 0),(520.228 139.395 0),(506.09965 184.205 0)
+			parameterValues			(538.58 0.08 0),(536.5305 46.94 0),(530.3977 93.523 0),(520.228 139.395 0),(506.09965 184.205 0)
 		}
+		
 		MachResults{
 			expectedValues			2,2,2,2,2
-			column							Mach
+			column					Mach
 		}
+		
 		AOAResults{
-			expectedValues			0,5,10,15,20
-			column							AOA(deg)
+			expectedValues			0.0085,5,10,15,20
+			column					AOA(deg)
+		}
+
+		ReResults{
+			expectedValues			2.296588e6, 2.296588e6, 2.296588e6, 2.296588e6, 2.296588e6
+			column					UnitRe
 		}
 	}
 
 	PlotsToGenerate{
-		CmPlot{
-			columnsToPlot			AeroCMX
-			xColumnName				AOA(deg)
-			lineFormat				*r
-			xLabel						$\alpha$
-			yLabel						$C_m$
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Conventional/ConventionalCm.pdf
-			
-			ComparisonDataAP98{
-				columnsToPlot			Cm
-				xColumnName				AOA
-				lineFormat				-c
-				legendLabel				Aeroprediction98
-				file							./test/regressionTesting/Conventional/ConventionalAP98Cm.csv
-			}
-			ComparisonDataDC97{
-				columnsToPlot			Cm
-				xColumnName				AOA
-				lineFormat				--m
-				legendLabel				Datcom97
-				file							./test/regressionTesting/Conventional/ConventionalDC97Cm.csv
-			}
-			ComparisonDataWT{
-				columnsToPlot			Cm
-				xColumnName				AOA
-				lineFormat				.k
-				legendLabel				Wind Tunnel
-				file							./test/regressionTesting/Conventional/ConventionalWTCm.csv
-			}
-		}	
-
 		CNPlot{
 			columnsToPlot				AeroCFY
 			xColumnName					AOA(deg)
-			lineFormat					*r
-			xLabel							$\alpha$
-			yLabel							$C_N$
+			lineFormat					--
+			lineColors					\#003f5c
+			xLabel						$\alpha$ (degrees)
+			yLabel						$C_N$
 			legendLabel					MAPLEAF
-			scalingFactor			-1
-			overwrite			True
+			scalingFactor				-1
+			overwrite					True
 			saveLocation				./test/regressionTesting/Conventional/ConventionalCN.pdf
 
-			ComparisonDataAP98{
+			AP98{
 				columnsToPlot			CN
 				xColumnName				AOA
 				lineFormat				-c
 				legendLabel				Aeroprediction98
-				file							./test/regressionTesting/Conventional/ConventionalAP98CN.csv
+				file					./test/regressionTesting/Conventional/ConventionalAP98CN.csv
 			}
-			ComparisonDataDC97{
+
+			DC97{
 				columnsToPlot			CN
 				xColumnName				AOA
 				lineFormat				--m
 				legendLabel				Datcom97
-				file							./test/regressionTesting/Conventional/ConventionalDC97CN.csv
+				file					./test/regressionTesting/Conventional/ConventionalDC97CN.csv
 			}
-			ComparisonDataWT{
+
+			WT{
 				columnsToPlot			CN
 				xColumnName				AOA
 				lineFormmat				DC97
-				lineFormat				.k
+				lineFormat				Pk
 				legendLabel				Wind Tunnel
-				file							./test/regressionTesting/Conventional/ConventionalWTCN.csv
+				file					./test/regressionTesting/Conventional/ConventionalWTCN.csv
 			}
+
+			FLU3M{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				x-.
+				lineColors				red
+				legendLabel				FLU3M
+				file					./test/regressionTesting/Conventional/ConventionalFLU3MCN.csv	
+			}
+
+			TLNS{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				d:
+				lineColors				\#bc5090
+				legendLabel				TLNS
+				file					./test/regressionTesting/Conventional/ConventionalTLNSCN.csv	
+			}
+
+			USER3D{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				+-
+				lineColors				\#ff764a
+				legendLabel				USER3D
+				file					./test/regressionTesting/Conventional/ConventionalUSER3DCN.csv	
+			}
+		}
+
+		!create CmPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'Cm'
+
+			columnsToPlot				AeroCMX
+			yLabel						$C_m$
+			scalingFactor				1.0 # No scaling required
 		}
 
 		!create CPPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
 			!replace 'CN' with 'CP'
 
 			columnsToPlot				CPZ
-			yLabel							$X_{CP}$
-			offset							-8 # Make CP location relative to moment reference instead of nose cone
-			saveLocation				./test/regressionTesting/Conventional/ConventionalCP.pdf
+			yLabel						$X_{CP}$ (Calibers)
+			yLimits						9.5 13
+			scalingFactor				-3.280839895
+		}
+
+		# nonDimConstant 548
+		# Rocket area 0.3048^2 * pi / 4 = 0.072965877
+		# Fin Area = 0.09290304
+
+		!create FinNormalForcePlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'FinCN'
+
+			columnsToPlot				TailFinsCFY
+			yLabel						Fin 1 $CN$
+			scalingFactor				-0.392699082
+			yLimits						0 1.0
+			xLimits						0 20
 		}
 	}
 }
