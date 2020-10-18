@@ -2752,7 +2752,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         self.maxDiameter = self._getMaxBodyTubeDiameter()     
         &#39;&#39;&#39; (float) Holds maximum constant-size body tube diameter, from bodytube components in stages &#39;&#39;&#39;
 
-        self.Aref = self.maxDiameter**2 / 4
+        self.Aref = math.pi * self.maxDiameter**2 / 4
         &#39;&#39;&#39; 
             Reference area for force and moment coefficients.
             Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
