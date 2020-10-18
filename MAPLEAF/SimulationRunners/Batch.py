@@ -277,6 +277,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     except:
         _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
         logFilePaths = []
+        return logFilePaths
     else:
         Logging.removeLogger()
 
@@ -364,6 +365,7 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
     except:
         _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
         logFilePaths = []
+        return logFilePaths
     else:
         Logging.removeLogger()
 
