@@ -2749,10 +2749,10 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool(&#34;Environment.turbulenceOffWhenUnderChute&#34;)
         &#39;&#39;&#39; (bool) &#39;&#39;&#39;
 
-        self.bodyTubeDiameter = self._getMaxBodyTubeDiameter()     
+        self.maxDiameter = self._getMaxBodyTubeDiameter()     
         &#39;&#39;&#39; (float) Holds maximum constant-size body tube diameter, from bodytube components in stages &#39;&#39;&#39;
 
-        self.Aref = self.bodyTubeDiameter**2 / 4
+        self.Aref = self.maxDiameter**2 / 4
         &#39;&#39;&#39; 
             Reference area for force and moment coefficients.
             Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
@@ -2822,12 +2822,13 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         maxDiameter = 0
         for stageDict in stageDicts:
             componentDicts = self.rocketDictReader.getImmediateSubDicts(stageDict)
+            
             for componentDict in componentDicts:
                 className = self.rocketDictReader.getString(componentDict + &#34;.class&#34;)
+                
                 if className == &#34;Bodytube&#34;:
                     diameter = self.rocketDictReader.getFloat(componentDict + &#34;.outerDiameter&#34;)
-                    if diameter &gt; maxDiameter:
-                        maxDiameter = diameter
+                    maxDiameter = max(maxDiameter, diameter)
         
         return maxDiameter
 
@@ -2922,7 +2923,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         self.stages = PlanarInterface.sortByZLocation(self.stages)
         self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
 
-        if self.bodyTubeDiameter &gt; 0:
+        if self.maxDiameter &gt; 0:
             # Only run this if we&#39;re running a real rocket with body tubes
             self._ensureBaseDragIsAccountedFor()
 
@@ -2990,7 +2991,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
             CGsubY += yCGs
 
         SubCGplt = plt.plot(CGsubZ, CGsubY, color=&#39;g&#39;, marker=&#39;.&#39;, label=&#39;Subcomponent CG&#39;, linestyle=&#39;None&#39;)
-        legendHeight = self.bodyTubeDiameter
+        legendHeight = self.maxDiameter
         plt.legend(loc=&#39;upper center&#39;, bbox_to_anchor = (0.5,-1.05))
         plt.show()
 
@@ -3037,7 +3038,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 print(&#34;Adding zero-length BoatTail to the bottom of current bottom stage ({}) to account for base drag&#34;.format(bottomStage.name))
             # Create a zero-length, zero-mass boat tail to account for base drag
             zeroInertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
-            diameter = self.bodyTubeDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
+            diameter = self.maxDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
             length = 0
             position = bottomStage.getBottomInterfaceLocation()
             boatTail = BoatTail(
@@ -3249,10 +3250,6 @@ Always based on the maximum body tube diameter in the fully-assembled rocket.</p
 <dd>
 <div class="desc"><p>Controls whether zero-length boat tails are automatically added to the bottom of rockets without them, to make sure base drag is accounted for</p></div>
 </dd>
-<dt id="MAPLEAF.Rocket.Rocket.bodyTubeDiameter"><code class="name">var <span class="ident">bodyTubeDiameter</span></code></dt>
-<dd>
-<div class="desc"><p>(float) Holds maximum constant-size body tube diameter, from bodytube components in stages</p></div>
-</dd>
 <dt id="MAPLEAF.Rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
 <dd>
 <div class="desc"><p>None for uncontrolled rockets. <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> for controlled rockets</p></div>
@@ -3284,6 +3281,10 @@ Always based on the maximum body tube diameter in the fully-assembled rocket.</p
 <dt id="MAPLEAF.Rocket.Rocket.mainChuteDeployTime"><code class="name">var <span class="ident">mainChuteDeployTime</span></code></dt>
 <dd>
 <div class="desc"><p>(float) Filled in during flight by <code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage" href="Recovery.html#MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage">RecoverySystem._deployNextStage()</a></code></p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.maxDiameter"><code class="name">var <span class="ident">maxDiameter</span></code></dt>
+<dd>
+<div class="desc"><p>(float) Holds maximum constant-size body tube diameter, from bodytube components in stages</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.Rocket.recoverySystem"><code class="name">var <span class="ident">recoverySystem</span></code></dt>
 <dd>
@@ -3395,7 +3396,7 @@ Populated by <code>_initializeStages</code>.</p></div>
         CGsubY += yCGs
 
     SubCGplt = plt.plot(CGsubZ, CGsubY, color=&#39;g&#39;, marker=&#39;.&#39;, label=&#39;Subcomponent CG&#39;, linestyle=&#39;None&#39;)
-    legendHeight = self.bodyTubeDiameter
+    legendHeight = self.maxDiameter
     plt.legend(loc=&#39;upper center&#39;, bbox_to_anchor = (0.5,-1.05))
     plt.show()</code></pre>
 </details>
@@ -4702,7 +4703,7 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
         # Calculate basic areas
         self.topArea = self.startDiameter**2 * math.pi/4
         self.bottomArea = self.endDiameter**2 * math.pi/4
-        self.frontalArea = self.topArea - self.bottomArea
+        self.frontalArea = abs(self.topArea - self.bottomArea)
 
         # Calculate surface area, volume, CP
         if self.length == 0:
@@ -4754,6 +4755,8 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
                 coneHalfAngle = math.pi/2
             else:
                 coneHalfAngle = math.atan(abs(self.startDiameter - self.endDiameter)/2 / self.length)
+
+            self.coneHalfAngle = coneHalfAngle
             self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(coneHalfAngle)
             self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(coneHalfAngle)
 
@@ -5090,7 +5093,6 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.Rocket.Aref" href="#MAPLEAF.Rocket.Rocket.Aref">Aref</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.bodyTubeDiameter" href="#MAPLEAF.Rocket.Rocket.bodyTubeDiameter">bodyTubeDiameter</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.Rocket.controlSystem">controlSystem</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.environment" href="#MAPLEAF.Rocket.Rocket.environment">environment</a></code></li>
@@ -5100,6 +5102,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.Rocket.getLength" href="#MAPLEAF.Rocket.Rocket.getLength">getLength</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.isUnderChute" href="#MAPLEAF.Rocket.Rocket.isUnderChute">isUnderChute</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.mainChuteDeployTime" href="#MAPLEAF.Rocket.Rocket.mainChuteDeployTime">mainChuteDeployTime</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.maxDiameter" href="#MAPLEAF.Rocket.Rocket.maxDiameter">maxDiameter</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.plotShape" href="#MAPLEAF.Rocket.Rocket.plotShape">plotShape</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.recoverySystem" href="#MAPLEAF.Rocket.Rocket.recoverySystem">recoverySystem</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.rigidBody" href="#MAPLEAF.Rocket.Rocket.rigidBody">rigidBody</a></code></li>
