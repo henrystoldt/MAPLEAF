@@ -34,6 +34,8 @@ ConventionalRocketCase{
 			lineColors					\#003f5c
 			xLabel						$\alpha$ (degrees)
 			yLabel						$C_N$
+			yLimits						0 7
+			xLimits						0 20
 			legendLabel					MAPLEAF
 			scalingFactor				-1
 			overwrite					True
@@ -90,6 +92,15 @@ ConventionalRocketCase{
 				legendLabel				USER3D
 				file					./test/regressionTesting/SooyConventional/ConventionalUSER3DCN.csv	
 			}
+
+			# OpenRocket{
+			# 	columnsToPlot			CN
+			# 	xColumnName				AOA
+			# 	lineFormat				-.
+			# 	lineColors				\#bc5090
+			# 	legendLabel				OpenRocket v15.03
+			# 	file					./test/regressionTesting/SooyConventional/OpenRocketResults.csv					
+			# }
 		}
 
 		!create CmPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
@@ -97,6 +108,7 @@ ConventionalRocketCase{
 
 			columnsToPlot				AeroCMX
 			yLabel						$C_m$
+			yLimits						-14 0
 			scalingFactor				1.0 # No scaling required
 		}
 
@@ -119,6 +131,7 @@ ConventionalRocketCase{
             !removeKeysContaining 'AP98'
             !removeKeysContaining 'DC97'
             !removeKeysContaining 'TLNS'
+			!removeKeysContaining 'OpenRocket'
 
 			columnsToPlot				TailFinsCFY
 			yLabel						Fin 1 $CN$

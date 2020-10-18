@@ -663,6 +663,7 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
         if columnNames[i] == xColumnName:
             xData = dataLists.pop(i)
             columnNames.pop(i)
+            break
 
     if adjustXaxisToFit:
         ax.set_xlim([xData[0], xData[-1]])

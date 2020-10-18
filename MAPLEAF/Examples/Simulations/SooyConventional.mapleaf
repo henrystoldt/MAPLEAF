@@ -30,7 +30,7 @@ Rocket{
     Sustainer{
         class               Stage
 
-        constCG             (0 0 -2.5) #m
+        constCG             (0 0 -2.4384) #m
 
         Nosecone{
             class           Nosecone
