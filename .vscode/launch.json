@@ -36,11 +36,11 @@
         },
 
         {
-            "name": "Regression Tests Conventional",
+            "name": "Regression Tests Conventional Rocket Only",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/test/regressionTesting/runCases.py",
-            "args": [ "--filter", "Conventional", "--printStackTraces" ],
+            "program": "${workspaceFolder}/MAPLEAF/SimulationRunners/Batch.py",
+            "args": [ "--include", "Case5", "--printStackTraces" ],
             "console": "integratedTerminal",
             "justMyCode": false
         },
