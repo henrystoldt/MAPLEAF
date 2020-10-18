@@ -3,6 +3,8 @@
 
 # WIND TUNNEL CASE
 # Replicates Case 3 from Aerodynamic Predictions, Comparisons, and Validations using Missile Datcom 97 and Aeroprediction 98
+# There is some suspicion that base drag was not properly corrected for in the Sooy sims
+# CA results may not be very trustworthy
 # Thomas Sooy, Rebecca Schmidt
 # Journal of Spacecraft and Rockets 2005
 
