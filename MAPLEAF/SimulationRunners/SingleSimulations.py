@@ -412,8 +412,8 @@ class Simulation():
 
                 # Post process / calculate force/moment coefficients if desired
                 if self.loggingLevel >= 3:
-                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
-                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
+                    bodyDiameter = self.rocketStages[0].maxDiameter
+                    crossSectionalArea = self.rocketStages[0].Aref
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
 

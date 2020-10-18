@@ -85,7 +85,7 @@ ExampleFlightCase{
 }
 
 ConventionalRocketCase{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/Conventional.mapleaf
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/SooyConventional.mapleaf
 
 	ParameterSweep{
 		smoothLine					True
@@ -122,14 +122,14 @@ ConventionalRocketCase{
 			legendLabel					MAPLEAF
 			scalingFactor				-1
 			overwrite					True
-			saveLocation				./test/regressionTesting/Conventional/ConventionalCN.pdf
+			saveLocation				./test/regressionTesting/SooyConventional/ConventionalCN.pdf
 
 			AP98{
 				columnsToPlot			CN
 				xColumnName				AOA
 				lineFormat				-c
 				legendLabel				Aeroprediction98
-				file					./test/regressionTesting/Conventional/ConventionalAP98CN.csv
+				file					./test/regressionTesting/SooyConventional/ConventionalAP98CN.csv
 			}
 
 			DC97{
@@ -137,7 +137,7 @@ ConventionalRocketCase{
 				xColumnName				AOA
 				lineFormat				--m
 				legendLabel				Datcom97
-				file					./test/regressionTesting/Conventional/ConventionalDC97CN.csv
+				file					./test/regressionTesting/SooyConventional/ConventionalDC97CN.csv
 			}
 
 			WT{
@@ -146,7 +146,7 @@ ConventionalRocketCase{
 				lineFormmat				DC97
 				lineFormat				Pk
 				legendLabel				Wind Tunnel
-				file					./test/regressionTesting/Conventional/ConventionalWTCN.csv
+				file					./test/regressionTesting/SooyConventional/ConventionalWTCN.csv
 			}
 
 			FLU3M{
@@ -155,7 +155,7 @@ ConventionalRocketCase{
 				lineFormat				x-.
 				lineColors				red
 				legendLabel				FLU3M
-				file					./test/regressionTesting/Conventional/ConventionalFLU3MCN.csv	
+				file					./test/regressionTesting/SooyConventional/ConventionalFLU3MCN.csv	
 			}
 
 			TLNS{
@@ -164,7 +164,7 @@ ConventionalRocketCase{
 				lineFormat				d:
 				lineColors				\#bc5090
 				legendLabel				TLNS
-				file					./test/regressionTesting/Conventional/ConventionalTLNSCN.csv	
+				file					./test/regressionTesting/SooyConventional/ConventionalTLNSCN.csv	
 			}
 
 			USER3D{
@@ -173,7 +173,7 @@ ConventionalRocketCase{
 				lineFormat				+-
 				lineColors				\#ff764a
 				legendLabel				USER3D
-				file					./test/regressionTesting/Conventional/ConventionalUSER3DCN.csv	
+				file					./test/regressionTesting/SooyConventional/ConventionalUSER3DCN.csv	
 			}
 		}
 
@@ -208,6 +208,121 @@ ConventionalRocketCase{
 			xLimits						0 20
 		}
 	}
+}
+
+BodyAloneCase{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/SooyBodyAlone.mapleaf
+
+	ParameterSweep{
+		smoothLine					True
+		
+		velocitySweep{
+			sweptParameter			Rocket.velocity
+			parameterValues			(528.441 0.08 0),(526.42986 46.05665 0),(520.41254 91.76277 0),(510.43456 136.77053 0),(496.57186 180.73738 0), (478.92996 223.32871 0), (457.64310 264.22037 0)
+		}
+		
+		MachResults{
+			expectedValues			2.01
+			column					Mach
+		}
+		
+		AOAResults{
+			expectedValues			0.0087, 5, 10, 15, 20, 25, 30
+			column					AOA(deg)
+		}
+
+		ReResults{
+			expectedValues			6.56168e6
+			column					UnitRe
+		}
+	}
+
+	PlotsToGenerate{
+		CNPlot{
+			columnsToPlot				AeroCFY
+			xColumnName					AOA(deg)
+			lineFormat					--
+			lineColors					\#003f5c
+			xLabel						$\alpha$ (degrees)
+			yLabel						$C_N$
+			legendLabel					MAPLEAF
+			scalingFactor				-0.341985568
+			overwrite					True
+			saveLocation				./test/regressionTesting/SooyBodyAlone/BodyAloneCN.pdf
+
+
+			AP98{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				-c
+				legendLabel				Aeroprediction98
+				file					./test/regressionTesting/SooyBodyAlone/AP98CN.csv
+			}
+
+			DC97{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				--m
+				legendLabel				Datcom97
+				file					./test/regressionTesting/SooyBodyAlone/DC97CN.csv
+			}
+
+			WT{
+				# This data clearly has some issues b/c CN in the wind tunnel != 0 when AOA = 0
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormmat				DC97
+				lineFormat				Pk
+				legendLabel				Wind Tunnel
+				file					./test/regressionTesting/SooyBodyAlone/WTCN.csv
+			}
+		}
+
+		!create CmPlot from BodyAloneCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'Cm'
+
+			columnsToPlot				AeroCMX
+			yLabel						$C_m$
+			scalingFactor				0.341985568
+
+			# Wind Tunnel data clearly has some issues b/c Cm in the wind tunnel != 0 when AOA = 0
+		}
+
+		!create CAPlot from BodyAloneCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CA'
+			!removeKeysContaining 'DC97'
+
+			columnsToPlot				AeroCFZ
+			yLabel						$C_A$
+		}
+	}
+}
+
+!create BodyFlareCase from BodyAloneCase{
+	!replace 'BodyAlone' with 'BodyFlare'
+
+	PlotsToGenerate{
+
+		!create CPPlot from BodyFlareCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CP'
+
+			columnsToPlot				CPZ
+			yLabel						$X_{CP}$ (Calibers)
+			scalingFactor				-7.674479287 # calibers/m: Scaling to calibers (from m)
+			offset						-2.923976608 # calibers from nosecone: Offset to measure calibers from Moment reference instead of from nosecone
+		}
+
+		CAPlot{
+			# Re-add DC97 comparison data dict (not present for body alone case)
+			!create DC97 from BodyFlareCase.PlotsToGenerate.CNPlot.DC97{
+				!replace 'CN' with 'CA'
+			}
+		}
+	}
+}
+
+!create FinnedBodyCase from BodyFlareCase{
+	!replace 'BodyFlare' with 'FinnedBody'
 }
 
 !include OpenRocketCases.mapleaf

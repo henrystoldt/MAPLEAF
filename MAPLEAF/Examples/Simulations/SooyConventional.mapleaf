@@ -1,18 +1,16 @@
 # MAPLEAF
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
-# WIND TUNNEL CASE
+# WIND TUNNEL VALIDATION CASE - Used in regression suite
+# Replicates Case 2 from Aerodynamic Predictions, Comparisons, and Validations using Missile Datcom 97 and Aeroprediction 98
+# Thomas Sooy, Rebecca Schmidt
+# Journal of Spacecraft and Rockets 2005
 
 SimControl{
-    timeDiscretization RK4
-    timeStep 0.01 #sec
-
     EndCondition Apogee
 
     loggingLevel    2
     RocketPlot      On
-
-    plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
 }
 
 Environment{

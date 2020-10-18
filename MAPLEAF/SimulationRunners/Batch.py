@@ -284,7 +284,10 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     for expectedResultsDict in expectedResultsDicts: # loop through expected results. Manually inputed values, as well as comparisonData in the plots
         expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".column") # get column header that contains results in log files
         expectedResults = caseDictReader.getString(expectedResultsDict + ".expectedValues").split(',') # get expected results values that will be compared against sim
-        expectedResults = [ float(x) for x in expectedResults ] # Convert to floatS
+        try:
+            expectedResults = [ float(x) for x in expectedResults ] # Convert to floats
+        except ValueError:
+            pass # Hopefully it's "record"
             
         ### Get results to be checked ###
         for logPath in logFilePaths:
@@ -299,7 +302,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             resultData = columnDataLists[0]
 
         ### Record / Check Results ###
-        if (len(expectedResults) == 1 and expectedResults[0].lower() == "record") or batchRun.recordAll:
+        if (len(expectedResults) == 1 and isinstance(expectedResults[0], str) and expectedResults[0].lower() == "record") or batchRun.recordAll:
             ## Record results ##
             key = expectedResultsDict + ".expectedValues"
             stringResults = ", ".join([ str(x) for x in resultData ])
@@ -314,8 +317,13 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             ## Chcek results ##
             resultDataStep = 10 if strtobool(smoothLine) else 1
 
-            for i in range(len(expectedResults)):
-                _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+            if len(expectedResults) > 1:
+                for i in range(len(expectedResults)):
+                    _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+            else:
+                # If only a single, constant expected value is provided
+                for i in range(len(expectedResults)):
+                    _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[0])
 
     return logFilePaths
 

@@ -28,7 +28,7 @@ defaultConfigValues = {
 
     "MonteCarlo.output":                                    "landingLocations",
 
-    "SimControl.plot":                                      "Position Velocity AngularVelocity FlightAnimation",
+    "SimControl.plot":                                      "Position FlightAnimation",
     "SimControl.loggingLevel":                              "2",
     "SimControl.EndCondition":                              "Altitude",
     "SimControl.EndConditionValue":                         "-1",

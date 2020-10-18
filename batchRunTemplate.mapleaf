@@ -80,6 +80,7 @@ ExampleWindTunnelCase{
             
             # COMMA-separated list of scalar expected result values OR 'Record'
                 # Number of expectedValues must match number (and order) of parameterValues
+                # If the result is supposed to remain constant, can also just provide a single value
 			expectedValues	            0.2955, 0.5886, 0.8822
         }
 

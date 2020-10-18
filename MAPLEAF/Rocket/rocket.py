@@ -95,10 +95,10 @@ class Rocket(CompositeObject):
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool("Environment.turbulenceOffWhenUnderChute")
         ''' (bool) '''
 
-        self.bodyTubeDiameter = self._getMaxBodyTubeDiameter()     
+        self.maxDiameter = self._getMaxDiameter()     
         ''' (float) Holds maximum constant-size body tube diameter, from bodytube components in stages '''
 
-        self.Aref = self.bodyTubeDiameter**2 / 4
+        self.Aref = self.maxDiameter**2 / 4
         ''' 
             Reference area for force and moment coefficients.
             Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
@@ -161,19 +161,20 @@ class Rocket(CompositeObject):
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
             self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
 
-    def _getMaxBodyTubeDiameter(self):
+    def _getMaxDiameter(self):
         ''' Gets max body tube diameter directly from config file '''
         stageDicts = self._getStageSubDicts()
 
         maxDiameter = 0
         for stageDict in stageDicts:
             componentDicts = self.rocketDictReader.getImmediateSubDicts(stageDict)
+            
             for componentDict in componentDicts:
                 className = self.rocketDictReader.getString(componentDict + ".class")
+                
                 if className == "Bodytube":
                     diameter = self.rocketDictReader.getFloat(componentDict + ".outerDiameter")
-                    if diameter > maxDiameter:
-                        maxDiameter = diameter
+                    maxDiameter = max(maxDiameter, diameter)
         
         return maxDiameter
 
@@ -336,7 +337,7 @@ class Rocket(CompositeObject):
             CGsubY += yCGs
 
         SubCGplt = plt.plot(CGsubZ, CGsubY, color='g', marker='.', label='Subcomponent CG', linestyle='None')
-        legendHeight = self.bodyTubeDiameter
+        legendHeight = self.maxDiameter
         plt.legend(loc='upper center', bbox_to_anchor = (0.5,-1.05))
         plt.show()
 
@@ -383,7 +384,7 @@ class Rocket(CompositeObject):
                 print("Adding zero-length BoatTail to the bottom of current bottom stage ({}) to account for base drag".format(bottomStage.name))
             # Create a zero-length, zero-mass boat tail to account for base drag
             zeroInertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
-            diameter = self.bodyTubeDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
+            diameter = self.maxDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
             length = 0
             position = bottomStage.getBottomInterfaceLocation()
             boatTail = BoatTail(
