@@ -479,8 +479,8 @@ class SimDefinition():
         comment = re.compile(&#34;(?&lt;!\\\)#.*&#34;) 
         workingText = re.sub(comment, &#34;&#34;, workingText) 
         
-        # Remove escape characters
-        workingText = re.sub(r&#34;\\&#34;, &#34;&#34;, workingText) 
+        # Remove comment escape characters
+        workingText = re.sub(r&#34;\\(?=#)&#34;, &#34;&#34;, workingText) 
         
         # Remove blank lines
         workingText = [line for line in workingText.split(&#39;\n&#39;) if line.strip() != &#39;&#39;]
@@ -1345,8 +1345,8 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
         comment = re.compile(&#34;(?&lt;!\\\)#.*&#34;) 
         workingText = re.sub(comment, &#34;&#34;, workingText) 
         
-        # Remove escape characters
-        workingText = re.sub(r&#34;\\&#34;, &#34;&#34;, workingText) 
+        # Remove comment escape characters
+        workingText = re.sub(r&#34;\\(?=#)&#34;, &#34;&#34;, workingText) 
         
         # Remove blank lines
         workingText = [line for line in workingText.split(&#39;\n&#39;) if line.strip() != &#39;&#39;]

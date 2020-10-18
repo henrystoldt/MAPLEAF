@@ -1012,6 +1012,8 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 
         self.spanSliceAreas = self.finSet.spanSliceAreas
         self.spanSliceRadii = self.finSet.spanSliceRadii
+        self.sliceLEPositions = self.finSet.sliceLEPositions
+        self.sliceLengths = self.finSet.sliceLengths
 
         self.finAngle = self.finSet.finAngle
         self.stallAngle = self.finSet.stallAngle
@@ -1026,6 +1028,8 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
         # Vector normal to the fin surface, in the X/Y Plane, when self.finAngle == 0
         self.undeflectedFinNormal = Vector(self.spanwiseDirection[1], -self.spanwiseDirection[0], 0)
 
+        self.tipPosition = self.finSet.dZ_dSpan_LE_neg * self.span
+        
         # Spanwise component of Center of Pressure (CP) location
         self.CPSpanWisePosition = self.spanwiseDirection*(self.finSet.MACYPos + self.finSet.bodyRadius)
 
@@ -1061,8 +1065,18 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
         def supersonicNormalForce(Mach): # Supersonic Busemann method
             gamma = AeroFunctions.getGamma()
             tempBeta = AeroParameters.getBeta(Mach)
-            K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
-            return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
+            K1, K2, K3, Kstar = getBusemannCoefficients(Mach, tempBeta, gamma)
+
+            # Mach Cone coords
+            machAngle = asin(1/Mach)
+            machCone_negZPerRadius = 1 / tan(machAngle)
+            machConeEdgeZPos = []
+            outerRadius = self.spanSliceRadii[-1]
+            for i in range(len(self.spanSliceRadii)):
+                machConeAtCurrentRadius = (outerRadius - self.spanSliceRadii[i])*machCone_negZPerRadius + self.tipPosition
+                machConeEdgeZPos.append(machConeAtCurrentRadius)
+
+            return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, machConeEdgeZPos, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, Kstar, self)
 
         if Mach &lt;= 0.8:
             normalForceMagnitude, finMoment = subsonicNormalForce(Mach)
@@ -1296,12 +1310,18 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
         stepSize = self.span / self.numFinSpanSteps
         bodyRadius = self.bodyRadius
         
-        self.spanSliceAreas = []
-        self.spanSliceRadii = []
+        self.spanSliceAreas = [] # Area of each slice, m^2
+        self.spanSliceRadii = [] # Radius of the center of each slice, from the rocket centerline, m
+        self.sliceLEPositions = [] # Z - Position of the LE at the center of the slice, from the tip of root chord
+        self.sliceLengths = []
+
         for i in range(self.numFinSpanSteps):
             y = i*stepSize + stepSize*0.5
+
             self.spanSliceRadii.append(y + bodyRadius)
             self.spanSliceAreas.append(stepSize*self.getChord(y))
+            self.sliceLEPositions.append(y * self.dZ_dSpan_LE_neg)
+            self.sliceLengths.append(self.getChord(y))
 
     def _precomputeSubsonicFinThicknessDrag(self):
         &#39;&#39;&#39; Precompute the subsonic thickness drag coefficient (Barrowman Eqn 4-36) &#39;&#39;&#39;

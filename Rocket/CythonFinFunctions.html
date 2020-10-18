@@ -45,7 +45,10 @@
 <span>def <span class="ident">getFinSliceForce_Supersonic</span></span>(<span>...)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Computes normal force produced by a supersonic fin surface slice, excluding dynamic pressure.</p></div>
+<div class="desc"><p>Computes normal force produced by a supersonic fin surface slice, excluding dynamic pressure.
+Supersonic correlations, Eq. 3.41-3.44 (Niskanen)
+Using third-order Busemann expansion, was also used by Barrowman.
+Mach Cone correction applied in parent function</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.CythonFinFunctions.getSubsonicFinNormalForce"><code class="name flex">
 <span>def <span class="ident">getSubsonicFinNormalForce</span></span>(<span>...)</span>
