@@ -52,6 +52,11 @@ class TestRocket(unittest.TestCase):
         expectedResult = 0.1524
         self.assertAlmostEqual(result, expectedResult)
 
+    def test_Aref(self):
+        Aref = self.rocket2.Aref
+        ExpectedResult = 0.1524**2 * math.pi / 4
+        self.assertAlmostEqual(Aref, ExpectedResult)
+
     def test_finControlIndependentOfForceEvaluations(self):
         env = self.canardRocket._getEnvironmentalConditions(0, self.canardRocket.rigidBody.state)
         self.canardRocket.controlSystem.runControlLoopIfRequired(0, self.canardRocket.rigidBody.state, env)

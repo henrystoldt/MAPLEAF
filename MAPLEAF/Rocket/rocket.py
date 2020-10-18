@@ -98,7 +98,7 @@ class Rocket(CompositeObject):
         self.maxDiameter = self._getMaxBodyTubeDiameter()     
         ''' (float) Holds maximum constant-size body tube diameter, from bodytube components in stages '''
 
-        self.Aref = self.maxDiameter**2 / 4
+        self.Aref = math.pi * self.maxDiameter**2 / 4
         ''' 
             Reference area for force and moment coefficients.
             Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
