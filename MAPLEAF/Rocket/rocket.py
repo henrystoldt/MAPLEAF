@@ -95,7 +95,7 @@ class Rocket(CompositeObject):
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool("Environment.turbulenceOffWhenUnderChute")
         ''' (bool) '''
 
-        self.maxDiameter = self._getMaxDiameter()     
+        self.maxDiameter = self._getMaxBodyTubeDiameter()     
         ''' (float) Holds maximum constant-size body tube diameter, from bodytube components in stages '''
 
         self.Aref = self.maxDiameter**2 / 4
@@ -161,7 +161,7 @@ class Rocket(CompositeObject):
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
             self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
 
-    def _getMaxDiameter(self):
+    def _getMaxBodyTubeDiameter(self):
         ''' Gets max body tube diameter directly from config file '''
         stageDicts = self._getStageSubDicts()
 
@@ -269,7 +269,7 @@ class Rocket(CompositeObject):
         self.stages = PlanarInterface.sortByZLocation(self.stages)
         self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
 
-        if self.bodyTubeDiameter > 0:
+        if self.maxDiameter > 0:
             # Only run this if we're running a real rocket with body tubes
             self._ensureBaseDragIsAccountedFor()
 
