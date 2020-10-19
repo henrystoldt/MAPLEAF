@@ -8,7 +8,7 @@ OpenRocketWindTunnelCase{
 
 		velocitySweep{
 			sweptParameter			Rocket.velocity
-			parameterValues			(0 0 15.99):99:(0 0 1500) # Provide COMMA-separated list of values - can also just be a single value
+			parameterValues			(0 0 16.1414):99:(0 0 1500) # Provide COMMA-separated list of values - can also just be a single value
 		}
 
 		MachResults{

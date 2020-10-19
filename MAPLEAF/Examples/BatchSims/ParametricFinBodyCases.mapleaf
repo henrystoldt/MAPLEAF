@@ -30,12 +30,16 @@ ParametricFin5{
 		}
 		
 		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
+			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
+			column				Mach
 		}
 		AOAResults{
-			expectedValues			4.01,4.04,4.01,3.96,3.82,3.98,3.99,4.09
-			column							AOA(deg)
+			expectedValues		4.01,4.04,4.01,3.96,3.82,3.98,3.99,4.09
+			column				AOA(deg)
+		}
+		ReynoldsResults{
+			expectedValues		8.861e6, 6.564e6, 5.5795e6, 6.564e6, 6.564e6, 6.564e6, 6.564e6, 6.564e6
+			column				UnitRe
 		}
 	}
 
