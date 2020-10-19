@@ -357,7 +357,8 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
                     _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
             else:
                 # If only a single, constant expected value is provided
-                for i in range(len(expectedResults)):
+                nResults = round(len(resultData) / resultDataStep)
+                for i in range(nResults):
                     _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[0])
 
     return logFilePaths
