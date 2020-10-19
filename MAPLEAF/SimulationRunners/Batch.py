@@ -20,6 +20,8 @@ from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 __all__ = [ "main", "run", "BatchRun" ]
 
+#TODO: Print warning at the end for keys that weren't used in a run
+    # Exclude keys from cases that were excluded from the current run
 
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
