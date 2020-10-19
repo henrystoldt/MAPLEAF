@@ -515,10 +515,10 @@ class Fin(FixedMass):
         if Mach <= 0.8:
             normalForceMagnitude, finMoment = subsonicNormalForce(Mach)
 
-        elif Mach < 1.5:
+        elif Mach < 1.4:
             # Interpolate in transonic region
             # TODO: Do this with less function evaluations? Perhaps precompute AOA and Mach combinations and simply interpolate? Lazy precompute? Cython?
-            x1, x2 = 0.8, 1.5 # Start, end pts of interpolated region
+            x1, x2 = 0.8, 1.4 # Start, end pts of interpolated region
             dx = 0.001
 
             # Find normal force and derivative at start of interpolation interval
