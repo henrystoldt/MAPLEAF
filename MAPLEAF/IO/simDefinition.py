@@ -823,12 +823,18 @@ def isSubKey(potentialParent:str, potentialChild:str) -> bool:
         `isSubKey("Rocket", "Rocket.name")` -> True
         `isSubKey("SimControl", "Rocket.name")` -> False
     """
+    if potentialParent == "":
+        # All keys are children of an empty key
+        return True
+    
     pLength = len(potentialParent)
     cLength = len(potentialChild)
 
     if cLength <= pLength:
+        # Child key can't be shorter than parent key
         return False
-    elif potentialChild[:pLength] == potentialParent:
+    elif potentialChild[:pLength] == potentialParent and potentialChild[pLength] == ".":
+        # Child key must contain parent key
         return True
     else:
         return False

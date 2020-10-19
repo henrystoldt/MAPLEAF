@@ -139,6 +139,7 @@ class TestSimDefinition(unittest.TestCase):
         self.assertFalse(isSubKey("Rocket", "SimControl"))
         self.assertTrue(isSubKey("", "Rocket"))
         self.assertTrue(isSubKey("Dictionary1", "Dictionary1.key1"))
+        self.assertFalse(isSubKey("Case5", "Case5_0AOA"))
 
     def test_getKeyLevel(self):
         self.assertEqual(getKeyLevel("Rocket.name"), 1)

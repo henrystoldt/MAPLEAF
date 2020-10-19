@@ -1,6 +1,4 @@
-
-
-# Template Case for all the other ones
+# Template Case for all the other ones below
 ParametricFin5{
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
@@ -11,7 +9,7 @@ ParametricFin5{
 		Rocket.Sustainer.TailFins.span				0.0762
 		Rocket.Sustainer.TailFins.sweepAngle		26.565
 		Rocket.Sustainer.TailFins.thickness			0.0025527
-		Environment.ConstantAtmosphere.temp			93.15
+		Environment.ConstantAtmosphere.temp			-93.15
 		Environment.ConstantAtmosphere.viscosity	1.212e-5
 	}
 
@@ -96,7 +94,6 @@ ParametricFin5{
 }
 
 !create ParametricFin5_0AOA from ParametricFin5{
-	!replace 'Fin5' with 'Fin5_0AOA'
 	!replace '.pdf' with '_0AOA.pdf'
 	!replace '.csv' with '_0AOA.csv'
 	!removeKeysContaining 'yLimits'
@@ -150,7 +147,7 @@ ParametricFin5{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
 		Rocket.Sustainer.TailFins.rootChord			0.1524
 		Rocket.Sustainer.TailFins.tipChord			0.0
-		Rocket.Sustainer.TailFins.span					0.1143
+		Rocket.Sustainer.TailFins.span				0.1143
 		Rocket.Sustainer.TailFins.sweepAngle		53.1301
 		Rocket.Sustainer.TailFins.thickness			0.0025527
 	}
@@ -159,11 +156,6 @@ ParametricFin5{
 		velocitySweep{
 			sweptParameter		Rocket.velocity
 			parameterValues		(161.1429 0 8.557954),(241.6986 0 12.7937),(322.2977 0 16.8909),(429.76 0 21.92),(537.26 0 26.1825),(617.73 0 32.48),(795.006 0 41.6645),(1060.798 0 57.45076)
-		}
-		
-		MachResults{
-			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column				Mach
 		}
 
 		AOAResults{
