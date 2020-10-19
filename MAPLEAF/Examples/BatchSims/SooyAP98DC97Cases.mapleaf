@@ -11,7 +11,7 @@ ConventionalRocketCase{
 		}
 		
 		MachResults{
-			expectedValues			2,2,2,2,2
+			expectedValues			2
 			column					Mach
 		}
 		
@@ -21,7 +21,7 @@ ConventionalRocketCase{
 		}
 
 		ReResults{
-			expectedValues			2.296588e6, 2.296588e6, 2.296588e6, 2.296588e6, 2.296588e6
+			expectedValues			2.296588e6
 			column					UnitRe
 		}
 	}
