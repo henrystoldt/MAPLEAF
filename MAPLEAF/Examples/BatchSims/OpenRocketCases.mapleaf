@@ -27,7 +27,7 @@ OpenRocketWindTunnelCase{
 			xLimits				    0 4.0
 			yLimits				    0 1.0
       		scalingFactor           -1
-			legendLabel				Simulator
+			legendLabel				MAPLEAF
 			overwrite				True
 			saveLocation			./test/regressionTesting/WindTunnel/OpenRocketWindTunnelPlot.pdf
 		 
@@ -45,6 +45,7 @@ OpenRocketWindTunnelCase{
 				lineFormat			-.c
 				legendLabel			OR Replicated
 				file				./test/regressionTesting/WindTunnel/OpenRocketCdNotBT.csv
+				validationData		False
 			}
 
 			ComparisonDataOR2{
@@ -53,6 +54,7 @@ OpenRocketWindTunnelCase{
 				lineFormat			:k
 				legendLabel			OR Original			
 				file				./test/regressionTesting/WindTunnel/WindTunnelOpenRocket.csv
+				validationData		False
 			}
 
 		}	
@@ -99,6 +101,7 @@ B4-4SimpleRocketCase{
 				lineColors		\#ff6361
 				legendLabel		OpenRocket v0.9
 				file	        ./test/regressionTesting/B4-4SimpleRocket/B4-4OriginalOR.csv
+				validationData	False
 			}
 
 			comparisonData_OR2{
@@ -108,6 +111,7 @@ B4-4SimpleRocketCase{
 				lineColors		\#bc5090
 				legendLabel		OpenRocket v15.03
 				file	        ./test/regressionTesting/B4-4SimpleRocket/B4-4ReplicatedOR.csv
+				validationData	False
 			}
 
 			comparisonData_RockSim{
@@ -117,6 +121,7 @@ B4-4SimpleRocketCase{
 				lineColors		\#ffa600
 				legendLabel		RockSim v8
 				file	        ./test/regressionTesting/B4-4SimpleRocket/B4-4RockSim.csv
+				validationData	False
 			}
 
 			comparisonData_Flight{
