@@ -88,11 +88,14 @@ ParametricFin5{
 
 		!create CmPlot from ParametricFin5.PlotsToGenerate.CNPlot{
 			!replace 'CN' with 'Cm'
-			!removeKeysContaining 'OpenRocket' # No comparison data for Cm yet - needs to be calculated from CN and CP Location
 
 			columnsToPlot			AeroCMY
 			yLabel					$C_m$
 			yLimits					-0.8	0.6
+
+			OpenRocket{
+				file					./test/regressionTesting/Parametric/Fin5/ParametricFin5CNOR.csv
+			}
 		}
 	}
 }
@@ -102,6 +105,7 @@ ParametricFin5{
 	!replace '.csv' with '_0AOA.csv'
 	!removeKeysContaining 'yLimits'
 	!removeKeysContaining 'CNPlot.OpenRocket' # Comparison data not yet available
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterSweep{
 		velocitySweep{
@@ -121,6 +125,7 @@ ParametricFin5{
 	!removeKeysContaining 'OpenRocket' # No comparison data yet
 	!replace 'Fin5' with 'Fin1'
 	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
@@ -150,6 +155,7 @@ ParametricFin5{
 	!removeKeysContaining 'OpenRocket' # No comparison data yet
 	!replace 'Fin5' with 'Fin9'
 	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -176,6 +182,7 @@ ParametricFin5{
 !create ParametricFin10 from ParametricFin5{
 	!replace 'Fin5' with 'Fin10'
 	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -222,6 +229,7 @@ ParametricFin5{
 !create ParametricFin12 from ParametricFin5{
 	!replace 'Fin5' with 'Fin12'
 	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
