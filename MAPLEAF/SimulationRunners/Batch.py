@@ -637,9 +637,18 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
         try:
             compColData, compColNames = Plotting.getLoggedColumns(compDataPath, compColumnSpecs, sep=',')
 
+            ### Error Checks ###
             if len(compColData) < len(compColumnSpecs):
                 batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}".format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
 
+            if xColumnName not in compColNames:
+                batchRun.warning("  ERROR: Did not find x-column '{}': in file {}".format(xColumnName, compDataPath))
+                return [], [], xColumnName
+
+            if len(compColData) != len(lineFormat)+1:
+                batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} line formats: {} in file: {}".format(len(compColData)-1, compColNames, len(lineFormat), lineFormat, compDataPath))
+                return [], [], xColumnName
+                
             xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor, lineColors=lineColors)
             return compColData, compColNames, xData
 
