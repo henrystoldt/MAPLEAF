@@ -174,10 +174,13 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
                 self.TVCAngleList[i] = self.actuatorList[i].getDeflection(time) # deflections are 1:1 radians change of the nozzle in x and y axis of the local frame respectively
 
         # Create Vector of thrust based on the angle of the nozzle and the known thrust magnitude
+
         thrustX = thrustMagnitude*sin(self.TVCAngleList[0])
-        thrustY = thrustMagnitude*sin(self.TVCAngleList[1])
+        thrustY = thrustMagnitude*sin(self.TVCAngleList[1])*cos(self.TVCAngleList[0])
         thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1])
+
         thrustForce = Vector(thrustX, thrustY, thrustZ)
+
         
         # Thrust force applied at the location specified in the simulation definition
         thrust = ForceMomentSystem(thrustForce, self.thrustApplicationPosition)
