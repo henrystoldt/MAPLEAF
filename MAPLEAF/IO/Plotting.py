@@ -744,3 +744,22 @@ def plotAndSummarizeScalarResult(scalarList, name="Apogee", monteCarloLogger=Non
 
     if showPlot:
         plt.show()
+
+### Colors ###
+def getColorPalette(nColors=4):
+    ''' Returns a list of nColors colors '''
+    if nColors > 8:
+        raise ValueError("Too many colors requested: {} (Max 8)".format(nColors))
+    if nColors < 3:
+        raise ValueError("Too few colors requested: {} (Min 3)".format(nColors))
+
+    colorPaletteDict = {        
+        3: [ '#003f5c', '#bc5090', '#ffa600'],
+        4: [ '#003f5c', '#7a5195', '#ef5675', '#ffa600'],
+        5: [ '#003f5c', '#58508d', '#bc5090', '#ff6361','#ffa600'],
+        6: [ '#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600'],
+        7: [ '#003f5c', '#374c80', '#7a5195', '#bc5090', '#ef5675', '#ff764a', '#ffa600'],
+        8: [ '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600' ]
+    }
+
+    return colorPaletteDict[nColors]

@@ -50,6 +50,9 @@ ExampleFlightCase{
 
                 xColumnName             Time(s)                 # (Optional) - supply if not 'Time(s)'       
                 lineFormat              --b --k                 # (Optional) matplotlib-style line format
+                lineColors              \#003f5c red            # Provide a matplotlib-compatible colour argument ex. red or, 
+                                                                    # if hexadecimal, make sure to escape the hash symbol to avoid it being treated as a comment
+                                                                    # Color options: https://matplotlib.org/3.1.0/gallery/color/named_colors.html
                 legendLabel             Altitude Comparion, Velocity Comparison # (Optional), otherwise uses column headers
                 validationData          True                    # (optional) Can use to exclude certain sets of comparison data from validation metrics
             }
@@ -77,6 +80,7 @@ ExampleWindTunnelCase{
             
             # COMMA-separated list of scalar expected result values OR 'Record'
                 # Number of expectedValues must match number (and order) of parameterValues
+                # If the result is supposed to remain constant, can also just provide a single value
 			expectedValues	            0.2955, 0.5886, 0.8822
         }
 

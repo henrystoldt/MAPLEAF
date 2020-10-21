@@ -42,7 +42,7 @@ class Transition(FixedMass, BodyComponent):
         # Calculate basic areas
         self.topArea = self.startDiameter**2 * math.pi/4
         self.bottomArea = self.endDiameter**2 * math.pi/4
-        self.frontalArea = self.topArea - self.bottomArea
+        self.frontalArea = abs(self.topArea - self.bottomArea)
 
         # Calculate surface area, volume, CP
         if self.length == 0:
@@ -94,6 +94,8 @@ class Transition(FixedMass, BodyComponent):
                 coneHalfAngle = math.pi/2
             else:
                 coneHalfAngle = math.atan(abs(self.startDiameter - self.endDiameter)/2 / self.length)
+
+            self.coneHalfAngle = coneHalfAngle
             self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(coneHalfAngle)
             self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(coneHalfAngle)
 

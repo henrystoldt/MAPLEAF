@@ -28,7 +28,7 @@ defaultConfigValues = {
 
     "MonteCarlo.output":                                    "landingLocations",
 
-    "SimControl.plot":                                      "Position Velocity AngularVelocity FlightAnimation",
+    "SimControl.plot":                                      "Position FlightAnimation",
     "SimControl.loggingLevel":                              "2",
     "SimControl.EndCondition":                              "Altitude",
     "SimControl.EndConditionValue":                         "-1",
@@ -441,8 +441,11 @@ class SimDefinition():
         file.close()
         
         # Remove comments
-        comment = re.compile("#.*") 
-        workingText = re.sub(comment, "", workingText)
+        comment = re.compile("(?<!\\\)#.*") 
+        workingText = re.sub(comment, "", workingText) 
+        
+        # Remove comment escape characters
+        workingText = re.sub(r"\\(?=#)", "", workingText) 
         
         # Remove blank lines
         workingText = [line for line in workingText.split('\n') if line.strip() != '']
@@ -820,12 +823,18 @@ def isSubKey(potentialParent:str, potentialChild:str) -> bool:
         `isSubKey("Rocket", "Rocket.name")` -> True
         `isSubKey("SimControl", "Rocket.name")` -> False
     """
+    if potentialParent == "":
+        # All keys are children of an empty key
+        return True
+    
     pLength = len(potentialParent)
     cLength = len(potentialChild)
 
     if cLength <= pLength:
+        # Child key can't be shorter than parent key
         return False
-    elif potentialChild[:pLength] == potentialParent:
+    elif potentialChild[:pLength] == potentialParent and potentialChild[pLength] == ".":
+        # Child key must contain parent key
         return True
     else:
         return False

@@ -20,6 +20,8 @@ from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
 
 __all__ = [ "main", "run", "BatchRun" ]
 
+#TODO: Print warning at the end for keys that weren't used in a run
+    # Exclude keys from cases that were excluded from the current run
 
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
@@ -277,13 +279,17 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
     except:
         _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
         logFilePaths = []
+        return logFilePaths
     else:
         Logging.removeLogger()
 
     for expectedResultsDict in expectedResultsDicts: # loop through expected results. Manually inputed values, as well as comparisonData in the plots
         expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".column") # get column header that contains results in log files
         expectedResults = caseDictReader.getString(expectedResultsDict + ".expectedValues").split(',') # get expected results values that will be compared against sim
-        expectedResults = [ float(x) for x in expectedResults ] # Convert to floatS
+        try:
+            expectedResults = [ float(x) for x in expectedResults ] # Convert to floats
+        except ValueError:
+            pass # Hopefully it's "record"
             
         ### Get results to be checked ###
         for logPath in logFilePaths:
@@ -298,7 +304,7 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             resultData = columnDataLists[0]
 
         ### Record / Check Results ###
-        if (len(expectedResults) == 1 and expectedResults[0].lower() == "record") or batchRun.recordAll:
+        if (len(expectedResults) == 1 and isinstance(expectedResults[0], str) and expectedResults[0].lower() == "record") or batchRun.recordAll:
             ## Record results ##
             key = expectedResultsDict + ".expectedValues"
             stringResults = ", ".join([ str(x) for x in resultData ])
@@ -313,8 +319,14 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
             ## Chcek results ##
             resultDataStep = 10 if strtobool(smoothLine) else 1
 
-            for i in range(len(expectedResults)):
-                _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+            if len(expectedResults) > 1:
+                for i in range(len(expectedResults)):
+                    _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+            else:
+                # If only a single, constant expected value is provided
+                nResults = round(len(resultData) / resultDataStep)
+                for i in range(nResults):
+                    _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[0])
 
     return logFilePaths
 
@@ -364,6 +376,7 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
     except:
         _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
         logFilePaths = []
+        return logFilePaths
     else:
         Logging.removeLogger()
 
@@ -496,7 +509,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
             Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
     '''
     # Read info from plotDictReader, create figure, set x/y limits, axes labels, etc...
-    fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim = _setUpFigure(plotDictReader)
+    fig, ax, columnSpecs, xColumnName, lineFormats, lineColors, legendLabels, scalingFactor, offset, xLim, yLim = _setUpFigure(plotDictReader)
 
     #### Plot all the requested data from MAPLEAF's results ####
     mapleafCols = []
@@ -507,7 +520,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
         if len(columnNames) > 1:
             # Only plot if we've found (at minimum) an X-column and a Y-column (2 columns)
             adjustX = True if xLim == ["False"] else False
-            xData = _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX)
+            xData = _plotData(ax, columnData, columnNames, xColumnName, lineFormats, legendLabels, scalingFactor, offset, linewidth=3, adjustXaxisToFit=adjustX, lineColors=lineColors)
             
             # Track the x-data for each column of y-data plotted
             for i in range(len(columnNames)):
@@ -521,6 +534,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
 
     #### Plot comparison data ####
     compDataDictionaries = plotDictReader.simDefinition.getImmediateSubDicts(plotDictReader.simDefDictPathToReadFrom)
+    compDataDictionaries.sort()
     for compDataDict in compDataDictionaries:
         compDataDictReader = SubDictReader(compDataDict, plotDictReader.simDefinition)
         valData, valCols, valX = _plotComparisonData(batchRun, ax, compDataDictReader)
@@ -574,6 +588,8 @@ def _setUpFigure(plotDictReader: SubDictReader):
     while len(lineFormats) < nLinesToPlot:
         lineFormats.append("")
 
+    lineColors = plotDictReader.tryGetString("lineColors", defaultValue="").split()
+
     legendLabels = plotDictReader.tryGetString("legendLabel", defaultValue=columnSpecs[0]).split(',')
     while len(legendLabels) < nLinesToPlot:
         legendLabels.append(columnSpecs[len(legendLabels)])
@@ -599,7 +615,7 @@ def _setUpFigure(plotDictReader: SubDictReader):
     ax.set_xlabel(_latexLabelTranslation(xLabel))
     ax.set_ylabel(_latexLabelTranslation(yLabel))
     
-    return fig, ax, columnSpecs, xColumnName, lineFormats, legendLabels, scalingFactor, offset, xLim, yLim
+    return fig, ax, columnSpecs, xColumnName, lineFormats, lineColors, legendLabels, scalingFactor, offset, xLim, yLim
 
 def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     ''' Plot a single line of comparison data from a specified .csv file '''
@@ -610,6 +626,7 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     lineFormat = compDataDictReader.tryGetString("lineFormat", defaultValue="k-").split()
     legendLabel = compDataDictReader.tryGetString("legendLabel", defaultValue="Label").split(',')
     scalingFactor = compDataDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
+    lineColors = compDataDictReader.tryGetString("lineColors", defaultValue="").split()
 
     # If comparison data entries found in the plot dictionary, load and plot the comparison data
     if compDataPath != None and len(compColumnSpecs) > 0:
@@ -620,10 +637,19 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
         try:
             compColData, compColNames = Plotting.getLoggedColumns(compDataPath, compColumnSpecs, sep=',')
 
+            ### Error Checks ###
             if len(compColData) < len(compColumnSpecs):
                 batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} column specs: {} in file: {}".format(len(compColData), compColNames, len(compColumnSpecs), compColumnSpecs, compDataPath))
 
-            xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor)
+            if xColumnName not in compColNames:
+                batchRun.warning("  ERROR: Did not find x-column '{}': in file {}".format(xColumnName, compDataPath))
+                return [], [], xColumnName
+
+            if len(compColData) != len(lineFormat)+1:
+                batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} line formats: {} in file: {}".format(len(compColData)-1, compColNames, len(lineFormat), lineFormat, compDataPath))
+                return [], [], xColumnName
+                
+            xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor, lineColors=lineColors)
             return compColData, compColNames, xData
 
         except FileNotFoundError:
@@ -634,7 +660,7 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
 
     return [], [], xColumnName
 
-def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, linewidth=1.5, adjustXaxisToFit=False):
+def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, scalingFactor, offset=0, linewidth=1.5, adjustXaxisToFit=False, lineColors=[]):
     '''
         Adds MAPLEAF's results to the plot currently being created
 
@@ -649,6 +675,7 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
         if columnNames[i] == xColumnName:
             xData = dataLists.pop(i)
             columnNames.pop(i)
+            break
 
     if adjustXaxisToFit:
         ax.set_xlim([xData[0], xData[-1]])
@@ -662,11 +689,16 @@ def _plotData(ax, dataLists, columnNames, xColumnName, lineFormat, legendLabel, 
     for i in range(len(columnNames)):
         if len(xData) > 1:
             # Line
-            ax.plot(xData, dataLists[i], lineFormat[i], linewidth=linewidth, label=legendLabel[i])
+            if len(lineColors) > i:
+                ax.plot(xData, dataLists[i], lineFormat[i], linewidth=linewidth, color=lineColors[i], label=legendLabel[i])
+            else:
+                ax.plot(xData, dataLists[i], lineFormat[i], linewidth=linewidth, label=legendLabel[i])
         else:
             # Point
-            ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
-
+            if len(lineColors) > i:
+                ax.scatter(xData, dataLists[i], linewidth=linewidth, color=lineColors[i], label=legendLabel[i])
+            else:
+                ax.scatter(xData, dataLists[i], linewidth=linewidth, label=legendLabel[i])
     return xData
 
 def _validate(batchRun: BatchRun, mapleafX, mapleafData, valData, validationX, validationDataPath: str) -> Union[float, None]:

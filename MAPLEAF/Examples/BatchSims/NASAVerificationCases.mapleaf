@@ -21,6 +21,7 @@ NASADraglessSphere{
 		XLoc{
 			columnsToPlot				PositionX
 			lineFormat					--b
+			lineColors					\#003f5c
 			yLabel							ECI X Position (ft)
 			yLimits							2.0940e7 2.0956e7
 			legendLabel					MAPLEAF
@@ -31,6 +32,7 @@ NASADraglessSphere{
 				columnsToPlot			eiPosition_ft_X
 				xColumnName				time
 				lineFormat				-
+				lineColors				\#7a5195
 				legendLabel				NASA SIM 4
 				file							./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_04.csv
 			}
@@ -39,6 +41,7 @@ NASADraglessSphere{
 				columnsToPlot			eiPosition_ft_X
 				xColumnName				time
 				lineFormat				-.
+				lineColors				\#ef5675
 				legendLabel				NASA SIM 5
 				file							./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_05.csv
 			}
@@ -47,6 +50,7 @@ NASADraglessSphere{
 				columnsToPlot			eiPosition_ft_X
 				xColumnName				time
 				lineFormat				--
+				lineColors				\#ffa600
 				legendLabel				NASA SIM 6
 				file					./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_06.csv
 			}
@@ -180,7 +184,8 @@ NASADampedBrick{
 		XAngle{
 			columnsToPlot				EulerAngleX
 			lineFormat					--b
-			yLabel							NED X (Roll) Euler Angle (deg)
+			lineColors					\#003f5c
+			yLabel						NED X (Roll) Euler Angle (deg)
 			legendLabel					MAPLEAF
 			saveLocation				./test/regressionTesting/NASADampedBrick/NED_XAngle.pdf
 			scalingFactor				57.2957795131 # Convert to degrees
@@ -198,23 +203,26 @@ NASADampedBrick{
 				xColumnName				time
 				lineFormat				-
 				legendLabel				NASA SIM 4
-				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_04.csv
+				lineColors				\#7a5195
+				file					./test/regressionTesting/NASADampedBrick/Atmos_03_sim_04.csv
 			}
 			
 			SIM5{
 				columnsToPlot			eulerAngle_deg_Roll
 				xColumnName				time
 				lineFormat				-.
+				lineColors				\#ef5675
 				legendLabel				NASA SIM 5
-				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_05.csv
+				file					./test/regressionTesting/NASADampedBrick/Atmos_03_sim_05.csv
 			}
 			
 			SIM6{
 				columnsToPlot			eulerAngle_deg_Roll
 				xColumnName				time
 				lineFormat				--
+				lineColors				\#ffa600
 				legendLabel				NASA SIM 6
-				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_06.csv
+				file					./test/regressionTesting/NASADampedBrick/Atmos_03_sim_06.csv
 			}
 		}
 
@@ -277,7 +285,8 @@ NASATwoStageOrbitalRocket{
 		!removeKeysContaining 'SIM2'	# No SIM 2 results present for this case
 
 		YAngle.offset  					90
-		YAngle.xlimits					0 50
+		YAngle.yLimits					10 60
+		XVel.yLimits					0 8000
 
 		Density{
 			columnsToPlot				Density

@@ -1,0 +1,87 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+# WIND TUNNEL CASE
+# Replicates Case 4 from Aerodynamic Predictions, Comparisons, and Validations using Missile Datcom 97 and Aeroprediction 98
+# Thomas Sooy, Rebecca Schmidt
+# Journal of Spacecraft and Rockets 2005
+
+SimControl{
+    EndCondition Apogee
+
+    loggingLevel    2
+    RocketPlot      On
+}
+
+Environment{
+    AtmosphericPropertiesModel          Constant    
+    ConstantAtmosphere{
+        temp                            -101.15 #Celsius
+        pressure                        7139.646 #Pa
+        density                         0.144612 #kg/m3
+        viscosity                       1.1646e-05 #Pa*s
+    }
+}
+
+Rocket{
+    position            (0 0 0) # m
+    initialDirection    (1 0 0)
+
+    Aero{
+        addZeroLengthBoatTailsToAccountForBaseDrag      false
+        surfaceRoughness                                0.000002
+    }
+
+    Sustainer{
+        class               Stage
+
+        constCG             (0 0 -0.381) #m
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.033527)
+            MOI             (1 1 1)
+            baseDiameter    0.0762
+            aspectRatio     5  #length over diameter
+            shape           tangentOgive
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -0.381)
+            cg              (0 0 -0.15)
+            MOI             (1 1 1)
+            outerDiameter   0.0762
+            length          0.381
+        }
+
+        Fins{
+            class           FinSet
+            mass            0.1
+            position        (0 0 -0.610362)
+            cg              (0 0 -0.1)
+            MOI             (1 1 1)
+            
+            numFins         4
+            sweepAngle      75 # deg - leading edge sweep angle. 0 = leading edge normal to rocket surface, 90 = no fin at all.
+            rootChord       0.151638 # m
+            tipChord        0 # m - it is assumed that the tip chord is parallel to the root chord
+            span            0.04064 # m - radial (from the perspective of the rocket) distance between fin root and fin tip
+
+            thickness       0.002
+
+            LeadingEdge{
+                shape       Round # Blunt or Round (Even sharp edges always have a small radius)
+                radius      0.002 # Used for 'Round' edge
+            }
+
+            TrailingEdge{
+                shape       Blunt # Tapered (0 base drag), Round (1/2 base drag), Blunt (full base drag)
+                thickness   0.002 # Used for 'Blunt' edge
+            }
+        }
+    }
+}

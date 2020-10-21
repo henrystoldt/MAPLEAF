@@ -86,5 +86,5 @@ class TestBatchSim(unittest.TestCase):
         batchRun = BatchRun(regressionTestsDefinition, include="ParametricFin", exclude="0AOA")
         casesToRun = sorted(batchRun.getCasesToRun())
 
-        expectedCasesToRun = [ "ParametricFinCase1", "ParametricFinCase10", "ParametricFinCase12", "ParametricFinCase5", "ParametricFinCase9", ]
+        expectedCasesToRun = [ "ParametricFin1", "ParametricFin10", "ParametricFin12", "ParametricFin5", "ParametricFin9", ]
         self.assertEqual(casesToRun, expectedCasesToRun)

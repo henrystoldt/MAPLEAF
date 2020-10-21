@@ -51,6 +51,17 @@ For more info: `mapleaf-batch -h`
 
 Shows results in console, generates plots in `./test/regressionTesting/`  
 
+## Debugging a Simulation (Visual Studio Code)
+1. Place a breakpoint (red dot on the left)
+2. Open the simulation definition file you want to run
+3. On the left sidebar, click on the run tab (Bug + play button)
+4. At the top of the sidebar, in the dropdown menu, select 'RSim Curr Sim Def', which will run whatever simulation definition file you currently have selected
+5. Hit the green play button to the left of that dropdown
+
+Program execution will pause at your breakpoint and you'll be able to inspect the values of variables. A mini window with debugging controls will pop up as well.
+
+More details: https://code.visualstudio.com/docs/python/python-tutorial#_configure-and-run-the-debugger
+
 ## Install virtualenvwrapper (Linux):
 **Note:** Official instructions (incl. Windows version): https://virtualenvwrapper.readthedocs.io/en/latest/install.html  
 1. `$ sudo python3 -m pip install virtualenvwrapper`
@@ -70,9 +81,12 @@ Shows results in console, generates plots in `./test/regressionTesting/`
 5. To delete: `$ rmvirtualenv MAPLEAF`  
 More commands here: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html
 
-## Profiling Performance
+## Profiling Performance with cProfile + Snakeviz
 1. To generate profile: `$ python3 -m cProfile -o testProfile.prof MAPLEAF/Main.py /path/to/SimDefinition.mapleaf`
 2. To view results: `$ python3 -m snakeviz testProfile.prof`
+
+## Profiling Performance with pyInstrument
+`pyinstrument -r html ./MAPLEAF/Main.py ./MAPLEAF/Examples/Simulations/Wind.mapleaf`
 
 ## Recompiling Cython code
 Some of the files in MAPLEAF are .pyx/.pxd instead of .py.  

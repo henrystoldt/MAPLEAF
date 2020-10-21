@@ -1,0 +1,258 @@
+
+ConventionalRocketCase{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/SooyConventional.mapleaf
+
+	ParameterSweep{
+		smoothLine					True
+		
+		velocitySweep{
+			sweptParameter			Rocket.velocity
+			parameterValues			(538.58 0.08 0),(536.5305 46.94 0),(530.3977 93.523 0),(520.228 139.395 0),(506.09965 184.205 0)
+		}
+		
+		MachResults{
+			expectedValues			2
+			column					Mach
+		}
+		
+		AOAResults{
+			expectedValues			0.0085,5,10,15,20
+			column					AOA(deg)
+		}
+
+		ReResults{
+			expectedValues			2.296588e6
+			column					UnitRe
+		}
+	}
+
+	PlotsToGenerate{
+		CNPlot{
+			columnsToPlot				AeroCFY
+			xColumnName					AOA(deg)
+			lineFormat					--
+			lineColors					\#003f5c
+			xLabel						$\alpha$ (degrees)
+			yLabel						$C_N$
+			yLimits						0 7
+			xLimits						0 20
+			legendLabel					MAPLEAF
+			scalingFactor				-1
+			overwrite					True
+			saveLocation				./test/regressionTesting/SooyConventional/ConventionalCN.pdf
+
+			AP98{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				-c
+				legendLabel				Aeroprediction98
+				file					./test/regressionTesting/SooyConventional/ConventionalAP98CN.csv
+			}
+
+			DC97{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				--m
+				legendLabel				Datcom97
+				file					./test/regressionTesting/SooyConventional/ConventionalDC97CN.csv
+			}
+
+			WT{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormmat				DC97
+				lineFormat				Pk
+				legendLabel				Wind Tunnel
+				file					./test/regressionTesting/SooyConventional/ConventionalWTCN.csv
+			}
+
+			FLU3M{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				x-.
+				lineColors				red
+				legendLabel				FLU3M
+				file					./test/regressionTesting/SooyConventional/ConventionalFLU3MCN.csv	
+			}
+
+			TLNS{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				d:
+				lineColors				\#bc5090
+				legendLabel				TLNS
+				file					./test/regressionTesting/SooyConventional/ConventionalTLNSCN.csv	
+			}
+
+			USER3D{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				+-
+				lineColors				\#ff764a
+				legendLabel				USER3D
+				file					./test/regressionTesting/SooyConventional/ConventionalUSER3DCN.csv	
+			}
+
+			# OpenRocket{
+			# 	columnsToPlot			CN
+			# 	xColumnName				AOA
+			# 	lineFormat				-.
+			# 	lineColors				\#bc5090
+			# 	legendLabel				OpenRocket v15.03
+			# 	file					./test/regressionTesting/SooyConventional/OpenRocketResults.csv					
+			# }
+		}
+
+		!create CmPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'Cm'
+
+			columnsToPlot				AeroCMX
+			yLabel						$C_m$
+			yLimits						-14 0
+			scalingFactor				1.0 # No scaling required
+		}
+
+		!create CPPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CP'
+
+			columnsToPlot				CPZ
+			yLabel						$X_{CP}$ (Calibers)
+			yLimits						9.5 13
+			scalingFactor				-3.280839895
+		}
+
+		# nonDimConstant 548
+		# Rocket area 0.3048^2 * pi / 4 = 0.072965877
+		# Fin Area = 0.09290304
+
+		!create FinNormalForcePlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'FinCN'
+            # Remove non-existent sets of comparison data
+            !removeKeysContaining 'AP98'
+            !removeKeysContaining 'DC97'
+            !removeKeysContaining 'TLNS'
+			!removeKeysContaining 'OpenRocket'
+
+			columnsToPlot				TailFinsCFY
+			yLabel						Fin 1 $CN$
+			scalingFactor				-0.392699082 # Adjust to be based on the area of a fin instead of the rocket's cross-sectional area + One fin instead of two
+			yLimits						0 1.0
+			xLimits						0 20
+		}
+	}
+}
+
+BodyAloneCase{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/SooyBodyAlone.mapleaf
+
+	ParameterSweep{
+		smoothLine					True
+		
+		velocitySweep{
+			sweptParameter			Rocket.velocity
+			parameterValues			(528.441 0.08 0),(526.42986 46.05665 0),(520.41254 91.76277 0),(510.43456 136.77053 0),(496.57186 180.73738 0), (478.92996 223.32871 0), (457.64310 264.22037 0)
+		}
+		
+		MachResults{
+			expectedValues			2.01
+			column					Mach
+		}
+		
+		AOAResults{
+			expectedValues			0.0087, 5, 10, 15, 20, 25, 30
+			column					AOA(deg)
+		}
+
+		ReResults{
+			expectedValues			6.56168e6
+			column					UnitRe
+		}
+	}
+
+	PlotsToGenerate{
+		CNPlot{
+			columnsToPlot				AeroCFY
+			xColumnName					AOA(deg)
+			lineFormat					--
+			lineColors					\#003f5c
+			xLabel						$\alpha$ (degrees)
+			yLabel						$C_N$
+			legendLabel					MAPLEAF
+			scalingFactor				-0.341985568
+			overwrite					True
+			saveLocation				./test/regressionTesting/SooyBodyAlone/BodyAloneCN.pdf
+
+
+			AP98{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				-c
+				legendLabel				Aeroprediction98
+				file					./test/regressionTesting/SooyBodyAlone/AP98CN.csv
+			}
+
+			DC97{
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormat				--m
+				legendLabel				Datcom97
+				file					./test/regressionTesting/SooyBodyAlone/DC97CN.csv
+			}
+
+			WT{
+				# This data clearly has some issues b/c CN in the wind tunnel != 0 when AOA = 0
+				columnsToPlot			CN
+				xColumnName				AOA
+				lineFormmat				DC97
+				lineFormat				Pk
+				legendLabel				Wind Tunnel
+				file					./test/regressionTesting/SooyBodyAlone/WTCN.csv
+			}
+		}
+
+		!create CmPlot from BodyAloneCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'Cm'
+
+			columnsToPlot				AeroCMX
+			yLabel						$C_m$
+			scalingFactor				0.341985568
+
+			# Wind Tunnel data clearly has some issues b/c Cm in the wind tunnel != 0 when AOA = 0
+		}
+
+		!create CAPlot from BodyAloneCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CA'
+			!removeKeysContaining 'DC97'
+
+			columnsToPlot				AeroCFZ
+			yLabel						$C_A$
+		}
+	}
+}
+
+!create BodyFlareCase from BodyAloneCase{
+	!replace 'BodyAlone' with 'BodyFlare'
+
+	PlotsToGenerate{
+
+		!create CPPlot from BodyFlareCase.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CP'
+
+			columnsToPlot				CPZ
+			yLabel						$X_{CP}$ (Calibers)
+			scalingFactor				-7.674479287 # calibers/m: Scaling to calibers (from m)
+			offset						-2.923976608 # calibers from nosecone: Offset to measure calibers from Moment reference instead of from nosecone
+		}
+
+		CAPlot{
+			# Re-add DC97 comparison data dict (not present for body alone case)
+			!create DC97 from BodyFlareCase.PlotsToGenerate.CNPlot.DC97{
+				!replace 'CN' with 'CA'
+			}
+		}
+	}
+}
+
+!create FinnedBodyCase from BodyFlareCase{
+	!replace 'BodyFlare' with 'FinnedBody'
+}

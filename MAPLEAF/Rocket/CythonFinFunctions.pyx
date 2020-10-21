@@ -27,15 +27,26 @@ cpdef double getFinSliceAngleOfAttack(double finSpanPosition, Vector airVelRelat
 
     return FSAOA
 
-cpdef double getFinSliceForce_Supersonic(double K1, double K2, double K3, double sliceAOA, double sliceArea):
-    ''' Computes normal force produced by a supersonic fin surface slice, excluding dynamic pressure. '''
-    # TODO: Include mach-cone correction (third-order term)
-    # TODO: Include term that changes depending on whether behind shock or not
-    # Supersonic correlations, Eq. 3.41-3.44 (Niskanen)
-    # Using third-order Busemann expansion, was also used by Barrowman.
-    # Neglecting mach-cone effects & shock effects
-    cdef double topCp = sliceAOA*( K1 + K2*sliceAOA + K3*sliceAOA**2 )
-    cdef double bottomCp = -sliceAOA*( K1 + K2*(-sliceAOA) + K3*(-sliceAOA)**2 )
+cpdef double getFinSliceForce_Supersonic(double K1, double K2, double K3, double Kstar, double sliceAOA, double sliceArea):
+    ''' 
+        Computes normal force produced by a supersonic fin surface slice, excluding dynamic pressure. 
+        Supersonic correlations, Eq. 3.41-3.44 (Niskanen)
+        Using third-order Busemann expansion, was also used by Barrowman.
+        Mach Cone correction applied in parent function
+
+    '''    
+    # Put non-zero Kstar on the side of the fin with the shock wave
+    # TODO: Fix implementation of Kstar term
+    cdef double KstarTop = 0
+    cdef double KstarBottom = 0
+    # if sliceAOA > 0:
+    #     KstarTop = Kstar
+    # else:
+    #     KstarBottom = Kstar
+
+    # Calculate Cp on top and bottom, calculate difference
+    cdef double topCp = sliceAOA*( K1 + K2*sliceAOA + K3*sliceAOA**2 - KstarTop*sliceAOA**2 )
+    cdef double bottomCp = -sliceAOA*( K1 + K2*(-sliceAOA) + K3*(-sliceAOA)**2 - KstarBottom*sliceAOA**2 )
     return (topCp - bottomCp) * sliceArea
 
 cpdef getSubsonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTangentialAirVelocity, Vector finNormal, Vector spanDirection, double spanwiseCP, double CnAlpha, fin):
@@ -62,7 +73,7 @@ cpdef getSubsonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTange
     
     return normalForceMagnitude, moment
 
-cpdef getSupersonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTangentialAirVelocity, Vector finNormal, Vector spanDirection, double spanwiseCP, double K1, double K2, double K3, fin):
+cpdef getSupersonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTangentialAirVelocity, Vector finNormal, machConeEdgeZPos, Vector spanDirection, double spanwiseCP, double K1, double K2, double K3, double Kstar, fin):
     cdef double normalForceMagnitude = 0.0
     cdef int nSlices = len(fin.spanSliceAreas)
     cdef int i = 0
@@ -72,9 +83,21 @@ cpdef getSupersonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTan
     cdef double moment = 0
     cdef vector[double] sliceAreas = fin.spanSliceAreas
     cdef vector[double] sliceRadii = fin.spanSliceRadii
+    cdef vector[double] sliceLEPositions = fin.sliceLEPositions
+    cdef vector[double] sliceLengths = fin.sliceLengths
+    cdef vector[double] machConePositions = machConeEdgeZPos
+    
     while i < nSlices:       
         FSAOA = getFinSliceAngleOfAttack(sliceRadii[i], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, spanDirection, stallAngle)
-        sliceForce = getFinSliceForce_Supersonic(K1, K2, K3, FSAOA, sliceAreas[i])
+        sliceForce = getFinSliceForce_Supersonic(K1, K2, K3, Kstar, FSAOA, sliceAreas[i])
+        
+        # Apply Mach-Cone correction
+        lengthOutOfMachCone = abs(machConePositions[i] - sliceLEPositions[i])
+        fractionOut = min(1, lengthOutOfMachCone / sliceLengths[i])
+        fractionIn = 1 - fractionOut
+        correctionFactor = fractionOut + 0.5*(fractionIn)
+        sliceForce *= correctionFactor
+        
         normalForceMagnitude += sliceForce
         
         # In addition to total normal force (applied at the CP), calculate the moment about the CP (about +Z direction)

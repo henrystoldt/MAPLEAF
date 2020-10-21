@@ -1,5 +1,132 @@
+# Template Case for all the other ones below
+ParametricFin5{
+	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
-ParametricFinCase1{
+	ParameterOverrides{
+		Rocket.Sustainer.TailFins.position			(0 0 -0.64008)
+		Rocket.Sustainer.TailFins.rootChord			0.0762
+		Rocket.Sustainer.TailFins.tipChord			0.0381
+		Rocket.Sustainer.TailFins.span				0.0762
+		Rocket.Sustainer.TailFins.sweepAngle		26.565
+		Rocket.Sustainer.TailFins.thickness			0.0025527
+		Environment.ConstantAtmosphere.temp			-93.15
+		Environment.ConstantAtmosphere.viscosity	1.212e-5
+	}
+
+	ParameterSweep{
+		# Sweep through velocity to change angle of attack and Mach number
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(160.97 0 11.2847),(241.435 0 17.0522),(321.95 0 22.569),(429.29 0 29.7179),(536.705 0 35.836),(617.098 0 42.935),(794.11 0 55.39),(1059.64695 0 75.7705)
+		}
+		# Sweep through density, viscosity, and pressure to match wind tunnel behaviour as Mach number increases
+		densitySweep{
+			sweptParameter		Environment.ConstantAtmosphere.density
+			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
+		}
+		pressureSweep{
+			sweptParameter		Environment.ConstantAtmosphere.pressure
+			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
+		}
+		
+		MachResults{
+			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
+			column				Mach
+		}
+		AOAResults{
+			expectedValues		4.01,4.04,4.01,3.96,3.82,3.98,3.99,4.09
+			column				AOA(deg)
+		}
+		ReynoldsResults{
+			expectedValues		8.861e6, 6.564e6, 5.5795e6, 6.564e6, 6.564e6, 6.564e6, 6.564e6, 6.564e6
+			column				UnitRe
+		}
+	}
+
+	PlotsToGenerate{
+
+		CNPlot{
+			columnsToPlot				AeroCFX
+			xColumnName					Mach
+			lineFormat					--
+			lineColors					\#003f5c
+			xLabel						Mach
+			yLabel						$C_N$
+			xLimits						0.5 4
+			yLimits						0.3 1
+			legendLabel					MAPLEAF
+			overwrite			    	True
+			saveLocation				./test/regressionTesting/Parametric/Fin5/CN.pdf
+
+			WindTunnel{
+				columnsToPlot			CN
+				xColumnName				Mach
+				lineFormat				Pk
+				legendLabel				Wind Tunnel
+				file					./test/regressionTesting/Parametric/Fin5/ParametricFin5CN.csv
+			}
+
+			OpenRocket{
+				columnsToPlot			CN
+				xColumnName				Mach
+				lineFormat				d
+				lineColors				\#bc5090
+				legendLabel				OpenRocket v15.03
+				file					./test/regressionTesting/Parametric/Fin5/ParametricFin5CNOR.csv
+				validationData			False
+			}			
+		}
+
+		!create CAPlot from ParametricFin5.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'CA'
+
+			columnsToPlot			AeroCFZ
+			yLabel					$C_A$
+			yLimits					0.1	0.5
+			scalingFactor			-1
+		}
+
+		!create CmPlot from ParametricFin5.PlotsToGenerate.CNPlot{
+			!replace 'CN' with 'Cm'
+
+			columnsToPlot			AeroCMY
+			yLabel					$C_m$
+			yLimits					-0.8	0.6
+
+			OpenRocket{
+				file					./test/regressionTesting/Parametric/Fin5/ParametricFin5CNOR.csv
+			}
+		}
+	}
+}
+
+!create ParametricFin5_0AOA from ParametricFin5{
+	!replace '.pdf' with '_0AOA.pdf'
+	!replace '.csv' with '_0AOA.csv'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CNPlot.OpenRocket' # Comparison data not yet available
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
+
+	ParameterSweep{
+		velocitySweep{
+			# TODO: Seems like there's a mismatch b/w signs in the z-velocity component and the sign of AOA below - double check?
+			sweptParameter		Rocket.velocity
+			parameterValues		(161.3625 0 0.704081),(242.046 0 0.126735),(322.728 0 0.056327),(430.3038 0 -0.37551),(537.876 0 -2.06531),(618.5617 0 0.647756),(796.0624 0 0.277878),(1062.313 0 -0.74163)
+		}
+
+		AOAResults{
+			expectedValues		0.25,0.03,0.01,0.05,0.22,0.06,0.02,0.04
+			column				AOA(deg)
+		}
+	}
+}
+
+!create ParametricFin1 from ParametricFin5{
+	!removeKeysContaining 'OpenRocket' # No comparison data yet
+	!replace 'Fin5' with 'Fin1'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
+
 	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
 
 	ParameterOverrides{
@@ -12,767 +139,50 @@ ParametricFinCase1{
 	}
 
 	ParameterSweep{
-
-		smoothLine				True
-
 		velocitySweep{
 			sweptParameter		Rocket.velocity
 			parameterValues		(161.1503 0 8.4173),(241.705 0 12.667),(322.2977 0 16.89),(429.8352 0 20.42),(537.1579 0 28.245),(617.7145 0 32.80549),(794.9643 0 42.35799),(1060.867 0 56.15471)
 		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
-		
-		MachResults{
-			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column				Mach
-		}
+
 		AOAResults{
 			expectedValues		2.99,3,3,2.72,3.01,3.04,3.05,3.03
 			column				AOA(deg)
 		}
 	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel						Mach
-			yLabel						$C_N$
-			# xLimits						0.5 4
-			# yLimits						0 1
-			legendLabel					MAPLEAF
-			# scalingFactor			    -1
-			overwrite			    True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin1CN.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				# compareToSim			AeroCFX
-				file					./test/regressionTesting/Parametric/ParametricFin1CN.csv
-			}
-
-			# ComparisonDataOR{
-			# 	columnsToPlot			CN
-			# 	xColumnName				Mach
-			# 	lineFormat				py
-			# 	legendLabel				OpenRocket v15.03
-			# 	# compareToSim			AeroCFX
-			# 	file					./test/regressionTesting/Parametric/ParametricFin1CNOR.csv
-			# }			
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel					Mach
-			yLabel					$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor			-1
-			overwrite			True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin1CA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file				./test/regressionTesting/Parametric/ParametricFin1Cd.csv
-				# compareToSim		AeroCFZ
-			}
-
-			# ComparisonDataOR{
-			# 	columnsToPlot		Cd
-			# 	xColumnName			Mach
-			# 	lineFormat			py
-			# 	legendLabel			OpenRocket v15.03
-			# 	file				./test/regressionTesting/Parametric/ParametricFin1CdOR.csv
-			# }
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel					Mach
-			yLabel					$C_m$
-			# scalingFactor			-1
-			legendLabel				MAPLEAF
-			overwrite			True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin1Cm.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file				./test/regressionTesting/Parametric/ParametricFin1Cm.csv
-			}
-		}
-	}
 }
 
-ParametricFinCase5{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
-
-	ParameterOverrides{
-		Rocket.Sustainer.TailFins.position			(0 0 -0.64008)
-		Rocket.Sustainer.TailFins.rootChord			0.0762
-		Rocket.Sustainer.TailFins.tipChord			0.0381
-		Rocket.Sustainer.TailFins.span				0.0762
-		Rocket.Sustainer.TailFins.sweepAngle		26.565
-		Rocket.Sustainer.TailFins.thickness			0.0025527
-	}
-
-	ParameterSweep{
-
-		smoothLine					True
-
-		velocitySweep{
-			sweptParameter		Rocket.velocity
-			parameterValues		(160.97 0 -11.2847),(241.435 0 -17.0522),(321.95 0 -22.569),(429.29 0 -29.7179),(536.705 0 -35.836),(617.098 0 -42.935),(794.11 0 -55.39),(1059.64695 0 -75.7705)
-		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
-		
-		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
-		}
-		AOAResults{
-			expectedValues			4.01,4.04,4.01,3.96,3.82,3.98,3.99,4.09
-			column							AOA(deg)
-		}
-	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel						Mach
-			yLabel						$C_N$
-			xLimits						0.5 4
-			yLimits						0.25 1
-			legendLabel					MAPLEAF
-			scalingFactor			    -1
-			overwrite			    True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin5CN.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				# compareToSim			AeroCFX
-				file					./test/regressionTesting/Parametric/ParametricFin5CN.csv
-			}
-			ComparisonDataOR{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				py
-				legendLabel				OpenRocket v15.03
-				# compareToSim			AeroCFX
-				file					./test/regressionTesting/Parametric/ParametricFin5CNOR.csv
-				validationData			False
-			}			
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin5CA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin5Cd.csv
-				# compareToSim		AeroCFZ
-			}
-
-			ComparisonDataOR{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			py
-				legendLabel			OpenRocket v15.03
-				file				./test/regressionTesting/Parametric/ParametricFin5CdOR.csv
-				validationData		False
-			}
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			scalingFactor		-1
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin5Cm.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin5Cm.csv
-			}
-		}
-	}
-}
-
-ParametricFinCase9{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
+!create ParametricFin9 from ParametricFin5{
+	!removeKeysContaining 'OpenRocket' # No comparison data yet
+	!replace 'Fin5' with 'Fin9'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
 		Rocket.Sustainer.TailFins.rootChord			0.1524
 		Rocket.Sustainer.TailFins.tipChord			0.0
-		Rocket.Sustainer.TailFins.span					0.1143
+		Rocket.Sustainer.TailFins.span				0.1143
 		Rocket.Sustainer.TailFins.sweepAngle		53.1301
 		Rocket.Sustainer.TailFins.thickness			0.0025527
 	}
 
 	ParameterSweep{
-
-		smoothLine					True
-
 		velocitySweep{
 			sweptParameter		Rocket.velocity
 			parameterValues		(161.1429 0 8.557954),(241.6986 0 12.7937),(322.2977 0 16.8909),(429.76 0 21.92),(537.26 0 26.1825),(617.73 0 32.48),(795.006 0 41.6645),(1060.798 0 57.45076)
 		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
-		
-		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
-		}
+
 		AOAResults{
-			expectedValues			3.04,3.03,3,2.92,2.79,3.01,3,3.1
-			column							AOA(deg)
-		}
-	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel						Mach
-			yLabel						$C_N$
-			# xLimits						0.5 4
-			# yLimits						0 1
-			legendLabel					MAPLEAF
-			# scalingFactor			    -1
-			overwrite			    True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin9CN.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				# compareToSim			AeroCFX
-				file					./test/regressionTesting/Parametric/ParametricFin9CN.csv
-			}
-			# ComparisonDataOR{
-			# 	columnsToPlot			CN
-			# 	xColumnName				Mach
-			# 	lineFormat				py
-			# 	legendLabel				OpenRocket v15.03
-			# 	# compareToSim			AeroCFX
-			# 	file					./test/regressionTesting/Parametric/ParametricFin9CNOR.csv
-			# }			
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin9CA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin9Cd.csv
-				# compareToSim		AeroCFZ
-			}
-
-			# ComparisonDataOR{
-			# 	columnsToPlot		Cd
-			# 	xColumnName			Mach
-			# 	lineFormat			py
-			# 	legendLabel			OpenRocket v15.03
-			# 	file						./test/regressionTesting/Parametric/ParametricFin9CdOR.csv
-			# }
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			# scalingFactor		-1
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin9Cm.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin9Cm.csv
-			}
-		}
-	}
-}
-
-ParametricFinCase10{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
-
-	ParameterOverrides{
-		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
-		Rocket.Sustainer.TailFins.rootChord			0.1524
-		Rocket.Sustainer.TailFins.tipChord			0.0762
-		Rocket.Sustainer.TailFins.span					0.0381
-		Rocket.Sustainer.TailFins.sweepAngle		63.435
-		Rocket.Sustainer.TailFins.thickness			0.0023622
-	}
-
-	ParameterSweep{
-		smoothLine		True
-
-		velocitySweep{
-			sweptParameter		Rocket.velocity
-			parameterValues		(161.1474 0 -8.4735),(241.703 0 -12.709),(322.2647 0 -17.5096),(429.6448 0 -24.0961),(537.1179 0 -28.99525),(617.72 0 -32.6977),(794.9291 0 -42.07785),(1060.906 0 -55.41407)
-		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
-
-		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
-		}
-		AOAResults{
-			expectedValues			3.01,3.01,3.11,3.21,3.09,3.03,3.03,2.99
-			column							AOA(deg)
-		}
-	}
-
-	PlotsToGenerate{
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel							Mach
-			yLabel							$C_N$
-			xLimits						0.5 4
-			yLimits						0 0.8
-			legendLabel					MAPLEAF
-			scalingFactor			-1
-			overwrite			True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin10CN.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				file							./test/regressionTesting/Parametric/ParametricFin10CN.csv
-			}
-			ComparisonDataOR{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				py
-				legendLabel				OpenRocket v15.03
-				# compareToSim			AeroCFX
-				file					./test/regressionTesting/Parametric/ParametricFin10CNOR.csv
-				validationData			False
-			}					
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin10CA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin10Cd.csv
-				# compareToSim		AeroCFZ
-			}
-
-			ComparisonDataOR{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			py
-				legendLabel			OpenRocket v15.03
-				file				./test/regressionTesting/Parametric/ParametricFin10CdOR.csv
-				validationData		False
-			}
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			scalingFactor		-1
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin10Cm.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin10Cm.csv
-			}
-		}
-	}
-}
-
-ParametricFinCase12{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
-
-	ParameterOverrides{
-		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
-		Rocket.Sustainer.TailFins.rootChord			0.1524
-		Rocket.Sustainer.TailFins.tipChord			0.0762
-		Rocket.Sustainer.TailFins.span				0.11
-		Rocket.Sustainer.TailFins.sweepAngle		33.69
-		Rocket.Sustainer.TailFins.thickness			0.0027432
-	}
-
-	ParameterSweep{
-		smoothLine		True
-
-		velocitySweep{
-			sweptParameter		Rocket.velocity
-			parameterValues		(161.196 0 7.489),(241.78 0 11.444),(322.3123 0 16.6096),(429.74975 0 22.146189),(537.24399 0 26.5576),(617.73725 0 32.3742),(795 0 41.6642),(1060.847659 0 56.525)
-		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
-
-		MachResults{
-			expectedValues		0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column				Mach
-		}
-		AOAResults{
-			expectedValues		2.66,2.71,2.95,2.95,2.83,3.0,3.0,3.05
+			expectedValues		3.04,3.03,3,2.92,2.79,3.01,3,3.1
 			column				AOA(deg)
 		}
 	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel							Mach
-			yLabel							$C_N$
-			xLimits						0.5 4
-			yLimits						0 1.8
-			legendLabel					MAPLEAF
-			overwrite			True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin12CN.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				file							./test/regressionTesting/Parametric/ParametricFin12CN.csv
-			}
-			ComparisonDataOR{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				py
-				legendLabel				OpenRocket v15.03
-				# compareToSim			AeroCFX
-				file					./test/regressionTesting/Parametric/ParametricFin12CNOR.csv
-				validationData			False
-			}		
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin12CA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin12Cd.csv
-			}
-
-			ComparisonDataOR{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			py
-				legendLabel			OpenRocket v15.03
-				file				./test/regressionTesting/Parametric/ParametricFin12CdOR.csv
-				validationData		False
-			}
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin12Cm.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin12Cm.csv
-			}
-		}
-	}
 }
 
-ParametricFinCase5_0AOA{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
-
-	ParameterOverrides{
-		Rocket.Sustainer.TailFins.position			(0 0 -0.64008)
-		Rocket.Sustainer.TailFins.rootChord			0.0762
-		Rocket.Sustainer.TailFins.tipChord			0.0381
-		Rocket.Sustainer.TailFins.span					0.0762
-		Rocket.Sustainer.TailFins.sweepAngle		26.565
-		Rocket.Sustainer.TailFins.thickness			0.0025527
-	}
-
-	ParameterSweep{
-		smoothLine		True
-
-		velocitySweep{
-			sweptParameter		Rocket.velocity
-			parameterValues		(161.3625 0 0.704081),(242.046 0 0.126735),(322.728 0 0.056327),(430.3038 0 -0.37551),(537.876 0 -2.06531),(618.5617 0 0.647756),(796.0624 0 0.277878),(1062.313 0 -0.74163)
-		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
-
-		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
-		}
-		AOAResults{
-			expectedValues			0.25,0.03,0.01,0.05,0.22,0.06,0.02,0.04
-			column							AOA(deg)
-		}
-	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel							Mach
-			yLabel							$C_N$
-			legendLabel					MAPLEAF
-			scalingFactor			-1
-			overwrite			True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin5CN_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				file							./test/regressionTesting/Parametric/ParametricFin5CN_0AOA.csv
-			}
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin5CA_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin5Cd_0AOA.csv
-			}
-
-			ComparisonDataOR{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			py
-				legendLabel			OpenRocket v15.03
-				file						./test/regressionTesting/Parametric/ParametricFin5CdOR_0AOA.csv
-			}
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			scalingFactor		-1
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin5Cm_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin5Cm_0AOA.csv
-			}
-		}
-	}
-}
-
-ParametricFinCase10_0AOA{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
+!create ParametricFin10 from ParametricFin5{
+	!replace 'Fin5' with 'Fin10'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
@@ -784,223 +194,82 @@ ParametricFinCase10_0AOA{
 	}
 
 	ParameterSweep{
-		smoothLine		True
-
 		velocitySweep{
 			sweptParameter		Rocket.velocity
-			parameterValues		(161.364 0 0),(242.046 0 0.08449),(322.728 0 0.056327),(430.3011 0 1.577143),(537.8799 0 0.375511),(618.562 0 0),(796.0624 0 0.277878),(1062.313 0 0.927043)
-		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
+			parameterValues		(161.1474 0 8.4735),(241.703 0 12.709),(322.2647 0 17.5096),(429.6448 0 24.0961),(537.1179 0 28.99525),(617.72 0 32.6977),(794.9291 0 42.07785),(1060.906 0 55.41407)
 		}
 
-		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
-		}
 		AOAResults{
-			expectedValues			0,0.02,0.01,0.21,0.04,0,0.02,0.05
-			column							AOA(deg)
-		}
-	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel							Mach
-			yLabel							$C_N$
-			legendLabel					MAPLEAF
-			scalingFactor			-1
-			overwrite			True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin10CN_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				file							./test/regressionTesting/Parametric/ParametricFin10CN_0AOA.csv
-			}
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin10CA_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin10Cd_0AOA.csv
-			}
-
-			ComparisonDataOR{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			py
-				legendLabel			OpenRocket v15.03
-				file						./test/regressionTesting/Parametric/ParametricFin10CdOR_0AOA.csv
-			}
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			scalingFactor		-1
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin10Cm_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin10Cm_0AOA.csv
-			}
+			expectedValues		3.01,3.01,3.11,3.21,3.09,3.03,3.03,2.99
+			column				AOA(deg)
 		}
 	}
 }
 
-ParametricFinCase12_0AOA{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/ParametricFinBody.mapleaf
+!create ParametricFin10_0AOA from ParametricFin10{
+	!replace '.pdf' with '_0AOA.pdf'
+	!replace '.csv' with '_0AOA.csv'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CNPlot.OpenRocket' # Comparison data not yet available
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
+
+	ParameterSweep{
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(161.364 0 0),(242.046 0 0.08449),(322.728 0 0.056327),(430.3011 0 1.577143),(537.8799 0 0.375511),(618.562 0 0),(796.0624 0 0.277878),(1062.313 0 0.927043)
+		}
+
+		AOAResults{
+			expectedValues		0,0.02,0.01,0.21,0.04,0,0.02,0.05
+			column				AOA(deg)
+		}
+	}
+}
+
+!create ParametricFin12 from ParametricFin5{
+	!replace 'Fin5' with 'Fin12'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
 
 	ParameterOverrides{
 		Rocket.Sustainer.TailFins.position			(0 0 -0.59436)
 		Rocket.Sustainer.TailFins.rootChord			0.1524
 		Rocket.Sustainer.TailFins.tipChord			0.0762
-		Rocket.Sustainer.TailFins.span					0.11
+		Rocket.Sustainer.TailFins.span				0.11
 		Rocket.Sustainer.TailFins.sweepAngle		33.69
 		Rocket.Sustainer.TailFins.thickness			0.0027432
 	}
 
 	ParameterSweep{
-		smoothLine		True
+		velocitySweep{
+			sweptParameter		Rocket.velocity
+			parameterValues		(161.196 0 7.489),(241.78 0 11.444),(322.3123 0 16.6096),(429.74975 0 22.146189),(537.24399 0 26.5576),(617.73725 0 32.3742),(795 0 41.6642),(1060.847659 0 56.525)
+		}
 
+		AOAResults{
+			expectedValues		2.66,2.71,2.95,2.95,2.83,3.0,3.0,3.05
+			column				AOA(deg)
+		}
+	}
+}
+
+!create ParametricFin12_0AOA from ParametricFin12{
+	!replace '.pdf' with '_0AOA.pdf'
+	!replace '.csv' with '_0AOA.csv'
+	!removeKeysContaining 'yLimits'
+	!removeKeysContaining 'CNPlot.OpenRocket' # Comparison data not yet available
+	!removeKeysContaining 'CmPlot.OpenRocket' # Comparison data not yet available
+
+	ParameterSweep{
+		# TODO: Seems like there's a mismatch b/w signs in the z-velocity component and the sign of AOA below - double check?
 		velocitySweep{
 			sweptParameter		Rocket.velocity
 			parameterValues		(161.3637 0 0.309796),(242.046 0 -0.04224),(322.7278 0 0.33796),(430.3038 0 -0.45061),(537.8764 0 -1.97143),(618.5618 0 -0.43184),(796.0624 0 -0.13894),(1062.313 0 0.185409)
 		}
-		densitySweep{
-			sweptParameter		Environment.ConstantAtmosphere.density
-			parameterValues		0.66557,0.32868,0.20953,0.18488,0.14790,0.12861,0.09994,0.07489
-		}
-		viscositySweep{
-			sweptParameter		Environment.ConstantAtmosphere.viscosity
-			parameterValues		1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05,1.212e-05
-		}
-		pressureSweep{
-			sweptParameter		Environment.ConstantAtmosphere.pressure
-			parameterValues		32388.36,16981.91,10825.96,9552.322,7641.857,6645.093,5163.093,3869.295
-		}
-		tempSweep{
-			sweptParameter		Environment.ConstantAtmosphere.temp
-			parameterValues		-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15,-93.15
-		}
 
-		MachResults{
-			expectedValues			0.6,0.9,1.2,1.6,2,2.3,2.96,3.95
-			column							Mach
-		}
 		AOAResults{
-			expectedValues			0.11,0.01,0.06,0.06,0.21,0.04,0.01,0.01
-			column							AOA(deg)
-		}
-	}
-
-	PlotsToGenerate{
-
-		CNPlot{
-			columnsToPlot				AeroCFX
-			xColumnName					Mach
-			lineFormat					*r
-			xLabel							Mach
-			yLabel							$C_N$
-			legendLabel					MAPLEAF
-			overwrite			True
-			saveLocation				./test/regressionTesting/Parametric/ParametricFin12CN_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot			CN
-				xColumnName				Mach
-				lineFormat				.k
-				legendLabel				WindTunnel
-				file							./test/regressionTesting/Parametric/ParametricFin12CN_0AOA.csv
-			}
-		}
-
-		CdPlot{
-			columnsToPlot			AeroCFZ
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_A$
-			legendLabel				MAPLEAF
-			scalingFactor		-1
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin12CA_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin12Cd_0AOA.csv
-			}
-
-			ComparisonDataOR{
-				columnsToPlot		Cd
-				xColumnName			Mach
-				lineFormat			py
-				legendLabel			OpenRocket v15.03
-				file						./test/regressionTesting/Parametric/ParametricFin12CdOR_0AOA.csv
-			}
-		}
-
-		CmPlot{
-			columnsToPlot			AeroCMY
-			xColumnName				Mach
-			lineFormat				*r
-			xLabel						Mach
-			yLabel						$C_m$
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Parametric/ParametricFin12Cm_0AOA.pdf
-
-			ComparisonData{
-				columnsToPlot		Cm
-				xColumnName			Mach
-				lineFormat			.k
-				legendLabel			WindTunnel
-				file						./test/regressionTesting/Parametric/ParametricFin12Cm_0AOA.csv
-			}
+			expectedValues		0.11,0.01,0.06,0.06,0.21,0.04,0.01,0.01
+			column				AOA(deg)
 		}
 	}
 }
