@@ -1565,7 +1565,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
-        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+        if False and simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
             endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
             progressBar = tqdm(total=endTime+0.01)
             
@@ -1612,6 +1612,14 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
                         except AttributeError:
                             pass
                 except:
+                    try:
+                        progressBar.close()
+                
+                        if not self.silent:
+                            sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                    except AttributeError:
+                        pass
+                    
                     self._handleSimulationCrash()
 
                 # Adjust time step
@@ -2129,7 +2137,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
     self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
     # Create progress bar if appropriate
-    if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+    if False and simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
         endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
         progressBar = tqdm(total=endTime+0.01)
         
@@ -2176,6 +2184,14 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
                     except AttributeError:
                         pass
             except:
+                try:
+                    progressBar.close()
+            
+                    if not self.silent:
+                        sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                except AttributeError:
+                    pass
+                
                 self._handleSimulationCrash()
 
             # Adjust time step

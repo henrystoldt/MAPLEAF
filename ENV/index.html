@@ -498,7 +498,19 @@ single interface for communication with flight vehicles</p>
                     initOrientation = Quaternion(rotationAxis, rotationAngle)
                 else:
                     # Calculate initial orientation quaternion in launch tower frame
-                    initialDirection = self.rocketDictReader.getVector(&#34;initialDirection&#34;).normalize()
+                    rotationAxis = envDictReader.tryGetVector(&#34;Rocket.rotationAxis&#34;, defaultValue=None)
+                    if rotationAxis != None:
+                        rotationAngle = math.radians(self.rocketDictReader.getFloat(&#34;Rocket.rotationAngle&#34;))
+                        initOrientation = Quaternion(rotationAxis, rotationAngle)
+                    else:
+                        # Calculate initial orientation quaternion in launch tower frame
+                        initialDirection = envDictReader.getVector(&#34;Rocket.initialDirection&#34;).normalize()
+                        angleFromVertical = Vector(0,0,1).angle(initialDirection)
+                        rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+                        initOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+                    # TODO: Get from rocket, or calculate the same way - so that it works with rotationAxis + Angle
+                    initialDirection = envDictReader.getVector(&#34;Rocket.initialDirection&#34;).normalize()
                     angleFromVertical = Vector(0,0,1).angle(initialDirection)
                     rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
                     initOrientation = Quaternion(rotationAxis, angleFromVertical)
