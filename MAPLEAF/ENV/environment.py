@@ -67,7 +67,19 @@ class Environment():
                     initOrientation = Quaternion(rotationAxis, rotationAngle)
                 else:
                     # Calculate initial orientation quaternion in launch tower frame
-                    initialDirection = self.rocketDictReader.getVector("initialDirection").normalize()
+                    rotationAxis = envDictReader.tryGetVector("Rocket.rotationAxis", defaultValue=None)
+                    if rotationAxis != None:
+                        rotationAngle = math.radians(self.rocketDictReader.getFloat("Rocket.rotationAngle"))
+                        initOrientation = Quaternion(rotationAxis, rotationAngle)
+                    else:
+                        # Calculate initial orientation quaternion in launch tower frame
+                        initialDirection = envDictReader.getVector("Rocket.initialDirection").normalize()
+                        angleFromVertical = Vector(0,0,1).angle(initialDirection)
+                        rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+                        initOrientation = Quaternion(rotationAxis, angleFromVertical)
+
+                    # TODO: Get from rocket, or calculate the same way - so that it works with rotationAxis + Angle
+                    initialDirection = envDictReader.getVector("Rocket.initialDirection").normalize()
                     angleFromVertical = Vector(0,0,1).angle(initialDirection)
                     rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
                     initOrientation = Quaternion(rotationAxis, angleFromVertical)

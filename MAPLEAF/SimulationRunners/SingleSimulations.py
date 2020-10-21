@@ -66,7 +66,7 @@ class Simulation():
         self.rocketStages = [ rocket ] # In this array, 'stage' means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
-        if simDefinition.getValue("SimControl.EndCondition") == "Time":
+        if False and simDefinition.getValue("SimControl.EndCondition") == "Time":
             endTime = float(simDefinition.getValue("SimControl.EndConditionValue"))
             progressBar = tqdm(total=endTime+0.01)
             
@@ -113,6 +113,14 @@ class Simulation():
                         except AttributeError:
                             pass
                 except:
+                    try:
+                        progressBar.close()
+                
+                        if not self.silent:
+                            sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                    except AttributeError:
+                        pass
+                    
                     self._handleSimulationCrash()
 
                 # Adjust time step
