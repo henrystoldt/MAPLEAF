@@ -1,7 +1,7 @@
 SimControl{
     timeDiscretization  RK45Adaptive
     timeStep            0.04 # sec, nozzle deflection 
-    plot                Position Velocity AngularVelocity FlightAnimation Thrust 
+    plot                FlightAnimation MotorFZ 
     loggingLevel        2
 
     EndCondition        Apogee
@@ -48,9 +48,7 @@ Rocket{
         stageNumber                 0 # First and only stage
         
         # Constant mass properties - remove to use component-buildup mass/cg/MOI
-        constCG                     (0 0 -2.65) #m
-        constMass                   50 # kg
-        constMOI                    (85 85 0.5) # kg*m^2
+       
 
         Nosecone{
             class                   Nosecone
@@ -58,7 +56,7 @@ Rocket{
             position                (0 0 0)
             cg                      (0 0 -0.2)
             baseDiameter            0.1524
-            aspectRatio             5
+            aspectRatio             5 ##H/D
             shape                   tangentOgive
 
             surfaceRoughness        0.000050
