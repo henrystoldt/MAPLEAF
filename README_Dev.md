@@ -81,9 +81,12 @@ More details: https://code.visualstudio.com/docs/python/python-tutorial#_configu
 5. To delete: `$ rmvirtualenv MAPLEAF`  
 More commands here: https://virtualenvwrapper.readthedocs.io/en/latest/command_ref.html
 
-## Profiling Performance
+## Profiling Performance with cProfile + Snakeviz
 1. To generate profile: `$ python3 -m cProfile -o testProfile.prof MAPLEAF/Main.py /path/to/SimDefinition.mapleaf`
 2. To view results: `$ python3 -m snakeviz testProfile.prof`
+
+## Profiling Performance with pyInstrument
+`pyinstrument -r html ./MAPLEAF/Main.py ./MAPLEAF/Examples/Simulations/Wind.mapleaf`
 
 ## Recompiling Cython code
 Some of the files in MAPLEAF are .pyx/.pxd instead of .py.  
