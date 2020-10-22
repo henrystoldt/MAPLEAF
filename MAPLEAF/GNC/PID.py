@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator
+from MAPLEAF.Motion.Interpolation import linInterp
 
 __all__ = [ "PIDController", "ConstantGainPIDController", "ScheduledGainPIDController" ]
 
@@ -74,14 +75,19 @@ class ScheduledGainPIDController(PIDController):
 
         # Columns are: Mach, Altitude(ASL), P1, I1, D1
         pidData = np.loadtxt(gainTableFilePath, skiprows=1)
-        keys = pidData[:,0:nKeyColumns]
-        pidData = pidData[:,PCol:DCol+1]
+        self.keys = pidData[:,0:nKeyColumns]
+        self.pidData = pidData[:,PCol:DCol+1]
 
         #Create interpolation function for PID coefficients
-        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
+        if nKeyColumns > 1:
+            self._getPIDCoeffs = LinearNDInterpolator(self.keys, self.pidData)
 
     def updateCoefficientsFromGainTable(self, keyList):
-        P, I, D = self._getPIDCoeffs(keyList)
+        if len(keyList) > 1:
+            P, I, D = self._getPIDCoeffs(*keyList)
+        else:
+            P, I, D = linInterp(self.keys, self.pidData, keyList[0])
+
         self.updateCoefficients(P, I, D)
 
 class ConstantGainPIDController(PIDController):

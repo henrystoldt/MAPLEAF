@@ -1,7 +1,7 @@
 SimControl{
     timeDiscretization  RK45Adaptive
     timeStep            0.04 # sec, nozzle deflection 
-    plot                FlightAnimation MotorFZ 
+    plot                FlightAnimation MotorF TVC
     loggingLevel        2
 
     EndCondition        Apogee
@@ -11,7 +11,7 @@ SimControl{
         controller      PID
     }
 
-    RocketPlot          On
+    # RocketPlot          On
 }
 
 Rocket{             
@@ -27,8 +27,8 @@ Rocket{
     
         MomentController{
             Type                    ScheduledGainPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
-            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
-            scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
+            gainTableFilePath       MAPLEAF/Examples/TabulatedData/tvcPIDCoeffs.txt
+            scheduledBy             Mach # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
         }
 
         # Simulation will not take time steps larger than 1/updateRate
@@ -45,14 +45,11 @@ Rocket{
 
     Sustainer{
         class                       Stage
-        stageNumber                 0 # First and only stage
-        
-        # Constant mass properties - remove to use component-buildup mass/cg/MOI
-       
+        stageNumber                 0 # First and only stage       
 
         Nosecone{
             class                   Nosecone
-            mass                    20.0
+            mass                    5.0
             position                (0 0 0)
             cg                      (0 0 -0.2)
             baseDiameter            0.1524
@@ -64,7 +61,7 @@ Rocket{
 
         UpperBodyTube{
             class                   Bodytube
-            mass                    5 
+            mass                    20 
             position                (0 0 -0.762)
             cg                      (0 0 -1)
             outerDiameter           0.1524
@@ -77,19 +74,19 @@ Rocket{
             class                   Mass
             mass                    5
             position                (0 0 -2.762)
-            cg                      (0 0 -2.762)
+            cg                      (0 0 0)
         }
 
         Motor{
             class                       Motor
-            path                        MAPLEAF/Examples/Motors/test2.txt
+            path                        MAPLEAF/Examples/Motors/tvcTest.txt
             thrustApplicationPosition   (0 0 -4.3)  # Location where the thrust force is applied in order to calculate the moment produced
             
             Actuators{
-                class               Actuator
-                controller          TableInterpolating
+                class                   Actuator
+                controller              TableInterpolating
                 
-                deflectionTablePath MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
                 
                 # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
                     # Desired moments must come last
@@ -107,7 +104,7 @@ Rocket{
             class           FinSet 
             mass            2 # kg
             position        (0 0 -4.2672)
-            cg              (0 0 -4.2762)
+            cg              (0 0 0)
             
             numFins         4
             sweepAngle      28.61 # deg

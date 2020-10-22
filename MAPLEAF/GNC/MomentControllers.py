@@ -7,6 +7,7 @@ import abc
 import numpy as np
 
 from MAPLEAF.Motion import AeroParameters
+from MAPLEAF.Motion.Interpolation import linInterp
 from MAPLEAF.GNC import ConstantGainPIDController, ScheduledGainPIDController
 
 __all__ = ["ConstantGainPIDRocketMomentController", "ScheduledGainPIDRocketMomentController", "MomentController" ]
@@ -29,7 +30,10 @@ class ScheduledGainPIDRocketMomentController(MomentController, ScheduledGainPIDC
         
     def updateCoefficientsFromGainTable(self, keyList):
         ''' Overriding parent class method to enable separate longitudinal and roll coefficients in a single controller '''
-        Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
+        if len(keyList) > 1:
+            Pxy, Ixy, Dxy, Pz, Iz, Dz = self._getPIDCoeffs(*keyList)
+        else:
+            Pxy, Ixy, Dxy, Pz, Iz, Dz = linInterp(self.keys, self.pidData, keyList[0])
 
         # Coefficient for each of P, I, and D are: Longitudinal, Longitudinal, Roll
         # Operates the internal PID controller in vector-mode with numpy arrays (using their elementwise operations)

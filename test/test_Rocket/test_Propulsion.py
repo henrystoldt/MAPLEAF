@@ -12,8 +12,9 @@ from test.testUtilities import (assertInertiasAlmostEqual,
                                 assertIterablesAlmostEqual)
 
 from MAPLEAF.IO import SimDefinition, SubDictReader
-from MAPLEAF.Motion import Inertia, Vector
+from MAPLEAF.Motion import Inertia, Vector, Quaternion
 from MAPLEAF.Rocket import Rocket, TabulatedMotor
+from MAPLEAF.Rocket.Propulsion import getTVCAngledThrustForce
 
 
 class TestMotor(unittest.TestCase):
@@ -208,6 +209,21 @@ class TestMotor(unittest.TestCase):
         motor = motorRocket.stages[0].motor
         # Try getting thrust, if it works with 0 oxidizer flow rate, then we're good
         t = motor.getAeroForce('fakeState', 0.12, 'fakeEnv', 'fakeCG').force.Z
+
+    def test_getTVCAngledThrustForce(self):
+        xAngles = [ 0, 1, 2, 3, 0, 1, 2, 3 ]
+        yAngles = [ 0, 1, 2, 3, 3, 2, 1, 0 ]
+
+        for i in range(len(xAngles)):
+            thrustForce = getTVCAngledThrustForce(1.0, xAngles[i], yAngles[i])
+            self.assertAlmostEqual(thrustForce.length(), 1.0)
+
+            quat1 = Quaternion(axisOfRotation=Vector(1,0,0), angle=xAngles[i])
+            quat2 = Quaternion(axisOfRotation=Vector(0,1,0), angle=yAngles[i])
+            totalRotation = quat1 * quat2
+            correctThrust = -totalRotation.rotate(Vector(0,0,-1))
+
+            assertIterablesAlmostEqual(self, thrustForce, correctThrust)
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':

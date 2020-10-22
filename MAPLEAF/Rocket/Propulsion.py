@@ -8,6 +8,15 @@ from math import cos, sin, sqrt
 
 __all__ = [ "TabulatedMotor" ]
 
+def getTVCAngledThrustForce(thrustMagnitude, xDeflectionAngle, yDeflectionAngle):
+    # Create Vector of thrust based on the angle of the nozzle and the known thrust magnitude
+    thrustX = thrustMagnitude*sin(yDeflectionAngle)
+    thrustY = -thrustMagnitude*sin(xDeflectionAngle)*cos(yDeflectionAngle)
+    thrustZ = thrustMagnitude*cos(xDeflectionAngle)*cos(yDeflectionAngle)
+
+    return Vector(thrustX, thrustY, thrustZ)
+
+
 class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
     '''
     Interface:
@@ -52,7 +61,6 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
         # Thrust vectoring actuated control system, optional, None by default
         self.controlSystem = None
         self.actuatorList = None
-        self.TVCAngleList = [0, 0] # only need 2 actuators currently
 
         try:
             self.thrustApplicationPosition = componentDictReader.getVector("thrustApplicationPosition")
@@ -170,26 +178,21 @@ class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
             
         #### If control system exists, use actuator deflections 1:1 to set thrust vectoring angles of the nozle ####
         if self.controlSystem != None:
-            for i in range(2): # Only two actuators are needed (x, y) in order to rotate the rocket about the two short axis. Roll has NOT been implemented here
-                self.TVCAngleList[i] = self.actuatorList[i].getDeflection(time) # deflections are 1:1 radians change of the nozzle in x and y axis of the local frame respectively
+            xDefl = self.actuatorList[0].getDeflection(time) # Only two actuators are needed (x, y) in order to rotate the rocket about the two short axis. Roll has NOT been implemented here
+            yDefl = self.actuatorList[1].getDeflection(time) # deflections are 1:1 radians change of the nozzle in x and y axis of the local frame respectively
 
-        # Create Vector of thrust based on the angle of the nozzle and the known thrust magnitude
+            thrustForce = getTVCAngledThrustForce(thrustMagnitude, xDefl, yDefl)
 
-        thrustX = thrustMagnitude*sin(self.TVCAngleList[0])
-        thrustY = thrustMagnitude*sin(self.TVCAngleList[1])*cos(self.TVCAngleList[0])
-        thrustZ = thrustMagnitude*cos(self.TVCAngleList[0])*cos(self.TVCAngleList[1])
-
-        thrustForce = Vector(thrustX, thrustY, thrustZ)
-
-        
+        else:
+            thrustForce = Vector(0, 0, thrustMagnitude)
+    
         # Thrust force applied at the location specified in the simulation definition
         thrust = ForceMomentSystem(thrustForce, self.thrustApplicationPosition)
 
         # Log and return the three components of the thrust vector
         forceLogLine = " {:>10.4f} {:>10.4f}".format(thrust.force, thrust.moment)
         if self.controlSystem != None:
-            for i in range(len(self.actuatorList)):
-                forceLogLine += " {:>6.4}".format(self.TVCAngleList[i])
+            forceLogLine += " {:>6.4} {:>6.4}".format(xDefl, yDefl)
         self.rocket.appendToForceLogLine(forceLogLine)
         
         return thrust
