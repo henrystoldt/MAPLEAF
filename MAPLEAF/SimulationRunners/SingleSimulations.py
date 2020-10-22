@@ -357,12 +357,16 @@ class Simulation():
 
     def _handleSimulationCrash(self):
         ''' After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace '''
-        print("ERROR: Simulation Crashed, Aborting")
-        print("Attempting to save log files and show plots")
-        self._postProcess(self.simDefinition)
+        print("\nERROR: Simulation Crashed")
+        print("Attempting to post-process partial sim regardless")
+
+        try:
+            self._postProcess(self.simDefinition)
+        except:
+            print("\nError post processing crashed simulation")
 
         # Try to print out the stack trace
-        print("Attempting to show stack trace")
+        print("\nOriginal crash stack trace:\n")
         import traceback
         tb = traceback.format_exc()
         print(tb)
@@ -373,6 +377,11 @@ class Simulation():
     #### Post-sim ####
     def _postProcess(self, simDefinition):
         simDefinition.printDefaultValuesUsed() # Print these out before logging, to include them in the log
+
+        # Pretend to use the plot key so it doesn't show up in printUnusedKeys()
+        simDefinition.getValue("SimControl.plot")
+
+        simDefinition.printUnusedKeys()
 
         # Log results
         logFilePaths = self._logSimulationResults(simDefinition)
@@ -385,10 +394,6 @@ class Simulation():
 
         # Plot results
         self._plotSimulationResults(self.rocketStages, simDefinition, self.stageFlightPaths, logFilePaths)
-
-        # Print these out after logging to avoid including the log/plot keys in the unused keys
-        # #TODO: Add exceptions for these keys, move this line to before logging so that it's output is also included in the simulation log
-        simDefinition.printUnusedKeys()
 
         return logFilePaths
 
