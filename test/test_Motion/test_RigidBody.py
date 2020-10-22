@@ -10,7 +10,7 @@ from test.testUtilities import (assertAngVelAlmostEqual,
 
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
-                            Quaternion, RigidBody, RigidBodyState, Vector, StateList, StatefulRigidBody)
+                            Quaternion, RigidBody, RigidBodyState, Vector, StatefulRigidBody)
 
 # https://lpsa.swarthmore.edu/NumInt/NumIntSecond.html
 def sampleDerivative(time, state):
@@ -18,16 +18,20 @@ def sampleDerivative(time, state):
     return -2 * val
 
 class TestRigidBody(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+
     def setUp(self):
         self.zeroVec = Vector(0,0,0)
         self.zeroQuat = Quaternion(axisOfRotation=Vector(1,0,0), angle=0)
         self.zeroAngVel = AngularVelocity(axisOfRotation=Vector(1,0,0), angularVel=0)
         self.zeroForce = ForceMomentSystem(self.zeroVec)
         self.oneVec = Vector(1,1,1)
-        self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+        
         self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", "1")
-        #TODO: Get some tests for the higher order adaptive methods in here
-        self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive" ]
+
+        self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive", "RK23Adaptive", "RK78Adaptive" ]
         self.constInertia = Inertia(self.oneVec, self.zeroVec, 1)
 
     ############################ TESTS RUN FOR EACH INTEGRATION METHOD #######################
@@ -127,6 +131,8 @@ class TestRigidBody(unittest.TestCase):
         # Create rigid body and apply moments for one time step each
         self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", str(math.sqrt(math.pi)))
         complexRotatingBody = RigidBody(complexRotatingState, step1MomentFunc, constInertiaFunc, integrationMethod = integrationMethod, simDefinition=self.simDefinition)
+        complexRotatingBody.integrate.firstSameAsLast = False # First same as last causes problems here - perhaps with the constantly changing integration function
+
         complexRotatingBody.timeStep(math.sqrt(math.pi)) #Apply each moment and do the timestep
         complexRotatingBody.forceFunc = step2MomentFunc
         complexRotatingBody.timeStep(math.sqrt(math.pi))
@@ -204,6 +210,24 @@ class TestRigidBody(unittest.TestCase):
 
         assertAngVelAlmostEqual(self, finalAngVel, expectedAngVel)
 
+class TestStatefulRigidBody(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+
+    def setUp(self):
+        self.zeroVec = Vector(0,0,0)
+        self.zeroQuat = Quaternion(axisOfRotation=Vector(1,0,0), angle=0)
+        self.zeroAngVel = AngularVelocity(axisOfRotation=Vector(1,0,0), angularVel=0)
+        self.zeroForce = ForceMomentSystem(self.zeroVec)
+        self.oneVec = Vector(1,1,1)
+
+        self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", "1")
+        
+        #TODO: Get some tests for the higher order adaptive methods in here
+        self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive" ]
+        self.constInertia = Inertia(self.oneVec, self.zeroVec, 1)
+
     def test_dualUniformXMotion(self):
         movingXState = RigidBodyState(self.zeroVec, Vector(1,0,0), self.zeroQuat, self.zeroAngVel)
         constInertia = Inertia(self.oneVec, self.zeroVec, 1)
@@ -243,89 +267,6 @@ class TestRigidBody(unittest.TestCase):
         # Check that the scalar function has been integrated correctly
         finalVal = movingXBody.state[1]
         self.assertAlmostEqual(finalVal, 2.0112)
-
-class TestStateList(unittest.TestCase):
-
-    def test_arithmeticOperators(self):
-        state1 = StateList([1, 2])
-        state2 = StateList([2, 4])
-
-        additionResult = state1 + state2
-        self.assertEqual(additionResult, StateList([3, 6]))
-
-        subtractionResult = state2 - state1
-        self.assertEqual(subtractionResult, StateList([1, 2]))
-
-        multiplicationResult = state1 * 3
-        self.assertEqual(multiplicationResult, StateList([3, 6]))
-
-        divisionResult = state1 / 2
-        self.assertEqual(divisionResult, StateList([ 0.5, 1]))
-
-        negateResult = -state1
-        self.assertEqual(negateResult, StateList([-1, -2]))
-
-        absVal = abs(state2)
-        absVal2 = abs(negateResult)
-        self.assertEqual(absVal, 6)
-        self.assertEqual(absVal2, 3)
-
-    def test_variableNames(self):
-        state1 = StateList([1, 2], ["var1", "var2"])
-
-        self.assertEqual(state1.nameToIndexMap, {"var1":0, "var2":1})
-
-        self.assertEqual(state1.var1, 1)
-        self.assertEqual(state1.var2, 2)
-
-        with self.assertRaises(ValueError):
-            forbiddenNameState = StateList([1, 2], ["position", "var2"])
-        
-        with self.assertRaises(ValueError):
-            duplicateNameState = StateList([1, 2], ["var", "var"])
-
-        with self.assertRaises(ValueError):
-            tooManyVarNamesState = StateList([1, 2], ["var1", "var2", "var3"])
-
-        with self.assertRaises(AttributeError):
-            invalidAttribute = state1.var3
-
-        # Test assigning to a variable
-        state1.var1 = 3
-        self.assertEqual(state1.var1, 3)
-
-        # Test assigning to non-existent attribute
-        with self.assertRaises(AttributeError):
-            state1.var3 = "invalidValue"
-
-        # Shouldn't work because item 0 isn't a rigidbodystate
-        with self.assertRaises(AttributeError):
-            state1.position = Vector(0,0,1)
-
-        # Make item 0 one and try again
-        state1[0] = RigidBodyState()
-        state1.position = Vector(0,0,1)
-        self.assertEqual(state1.position, Vector(0,0,1))
-
-    def test_addStateVariables(self):
-        state1 = StateList([1, 2], ["var1", "var2"])
-        state1.addStateVariable("var3", 3)
-        self.assertEqual(state1.var3, 3)
-
-    def test_getLogHeader(self):
-        state1 = StateList([1, 2], ["var1", "var2"])
-        header = state1.getLogHeader()
-        self.assertEqual(header, " var1 var2")
-
-        state2 = StateList([1, 2])
-        header = state2.getLogHeader()
-        self.assertEqual(header, " StateVariable0 StateVariable1")
-
-    def test_str(self):
-        state1 = StateList([1, 2], ["var1", "var2"])
-        string = str(state1)
-        self.assertEqual(string, "1 2")
-
 
 #If the file is run by itself, run the tests above
 if __name__ == '__main__':
