@@ -63,7 +63,7 @@ class TableInterpolatingActuatorController(ActuatorController):
             raise ValueError("Number of actuators: {}, must match number of actuator deflection columns in deflection table: {}".format(nActuators, nDeflectionTableEntries))
 
         # Create interpolation function for fin deflections
-        self._getPositionTargets = LinearNDInterpolator(keys, deflData)
+        self._getPositionTargets = LinearNDInterpolator(keys, deflData, fill_value=0)
 
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         '''
