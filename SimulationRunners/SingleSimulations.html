@@ -98,7 +98,7 @@ class Simulation():
         self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
-        if False and simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
             endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
             progressBar = tqdm(total=endTime+0.01)
             
@@ -705,7 +705,7 @@ class WindTunnelSimulation(Simulation):
         self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
         # Create progress bar if appropriate
-        if False and simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+        if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
             endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
             progressBar = tqdm(total=endTime+0.01)
             
@@ -1277,7 +1277,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
     self.rocketStages = [ rocket ] # In this array, &#39;stage&#39; means independent rigid bodies. Stages are initialized as new rocket objects and added once they are dropped from the main rocket
 
     # Create progress bar if appropriate
-    if False and simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
+    if simDefinition.getValue(&#34;SimControl.EndCondition&#34;) == &#34;Time&#34;:
         endTime = float(simDefinition.getValue(&#34;SimControl.EndConditionValue&#34;))
         progressBar = tqdm(total=endTime+0.01)
         
