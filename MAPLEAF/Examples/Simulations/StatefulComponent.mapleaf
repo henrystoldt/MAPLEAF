@@ -28,6 +28,7 @@ Rocket{
         }
 
         StatefulComponent{
+            # Toy component with no options
             class           StatefulSample
         }
     }
