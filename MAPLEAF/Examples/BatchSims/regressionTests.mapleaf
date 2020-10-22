@@ -90,9 +90,9 @@ ThrustVectoringCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/Thrust_Vectoring.mapleaf
 
 	ExpectedFinalValues{
-		PositionX		564.578
+		PositionX		791.367
 		PositionY		0
-		PositionZ		1167.154
+		PositionZ		651.511
 	}
 
 	ParameterOverrides{
