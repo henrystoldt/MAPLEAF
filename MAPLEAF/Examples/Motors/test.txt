@@ -10,7 +10,7 @@
     # It is assumed that oxidizer and fuel MOIs are always defined about the current CG of the oxidizer and fuel, respectively
 # To represent a solid rocket motor, simply put all of the MOI/CG/Flowrate info in either the fuel or oxidizer columns and set the other one to zero
 
-# Meters, all Z-coordinate, assumed centered
+# Meters, all Z-coordinate, assumed centered. Relative to stage position.
 BurnedOxidizerInitialCG     2
 BurnedOxidizerLastCG        2.5
 BurnedFuelInitialCG         3
