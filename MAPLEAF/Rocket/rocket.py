@@ -156,7 +156,7 @@ class Rocket(CompositeObject):
         #### Init Guidance/Navigation/Control System (if required) ####
         self.controlSystem = None
         ''' None for uncontrolled rockets. `MAPLEAF.GNC.ControlSystems.RocketControlSystem` for controlled rockets '''
-        if rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None and stageToInitialize == None:
+        if "Rocket.ControlSystem" in rocketDictReader.getImmediateSubDicts() and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
             self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
@@ -344,6 +344,7 @@ class Rocket(CompositeObject):
     #### Stage Separation ####
     def _stageSeparation(self):
         print("Stage {} Separation".format(self.simRunner.stagingIndex + 1))
+        
         # Initialize dropped stage as a new rocket
         self.simRunner.createNewDetachedStage()
 
@@ -361,13 +362,10 @@ class Rocket(CompositeObject):
         droppedStage = self.stages.pop(stageIndex)
         self.recomputeFixedMassInertia()
 
+        # Update control system to control the next stage
+        # Will delete itself if there's no control system on the dropped stage
         if self.controlSystem != None:
-            # Check whether the controlled system was part of the dropped stage
-            if self.controlSystem.controlledSystem in droppedStage.components:
-                # If so delete the rocket's control system and remove any control system-induced time stepping modifications
-                print("Rocket's controlled system was on the dropped stage. Deactivating control system.")
-                self.controlSystem.restoreOriginalTimeStepping()
-                self.controlSystem = None
+            self.controlSystem.controlNextStageAfterSeparation()
 
     def _ensureBaseDragIsAccountedFor(self):
         ''' If no BoatTail exists at the bottom of the rocket, adds a zero-length boat tail. This is necessary b/c Boat Tail aero-functions are the ones that account for base drag '''

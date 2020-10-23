@@ -77,19 +77,29 @@ class RocketControlSystem(ControlSystem, SubDictReader):
         self.updateRate = controlSystemDictReader.getFloat("updateRate")
 
         ### Get reference to the controlled system ###
-        controlledSystemPath = controlSystemDictReader.getString("controlledSystem")
-        self.controlledSystem = None
-        for stage in rocket.stages:
-            for rocketComponent in stage.components:
-                if rocketComponent.componentDictReader.simDefDictPathToReadFrom == controlledSystemPath:
-                    self.controlledSystem = rocketComponent
-                    break
+        self.controlledSystems = {}
+        stageNumbers = controlSystemDictReader.getImmediateSubKeys("controlledSystems")
+        for stageNumberKey in stageNumbers:
+            controlledSystemPath = controlSystemDictReader.getString(stageNumberKey)
+            stageNumber = int(stageNumberKey[stageNumberKey.rfind(".")+1:])
+            
+            # Identify the controlled system
+            for stage in rocket.stages:
+                for rocketComponent in stage.components:
+                    if rocketComponent.componentDictReader.simDefDictPathToReadFrom == controlledSystemPath:
+                        self.controlledSystems[stageNumber] = rocketComponent
+                        break
 
-        if self.controlledSystem == None:
-            simDefinitionFile = controlSystemDictReader.simDefinition.fileName
-            raise ValueError("Rocket Component: {} not found in {}".format(controlledSystemPath, simDefinitionFile))
+            # Output an error message if we couldn't find it
+            if stageNumber not in self.controlledSystems:
+                simDefinitionFile = controlSystemDictReader.simDefinition.fileName
+                raise ValueError("Rocket Component: {} not found in {}".format(controlledSystemPath, simDefinitionFile))
 
-        self.controlledSystem.initializeActuators(self)
+            # Create the actuators
+            self.controlledSystems[stageNumber].initializeActuators(self)
+
+        currentStageNumber = min(self.controlledSystems.keys()) # Smallest number will be the first stage number
+        self.controlledSystem = self.controlledSystems[currentStageNumber]
 
         self._checkSimTimeStepping()
 
@@ -134,12 +144,29 @@ class RocketControlSystem(ControlSystem, SubDictReader):
         '''
         if self.timeSteppingModified:
             # This currently won't do anything because the time step is saved in an array by the Simulation - might be useful in the future
-            self.simDefinition.setValue("SimControl.timeStep", str(self.originalSimTimeStep))
+            self.controlSystemDictReader.simDefinition.setValue("SimControl.timeStep", str(self.originalSimTimeStep))
 
             # This will re-initialize the integrator to match that originally selected in the sim definition file
-            originalTimeIntegrationMethod = self.rocketDictReader.getValue("SimControl.timeDiscretization")
+            originalTimeIntegrationMethod = self.controlSystemDictReader.getValue("SimControl.timeDiscretization")
             print("Restoring original time discretization method ({})".format(originalTimeIntegrationMethod))
-            self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlDctReaders.simDefinition)
+            self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlSystemDictReader.simDefinition)
+
+    def controlNextStageAfterSeparation(self):
+        # Delete reference to controlled system from previous stage
+        droppedStageNumber = min(self.controlledSystems.keys()) # Smallest number will be current bottom stage number
+        del self.controlledSystems[droppedStageNumber]
+
+        # Update stage number to the next one
+        if len(self.controlledSystems.keys()) > 0:
+            # Update to next one
+            nextStageNumber = min(self.controlledSystems.keys()) # Smallest number will be current bottom stage number
+            self.controlledSystem = self.controlledSystems[nextStageNumber]
+            for actuator in self.controlledSystem.actuatorList:
+                actuator.lastTime = self.rocket.rigidBody.time
+        else:
+            # If no control system on next stage, delete itself
+            self.restoreOriginalTimeStepping()
+            self.rocket.controlSystem = None
 
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         # Run control loop if enough time has passed

@@ -622,7 +622,7 @@ def flightAnimation(flights, showPlot=True, saveAnimFileName=None):
     '''
     #### Set up data for animation ####
     # Filter out extra frames - seems like there's a limit to the number of frames that will work well with matplotlib, otherwise the end of the animation is weirdly sped up
-    flights = _keepNTimeSteps(flights, nFramesToKeep=900)
+    flights = _keepNTimeSteps(flights, nFramesToKeep=300)
 
     # Transform position info into arrays of x, y, z coordinates
     for flight in flights:

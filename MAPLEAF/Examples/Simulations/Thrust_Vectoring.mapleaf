@@ -18,7 +18,7 @@ Rocket{
     
     # Initial state
     position            (0 0 10) # m
-    initialDirection    (0 1 1)  # m
+    initialDirection    (0 0 1)  # m
     velocity            (0 0 0)  # m/s
 
 
