@@ -9,7 +9,6 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 import math
 
 import matplotlib.pyplot as plt
-
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
 from MAPLEAF.IO import SubDictReader
@@ -18,7 +17,8 @@ from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
                             RigidBodyState, RigidBodyState_3DoF, Vector)
 from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
-                            PlanarInterface, SimEventDetector, Stage)
+                            PlanarInterface, SimEventDetector, Stage,
+                            TabulatedMotor)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
 
 __all__ = [ "Rocket" ]
@@ -366,6 +366,10 @@ class Rocket(CompositeObject):
         # Will delete itself if there's no control system on the dropped stage
         if self.controlSystem != None:
             self.controlSystem.controlNextStageAfterSeparation()
+
+            if len(self.stages) == 1 and isinstance(self.controlSystem.controlledSystem, TabulatedMotor):
+                self.simEventDetector.subscribeToEvent("motorBurnout", self.controlSystem.deactivate)
+
 
     def _ensureBaseDragIsAccountedFor(self):
         ''' If no BoatTail exists at the bottom of the rocket, adds a zero-length boat tail. This is necessary b/c Boat Tail aero-functions are the ones that account for base drag '''

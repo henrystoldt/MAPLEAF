@@ -150,8 +150,8 @@ class USStandardAtmosphere(AtmosphericModel):
         H = (self.earthRadius * ASLElevation) / (self.earthRadius + ASLElevation)
         
         # Set density to zero above 86 km
-        if H >= 86000:
-            H = 86000
+        # if H >= 86000:
+            # H = 86000
 
         # Figure out which interval we're in 
         baseIndex = bisect(self.baseHeights, H) - 1
@@ -176,7 +176,7 @@ class USStandardAtmosphere(AtmosphericModel):
         rho = self.M * pressure / (self.R * temp * 1000) # Ideal gas law
         viscosity = 1.457e-6 * temp**(1.5) / (temp + 110.4) # Sutherland's law
 
-        if H >= 86000:
-            rho = 0.0
+        # if H >= 86000:
+            # rho = 0.0
 
         return [ temp, pressure, rho, viscosity ]

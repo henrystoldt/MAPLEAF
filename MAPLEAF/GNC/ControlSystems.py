@@ -147,7 +147,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             self.controlSystemDictReader.simDefinition.setValue("SimControl.timeStep", str(self.originalSimTimeStep))
 
             # This will re-initialize the integrator to match that originally selected in the sim definition file
-            originalTimeIntegrationMethod = self.controlSystemDictReader.getValue("SimControl.timeDiscretization")
+            originalTimeIntegrationMethod = self.controlSystemDictReader.getString("SimControl.timeDiscretization")
             print("Restoring original time discretization method ({})".format(originalTimeIntegrationMethod))
             self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlSystemDictReader.simDefinition)
 
@@ -165,8 +165,11 @@ class RocketControlSystem(ControlSystem, SubDictReader):
                 actuator.lastTime = self.rocket.rigidBody.time
         else:
             # If no control system on next stage, delete itself
-            self.restoreOriginalTimeStepping()
-            self.rocket.controlSystem = None
+            self.deactivate()
+
+    def deactivate(self):
+        self.restoreOriginalTimeStepping()
+        self.rocket.controlSystem = None
 
     def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         # Run control loop if enough time has passed
