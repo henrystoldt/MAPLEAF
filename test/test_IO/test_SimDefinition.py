@@ -181,8 +181,17 @@ class TestSimDefinition(unittest.TestCase):
 
     def test_ParsingDerivedDict(self):
         simDef = SimDefinition("test/test_IO/testDerivedDicts.mapleaf")
-        simDef2 = SimDefinition("test/test_IO/testDerivedDictsFinal.mapleaf")
-        self.assertEqual(simDef, simDef2)
+        correctResult = SimDefinition("test/test_IO/testDerivedDictsFinal.mapleaf")
+        self.assertEqual(simDef, correctResult)
+
+    def test_ParsingFromString(self):
+        with open("test/test_IO/testDerivedDicts.mapleaf") as file:
+            sourceText = file.read()
+
+        simDef = SimDefinition("test/test_IO/testDerivedDicts.mapleaf", sourceText=sourceText)
+        correctResult = SimDefinition("test/test_IO/testDerivedDictsFinal.mapleaf")
+
+        self.assertEqual(simDef, correctResult)
 
     def test_contains(self):
         self.assertTrue("Dictionary1.key1" in self.simDef)

@@ -149,14 +149,19 @@ escapedHashSymbol = re.compile(r"\\(?=#)") # Matches the backlslash in \#: [\]#
 class SimDefinition():
 
     #### Parsing / Initialization ####
-    def __init__(self, fileName=None, dictionary=None, disableDistributionSampling=False, silent=False, defaultDict=None, simDefParseStack=None):
+    def __init__(self, fileName, dictionary=None, sourceText=None, disableDistributionSampling=False, silent=False, defaultDict=None, simDefParseStack=None):
         '''
         Parse simulation definition files into a dictionary of string values accessible by string keys.
 
         Inputs:
+            Provide **1** of the following 3 inputs:
+
             * fileName: (str) path to simulation definition file
             * dictionary: (dict[str,str]) Provide a pre-parsed dictionary equivalent to a simulation definition file - OVERRIDES fileName
+            * sourceText: (str) Provide string file contents
             
+            Other options:
+
             * disableDistributionSampling: (bool) Turn Monte Carlo sampling of normally-distributed parameters on/off
             * silent: (bool) Console output control
             * defaultDict: (dict[str,str] provide a custom dictionary of default values. If none is provided, defaultConfigValues is used.)
@@ -195,8 +200,10 @@ class SimDefinition():
         # Parse/Assign main values dictionary
         if dictionary != None:
             self.dict = dictionary
+        elif sourceText != None:
+            self.dict = self._parseSimDefinitionFile(sourceText=sourceText)
         elif fileName != None:
-            self.dict = self._parseSimDefinitionFile(fileName)
+            self.dict = self._parseSimDefinitionFile(fileName=fileName)
         else:
             raise ValueError("No fileName or dictionary provided to initialize the SimDefinition")
 
@@ -275,7 +282,11 @@ class SimDefinition():
                 elif splitLine[0] == "!include":
                     # Include contents of another sim definition file
                     filePath = line[line.index(" "):].strip() # Handle file names with spaces
-                    subDef = self._loadSubSimDefinition(filePath)
+
+                    try:
+                        subDef = self._loadSubSimDefinition(filePath)
+                    except FileNotFoundError:
+                        raise FileNotFoundError("Error loading sub-simDefinition in line {} of '{}'. No such file or directory: '{}'".format(i+1, self.fileName, filePath))
 
                     # Add keys to current sim definition, inside current dictionary
                     for subDefkey in subDef.dict:
@@ -350,8 +361,13 @@ class SimDefinition():
         #### Load Parent/Source (Sub)Dictionary ####
         if ":" in dictPath:
             # Importing dictionary from another file
-            fileName = dictPath.split(":")[0]              
-            subSimDef = self._loadSubSimDefinition(fileName)
+            filePath = dictPath.split(":")[0]   
+            
+            try:           
+                subSimDef = self._loadSubSimDefinition(filePath)
+            except FileNotFoundError:
+                raise FileNotFoundError("Error loading sub-simDefinition in line {} of '{}'. No such file or directory: '{}'".format(initializationLine+1, self.fileName, filePath))
+
             sourceDict = subSimDef.dict
             
             dictPath = dictPath.split(":")[1]
@@ -458,13 +474,17 @@ class SimDefinition():
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
 
-    def _parseSimDefinitionFile(self, fileName):
+    def _parseSimDefinitionFile(self, fileName=None, sourceText=None):
         Dict = {}
         
-        # Read all of the file's contents
-        file = open(fileName, "r+")
-        workingText = file.read()
-        file.close()
+        if sourceText != None:
+            workingText = sourceText
+        elif fileName != None:
+            # Read all of the file's contents
+            with open(fileName, "r+") as file:
+                workingText = file.read()
+        else:
+            return Dict # Nothing to parse
         
         workingText = workingText.split('\n')
         
