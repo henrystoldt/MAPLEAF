@@ -656,7 +656,10 @@ class SimDefinition():
                 #Add the key, value
                 dictDepth = currDicts.__len__()
                 realKey = re.sub("^([^\.]*\.)+", "", key)
-                file.write( "\t"*dictDepth + realKey + "\t" + self.dict[key] + "\n")
+                value = self.dict[key]
+                # Escape any hash symbols in the value
+                value = value.replace("#", r"\#")
+                file.write( "\t"*dictDepth + realKey + "\t" + value + "\n")
 
             #Close any open dictionaries
             dictDepth = currDicts.__len__()

@@ -12,4 +12,5 @@ Dictionary1{
 
 	key1	value1
 	key2	value2
+	key7	\#Escaping Hash symbols pres\#erves them \#
 }
