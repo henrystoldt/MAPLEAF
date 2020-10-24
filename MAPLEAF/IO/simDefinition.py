@@ -142,6 +142,10 @@ simDefinitionHelpMessage = \
     Or to contain a space-separated key-value pair:
     key value
 """
+
+comment = re.compile("(?<!\\\)#.*") # Matches a comment that hasn't been escaped: valueHere [# MatchedComment]
+escapedHashSymbol = re.compile(r"\\(?=#)") # Matches the backlslash in \#: [\]#
+
 class SimDefinition():
 
     #### Parsing / Initialization ####
@@ -251,58 +255,69 @@ class SimDefinition():
 
         while i < len(workingText):
             line = workingText[i].strip()
-            splitLine = line.split()
-            
-            if splitLine[0] == "!create":
-                # Parse derived subdictionary
-                i = self._parseDerivedDictionary(Dict, workingText, i, currDictName)
 
-            elif splitLine[0] == "!include":
-                # Include contents of another sim definition file
-                filePath = line[line.index(" "):].strip() # Handle file names with spaces
-                subDef = self._loadSubSimDefinition(filePath)
+            # Remove comments
+            line = re.sub(comment, "", line)
 
-                # Add keys to current sim definition, inside current dictionary
-                for subDefkey in subDef.dict:
+            # Remove escape characters from escaped comments
+            line = re.sub(escapedHashSymbol, "", line)  # In a file  \# would become #
+
+            # Check if the line isn't empty
+            line = line.strip()
+            if line != '':
+                # Split at whitespace - after this line splitLine will be List[str]
+                splitLine = line.split()
+
+                if splitLine[0] == "!create":
+                    # Parse derived subdictionary
+                    i = self._parseDerivedDictionary(Dict, workingText, i, currDictName)
+
+                elif splitLine[0] == "!include":
+                    # Include contents of another sim definition file
+                    filePath = line[line.index(" "):].strip() # Handle file names with spaces
+                    subDef = self._loadSubSimDefinition(filePath)
+
+                    # Add keys to current sim definition, inside current dictionary
+                    for subDefkey in subDef.dict:
+                        if currDictName == "":
+                            key = subDefkey
+                        else:
+                            key = currDictName + "." + subDefkey
+
+                        Dict[key] = subDef.dict[subDefkey]
+
+                elif line[-1] == '{':
+                    # Parse regular Subdictionary
+                    subDictName = line[:-1] # Remove whitespace and dict start bracket
+                    
+                    # Recursive call to parse subdictionary
                     if currDictName == "":
-                        key = subDefkey
+                        i = self._parseDictionaryContents(Dict, workingText, i+1, subDictName, allowKeyOverwriting)
                     else:
-                        key = currDictName + "." + subDefkey
+                        i = self._parseDictionaryContents(Dict, workingText, i+1, currDictName + "." + subDictName, allowKeyOverwriting)
 
-                    Dict[key] = subDef.dict[subDefkey]
+                elif line == '}':
+                    #End current dictionary - continue parsing at next line
+                    return i
+                            
+                elif len(splitLine) > 1:
+                    # Save a space-separated key-value pair
+                    key = splitLine[0]
+                    value = " ".join(splitLine[1:])
+                    if currDictName == "":
+                        keyString = key
+                    else:
+                        keyString = currDictName + "." + key
 
-            elif line[-1] == '{':
-                # Parse regular Subdictionary
-                subDictName = line[:-1] # Remove whitespace and dict start bracket
+                    if not keyString in Dict or allowKeyOverwriting:
+                        Dict[keyString] = value
+                    else:
+                        raise ValueError("Duplicate Key: " + keyString + " in File: " + self.fileName)
                 
-                # Recursive call to parse subdictionary
-                if currDictName == "":
-                    i = self._parseDictionaryContents(Dict, workingText, i+1, subDictName, allowKeyOverwriting)
                 else:
-                    i = self._parseDictionaryContents(Dict, workingText, i+1, currDictName + "." + subDictName, allowKeyOverwriting)
-
-            elif line == '}':
-                #End current dictionary - continue parsing at next line
-                return i
-                        
-            elif len(splitLine) > 1:
-                # Save a space-separated key-value pair
-                key = splitLine[0]
-                value = " ".join(splitLine[1:])
-                if currDictName == "":
-                    keyString = key
-                else:
-                    keyString = currDictName + "." + key
-
-                if not keyString in Dict or allowKeyOverwriting:
-                    Dict[keyString] = value
-                else:
-                    raise ValueError("Duplicate Key: " + keyString + " in File: " + self.fileName)
-            
-            else:
-                # Error: Line not recognized as a dict start/end or a key/value pair
-                print(simDefinitionHelpMessage)
-                raise ValueError("Problem parsing line {}: {}".format(i, line))
+                    # Error: Line not recognized as a dict start/end or a key/value pair
+                    print(simDefinitionHelpMessage)
+                    raise ValueError("Problem parsing line {}: '{}'".format(i, line))
 
             # Next line
             i += 1
@@ -363,44 +378,55 @@ class SimDefinition():
         #### Apply additional commands ####
         i = initializationLine + 1
         while i < len(workingText):
-            line = workingText[i]
-            command = shlex.split(line)
+            line = workingText[i].strip()
 
-            def removeQuotes(string):
-                string = string.replace("'", "")
-                return string.replace('"', "")
+            # Remove comments
+            line = re.sub(comment, "", line)
 
-            if command[0] == "!replace":
-                # Get string to replace and its replacement
-                toReplace = removeQuotes(command[1])
-                replaceWith = removeQuotes(command[-1])
+            # Remove escape characters from escaped comments
+            line = re.sub(escapedHashSymbol, "", line)  # In a file  \# would become #
 
-                derivedDictAfterReplace = {}
-                for key in derivedDict:
-                    newKey = key.replace(toReplace, replaceWith)
-                    # .pop() gets the old value and also deletes it from the dictionary
-                    newValue = derivedDict[key].replace(toReplace, replaceWith)
-                    derivedDictAfterReplace[newKey] = newValue
+            # Check if the line isn't empty
+            line = line.strip()
+            if line != '':
 
-                derivedDict = derivedDictAfterReplace
+                command = shlex.split(line)
 
-            elif command[0] == "!removeKeysContaining":
-                stringToDelete = command[1]
+                def removeQuotes(string):
+                    string = string.replace("'", "")
+                    return string.replace('"', "")
 
-                # Search for and remove any keys that contain stringToDelete
-                keysToDelete = []
-                for key in derivedDict:
-                    if stringToDelete in key:
-                        keysToDelete.append(key)
+                if command[0] == "!replace":
+                    # Get string to replace and its replacement
+                    toReplace = removeQuotes(command[1])
+                    replaceWith = removeQuotes(command[-1])
 
-                for key in keysToDelete:
-                    del derivedDict[key]                
+                    derivedDictAfterReplace = {}
+                    for key in derivedDict:
+                        newKey = key.replace(toReplace, replaceWith)
+                        # .pop() gets the old value and also deletes it from the dictionary
+                        newValue = derivedDict[key].replace(toReplace, replaceWith)
+                        derivedDictAfterReplace[newKey] = newValue
 
-            elif line[0] != "!":
-                break # Done special commands - let the regular parser handle the rest
+                    derivedDict = derivedDictAfterReplace
 
-            else:
-                raise ValueError("Command: {} not implemented. Try using !replace or !removeKeysContaining".format(line.split()[0]))
+                elif command[0] == "!removeKeysContaining":
+                    stringToDelete = command[1]
+
+                    # Search for and remove any keys that contain stringToDelete
+                    keysToDelete = []
+                    for key in derivedDict:
+                        if stringToDelete in key:
+                            keysToDelete.append(key)
+
+                    for key in keysToDelete:
+                        del derivedDict[key]                
+
+                elif line[0] != "!":
+                    break # Done special commands - let the regular parser handle the rest
+
+                else:
+                    raise ValueError("Command: '{}' not implemented. Try using !replace or !removeKeysContaining".format(line.split()[0]))
 
             i += 1
 
@@ -440,15 +466,7 @@ class SimDefinition():
         workingText = file.read()
         file.close()
         
-        # Remove comments
-        comment = re.compile("(?<!\\\)#.*") 
-        workingText = re.sub(comment, "", workingText) 
-        
-        # Remove comment escape characters
-        workingText = re.sub(r"\\(?=#)", "", workingText) 
-        
-        # Remove blank lines
-        workingText = [line for line in workingText.split('\n') if line.strip() != '']
+        workingText = workingText.split('\n')
         
         # Start recursive parse by asking to parse the root-level dictionary
         self._parseDictionaryContents(Dict, workingText, 0, "")
@@ -815,6 +833,21 @@ class SimDefinition():
     def __contains__(self, key):
         ''' Only checks whether 'key' was parsed from the file. Ignores default values '''
         return key in self.dict
+
+class SimDefinitionServer():
+
+    def __init__(self):
+        # Locate and load sim definition template
+        pathToThisFile = Path(__file__)
+
+        # Main directory is 3 up from ./MAPLEAF/IO/simDefinition
+        pathToMAPLEAFInstall = pathToThisFile.parent.parent.parent
+        pathToSimDef = pathToMAPLEAFInstall / "SimDefinitionTemplate.mapleaf"
+
+        self.template = SimDefinition(pathToSimDef)
+
+    def getCompletions(self, source: List[str], line: int, col: int):
+        return
 
 ################### Functions for dealing with string keys ########################
 def isSubKey(potentialParent:str, potentialChild:str) -> bool:
