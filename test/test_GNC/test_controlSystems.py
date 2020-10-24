@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Main import Simulation
+from MAPLEAF.SimulationRunners import Simulation
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
 
@@ -109,7 +109,26 @@ class TestRocketControlSystem(unittest.TestCase):
         # Time step not currently adjusted back
 
     def test_MultiStageControl(self):
-        
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Thrust_Vectoring_MultiStage.mapleaf", silent=True)
+
+        # Set time stepping to fixed size
+        simDef.setValue("SimControl.timeDiscretization", "RK4")
+        simDef.setValue("SimControl.timeStep", "0.01")
+
+        # Make the simulation stage immediately and then end
+        simDef.setValue("Rocket.FirstStage.separationTriggerType", "timeReached")
+        simDef.setValue("Rocket.FirstStage.separationTriggerValue", "0.01") # After one time step
+        simDef.setValue("SimControl.EndCondition", "Time")
+        simDef.setValue("SimControl.EndConditionValue", "0.02") # After two time steps
+        simDef.setValue("SimControl.EndConditionValue", "0.02") # After two time steps        
+        simDef.setValue("SimControl.plot", "None") # No plots
+        simDef.setValue("SimControl.loggingLevel", "0") # No logging
+        simDef.setValue("SimControl.RocketPlot", "Off") # No plots
+        simDef.setValue("SimControl.StageDropPaths.compute", "false") # No stage drop paths
+
+        # Run the simulation
+        sim = Simulation(simDefinition=simDef, silent=True)
+        sim.run()
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
