@@ -143,7 +143,7 @@ simDefinitionHelpMessage = \
     key value
 """
 
-comment = re.compile("(?<!\\\)#.*") # Matches a comment that hasn't been escaped: valueHere [# MatchedComment]
+comment = re.compile(r"(?<!\\)#.*") # Matches a comment that hasn't been escaped: valueHere [# MatchedComment]
 escapedHashSymbol = re.compile(r"\\(?=#)") # Matches the backlslash in \#: [\]#
 
 class SimDefinition():
