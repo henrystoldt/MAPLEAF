@@ -41,7 +41,9 @@ Rocket{
                     # errors predicted/estimated by the adaptive time stepping methods will not include errors due to low control system update rates.
         updateRate                  100 # Hz
 
-        controlledSystem            Rocket.Sustainer.Canards # Enter path to the controlled component in the Rocket
+        controlledSystems{
+            0                       Rocket.Sustainer.Canards # Enter path to the controlled component in the Rocket
+        }
     }
 
     Sustainer{
