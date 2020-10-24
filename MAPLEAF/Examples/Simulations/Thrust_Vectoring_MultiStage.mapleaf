@@ -1,0 +1,241 @@
+SimControl{
+    timeDiscretization  RK45Adaptive
+    timeStep            0.04 # sec, nozzle deflection 
+    plot                FlightAnimation MotorF TVC
+    loggingLevel        2
+
+    EndCondition        Time
+    EndConditionValue   5
+
+    TimeStepAdaptation{
+        controller      PID
+    }
+
+    RocketPlot          On
+}
+
+Rocket{             
+    
+    # Initial state
+    position            (0 0 10) # m
+    initialDirection    (0 0 1)  # m
+    velocity            (0 0 0)  # m/s
+
+
+    ControlSystem{
+        desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
+    
+        MomentController{
+            Type                    ScheduledGainPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
+            gainTableFilePath       MAPLEAF/Examples/TabulatedData/tvcPIDCoeffs.txt
+            scheduledBy             Mach # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
+        }
+
+        # Simulation will not take time steps larger than 1/updateRate
+            # If an update rate is specified and adaptive time stepping is selected, adaptive time stepping will only be used during the descent/recovery portion of the flight
+                # Constant RK4 time stepping will be substituted for the ascent portion
+                    # Specified initial time step will be rounded to the nearest integer divisor of the control system time step
+            # With an updateRate of 0 (default), the control system will simply run once per time step
+                # Note that because control system updates happen between Runge-Kutta time steps,
+                    # errors predicted/estimated by the adaptive time stepping methods will not include errors due to low control system update rates.
+        updateRate                  25 # Hz
+
+        controlledSystems{
+            0            Rocket.FirstStage.Motor # Enter path to the controlled component in the Rocket
+        }
+    }
+
+    SecondStage{
+        class                       Stage
+        stageNumber                 1
+
+        Nosecone{
+            class                   Nosecone
+            mass                    5.0
+            position                (0 0 0)
+            cg                      (0 0 -0.2)
+            baseDiameter            0.1524
+            aspectRatio             5 ##H/D
+            shape                   tangentOgive
+
+            surfaceRoughness        0.000050
+        }
+
+        UpperBodyTube{
+            class                   Bodytube
+            mass                    20 
+            position                (0 0 -0.762)
+            cg                      (0 0 -1)
+            outerDiameter           0.1524
+            length                  3.81
+
+            surfaceRoughness        0.000050
+        }
+
+        GeneralMass{
+            class                   Mass
+            mass                    5
+            position                (0 0 -2.762)
+            cg                      (0 0 0)
+        }
+
+        Motor{
+            class                       Motor
+            path                        MAPLEAF/Examples/Motors/tvcTest.txt
+            thrustApplicationPosition   (0 0 -4.3)  # Location where the thrust force is applied in order to calculate the moment produced
+            
+            Actuators{
+                class                   Actuator
+                controller              TableInterpolating
+                
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                    # Desired moments must come last
+                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz # Need to have Mz even though we don't vector it. Otherwise the program will break
+
+                minDeflection           -0.2182 # rads, equivalent to 12.5 degrees, based on Rocketdyne gimbal bearing deflection spec from a released report
+                maxDeflection           0.2181  # rads   
+
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # seconds
+            }
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -4.2672)
+            cg              (0 0 0)
+            
+            numFins         4
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+
+        RecoverySystem{
+            class           RecoverySystem
+            mass            0
+            position        (0 0 -1)
+            cg              (0 0 -1)
+            numStages       2
+
+            # Apogee, Time, Altitude
+            stage1Trigger       Apogee
+            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+    }
+
+    FirstStage{
+        class                       Stage
+        stageNumber                 0
+        position                    (0 0 -4.5)
+
+        separationTriggerType       timeReached # "apogee", "ascendingThroughAltitude", "descendingThroughAltitude", "motorBurnout", "timeReached"
+        separationTriggerValue      2 # seconds or meters AGL, depending on separationTriggerType
+
+        Nosecone{
+            class                   Nosecone
+            mass                    5.0
+            position                (0 0 0)
+            cg                      (0 0 -0.2)
+            baseDiameter            0.1524
+            aspectRatio             5 ##H/D
+            shape                   tangentOgive
+
+            surfaceRoughness        0.000050
+        }
+
+        UpperBodyTube{
+            class                   Bodytube
+            mass                    20 
+            position                (0 0 -0.762)
+            cg                      (0 0 -1)
+            outerDiameter           0.1524
+            length                  3.81
+
+            surfaceRoughness        0.000050
+        }
+
+        GeneralMass{
+            class                   Mass
+            mass                    5
+            position                (0 0 -2.762)
+            cg                      (0 0 0)
+        }
+
+        Motor{
+            class                       Motor
+            path                        MAPLEAF/Examples/Motors/tvcTest.txt
+            thrustApplicationPosition   (0 0 -4.3)  # Location where the thrust force is applied in order to calculate the moment produced
+            
+            Actuators{
+                class                   Actuator
+                controller              TableInterpolating
+                
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/tvcDeflections.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                    # Desired moments must come last
+                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz # Need to have Mz even though we don't vector it. Otherwise the program will break
+
+                minDeflection           -0.2182 # rads, equivalent to 12.5 degrees, based on Rocketdyne gimbal bearing deflection spec from a released report
+                maxDeflection           0.2181  # rads   
+
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # seconds
+            }
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -4.2672)
+            cg              (0 0 0)
+            
+            numFins         4
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+
+        RecoverySystem{
+            class           RecoverySystem
+            mass            0
+            position        (0 0 -1)
+            cg              (0 0 -1)
+            numStages       2
+
+            # Apogee, Time, Altitude
+            stage1Trigger       Apogee
+            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+    }
+
+    
+}

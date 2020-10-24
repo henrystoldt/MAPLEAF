@@ -166,7 +166,7 @@ class Simulation():
         rocketDictReader = SubDictReader("Rocket", self.simDefinition)  
         rocket = Rocket(rocketDictReader, silent=self.silent, stageToInitialize=stage, simRunner=self, environment=self.environment)       # Initialize Rocket
 
-        if self.simDefinition.getValue('SimControl.RocketPlot') in [ 'On', 'on' ]:
+        if self.simDefinition.getValue('SimControl.RocketPlot') in [ 'On', 'on' ] and stage == None:
             rocket.plotShape()  # Reference to this simRunner used to add to logs
 
         if stage == None:

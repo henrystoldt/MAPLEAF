@@ -108,6 +108,9 @@ class TestRocketControlSystem(unittest.TestCase):
 
         # Time step not currently adjusted back
 
+    def test_MultiStageControl(self):
+        
+
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()

@@ -161,6 +161,9 @@ class Rocket(CompositeObject):
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
             self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
 
+            if self.controlSystem != None and len(self.stages) == 1 and isinstance(self.controlSystem.controlledSystem, TabulatedMotor):
+                self.simEventDetector.subscribeToEvent("motorBurnout", self.controlSystem.deactivate)
+
     def _getMaxBodyTubeDiameter(self):
         ''' Gets max body tube diameter directly from config file '''
         stageDicts = self._getStageSubDicts()
@@ -356,9 +359,8 @@ class Rocket(CompositeObject):
         if self.controlSystem != None:
             self.controlSystem.controlNextStageAfterSeparation()
 
-            if len(self.stages) == 1 and isinstance(self.controlSystem.controlledSystem, TabulatedMotor):
+            if self.controlSystem != None and len(self.stages) == 1 and isinstance(self.controlSystem.controlledSystem, TabulatedMotor):
                 self.simEventDetector.subscribeToEvent("motorBurnout", self.controlSystem.deactivate)
-
 
     def _ensureBaseDragIsAccountedFor(self):
         ''' If no BoatTail exists at the bottom of the rocket, adds a zero-length boat tail. This is necessary b/c Boat Tail aero-functions are the ones that account for base drag '''

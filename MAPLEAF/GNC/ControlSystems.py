@@ -86,7 +86,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             # Identify the controlled system
             for stage in rocket.stages:
                 for rocketComponent in stage.components:
-                    if rocketComponent.componentDictReader.simDefDictPathToReadFrom == controlledSystemPath:
+                    if hasattr(rocketComponent, "componentDictReader") and rocketComponent.componentDictReader.simDefDictPathToReadFrom == controlledSystemPath:
                         self.controlledSystems[stageNumber] = rocketComponent
                         break
 
@@ -191,8 +191,12 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
 
             if self.rocket.simRunner.loggingLevel >= 4:
-                self.rocket.simRunner.newControlSystemLogLine("{:<7.3f} ".format(currentTime))      # Start a new line in the control system evaluation log 
-                self.appendToControlSystemLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(pitchError, yawError, rollError))
+                #TODO: These functions need to be implemented in SimRunners, then remove the try/except statement
+                try:
+                    self.rocket.simRunner.newControlSystemLogLine("{:<7.3f} ".format(currentTime))      # Start a new line in the control system evaluation log 
+                    self.appendToControlSystemLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(pitchError, yawError, rollError))
+                except AttributeError:
+                    pass
 
             return newActuatorPositionTargets
         else:
