@@ -9,7 +9,7 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 import math
 
 import matplotlib.pyplot as plt
-from MAPLEAF.ENV import Environment, EnvironmentalConditions
+from MAPLEAF.ENV import Environment, EnvironmentalConditions, getInitialRocketOrientation
 from MAPLEAF.GNC import RocketControlSystem
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.IO.HIL import HILInterface
@@ -196,20 +196,9 @@ class Rocket(CompositeObject):
         initPos = self.rocketDictReader.getVector("position")
         initVel = self.rocketDictReader.getVector("velocity")
         
-        # Check whether precise initial orientation has been specified
-        rotationAxis = self.rocketDictReader.tryGetVector("rotationAxis", defaultValue=None)
-        if rotationAxis != None:
-            rotationAngle = math.radians(self.rocketDictReader.getFloat("rotationAngle"))
-            initOrientation = Quaternion(rotationAxis, rotationAngle)
-        else:
-            # Calculate initial orientation quaternion in launch tower frame
-            initialDirection = self.rocketDictReader.getVector("initialDirection").normalize()
-            angleFromVertical = Vector(0,0,1).angle(initialDirection)
-            rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
-            initOrientation = Quaternion(rotationAxis, angleFromVertical)
-
-        initAngVel = AngularVelocity(rotationVector=self.rocketDictReader.getVector("angularVelocity"))
-     
+        # Get initial state (in launch tower frame)
+        initOrientation = getInitialRocketOrientation(self.rocketDictReader)
+        initAngVel = AngularVelocity(rotationVector=self.rocketDictReader.getVector("angularVelocity"))     
         initState_launchTowerFrame = RigidBodyState(initPos, initVel, initOrientation, initAngVel)
 
         # Convert to the global inertial frame

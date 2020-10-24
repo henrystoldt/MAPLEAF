@@ -11,7 +11,7 @@ from MAPLEAF.IO import SubDictReader, defaultConfigValues
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Quaternion,
                             RigidBodyState, RigidBodyState_3DoF, Vector)
 
-__all__ = [ "EnvironmentalConditions", "Environment" ]
+__all__ = [ "EnvironmentalConditions", "Environment", "getInitialRocketOrientation" ]
 
 # This named tuple is the object used to return information from the Environmental models to the rocket
     # It is subsequently passed to all rocket objects, who use it in their calculations if they have
@@ -29,6 +29,20 @@ EnvironmentalConditions = namedtuple(
         "TurbWind",
     ],
 )
+
+def getInitialRocketOrientation(dictReader):
+    # Check whether precise initial orientation has been specified
+    rotationAxis = dictReader.tryGetVector("Rocket.rotationAxis", defaultValue=None)
+    if rotationAxis != None:
+        rotationAngle = math.radians(dictReader.getFloat("Rocket.rotationAngle"))
+        return Quaternion(rotationAxis, rotationAngle)
+    else:
+        # Calculate initial orientation quaternion in launch tower frame
+        initialDirection = dictReader.getVector("Rocket.initialDirection").normalize()
+        angleFromVertical = Vector(0,0,1).angle(initialDirection)
+        rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
+        return Quaternion(rotationAxis, angleFromVertical)
+
 
 class Environment():
     '''
@@ -60,29 +74,7 @@ class Environment():
                 # Initialize a launch rail, aligned with the rocket's initial direction
                 initialRocketPosition_towerFrame = envDictReader.getVector("Rocket.position")
 
-                # Check whether precise initial orientation has been specified
-                rotationAxis = envDictReader.tryGetVector("Rocket.rotationAxis", defaultValue=None)
-                if rotationAxis != None:
-                    rotationAngle = math.radians(envDictReader.getFloat("Rocket.rotationAngle"))
-                    initOrientation = Quaternion(rotationAxis, rotationAngle)
-                else:
-                    # Calculate initial orientation quaternion in launch tower frame
-                    rotationAxis = envDictReader.tryGetVector("Rocket.rotationAxis", defaultValue=None)
-                    if rotationAxis != None:
-                        rotationAngle = math.radians(self.rocketDictReader.getFloat("Rocket.rotationAngle"))
-                        initOrientation = Quaternion(rotationAxis, rotationAngle)
-                    else:
-                        # Calculate initial orientation quaternion in launch tower frame
-                        initialDirection = envDictReader.getVector("Rocket.initialDirection").normalize()
-                        angleFromVertical = Vector(0,0,1).angle(initialDirection)
-                        rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
-                        initOrientation = Quaternion(rotationAxis, angleFromVertical)
-
-                    # TODO: Get from rocket, or calculate the same way - so that it works with rotationAxis + Angle
-                    initialDirection = envDictReader.getVector("Rocket.initialDirection").normalize()
-                    angleFromVertical = Vector(0,0,1).angle(initialDirection)
-                    rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
-                    initOrientation = Quaternion(rotationAxis, angleFromVertical)
+                initOrientation = getInitialRocketOrientation(envDictReader)                
 
                 launchTowerState_local = RigidBodyState(position=initialRocketPosition_towerFrame, orientation=initOrientation)
                 launchTowerState_global = self.earthModel.convertIntoGlobalFrame(launchTowerState_local, self.launchSiteLatitude, self.launchSiteLongitude)
