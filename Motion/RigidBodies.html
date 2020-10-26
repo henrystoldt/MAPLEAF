@@ -80,9 +80,9 @@ class RigidBody_3DoF:
         return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
 
     def timeStep(self, deltaT):
-        self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-        self.time += deltaT
-        return timeStepAdaptionFactor, deltaT
+        self.state, timeStepAdaptionFactor, estimatedError, actualDeltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+        self.time += actualDeltaT
+        return timeStepAdaptionFactor, estimatedError, actualDeltaT
 
 #### 6 DoF ####
 class RigidBody(RigidBody_3DoF):
@@ -312,9 +312,9 @@ class RigidBody(RigidBody_3DoF):
         return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
 
     def timeStep(self, deltaT):
-        self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-        self.time += deltaT
-        return timeStepAdaptionFactor, deltaT</code></pre>
+        self.state, timeStepAdaptionFactor, estimatedError, actualDeltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+        self.time += actualDeltaT
+        return timeStepAdaptionFactor, estimatedError, actualDeltaT</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -350,9 +350,9 @@ class RigidBody(RigidBody_3DoF):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def timeStep(self, deltaT):
-    self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-    self.time += deltaT
-    return timeStepAdaptionFactor, deltaT</code></pre>
+    self.state, timeStepAdaptionFactor, estimatedError, actualDeltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+    self.time += actualDeltaT
+    return timeStepAdaptionFactor, estimatedError, actualDeltaT</code></pre>
 </details>
 </dd>
 </dl>

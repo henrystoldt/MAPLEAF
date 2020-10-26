@@ -1602,6 +1602,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
                 # Take a time step
                 try:
                     if FinalTimeStepDt != None:
+                        print(&#34;Simulation Runner overriding time step from {} to {} to accurately meet end condition&#34;.format(self.dts[s], FinalTimeStepDt))
                         self.dts[s] = FinalTimeStepDt
 
                     timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
@@ -1636,7 +1637,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(0.0)
+            rocket._runControlSystemAndLogStartingState(self.dts[s])
 
             # Move on to next (dropped) stage
             s += 1
@@ -1709,6 +1710,8 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             # Create main sim log header (written to once per time step)
             mainSimLogHeader = &#34;Time(s) TimeStep(s)&#34; 
             mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + &#34; EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)&#34;
+            if &#34;Adapt&#34; in rocket.rigidBody.integrate.method:
+                mainSimLogHeader += &#34; EstimatedIntegrationError&#34;
             if rocket.controlSystem != None:
                 mainSimLogHeader += rocket.controlSystem.getLogHeader()
 
@@ -2174,6 +2177,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
             # Take a time step
             try:
                 if FinalTimeStepDt != None:
+                    print(&#34;Simulation Runner overriding time step from {} to {} to accurately meet end condition&#34;.format(self.dts[s], FinalTimeStepDt))
                     self.dts[s] = FinalTimeStepDt
 
                 timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
@@ -2208,7 +2212,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
             endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
         
         # Log last state (would be the starting state of the next time step)
-        rocket._runControlSystemAndLogStartingState(0.0)
+        rocket._runControlSystemAndLogStartingState(self.dts[s])
 
         # Move on to next (dropped) stage
         s += 1

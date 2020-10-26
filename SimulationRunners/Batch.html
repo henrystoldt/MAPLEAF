@@ -590,7 +590,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     if yLim == [&#34;False&#34;]:
         ax.autoscale(axis=&#39;y&#39;, tight=True)
     
-    ax.legend()
+    # Only create a legend if there&#39;s stuff to put in it
+    handles, labels = ax.get_legend_handles_labels()
+    if len(labels) &gt; 0:
+        ax.legend()
     fig.tight_layout()
 
     # Get save location
@@ -626,8 +629,11 @@ def _setUpFigure(plotDictReader: SubDictReader):
     lineColors = plotDictReader.tryGetString(&#34;lineColors&#34;, defaultValue=&#34;&#34;).split()
 
     legendLabels = plotDictReader.tryGetString(&#34;legendLabel&#34;, defaultValue=columnSpecs[0]).split(&#39;,&#39;)
-    while len(legendLabels) &lt; nLinesToPlot:
-        legendLabels.append(columnSpecs[len(legendLabels)])
+    if legendLabels != [ &#34;None&#34; ]:
+        while len(legendLabels) &lt; nLinesToPlot:
+            legendLabels.append(columnSpecs[len(legendLabels)])
+    else:
+        legendLabels = [ None for i in range(nLinesToPlot) ]
 
     scalingFactor = plotDictReader.tryGetFloat(&#34;scalingFactor&#34;, defaultValue=1.0)
     offset = plotDictReader.tryGetFloat(&#39;offset&#39;, defaultValue=0.0)
@@ -638,11 +644,21 @@ def _setUpFigure(plotDictReader: SubDictReader):
         xLowerLim = float(xLim[0])
         xUpperLim = float(xLim[1])
         ax.set_xlim([xLowerLim,xUpperLim])
+    
     yLim = plotDictReader.tryGetString(&#34;yLimits&#34;, defaultValue=&#34;False&#34;).split() # Expected length: 2
     if yLim[0] != &#34;False&#34;:
         yLowerLim = float(yLim[0])
         yUpperLim = float(yLim[1])
         ax.set_ylim([yLowerLim,yUpperLim])
+
+    ### Set x and y scales
+    yScale = plotDictReader.tryGetString(&#34;yScale&#34;, defaultValue=&#34;linear&#34;)
+    if yScale != &#34;linear&#34;:
+        ax.set_yscale(yScale)
+
+    xScale = plotDictReader.tryGetString(&#34;xScale&#34;, defaultValue=&#34;linear&#34;)
+    if xScale != &#34;linear&#34;:
+        ax.set_yscale(xScale)
     
     # Set x and y labels
     xLabel = plotDictReader.tryGetString(&#34;xLabel&#34;, defaultValue=xColumnName)
@@ -659,7 +675,7 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     compColumnSpecs = compDataDictReader.tryGetString(&#34;columnsToPlot&#34;, defaultValue=&#34;&#34;).split()
     xColumnName = compDataDictReader.tryGetString(&#34;xColumnName&#34;, defaultValue=&#34;Time(s)&#34;)
     lineFormat = compDataDictReader.tryGetString(&#34;lineFormat&#34;, defaultValue=&#34;k-&#34;).split()
-    legendLabel = compDataDictReader.tryGetString(&#34;legendLabel&#34;, defaultValue=&#34;Label&#34;).split(&#39;,&#39;)
+    legendLabel = compDataDictReader.tryGetString(&#34;legendLabel&#34;, defaultValue=&#34;&#34;).split(&#39;,&#39;)
     scalingFactor = compDataDictReader.tryGetFloat(&#34;scalingFactor&#34;, defaultValue=1.0)
     lineColors = compDataDictReader.tryGetString(&#34;lineColors&#34;, defaultValue=&#34;&#34;).split()
 
@@ -684,6 +700,8 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
                 batchRun.warning(&#34;  ERROR: Found {} columns of comparison data: {} for {} line formats: {} in file: {}&#34;.format(len(compColData)-1, compColNames, len(lineFormat), lineFormat, compDataPath))
                 return [], [], xColumnName
                 
+            if legendLabel == [ &#34;&#34; ]:
+                legendLabel = compColNames
             xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor, lineColors=lineColors)
             return compColData, compColNames, xData
 

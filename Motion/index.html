@@ -1437,9 +1437,9 @@ Pos/Vel are expected to be Vectors - Defined with reference to the global frame<
         return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
 
     def timeStep(self, deltaT):
-        self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-        self.time += deltaT
-        return timeStepAdaptionFactor, deltaT</code></pre>
+        self.state, timeStepAdaptionFactor, estimatedError, actualDeltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+        self.time += actualDeltaT
+        return timeStepAdaptionFactor, estimatedError, actualDeltaT</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -1475,9 +1475,9 @@ Pos/Vel are expected to be Vectors - Defined with reference to the global frame<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def timeStep(self, deltaT):
-    self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-    self.time += deltaT
-    return timeStepAdaptionFactor, deltaT</code></pre>
+    self.state, timeStepAdaptionFactor, estimatedError, actualDeltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+    self.time += actualDeltaT
+    return timeStepAdaptionFactor, estimatedError, actualDeltaT</code></pre>
 </details>
 </dd>
 </dl>

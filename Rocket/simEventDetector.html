@@ -123,6 +123,7 @@ class SimEventDetector():
             if eventOccurred:
                 if self.triggerDelays[i] == 0:
                     # Call its function
+                    # TODO: Print message to simulation log saying that the event has been triggered
                     self.callbackFunctions[i]()
                 else:
                     # Schedule the event to happen in triggerDelay seconds
@@ -330,6 +331,7 @@ class SimEventDetector():
             if eventOccurred:
                 if self.triggerDelays[i] == 0:
                     # Call its function
+                    # TODO: Print message to simulation log saying that the event has been triggered
                     self.callbackFunctions[i]()
                 else:
                     # Schedule the event to happen in triggerDelay seconds
@@ -493,6 +495,7 @@ These return values are used to influence time step adaptation to accurately res
         if eventOccurred:
             if self.triggerDelays[i] == 0:
                 # Call its function
+                # TODO: Print message to simulation log saying that the event has been triggered
                 self.callbackFunctions[i]()
             else:
                 # Schedule the event to happen in triggerDelay seconds
