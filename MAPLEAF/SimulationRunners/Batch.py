@@ -555,7 +555,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     if yLim == ["False"]:
         ax.autoscale(axis='y', tight=True)
     
-    ax.legend()
+    # Only create a legend if there's stuff to put in it
+    handles, labels = ax.get_legend_handles_labels()
+    if len(labels) > 0:
+        ax.legend()
     fig.tight_layout()
 
     # Get save location
@@ -591,8 +594,11 @@ def _setUpFigure(plotDictReader: SubDictReader):
     lineColors = plotDictReader.tryGetString("lineColors", defaultValue="").split()
 
     legendLabels = plotDictReader.tryGetString("legendLabel", defaultValue=columnSpecs[0]).split(',')
-    while len(legendLabels) < nLinesToPlot:
-        legendLabels.append(columnSpecs[len(legendLabels)])
+    if legendLabels != [ "None" ]:
+        while len(legendLabels) < nLinesToPlot:
+            legendLabels.append(columnSpecs[len(legendLabels)])
+    else:
+        legendLabels = [ None for i in range(nLinesToPlot) ]
 
     scalingFactor = plotDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
     offset = plotDictReader.tryGetFloat('offset', defaultValue=0.0)
