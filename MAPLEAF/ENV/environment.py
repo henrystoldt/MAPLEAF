@@ -84,7 +84,8 @@ class Environment():
                     rotationAxis = Vector(0,0,1).crossProduct(initialDirection)
                     initOrientation = Quaternion(rotationAxis, angleFromVertical)
 
-                launchTowerState_local = RigidBodyState(position=initialRocketPosition_towerFrame, orientation=initOrientation)
+                initPosition_seaLevelENUFrame = initialRocketPosition_towerFrame + Vector(0, 0, self.launchSiteElevation)
+                launchTowerState_local = RigidBodyState(position=initPosition_seaLevelENUFrame, orientation=initOrientation)
                 launchTowerState_global = self.earthModel.convertIntoGlobalFrame(launchTowerState_local, self.launchSiteLatitude, self.launchSiteLongitude)
                 towerDirection_global = launchTowerState_global.orientation.rotate(Vector(0, 0, 1))                
                 self.launchRail = LaunchRail(launchTowerState_global.position, towerDirection_global, launchRailLength, earthRotationRate=self.earthModel.rotationRate)
