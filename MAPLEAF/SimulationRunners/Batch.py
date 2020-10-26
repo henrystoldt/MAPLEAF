@@ -609,11 +609,21 @@ def _setUpFigure(plotDictReader: SubDictReader):
         xLowerLim = float(xLim[0])
         xUpperLim = float(xLim[1])
         ax.set_xlim([xLowerLim,xUpperLim])
+    
     yLim = plotDictReader.tryGetString("yLimits", defaultValue="False").split() # Expected length: 2
     if yLim[0] != "False":
         yLowerLim = float(yLim[0])
         yUpperLim = float(yLim[1])
         ax.set_ylim([yLowerLim,yUpperLim])
+
+    ### Set x and y scales
+    yScale = plotDictReader.tryGetString("yScale", defaultValue="linear")
+    if yScale != "linear":
+        ax.set_yscale(yScale)
+
+    xScale = plotDictReader.tryGetString("xScale", defaultValue="linear")
+    if xScale != "linear":
+        ax.set_yscale(xScale)
     
     # Set x and y labels
     xLabel = plotDictReader.tryGetString("xLabel", defaultValue=xColumnName)
@@ -630,7 +640,7 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
     compColumnSpecs = compDataDictReader.tryGetString("columnsToPlot", defaultValue="").split()
     xColumnName = compDataDictReader.tryGetString("xColumnName", defaultValue="Time(s)")
     lineFormat = compDataDictReader.tryGetString("lineFormat", defaultValue="k-").split()
-    legendLabel = compDataDictReader.tryGetString("legendLabel", defaultValue="Label").split(',')
+    legendLabel = compDataDictReader.tryGetString("legendLabel", defaultValue="").split(',')
     scalingFactor = compDataDictReader.tryGetFloat("scalingFactor", defaultValue=1.0)
     lineColors = compDataDictReader.tryGetString("lineColors", defaultValue="").split()
 
@@ -655,6 +665,8 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
                 batchRun.warning("  ERROR: Found {} columns of comparison data: {} for {} line formats: {} in file: {}".format(len(compColData)-1, compColNames, len(lineFormat), lineFormat, compDataPath))
                 return [], [], xColumnName
                 
+            if legendLabel == [ "" ]:
+                legendLabel = compColNames
             xData = _plotData(ax, compColData, compColNames, xColumnName, lineFormat, legendLabel, scalingFactor, lineColors=lineColors)
             return compColData, compColNames, xData
 

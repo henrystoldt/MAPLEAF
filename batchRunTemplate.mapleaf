@@ -35,9 +35,11 @@ ExampleFlightCase{
             yLabel						Altitude (m)        # (Optional)
             xLimits						0 1                 # (Optional)
             yLimits						0 100               # (Optional)
+            xScale                      linear              # (Optional) linear or log
+            yScale                      linear              # (Optional) linear or log
 			scalingFactor				1                   # (Optional) Use to invert data or convert units - scales MAPLEAF's results by a constant factor
             offset                      0                   # (Optional) Add scalar to MAPLEAF's results
-            legendLabel					Altitude Sim, Velocity Sim # (Optional) Label of MAPLEAF line
+            legendLabel					Altitude Sim, Velocity Sim # (Optional) Label of MAPLEAF line - enter None for no label
             overwrite                   True                # (Optional)
 
             # Each subdictionary is assumed to contain comparison data. Can have any number of these

@@ -103,6 +103,7 @@ class Simulation():
                 # Take a time step
                 try:
                     if FinalTimeStepDt != None:
+                        print("Simulation Runner overriding time step from {} to {} to accurately meet end condition".format(self.dts[s], FinalTimeStepDt))
                         self.dts[s] = FinalTimeStepDt
 
                     timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
@@ -137,7 +138,7 @@ class Simulation():
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(0.0)
+            rocket._runControlSystemAndLogStartingState(self.dts[s])
 
             # Move on to next (dropped) stage
             s += 1
@@ -210,6 +211,8 @@ class Simulation():
             # Create main sim log header (written to once per time step)
             mainSimLogHeader = "Time(s) TimeStep(s)" 
             mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + " EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)"
+            if "Adapt" in rocket.rigidBody.integrate.method:
+                mainSimLogHeader += " EstimatedIntegrationError"
             if rocket.controlSystem != None:
                 mainSimLogHeader += rocket.controlSystem.getLogHeader()
 

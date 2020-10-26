@@ -449,6 +449,7 @@ class Rocket(CompositeObject):
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
         self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
         
+
         ### Component Forces ###
         if not self.isUnderChute:
             # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
@@ -465,6 +466,7 @@ class Rocket(CompositeObject):
 
         else:
             # When under chute, neglect forces from other components
+            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(0, 0, 0, 0))
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
 
         componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
@@ -487,6 +489,10 @@ class Rocket(CompositeObject):
     
     #### Driving / Controlling Simulation ####
     def _runControlSystemAndLogStartingState(self, dt):
+        '''
+            Attempts to run the rocket control system (only runs if it's time to run again, based on its updated rate) (updating target positions for actuators)
+            Logs the state of the rocket to the main simulation log
+        '''
         startState = self.rigidBody.state
         startTime = self.rigidBody.time       
 
@@ -538,23 +544,35 @@ class Rocket(CompositeObject):
             # Override time step to accurately resolve discrete events
             if accuratePrediction:
                 # For time-deterministic events, just set the time step to ever so slightly past the event
-                dt = estimatedTimeToNextEvent + 1e-5
+                newDt = estimatedTimeToNextEvent + 1e-5
+                print("Rocket + SimEventDetector overriding time step from {} to {} to accurately trigger resolve time-deterministic event.".format(dt, newDt))
+                dt = newDt
             else:
                 # For time-nondeterministic events, slowly approach the event
-                dt = max(estimatedTimeToNextEvent/2, self.eventTimeStep)
+                newDt = max(estimatedTimeToNextEvent/1.5, self.eventTimeStep)
+                estimatedOccurenceTime = self.rigidBody.time + estimatedTimeToNextEvent
+                print("Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}".format(dt, newDt, estimatedOccurenceTime))
+                dt = newDt
                 
         # Logs line to mainSimLog
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
-        timeStepAdjustmentFactor, dt = self.rigidBody.timeStep(dt)
+        timeStepAdjustmentFactor, estimatedError, dt = self.rigidBody.timeStep(dt)
+
+        if "Adapt" in self.rigidBody.integrate.method:
+            # Add estimated error for the time step to the end of the simulation log line
+            try:
+                self.simRunner.mainSimulationLog[-2] += " {:<8.6f}".format(estimatedError)
+            except AttributeError:
+                pass # No logging set up
 
         # Return time step adaptation factor - will be 1 for constant time stepping
         return timeStepAdjustmentFactor, dt
     
     def _switchTo3DoF(self):
         ''' Switch to 3DoF simulation after recovery system is deployed '''
-        print("Switching to 3DoF model for descent")
+        print("Switching to 3DoF simulation")
         new3DoFState = RigidBodyState_3DoF(self.rigidBody.state.position, self.rigidBody.state.velocity)
         
         # Re-read time discretization in case an adaptive method has been selected while using a fixed-update rate control system - in that case, want to switch back to adaptive time stepping for the recovery (uncontrolled) portion of the flight

@@ -25,6 +25,10 @@ class PIDController():
             self.maxIntegralMagnitude = maxIntegral
 
     def getNewSetPoint(self, currentError, dt):
+        # Calculate derivative
+        derivative = (currentError - self.lastError) / dt
+        
+        # Calculate integral term
         self.errorIntegral = self.errorIntegral + (currentError + self.lastError)*dt / 2
 
         # Cap the magnitude of the integral term if necessary
@@ -41,9 +45,9 @@ class PIDController():
                 if abs(self.errorIntegral) > self.maxIntegralMagnitude:
                     self.errorIntegral = self.errorIntegral * self.maxIntegralMagnitude / abs(self.errorIntegral)
 
-        derivative = (currentError - self.lastError) / dt
-
+        # Store error for next calculation
         self.lastError = currentError
+
         return self.P*currentError + self.I*self.errorIntegral + self.D*derivative
 
     def updateCoefficients(self, P, I, D, maxIntegral=None):
