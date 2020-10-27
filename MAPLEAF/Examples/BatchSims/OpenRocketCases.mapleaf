@@ -139,12 +139,12 @@ C6-3SimpleRocketCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/Jake1.mapleaf
 
 	ParameterOverrides{
-		Rocket.Sustainer.GeneralMass.mass		0.00952
-		Rocket.Sustainer.Motor.path			MAPLEAF/Examples/Motors/C6-3.txt
-		Rocket.Sustainer.Motor.cg			(4.08e-06 4.08e-06 3.86e-07)
+		Rocket.Sustainer.GeneralMass.mass			0.00952
+		Rocket.Sustainer.Motor.path					MAPLEAF/Examples/Motors/C6-3.txt
+		Rocket.Sustainer.Motor.cg					(4.08e-06 4.08e-06 3.86e-07)
 		Rocket.Sustainer.Motor.burnTimeAdjustFactor 1.16
 		Rocket.Sustainer.TailFins.finCantAngle		0
-		SimControl.EndCondition		Apogee
+		SimControl.EndCondition						Apogee
 	}
 
 	ExpectedFinalValues{
@@ -223,8 +223,17 @@ RollingRocketCase{
 		Altitude{
 			columnsToPlot	AngularVelocityZ(rad/s)
 			xLimits			0 6
-			yLimits			0 -200
+			yLimits			0 200
+			scalingFactor   -1
 			yLabel			Angular Velocity (rad/s)
+
+			comparisonData_OR1{
+				scalingFactor   -1
+			}
+
+			comparisonData_Flight{
+				scalingFactor   -1
+			}
 		}
 	}
 }
