@@ -41,8 +41,10 @@ State interpolation used in flight animations.
 Scalar interpolation used for interpolation of transonic aerodynamic forces.
 &#39;&#39;&#39;
 from bisect import bisect
+from functools import lru_cache
 
 import numpy as np
+import scipy.linalg as linalg
 
 
 __all__ = [ &#34;linInterp&#34;, &#34;linInterpWeights&#34;, &#34;calculateCubicInterpCoefficients&#34;, &#34;cubicInterp&#34; ]
@@ -103,7 +105,21 @@ def linInterpWeights(X, desiredX):
     smallYWeight = 1 - largeYWeight
 
     return smallYIndex, smallYWeight, largeYIndex, largeYWeight
-    
+
+@lru_cache(20)
+def getInvAMatrix(X1, X2):
+    &#39;&#39;&#39;
+        Computes the inverse of the A matrix used in `calculateCubicInterpCoefficients` below.
+        During a simulation, these will only change from component to component, not from time step to time step, hence the cache
+    &#39;&#39;&#39;
+    AMatrix = \
+        np.array([  [ 1,    X1, X1**2,  X1**3 ],
+                    [ 1,    X2, X2**2,  X2**3 ],
+                    [ 0,    1,  2*X1, 3*X1**2 ],
+                    [ 0,    1,  2*X2, 3*X2**2 ] ])
+
+    return linalg.inv(AMatrix)
+
 def calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dydx1, dydx2):
     &#39;&#39;&#39; Returns coefficients for a cubic polynomial that matches values and derivatives at x1 and x2 &#39;&#39;&#39;
     # AMatrix and B, together define the following equations which constrain the cubic interpolation
@@ -111,18 +127,14 @@ def calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dydx1, dydx2):
     # f(x=x2)       == Y2
     # df/dx (x=x1)  == dydx1
     # df/dx (x=x2)  == dydx2
-    AMatrix = \
-        np.array([  [ 1,    X1, X1**2,  X1**3 ],
-                    [ 1,    X2, X2**2,  X2**3 ],
-                    [ 0,    1,  2*X1, 3*X1**2 ],
-                    [ 0,    1,  2*X2, 3*X2**2 ] ])
+    Ainv = getInvAMatrix(X1, X2)
     
     B = np.array([  [Y1], 
                     [Y2], 
                     [dydx1], 
                     [dydx2]])
 
-    return np.linalg.inv(AMatrix).dot(B)
+    return Ainv.dot(B)
 
 def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
     dy_dx_x1 = (Y1_plusDx - Y1) / dx
@@ -155,18 +167,14 @@ def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
     # f(x=x2)       == Y2
     # df/dx (x=x1)  == dydx1
     # df/dx (x=x2)  == dydx2
-    AMatrix = \
-        np.array([  [ 1,    X1, X1**2,  X1**3 ],
-                    [ 1,    X2, X2**2,  X2**3 ],
-                    [ 0,    1,  2*X1, 3*X1**2 ],
-                    [ 0,    1,  2*X2, 3*X2**2 ] ])
+    Ainv = getInvAMatrix(X1, X2)
     
     B = np.array([  [Y1], 
                     [Y2], 
                     [dydx1], 
                     [dydx2]])
 
-    return np.linalg.inv(AMatrix).dot(B)</code></pre>
+    return Ainv.dot(B)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Motion.Interpolation.cubicInterp"><code class="name flex">

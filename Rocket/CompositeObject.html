@@ -113,7 +113,6 @@ class CompositeObject():
 
     #TODO: Compute forces at interfaces between components
     
-    @cacheLastResult
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         &#39;&#39;&#39;
             Computes the aerodynamic force experienced by the stage.
@@ -148,7 +147,6 @@ class CompositeObject():
 
         return combinedInertia
 
-    @cacheLastResult
     def getMass(self, time, state):
         &#39;&#39;&#39; 
             Returns an inertia object where the CG and MOI members are zero.
@@ -266,7 +264,6 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 
     #TODO: Compute forces at interfaces between components
     
-    @cacheLastResult
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         &#39;&#39;&#39;
             Computes the aerodynamic force experienced by the stage.
@@ -301,7 +298,6 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 
         return combinedInertia
 
-    @cacheLastResult
     def getMass(self, time, state):
         &#39;&#39;&#39; 
             Returns an inertia object where the CG and MOI members are zero.
@@ -331,24 +327,26 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environmentalConditions, rocketCG)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Computes the aerodynamic force experienced by the stage.
+Does not include gravitational force - this is expected to be added at the rocket level.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environmentalConditions, rocketCG):
+    &#39;&#39;&#39;
+        Computes the aerodynamic force experienced by the stage.
+        Does not include gravitational force - this is expected to be added at the rocket level.
+    &#39;&#39;&#39;
+    # Add up forces from all subcomponents
+    totalAppliedComponentForce = ForceMomentSystem(Vector(0,0,0), rocketCG)
+    for component in self.components:
+        totalAppliedComponentForce += component.getAeroForce(state, time, environmentalConditions, rocketCG)
+
+    return totalAppliedComponentForce</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG"><code class="name flex">
@@ -386,24 +384,33 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass"><code class="name flex">
-<span>def <span class="ident">getMass</span></span>(<span>*args)</span>
+<span>def <span class="ident">getMass</span></span>(<span>self, time, state)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns an inertia object where the CG and MOI members are zero.
+Only the mass is filled out correctly.
+Used for 3DoF computations</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def memoized_func(*args):
-    # Return cached result if available
-    if cache[1] == args:
-        return cache[2]
-    
-    # Compute and cache result
-    result = func(*args)
-    cache[1] = args
-    cache[2] = result
-    return result</code></pre>
+<pre><code class="python">def getMass(self, time, state):
+    &#39;&#39;&#39; 
+        Returns an inertia object where the CG and MOI members are zero.
+        Only the mass is filled out correctly.
+        Used for 3DoF computations 
+    &#39;&#39;&#39;
+    if self.massOverride == None:
+        totalMass = self.fixedMassMassComponent
+        for component in self.variableMassComponents:
+            try:
+                totalMass += component.getMass(time, state).mass
+            except AttributeError:
+                totalMass += component.getInertia(time, state).mass
+    else:
+        return self.massOverride
+
+    return totalMass</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia"><code class="name flex">

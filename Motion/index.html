@@ -157,18 +157,14 @@ These are defined in such a way that, for the purposes of Runge-Kutta motion int
     # f(x=x2)       == Y2
     # df/dx (x=x1)  == dydx1
     # df/dx (x=x2)  == dydx2
-    AMatrix = \
-        np.array([  [ 1,    X1, X1**2,  X1**3 ],
-                    [ 1,    X2, X2**2,  X2**3 ],
-                    [ 0,    1,  2*X1, 3*X1**2 ],
-                    [ 0,    1,  2*X2, 3*X2**2 ] ])
+    Ainv = getInvAMatrix(X1, X2)
     
     B = np.array([  [Y1], 
                     [Y2], 
                     [dydx1], 
                     [dydx2]])
 
-    return np.linalg.inv(AMatrix).dot(B)</code></pre>
+    return Ainv.dot(B)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Motion.cubicInterp"><code class="name flex">
