@@ -78,7 +78,6 @@ class CompositeObject():
 
     #TODO: Compute forces at interfaces between components
     
-    @cacheLastResult
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         '''
             Computes the aerodynamic force experienced by the stage.
@@ -113,7 +112,6 @@ class CompositeObject():
 
         return combinedInertia
 
-    @cacheLastResult
     def getMass(self, time, state):
         ''' 
             Returns an inertia object where the CG and MOI members are zero.
