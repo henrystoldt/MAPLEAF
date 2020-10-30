@@ -178,7 +178,7 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     xLabel=r"Plate location (m)", yLabel=r"Wall Heat Flux (W)", xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
     saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix="", lineLabels=["Coarse", "Medium", "Fine"], lineColor="k", \
     createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
-    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None):    
+    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None, showCoarse=True, showMedium=True, showFine=True):    
     '''
         Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
         Show figures if showPlot is true
@@ -225,16 +225,28 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     if showUncertainty:
         maxEst = [ f + e for f,e in zip(interpFineY, uncertainties)]
         minEst = [ f - e for f,e in zip(interpFineY, uncertainties)]
-        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True, label=LLP+"Uncertainty")
+        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.2, antialiased=True, label=LLP+"Uncertainty")
     # Plot coarse/med/fine lines
     coarseLineStyle = "-."
-    medLineStyle = "--"
+
+    if "rCF" in lineLabelPrefix:
+        medLineStyle = ":"
+    else:
+        medLineStyle = "--"
+
     fineLineStyle = ":"
-    resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
-    resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, alpha=0.5)
-    resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=3)
+
+    if showCoarse:
+        resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
+
+    if showMedium:
+        resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, lw=2)
+
+    if showFine:
+        resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=2)
+
     if showRichardson:
-        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+"Richardson")
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+"Rich.")
 
     if yLabel != None:
         resultsAxes.set_ylabel(yLabel)
@@ -246,15 +258,22 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
         from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
         if resultsAxins == None:
-            resultsAxins = zoomed_inset_axes(resultsAxes, 20, loc=4) # zoom-factor: 2.5, location: upper-left
+            resultsAxins = zoomed_inset_axes(resultsAxes, insetZoom, loc=4) # zoom-factor: 2.5, location: upper-left
 
         if showUncertainty:
             resultsAxins.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True)
-        resultsAxins.plot(coarseX, coarseY, coarseLineStyle, alpha=0.5)
-        resultsAxins.plot(medX, medY, medLineStyle, alpha=0.5)
-        resultsAxins.plot(fineX, fineY, fineLineStyle, lw=3)
+
+        if showCoarse:
+            resultsAxins.plot(coarseX, coarseY, coarseLineStyle, color=lineColor, alpha=0.5)
+
+        if showMedium:
+            resultsAxins.plot(medX, medY, medLineStyle, color=lineColor, lw=2)
+
+        if showFine:
+            resultsAxins.plot(fineX, fineY, fineLineStyle, color=lineColor, lw=2)
+
         if showRichardson:
-            resultsAxins.plot(coarseX, richardsonVal, lineColor)
+            resultsAxins.plot(coarseX, richardsonVal, color=lineColor)
 
         resultsAxins.set_xlim(insetXLim[0], insetXLim[1]) # apply the x-limits
         resultsAxins.set_ylim(insetYLim[0], insetYLim[1]) # apply the y-limits

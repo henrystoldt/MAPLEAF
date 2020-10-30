@@ -4,6 +4,7 @@ Classes and functions for creating simulation logs for regular simulations (Logg
 
 import os
 import sys
+import csv
 
 # TODO: When logging, keep track of messages containing 'error' or 'warning' -> reprint those at the end of the simulation?
 
@@ -257,4 +258,90 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
     print("Writing expanded level 3 log to: {}".format(newLogFilePath))
 
     return newLogFilePath
+
+# TODO: Log class should replace Logger and RocketFlight objects
+# TODO: Log class should be able to re-populate itself from .csv file
+class Log():
+    '''
+        Class manages logs for any number of states that need to be logged.
+        Each state/parameter that needs to be logged is given its own column in the log
+        Each row holds values from a single time.
+        When a new row is added to the log, any empty values in the previous row will be filled with the fill value.
+    '''
+
+    def __init__(self, columnNames, fillValue=0):
+        ''' columnNames should be a list of strings '''
+        self.logColumns = {}
+        self.fillValue = fillValue
+
+        # Each column starts out as an empty list
+        for colName in columnNames:
+            if " " in colName:
+                # TODO: Start writing logs in csv format so spaces will be allowed
+                raise ValueError("Log column names must not contain spaces. Name with space: {}".format(colName))
+
+            self.logColumns[colName] = []
+
+        # There is always a time column
+        self.logColumns["Time(s)"] = []
+
+    def _completeLastLine(self):
+        ''' Fill empty values in the current last row with self.fillValue. Called right before creating a new line '''
+        expectedNVals = len(self.logColumns["Time(s)"])
+        for col in self.logColumns:
+            nVals = len(self.logColumns[col])
+            if nVals == expectedNVals:
+                continue
+            elif nVals < expectedNVals:
+                self.logColumns[col].append(self.fillValue)
+            else:
+                raise ValueError("More values than expected in log column: {} at time step: {}".format(col, self.logColumns["Time(s)"][-1]))
+
+    def newLogRow(self, currentTime):
+        ''' Start a new row in the log. Typically called after a time step or force evaluation is completed '''
+        # Fill empty values in the previous row with the fill value
+        self._completeLastLine()
+
+        # Create new row
+        self.logColumns["Time(s)"].append(currentTime)
+
+    def deleteLastRow(self):
+        nVals = self.logColumns["Time(s)"]
+
+        for col in self.logColumns:
+            # If column has as many items in it as expected, remove the last one
+            # Don't do complete error checking here, assume that will be done in self.newLogRow()
+            if len(self.logColumns[col]) == nVals:
+                self.logColumns[col].pop()
+
+    def addColumn(self, colName):
+        ''' Returns reference to the log column (list) '''
+        newCol = []
+        self.logColumns[colName] = newCol
+        return newCol
+
+    def addColumns(self, colNames):
+        ''' Returns list of references to the log columns (list[list]) '''
+        newCols = []
+        for colName in colNames:
+            newCol = self.addColumn(colName)
+            newCols.append(newCol)
+        
+        return newCols        
+    
+    def logValue(self, colName, value):
+        self.logColumns[colName].append(value)
+
+    def writeToCSV(self, fileName):
+        # Fill any unfilled values on last line
+        self._completeLastLine()
+
+        with open(fileName, 'w', newline='') as file:
+            writer = csv.writer(file)
+            nRows = len(self.logColumns["Time(s)"])
+
+            for i in range(nRows):
+                # Assemble the row
+                row = [ self.logColumns[col][i] for col in self.logColumns ]
+                writer.writerow(row)
 
