@@ -14,7 +14,7 @@ from test.testUtilities import assertIterablesAlmostEqual
 import MAPLEAF.IO.Logging as Logging
 from MAPLEAF.IO.Logging import (Logger, MonteCarloLogger,
                                 findNextAvailableNumberedFileName,
-                                getSystemInfo, removeLogger)
+                                getSystemInfo, removeLogger, Log)
 
 
 class TestLogger(unittest.TestCase):
@@ -144,6 +144,59 @@ class TestOtherLogging(unittest.TestCase):
 
         # Delete the new expanded log file
         os.remove(expandedLogPath)
+
+class TestLog(unittest.TestCase):
+
+    def setUp(self):
+        cols = [ "PositionX", "PositionY" ]
+        log = Log(cols)
+
+        log.newLogRow(0.0)
+        log.logValue("PositionX", 0.1)
+        log.logValue("PositionY", 0.2)
+        self.log = log
+
+    def test_basicLogging(self):
+        log = self.log
+        # Check values are in there properly
+        x1 = log.getValue(0, "PositionX")
+        y1 = log.getValue(0, "PositionY")
+        self.assertAlmostEqual(x1, 0.1)
+        self.assertAlmostEqual(y1, 0.2)
+
+    def test_completeLastLine(self):
+        log = self.log
+        log.newLogRow(0.1)
+        log.newLogRow(0.2)
+
+        # Check that t==0.1 values where filled in with the fill value (0)
+        x2 = log.getValue(0.1, "PositionX")
+        y2 = log.getValue(0.1, "PositionY")
+        self.assertAlmostEqual(x2, 0)
+        self.assertAlmostEqual(y2, 0)
+
+    def test_addColumn(self):
+        log = self.log
+        newCol = log.addColumn("newCol")
+        self.assertEqual(newCol, [ 0 ])
+
+    def test_deleteLastRow(self):
+        log = self.log
+        log.deleteLastRow()
+        self.assertEqual(0, len(log.logColumns["Time(s)"]))
+
+    def test_writeToCSV(self):
+        log = self.log
+
+        log.writeToCSV("test/test_IO/testCSVLogOutput.csv")
+
+        with open("test/test_IO/testCSVLogOutput.csv") as outputtedFile:
+            output = outputtedFile.read()
+
+        with open("test/test_IO/correctCSVLogOutput.csv") as correctFile:
+            expectedOutput = correctFile.read()
+
+        self.assertEqual(output, expectedOutput)
 
 if __name__ == '__main__':
     unittest.main()

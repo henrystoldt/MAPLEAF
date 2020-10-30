@@ -1,6 +1,7 @@
 # Ignore the testWrite file, it will have a new date everytime the unit tests are run
 testWrite.mapleaf
 testSimConfigWrite.mapleaf
+testCSVLogOutput.csv
 TempFigureDir
 
 #Ignore Pycache

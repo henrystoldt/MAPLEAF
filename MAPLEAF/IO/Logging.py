@@ -5,6 +5,7 @@ Classes and functions for creating simulation logs for regular simulations (Logg
 import os
 import sys
 import csv
+from bisect import bisect_left
 
 # TODO: When logging, keep track of messages containing 'error' or 'warning' -> reprint those at the end of the simulation?
 
@@ -261,26 +262,34 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
 
 # TODO: Log class should replace Logger and RocketFlight objects
 # TODO: Log class should be able to re-populate itself from .csv file
+# TODO: Speed test vs Python logging and pandas dataframe, convert to cython?
 class Log():
     '''
         Class manages logs for any number of states that need to be logged.
         Each state/parameter that needs to be logged is given its own column in the log
         Each row holds values from a single time.
         When a new row is added to the log, any empty values in the previous row will be filled with the fill value.
+
+        Internally, the log is represented as a dict containing a list for each log column
     '''
 
-    def __init__(self, columnNames, fillValue=0):
-        ''' columnNames should be a list of strings '''
+    def __init__(self, columnNames=None, fillValue=0):
+        ''' 
+            columnNames should be a list of strings 
+            To get references to the log columns, initialize the log as empty and then use the addColumn(s) functions.
+                Those return the list(s) they add to the log for direct access
+        '''
         self.logColumns = {}
         self.fillValue = fillValue
 
         # Each column starts out as an empty list
-        for colName in columnNames:
-            if " " in colName:
-                # TODO: Start writing logs in csv format so spaces will be allowed
-                raise ValueError("Log column names must not contain spaces. Name with space: {}".format(colName))
+        if columnNames != None:
+            for colName in columnNames:
+                if " " in colName:
+                    # TODO: Start writing logs in csv format so spaces will be allowed
+                    raise ValueError("Log column names must not contain spaces. Name with space: {}".format(colName))
 
-            self.logColumns[colName] = []
+                self.logColumns[colName] = []
 
         # There is always a time column
         self.logColumns["Time(s)"] = []
@@ -302,11 +311,16 @@ class Log():
         # Fill empty values in the previous row with the fill value
         self._completeLastLine()
 
+        # Check that time is always increasing (assumed by the getValue function, enables binary search for indices)
+        if len(self.logColumns["Time(s)"]) != 0 and currentTime <= self.logColumns["Time(s)"][-1]:
+            lastTime = self.logColumns["Time(s)"][-1]
+            raise ValueError("Times in log rows must be increasing sequentially. New Row Time: {}, Last Row Time: {}".format(currentTime, lastTime))
+
         # Create new row
         self.logColumns["Time(s)"].append(currentTime)
 
     def deleteLastRow(self):
-        nVals = self.logColumns["Time(s)"]
+        nVals = len(self.logColumns["Time(s)"])
 
         for col in self.logColumns:
             # If column has as many items in it as expected, remove the last one
@@ -318,6 +332,12 @@ class Log():
         ''' Returns reference to the log column (list) '''
         newCol = []
         self.logColumns[colName] = newCol
+
+        # Add fillValue for any existing rows
+        nRows = len(self.logColumns["Time(s)"])
+        for i in range(nRows):
+            newCol.append(self.fillValue)
+
         return newCol
 
     def addColumns(self, colNames):
@@ -332,16 +352,29 @@ class Log():
     def logValue(self, colName, value):
         self.logColumns[colName].append(value)
 
+    def getValue(self, time, colName):
+        # Binary search for the correct time
+        i = bisect_left(self.logColumns["Time(s)"], time)
+
+        # Retrieve value
+        return self.logColumns[colName][i]
+
     def writeToCSV(self, fileName):
         # Fill any unfilled values on last line
         self._completeLastLine()
 
         with open(fileName, 'w', newline='') as file:
             writer = csv.writer(file)
-            nRows = len(self.logColumns["Time(s)"])
+            
+            # Print out headers
+            colNames = sorted(self.logColumns.keys())
+            colNames.remove("Time(s)")
+            colNames.insert(0, "Time(s)")
+            writer.writerow(colNames)
 
+            nRows = len(self.logColumns["Time(s)"])
             for i in range(nRows):
                 # Assemble the row
-                row = [ self.logColumns[col][i] for col in self.logColumns ]
+                row = [ self.logColumns[col][i] for col in colNames ]
                 writer.writerow(row)
 
