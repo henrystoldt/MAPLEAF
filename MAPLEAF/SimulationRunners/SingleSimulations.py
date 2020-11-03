@@ -197,7 +197,7 @@ class Simulation():
                 " PitchAngularError(degrees) YawAngularError(degrees) RollAngularError(degrees)"
 
                 self.controlSystemEvaluationLog.append(header)
-                
+
         elif self.silent:
             # No intention of writing things to a log file, just prevent them from being printed to the terminal
             _ = []
@@ -344,6 +344,14 @@ class Simulation():
         except AttributeError:
             pass # Force logging not desired/set up for this simulation
 
+    def newControlSystemLogLine(self, txt):
+        try:
+            if len(self.controlSystemEvaluationLeg) > 0 and self.controlSystemEvaluationLog[-1][-1:] != '\n':
+                self.controlSystemEvaluationLog[-1] += "\n"
+            self.controlSystemEvaluationLog.append(txt)
+        except AttributeError:
+            pass # Control system logging no desired/set up for this simulation
+
     def discardForceLogsForPreviousTimeStep(self, integrator):
         if self.loggingLevel >= 2:
             # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
@@ -425,6 +433,13 @@ class Simulation():
                     crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
+
+                if self.loggingLevel >= 4:
+                    controlSystemLogFilePath = mainLogFilePath.replace("simulationLog", "controlSystemEvaluationLog")
+                    print("Writing control system evaluation log to: {}".format(controlSystemLogFilePath))
+                    logFilePaths.append(controlSystemLogFilePath)
+                    with open(controlSystemLogFilePath, 'w+') as file:
+                        file.writelines(self.controlSystemEvaluationLog)
 
         return logFilePaths
 
