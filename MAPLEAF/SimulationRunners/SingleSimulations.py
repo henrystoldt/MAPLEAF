@@ -189,6 +189,15 @@ class Simulation():
             # Start force evaluation log if required
             if self.loggingLevel >= 2:
                 self.forceEvaluationLog = []
+
+            if self.loggingLevel >= 4:
+                #Create control system evaluation log header (written once per time step)
+                # Columns always included
+                header = "Time(s)" + \
+                " PitchAngularError(degrees) YawAngularError(degrees) RollAngularError(degrees)"
+
+                self.controlSystemEvaluationLog.append(header)
+                
         elif self.silent:
             # No intention of writing things to a log file, just prevent them from being printed to the terminal
             _ = []
