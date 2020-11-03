@@ -51,6 +51,8 @@ CythonFiles = [ [ "MAPLEAF/Motion/CythonVector.pyx", ".c" ],
                 [ "MAPLEAF/Motion/CythonAngularVelocity.pyx", ".c" ],
 
                 [ "MAPLEAF/Rocket/CythonFinFunctions.pyx", ".cpp" ],
+
+                ["MAPLEAF/IO/CythonLog.pyx", ".c" ]
 ]
 
 def buildExtensionObjectsForCythonCode(CythonFilesList):

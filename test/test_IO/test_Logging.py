@@ -14,7 +14,8 @@ from test.testUtilities import assertIterablesAlmostEqual
 import MAPLEAF.IO.Logging as Logging
 from MAPLEAF.IO.Logging import (Logger, MonteCarloLogger,
                                 findNextAvailableNumberedFileName,
-                                getSystemInfo, removeLogger, Log)
+                                getSystemInfo, removeLogger)
+from MAPLEAF.IO.CythonLog import Log
 
 
 class TestLogger(unittest.TestCase):

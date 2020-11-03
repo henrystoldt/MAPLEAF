@@ -17,7 +17,7 @@ time = [ 0 ]
 
 def logLine(times):
     times[0] += 1
-    logger.write('{} {} {} {}'.format(times[0], 0, 0, 0))
+    logger.write('{} {} {} {} {} {} {} {}'.format(times[0], 0, 0, 0, 0, 0, 0, 0))
     
 '''
 
@@ -36,22 +36,20 @@ time = [ 0 ]
 
 def logLine(times):
     times[0] += 1
-    logger.info('{} {} {} {}'.format(times[0], 0, 0, 0))
+    logger.info('{} {} {} {} {} {} {} {}'.format(times[0], 0, 0, 0, 0, 0, 0, 0))
 '''
 
 print(timeit("logLine(time)", setup=setup, number=nTests))
 
 
 
-
-
-print("\nLog class")
+print("\nCython Log class")
 
 setup = '''
-from MAPLEAF.IO.Logging import Log
+from MAPLEAF.IO.CythonLog import Log
 
 log = Log()
-logCols = log.addColumns(["X", "Y", "Z"])
+logCols = log.addColumns(["X", "Y", "Z", "1", "2", "3", "4"])
 
 time = [ 0 ]
 
@@ -72,7 +70,7 @@ print("\n Pandas Dataframe")
 setup = '''
 import pandas as pd
 
-cols = [ "X", "Y", "Z"]
+cols = [ "X", "Y", "Z", "1", "2", "3", "4"]
 log = pd.DataFrame(columns=cols)
 
 time = [ 0 ]
@@ -80,7 +78,7 @@ time = [ 0 ]
 def logLine(times):
     times[0] += 1
     for col in cols:
-        log.loc[times[0]] = [ 0, 0, 0 ]
+        log.loc[times[0]] = [ 0, 0, 0, 0, 0, 0, 0 ]
 '''
 
 print(timeit("logLine(time)", setup=setup, number=nTests))
