@@ -11,7 +11,11 @@ def OptimizationFunction(logFilesList):
     #print("HEEEEEYYYYYY!!!!!!", file=sys.__stdout__)
     #print(logFilesList, file=sys.__stdout__)
 
-    filePath = logFilesList[2]
+    for logFile in logFilesList:
+        if("controlSystemEvaluationLog" in logFile):
+            filePath = logFile
+            break
+
     columnSpecs = ["Time","Error"]
 
     columns, columnNames = Plotting.getLoggedColumns(filePath, columnSpecs, enableCache=False)
@@ -19,6 +23,9 @@ def OptimizationFunction(logFilesList):
     pitchErrorIntegral = 0
     yawErrorIntegral = 0
     rollErrorIntegral = 0
+
+    #print(columnNames,file=sys.__stdout__)
+    #print(columns,file=sys.__stdout__)
 
     for i in range(len(columns[0])):
 

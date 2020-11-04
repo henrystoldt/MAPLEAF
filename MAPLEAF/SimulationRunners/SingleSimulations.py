@@ -350,7 +350,7 @@ class Simulation():
 
     def newControlSystemLogLine(self, txt):
         try:
-            if len(self.controlSystemEvaluationLeg) > 0 and self.controlSystemEvaluationLog[-1][-1:] != '\n':
+            if len(self.controlSystemEvaluationLog) > 0 and self.controlSystemEvaluationLog[-1][-1:] != '\n':
                 self.controlSystemEvaluationLog[-1] += "\n"
             self.controlSystemEvaluationLog.append(txt)
         except AttributeError:
