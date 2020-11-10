@@ -1,11 +1,3 @@
-#Created by: Henry Stoldt
-#Feb 2020
-
-#To run tests:
-#In this file: [test_StandardAtmosphere.py]
-#In all files in the current directory: [python -m unittest discover]
-#Add [-v] for verbose output (displays names of all test functions)
-
 import os
 import sys
 import unittest
@@ -198,6 +190,24 @@ class TestLog(unittest.TestCase):
             expectedOutput = correctFile.read()
 
         self.assertEqual(output, expectedOutput)
+
+    def test_getValue(self):
+        log = self.log
+        val = log.getValue(0, "PositionX")
+        self.assertEqual(val, 0.1)
+
+    def test_logValue(self):
+        log = self.log
+        log.newLogRow(0.1)        
+        log.logValue("PositionX", 0.3)
+        log.logValue("PositionY", 0.4)        
+        
+        val = log.getValue(0.1, "PositionX")
+        self.assertEqual(val, 0.3)
+
+        val = log.getValue(0.1, "PositionY")
+        self.assertEqual(val, 0.4)
+
 
 if __name__ == '__main__':
     unittest.main()
