@@ -100,10 +100,10 @@ cdef class Log():
 
     cpdef getValue(self, time, colName):
         # Binary search for the correct time
-        i = bisect_left(self.logColumns["Time(s)"], time)
+        desiredRow = bisect_left(self.logColumns["Time(s)"], time)
 
         # Retrieve value
-        return self.logColumns[colName][i]
+        return self.logColumns[colName][desiredRow]
 
     cpdef writeToCSV(self, fileName):
         # Fill any unfilled values on last line

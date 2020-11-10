@@ -74,6 +74,7 @@ test/regressionTesting/*/*/*.eps
 *Cython*.cpp
 *Cython*.pyd
 *Cython*.so
+*Cython*.html
 
 clean.sh
 
