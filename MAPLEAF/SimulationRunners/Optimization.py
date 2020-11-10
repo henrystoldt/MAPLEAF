@@ -12,7 +12,7 @@ from MAPLEAF.SimulationRunners.Batch import (BatchRun,
                                              _implementParameterOverrides)
 from MAPLEAF.Utilities import evalExpression
 
-__all__ = [ "OptimizingSimRunner", "ParallelOptimizingSimRunner", "BatchOptimizingSimRunner" ]
+__all__ = [ "OptimizingSimRunner", "ParallelOptimizingSimRunner", "BatchOptimizingSimRunner", "isBatchOptimization" ]
 
 try:
     import ray
@@ -351,6 +351,12 @@ class ParallelOptimizingSimRunner(OptimizingSimRunner):
             from pyswarms.utils.plotters import plot_cost_history
             plot_cost_history(self.optimizer.cost_history)
             plt.show()
+
+def isBatchOptimization(simDefinition):
+    if "Optimization.batchDefinition" in simDefinition:
+        return True
+    else:
+        return False
 
 class BatchOptimizingSimRunner(OptimizingSimRunner):
 

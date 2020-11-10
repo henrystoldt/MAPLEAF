@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       OptimizingSimRunner, Simulation,
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, isBatchOptimization,
+                                       OptimizingSimRunner, Simulation, BatchOptimizingSimRunner,
                                        runMonteCarloSimulation, WindTunnelSimulation)
 from MAPLEAF.Utilities import evalExpression
 
@@ -92,6 +92,17 @@ class TestSimRunners(unittest.TestCase):
         # Check updating dependent variables values
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
+
+    def test_isBatchOptimization(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
+        self.assertTrue(isBatchOptimization(simDef))
+
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
+        self.assertFalse(isBatchOptimization(simDef))
+
+    def test_BatchOptimization(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
+        simRunner = BatchOptimizingSimRunner(simDefinition=simDef, silent=True)
 
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
