@@ -1,6 +1,7 @@
 import importlib
 from copy import deepcopy
 from statistics import mean
+import sys
 
 import matplotlib.pyplot as plt
 from MAPLEAF.IO import SimDefinition, SubDictReader
@@ -371,6 +372,7 @@ class BatchOptimizingSimRunner(OptimizingSimRunner):
 
         caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
         for case in caseDictNames:
+            print(case,file=sys.__stdout__)
             # Get sim definition file path
             simDefPath = batchDefinition.getValue("{}.simDefinitionFile".format(case))
             simDefPath = getAbsoluteFilePath(simDefPath)
