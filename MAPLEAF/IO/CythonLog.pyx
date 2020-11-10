@@ -1,4 +1,3 @@
-
 import csv
 from bisect import bisect_left
 
@@ -6,6 +5,9 @@ __all__ = [ "Log" ]
 
 # TODO: Log class should replace Logger and RocketFlight objects
 # TODO: Log class should be able to re-populate itself from .csv file
+# TODO: need to determine exactly which objects should own log files
+    # a single log for a time steps. or a single log for each rocket stage
+
 
 cdef class Log():
     '''
