@@ -363,6 +363,9 @@ class BatchOptimizingSimRunner(OptimizingSimRunner):
     def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
         super().__init__(simDefinitionFilePath, simDefinition, silent)
 
+        if not self.silent:
+            print("Batch Optimization")
+
         # Optimization dictionary now requires an entry called batchDefinition
             # TODO: Rename/re-locate this to wherever you want, and put it in the SimDefinitionTemplate
             # In this case the 'simDefinition' might only contain an Optimization dictionary?

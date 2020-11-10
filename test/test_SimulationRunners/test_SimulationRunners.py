@@ -100,9 +100,9 @@ class TestSimRunners(unittest.TestCase):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
         self.assertFalse(isBatchOptimization(simDef))
 
-    def test_BatchOptimization(self):
-        simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
-        simRunner = BatchOptimizingSimRunner(simDefinition=simDef, silent=True)
+    # def test_BatchOptimization(self):
+    #     simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
+    #     simRunner = BatchOptimizingSimRunner(simDefinition=simDef, silent=True)   
 
     def test_convergenceSimulations(self):
         #### Set up sim definition ####

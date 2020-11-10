@@ -17,7 +17,9 @@ SimControl{
 
 Optimization{
     costFunction        MAPLEAF.OptimizationFunctions.MomentPIDCostOptimizationFunction:OptimizationFunction
+
     batchDefinition     MAPLEAF/Examples/BatchSims/CanardOptimizationTest.mapleaf
+
     IndependentVariables{
         Pxy             0 < Rocket.ControlSystem.MomentController.Pxy    < 200
         Ixy             0 < Rocket.ControlSystem.MomentController.Ixy    < 50
@@ -28,10 +30,6 @@ Optimization{
 
     }
 
-    DependentVariables{
-        # Equation creates tradeoff between body weight and nose cone weight - optimal value is bodyWeight == 0.1224745
-    }
-
     ParticleSwarm{
         nParticles      10
         nIterations     50
@@ -39,7 +37,6 @@ Optimization{
 }
 
 Rocket{             
-    
     # Initial state
     position            (0 0 10) # m
     initialDirection    (0.4 0.4 1)

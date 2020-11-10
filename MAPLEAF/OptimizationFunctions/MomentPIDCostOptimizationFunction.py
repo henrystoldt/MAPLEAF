@@ -11,10 +11,14 @@ def OptimizationFunction(logFilesList):
     #print("HEEEEEYYYYYY!!!!!!", file=sys.__stdout__)
     #print(logFilesList, file=sys.__stdout__)
 
+    filePath = None
     for logFile in logFilesList:
         if("controlSystemEvaluationLog" in logFile):
             filePath = logFile
             break
+
+    if filePath == None:
+        raise ValueError("ERROR: could not find controlSystemEvaluationLog. Make sure logging level is at least 4. Available log files: {}".format(logFilesList))
 
     columnSpecs = ["Time","Error"]
 

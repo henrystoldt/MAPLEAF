@@ -12,10 +12,10 @@ from typing import List
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, isBatchOptimization,
                                        OptimizingSimRunner,
                                        ParallelOptimizingSimRunner, Simulation,
-                                       runMonteCarloSimulation)
+                                       runMonteCarloSimulation, BatchOptimizingSimRunner)
 from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
 
@@ -147,12 +147,18 @@ def main(argv=None) -> int:
 
     #### Run simulation(s) ####
     if isOptimizationProblem(simDef):
-        if args.nCores[0] > 1:
-            optSimRunner = ParallelOptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
-            optSimRunner.runOptimization()
+        if isBatchOptimization(simDef):
+            # Run and optimization based on a batch file of simulation definitions
+            runner = BatchOptimizingSimRunner(simDefinition=simDef, silent=args.silent)
+            runner.runOptimization()
         else:
-            optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
-            optSimRunner.runOptimization()
+            #  run an optimization based on a single simulation definition
+            if args.nCores[0] > 1:
+                optSimRunner = ParallelOptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+                optSimRunner.runOptimization()
+            else:
+                optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
+                optSimRunner.runOptimization()
 
     elif isMonteCarloSimulation(simDef):
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])

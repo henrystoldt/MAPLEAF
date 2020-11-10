@@ -24,6 +24,7 @@ for01*
 *simulationLog*
 *forceEvaluationLog*
 *monteCarloLog*
+*controlSystemEvaluationLog*
 
 # Ignore pypy environment
 my-pypy-env
