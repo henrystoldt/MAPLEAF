@@ -46,11 +46,12 @@ class ControlSystem(abc.ABC):
 class RocketControlSystem(ControlSystem, SubDictReader):
     ''' Simplest possible control system for a rocket '''
 
-    def __init__(self, controlSystemDictReader, rocket, initTime=0):
+    def __init__(self, controlSystemDictReader, rocket, initTime=0, silent=False):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader
         self.lastControlLoopRunTime = initTime
         self.timeSteppingModified = False # set to True if the sim's time stepping has been constrained by the control system update rate (in self._checkSimTimeStepping)
+        self.silent = silent
 
         ### Create Navigator ###
         desiredFlightDirection = controlSystemDictReader.getVector("desiredFlightDirection")
@@ -101,9 +102,10 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             # Disable adaptive time stepping during the ascent portion of the flight (if it's enabled)
             timeDiscretization = self.controlSystemDictReader.getString("SimControl.timeDiscretization")
             if "Adaptive" in timeDiscretization:
-                print("WARNING: Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate")
-                print("Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.")
-                print("Switching to RK4 time stepping")
+                if not self.silent:
+                    print("WARNING: Time stepping conflict between adaptive-time-stepping Runge-Kutta method and fixed control system update rate")
+                    print("Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.")
+                    print("Switching to RK4 time stepping")
                 self.rocket.rigidBody.integrate = integratorFactory(integrationMethod='RK4')
                 self.timeSteppingModified = True
 
@@ -113,11 +115,12 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             originalSimTimeStep = self.controlSystemDictReader.getFloat("SimControl.timeStep")
             self.originalSimTimeStep = originalSimTimeStep
             if controlTimeStep / originalSimTimeStep != round(controlTimeStep / originalSimTimeStep):
-                print("WARNING: Selected time step: {} does not divide the control system time step: {} Into an integer number of time steps.".format(originalSimTimeStep, controlTimeStep))
                 recommendedSimTimeStep = controlTimeStep / max(1, round(controlTimeStep / originalSimTimeStep))
-                
-                print("Adjusting time step to: {}".format(recommendedSimTimeStep))
-                print("")
+                if not self.silent:
+                    print("WARNING: Selected time step ({}) does not divide the control system time step ({}) Into an integer number of time steps.".format(originalSimTimeStep, controlTimeStep))
+                    print("Adjusting time step to: {}".format(recommendedSimTimeStep))
+                    print("")
+                    
                 # This relies on the SimRunner reading the time step size from the sim definition after intializing the rocket
                     # To make this more robust, have the rocket perform a timestep size check every single time step
                 self.controlSystemDictReader.simDefinition.setValue("SimControl.timeStep", str(recommendedSimTimeStep))
