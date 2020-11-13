@@ -30,7 +30,7 @@ def isBatchOptimization(simDefinition) -> bool:
         return False
 
 
-#### UTILITY FUNCTIONS - used by the classes below to evaluate cost functions by running INDIVIDUAL simulations ####
+#### UTILITY FUNCTIONS - used by the classes below to evaluate cost functions by running simulations ####
 def _evaluateCostFunction_SingleSimulation(costFunctionDefinition, stageFlights, logFilePaths):
     if ":" in costFunctionDefinition:
         # Cost function is expected to be a custom function defined in an importable module
