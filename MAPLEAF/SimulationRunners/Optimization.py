@@ -172,7 +172,7 @@ class OptimizingSimRunner():
             depVarNames.append(depVarKey)
             depVarDefinitions.append(self.simDefinition.getValue(depVar))
 
-        if not self.silent:
+        if not self.silent and len(depVarNames) > 0:
             # Output results to console
             print("Dependent variables:")
             for i in range(len(depVarNames)):
