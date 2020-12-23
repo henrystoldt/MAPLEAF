@@ -15,8 +15,6 @@ class TestRocketControlSystem(unittest.TestCase):
         simDef.setValue("SimControl.loggingLevel", "0")
         simDef.setValue("Rocket.ControlSystem.MomentController.gainTableFilePath", "MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt")
         simDef.setValue("Rocket.Sustainer.Canards.Actuators.deflectionTablePath","MAPLEAF/Examples/TabulatedData/testFinDeflectionLaw.txt")
-        simDef.setValue("Rocket.ControlSystem.FlightPlan.constTargetLocation", "(0, 0, 10000)")
-        simDef.setValue("Rocket.ControlSystem.FlightPlan.constTargetSpin", "0")
         
         simDef.removeKey("Rocket.ControlSystem.FlightPlan.filePath")
         

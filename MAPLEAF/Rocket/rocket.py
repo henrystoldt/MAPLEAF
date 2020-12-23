@@ -156,7 +156,7 @@ class Rocket(CompositeObject):
         #### Init Guidance/Navigation/Control System (if required) ####
         self.controlSystem = None
         ''' None for uncontrolled rockets. `MAPLEAF.GNC.ControlSystems.RocketControlSystem` for controlled rockets '''
-        if rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None and stageToInitialize == None:
+        if ( rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None or rocketDictReader.tryGetString("ControlSystem.MomentController.Type") == "IdealMomentController") and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
             self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
