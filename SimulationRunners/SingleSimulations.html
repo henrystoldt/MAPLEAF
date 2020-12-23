@@ -323,7 +323,7 @@ class Simulation():
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:  
+        if rocket.controlSystem != None and rocket.controlSystem.controlledSystem != None: 
             # If rocket has moving fins, record their angles for plotting
             nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
             flight.actuatorDefls = [ [0] for i in range(nActuators) ]
@@ -933,7 +933,7 @@ class WindTunnelSimulation(Simulation):
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:  
+        if rocket.controlSystem != None and rocket.controlSystem.controlledSystem != None: 
             # If rocket has moving fins, record their angles for plotting
             nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
             flight.actuatorDefls = [ [0] for i in range(nActuators) ]
