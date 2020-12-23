@@ -7,7 +7,9 @@ from MAPLEAF.GNC import \
     ScheduledGainPIDRocketMomentController
 from MAPLEAF.GNC import Stabilizer
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
-
+from MAPLEAF.IO import SimDefinition
+from MAPLEAF.Main import Simulation
+from test.testUtilities import assertVectorsAlmostEqual
 
 class TestScheduledGainPIDRocketMomentController(unittest.TestCase):
     def setUp(self):
@@ -125,3 +127,23 @@ class TestScheduledGainPIDRocketMomentController(unittest.TestCase):
             # print(calculatedMoments[i])
             # print(ExpectedM[i])
             self.assertAlmostEqual(calculatedMoments[i], ExpectedM[i])
+
+class TestIdealMomentController(unittest.TestCase):
+    def test_instantTurn(self):
+        simulationDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
+        # Use an ideal moment controller
+        simulationDefinition.setValue("Rocket.ControlSystem.MomentController.Type", "IdealMomentController")
+        # Set initial direction to be pointing directly upwards
+        simulationDefinition.setValue("Rocket.initialDirection", "(0 0 1)")
+        # Ask for an Immediate Turn
+        simulationDefinition.setValue("Rocket.ControlSystem.desiredFlightDirection", "(0 1 1)")
+
+        runner = Simulation(simDefinition=simulationDefinition, silent=True)
+        rocket = runner.createRocket()
+
+        # Take a time step and check that the desired direction has been achieved immediately
+        rocket.timeStep(0.01)
+
+        currentDirection = rocket.rigidBody.state.orientation.rotate(Vector(0,0,1))
+        expectedDirection = Vector(0,1,1).normalize() 
+        assertVectorsAlmostEqual(self, currentDirection, expectedDirection, 5)

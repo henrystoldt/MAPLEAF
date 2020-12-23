@@ -84,6 +84,71 @@ ExampleFlightCase{
 	}
 }
 
+TimeStepAdaptationDemo{
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
+
+	ExpectedFinalValues{
+		Mach	    	0.0
+		PositionX		-141.127
+		Time(s)	    	45.0
+	}
+
+	ParameterOverrides{
+		SimControl.EndCondition	    				Time
+		SimControl.EndConditionValue   				45
+		SimControl.TimeStepAdaptation{
+			targetError 							0.002
+			minFactor								0.1
+			maxFactor								10
+			PID.coefficients						-0.016 -0.004 -0.0012
+		}
+		SimControl.timeStep							0.1
+		Environment.MeanWindModel					Constant
+		Environment.ConstantMeanWind.velocity		(1 0 0)
+		Environment.PinkNoiseModel.turbulenceIntensity					2
+		Environment.LaunchSite.railLength			20
+		Rocket.Sustainer.Motor{
+			impulseAdjustFactor						2
+			burnTimeAdjustFactor					2
+		}
+	}
+
+	PlotsToGenerate{
+		TimeStep{
+			columnsToPlot			TimeStep
+			lineFormat				.
+			lineColors				\#003f5c
+			xLabel					Time after Ignition (s)
+			yLabel					Time Step (s)
+			xLimits					0 45
+			yLimits					0 0.5
+			legendLabel				None
+			saveLocation			./test/regressionTesting/AdaptiveIntegration/TimeStepPlot.pdf
+		}
+
+		Error{
+			columnsToPlot			IntegrationError
+			lineFormat				.
+			lineColors				\#003f5c
+			xLabel					Time after Ignition (s)
+			yLabel					Estimated Integration Error
+			yScale					log
+			xLimits					0 45
+			yLimits					1e-5 1e-1
+			legendLabel				Estimated Error
+			saveLocation			./test/regressionTesting/AdaptiveIntegration/IntegrationError.pdf
+
+			errorTarget{
+				file 				./test/regressionTesting/AdaptiveIntegration/expectedValues.csv
+				columnsToPlot		Target Max
+				xColumnName			Time
+				lineFormat			-. -.
+				validationData		False
+			}
+		}
+	}
+}
+
 !include SooyAP98DC97Cases.mapleaf
 
 ThrustVectoringCase{

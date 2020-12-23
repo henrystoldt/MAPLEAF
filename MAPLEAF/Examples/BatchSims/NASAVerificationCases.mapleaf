@@ -274,8 +274,8 @@ NASATwoStageOrbitalRocket{
 		PositionX(m)	6598829.9
 		PositionY(m)	637702.775
 		PositionZ(m)	0.0
-		VelocityX(m/s)	2303.5448
-		VelocityY(m/s)	8478.6648
+		VelocityX(m/s)	2304.959 # NASA Sim 4: 2302.326; Sim 5: 2302.122
+		VelocityY(m/s)	8477.392 # NASA Sim 4: 8479.134; Sim 5: 8479.22
 		VelocityZ(m/s)	0.0
 	}
 
