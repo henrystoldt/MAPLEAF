@@ -43,7 +43,7 @@ from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
-__all__ = [ &#34;Simulation&#34;, &#34;RemoteSimulation&#34;, &#34;WindTunnelSimulation&#34;, &#34;loadSimDefinition&#34; ]
+__all__ = [ &#34;Simulation&#34;, &#34;WindTunnelSimulation&#34;, &#34;loadSimDefinition&#34; ]
 
 def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
     &#39;&#39;&#39; Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input &#39;&#39;&#39;
@@ -490,25 +490,6 @@ class Simulation():
             # Plot all other columns from log files
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
-
-try:
-    import ray
-    rayAvailable = True
-except ImportError:
-    rayAvailable = False
-
-if rayAvailable:
-    @ray.remote
-    class RemoteSimulation(Simulation):
-        &#39;&#39;&#39; 
-            Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
-            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
-        &#39;&#39;&#39;
-        @ray.method(num_returns=2)
-        def run(self):
-            return super().run()
-else:
-    RemoteSimulation = None
 
 class WindTunnelSimulation(Simulation):
     def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine=&#39;False&#39;):

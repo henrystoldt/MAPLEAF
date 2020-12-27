@@ -43,13 +43,14 @@ Includes some (`Simulation`) that run a single simulation, and others (`Optimizi
 
 # Make the classes in all submodules importable directly from MAPLEAF.Rocket
 from .SingleSimulations import *
+from .Parallel import *
 from .MonteCarlo import *
 from .Convergence import *
 from .Optimization import *
 from .Batch import *
 
 # For some reason CythonVector and company don&#39;t exist down here, so they won&#39;t import when running from MAPLEAF.Motion import *
-subModules = [ SingleSimulations, MonteCarlo, Convergence, Optimization, Batch ]
+subModules = [ SingleSimulations, Parallel, MonteCarlo, Convergence, Optimization, Batch ]
 
 __all__ = [ ]
 
@@ -74,6 +75,10 @@ Accessible as <code>mapleaf-batch</code> if …</p></div>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="MAPLEAF.SimulationRunners.Optimization" href="Optimization.html">MAPLEAF.SimulationRunners.Optimization</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="MAPLEAF.SimulationRunners.Parallel" href="Parallel.html">MAPLEAF.SimulationRunners.Parallel</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1505,6 +1510,26 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
 </dd>
 </dl>
 </dd>
+<dt id="MAPLEAF.SimulationRunners.RemoteSimulation"><code class="flex name class">
+<span>class <span class="ident">RemoteSimulation</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is a fake remote simulation class which will raise an exception if it is ever used.
+If it is not used (no parallel simulations are run) then no error should be raised</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RemoteSimulation(Simulation):
+    &#39;&#39;&#39; 
+        Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
+        to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
+    &#39;&#39;&#39;
+    @ray.method(num_returns=2)
+    def run(self):
+        return super().run()</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.SimulationRunners.Simulation"><code class="flex name class">
 <span>class <span class="ident">Simulation</span></span>
 <span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
@@ -2461,6 +2486,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.SimulationRunners.Convergence" href="Convergence.html">MAPLEAF.SimulationRunners.Convergence</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.MonteCarlo" href="MonteCarlo.html">MAPLEAF.SimulationRunners.MonteCarlo</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.Optimization" href="Optimization.html">MAPLEAF.SimulationRunners.Optimization</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.Parallel" href="Parallel.html">MAPLEAF.SimulationRunners.Parallel</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.SingleSimulations" href="SingleSimulations.html">MAPLEAF.SimulationRunners.SingleSimulations</a></code></li>
 </ul>
 </li>
@@ -2496,6 +2522,9 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.SimulationRunners.OptimizingSimRunner.runOptimization" href="#MAPLEAF.SimulationRunners.OptimizingSimRunner.runOptimization">runOptimization</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.SimulationRunners.RemoteSimulation" href="#MAPLEAF.SimulationRunners.RemoteSimulation">RemoteSimulation</a></code></h4>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.SimulationRunners.Simulation" href="#MAPLEAF.SimulationRunners.Simulation">Simulation</a></code></h4>
