@@ -161,20 +161,21 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlSystemDictReader.simDefinition)
 
     def controlNextStageAfterSeparation(self):
-        # Delete reference to controlled system from previous stage
-        droppedStageNumber = min(self.controlledSystems.keys()) # Smallest number will be current bottom stage number
-        del self.controlledSystems[droppedStageNumber]
-
-        # Update stage number to the next one
         if len(self.controlledSystems.keys()) > 0:
-            # Update to next one
-            nextStageNumber = min(self.controlledSystems.keys()) # Smallest number will be current bottom stage number
-            self.controlledSystem = self.controlledSystems[nextStageNumber]
-            for actuator in self.controlledSystem.actuatorList:
-                actuator.lastTime = self.rocket.rigidBody.time
-        else:
-            # If no control system on next stage, delete itself
-            self.deactivate()
+            # Delete reference to controlled system from previous stage
+            droppedStageNumber = min(self.controlledSystems.keys()) # Smallest number will be current bottom stage number
+            del self.controlledSystems[droppedStageNumber]
+
+            # Update stage number to the next one
+            if len(self.controlledSystems.keys()) > 0:
+                # Update to next one
+                nextStageNumber = min(self.controlledSystems.keys()) # Smallest number will be current bottom stage number
+                self.controlledSystem = self.controlledSystems[nextStageNumber]
+                for actuator in self.controlledSystem.actuatorList:
+                    actuator.lastTime = self.rocket.rigidBody.time
+            else:
+                # If no control system on next stage, delete itself
+                self.deactivate()
 
     def deactivate(self):
         self.restoreOriginalTimeStepping()
