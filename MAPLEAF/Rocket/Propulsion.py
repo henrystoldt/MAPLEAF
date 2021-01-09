@@ -1,12 +1,11 @@
 import re
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 
 __all__ = [ "TabulatedMotor" ]
 
-class TabulatedMotor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent):
     '''
     Interface:
         Initialization:
