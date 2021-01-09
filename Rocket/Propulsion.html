@@ -32,13 +32,12 @@
 </summary>
 <pre><code class="python">import re
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 
 __all__ = [ &#34;TabulatedMotor&#34; ]
 
-class TabulatedMotor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent):
     &#39;&#39;&#39;
     Interface:
         Initialization:
@@ -274,7 +273,7 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class TabulatedMotor(RocketComponent, SubDictReader):
+<pre><code class="python">class TabulatedMotor(RocketComponent):
     &#39;&#39;&#39;
     Interface:
         Initialization:
@@ -482,7 +481,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
 <ul class="hlist">
 <li><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="RocketComponents.html#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></li>
 <li>abc.ABC</li>
-<li><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -581,14 +579,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="MAPLEAF.IO.subDictReader.SubDictReader" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader">SubDictReader</a></b></code>:
-<ul class="hlist">
-<li><code><a title="MAPLEAF.IO.subDictReader.SubDictReader.getString" href="../IO/subDictReader.html#MAPLEAF.IO.subDictReader.SubDictReader.getString">getString</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
