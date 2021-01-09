@@ -44,7 +44,7 @@ class Inertia():
     def __init__(self, MOI, CG, mass, MOICentroidLocation=None):
         &#34;&#34;&#34; 
             * MOIVector: Ixx, Iyy, Izz  
-            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated. Only required if different from CG
         &#34;&#34;&#34;
         self.MOI = MOI
         self.CG = CG
@@ -188,7 +188,7 @@ class Inertia():
 <div class="desc"><ul>
 <li>MOIVector: Ixx, Iyy, Izz
 </li>
-<li>MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.</li>
+<li>MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated. Only required if different from CG</li>
 </ul></div>
 <details class="source">
 <summary>
@@ -201,7 +201,7 @@ class Inertia():
     def __init__(self, MOI, CG, mass, MOICentroidLocation=None):
         &#34;&#34;&#34; 
             * MOIVector: Ixx, Iyy, Izz  
-            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated. Only required if different from CG
         &#34;&#34;&#34;
         self.MOI = MOI
         self.CG = CG
