@@ -1,0 +1,161 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+SimControl{
+    timeDiscretization RK45Adaptive
+    timeStep 0.02 #sec, CanardDeflections
+    plot Position Velocity AngularVelocity Deflection&canardsFin FlightAnimation
+    loggingLevel 2
+
+    EndCondition Apogee
+    EndConditionValue 0
+
+    TimeStepAdaptation{
+        controller PID
+    }
+}
+
+Rocket{             
+    
+    # Initial state
+    position            (0 0 10) # m
+    initialDirection    (0 0.1 1)
+    velocity            (0 0 10) #m/s
+
+
+    ControlSystem{
+        desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
+    
+        MomentController{
+            Type                    GainScheduledPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
+            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
+            scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
+        }
+
+        # Simulation will not take time steps larger than 1/updateRate
+            # If an update rate is specified and adaptive time stepping is selected, adaptive time stepping will only be used during the descent/recovery portion of the flight
+                # Constant RK4 time stepping will be substituted for the ascent portion
+                    # Specified initial time step will be rounded to the nearest integer divisor of the control system time step
+            # With an updateRate of 0 (default), the control system will simply run once per time step
+                # Note that because control system updates happen between Runge-Kutta time steps,
+                    # errors predicted/estimated by the adaptive time stepping methods will not include errors due to low control system update rates.
+        updateRate                  100 # Hz
+
+        controlledSystem            Rocket.Sustainer.Canards # Enter path to the controlled component in the Rocket
+    }
+
+    Sustainer{
+        class           Stage
+        stageNumber      0 #First and only stage
+        
+        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.65) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
+
+        Nosecone{
+            class           Nosecone
+            mass            20.0
+            position        (0 0 0)
+            cg              (0 0 -0.2)
+            baseDiameter    0.1524
+            aspectRatio     5
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            5 
+            position        (0 0 -0.762)
+            cg              (0 0 -1)
+            outerDiameter   0.1524
+            length          3.81
+
+            surfaceRoughness    0.000050
+        }
+
+        Canards{
+            class           FinSet
+
+            mass            2 # kg
+            position        (0 0 -0.8636)
+            cg              (0 0 -0.8636)
+
+            numFins         4
+            sweepAngle      30 # deg
+            rootChord       0.1524 # m
+            tipChord        0.0762 # m
+            span            0.0635 # m
+ 
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+
+            Actuators{
+                class                   Actuator
+                controller              TableInterpolating
+                
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/linearCanardDefls.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                    # Desired moments must come last
+                deflectionKeyColumns    Mach Altitude DesiredMx DesiredMy DesiredMz
+
+                minDeflection           -45
+                maxDeflection           45                
+
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # seconds
+            }
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            5
+            position        (0 0 -2.762)
+            cg              (0 0 -2.762)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test2.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -4.2672)
+            cg              (0 0 -4.2762)
+            
+            numFins         4
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+
+        RecoverySystem{
+            class           RecoverySystem
+            mass            0
+            position        (0 0 -1)
+            cg              (0 0 -1)
+            numStages       2
+
+            # Apogee, Time, Altitude
+            stage1Trigger       Apogee
+            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+    }
+}
