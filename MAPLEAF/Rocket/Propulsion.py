@@ -130,13 +130,21 @@ class TabulatedMotor(RocketComponent, SubDictReader):
     #### Operational Functions ####
     def getInertia(self, time, state):
         timeSinceIgnition = max(0, time - self.ignitionTime)
-
+        
         oxInertia = self._getOxInertia(timeSinceIgnition)
         fuelInertia = self._getFuelInertia(timeSinceIgnition)
         
         return oxInertia + fuelInertia
 
-    def getAeroForce(self, state, time, environment, CG):
+    def getInertiaEngine(self, time, state, ISP, engineThrust, massPropTotal, ratioOxyFuel, densityOxy, diameterBodyTube):
+        timeSinceIgnition = max(0, time - self.ignitionTime)
+        
+        oxInertia = self._getOxInertia(timeSinceIgnition, state, ISP, engineThrust, massPropTotal, ratioOxyFuel, densityOxy, diameterBodyTube)
+        fuelInertia = self._getFuelInertia(timeSinceIgnition, state, ISP, engineThrust, massPropTotal, ratioOxyFuel, densityOxy, diameterBodyTube)
+        
+        return oxInertia + fuelInertia
+
+    def getAeroForce(self, state, time , environment, CG):
         #TODO: Model "thrust damping" - where gases moving quickly in the engine act to damp out rotation about the x and y axes
         #TODO: Thrust vs altitude compensation
         timeSinceIgnition = max(0, time - self.ignitionTime)
@@ -151,6 +159,25 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         thrust = Vector(0,0, thrustMagnitude)
 
         # Log and return
+        self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
+        return ForceMomentSystem(thrust)
+
+    def getAeroForceEngine(self, state, time, environment, CG, ISP, engineThrust, massPropTotal):
+        timeSinceIgnition = max(0,time - self.ignitionTime)
+        gravity = 9.81
+        massFlowProp = (engineThrust/(gravity*ISP))
+        massPropLeft = massFlowProp*timeSinceIgnition
+        
+        #Determine the magnitude of Thrust from Specified Motor
+        if timeSinceIgnition < 0 or timeSinceIgnition > self.times[-1]: #Checks to see if Engine is powered on
+            thrustMagnitude = 0
+        elif massPropLeft >= massPropTotal: #Checks to see if propellent mass is used up
+            thrustMagnitude = 0
+        else:
+            thrustMagnitude = engineThrust #Otherwise, set thrust to engine maximum
+        #TODO: Generate variable thrust condition
+        
+        thrust = Vector(0,0,thrustMagnitude)
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
 
@@ -194,6 +221,36 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         
         return Inertia(oxMOI, oxCG, oxWeight)
 
+    def _getOxInertiaEngine(self, timeSinceIgnition, ISP, engineThrust, massPropTotal, ratioOxyFuel, densityOxy, diameterBodyTube):
+        gravity = 9.81
+        initMassOxy = massPropTotal/(1+(1/ratioOxyFuel))
+        massFlowProp = (engineThrust/(gravity*ISP))
+        massFlowOxy  = massFlowProp/(1+(1/ratioOxyFuel))
+        initVolumeOxy = initMassOxy/densityOxy
+        initLengthOxy = initVolumeOxy/((3.14159265359/4)*diameterBodyTube**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        finalOxCG_Z = initLengthOxy + self.stage.position.Z
+
+        massOxy = initMassOxy-massFlowOxy*timeSinceIgnition #Obtain current amount of oxydizer
+        
+        if massOxy < 0:
+            massOxy = 0
+
+        volumeOxy = massOxy/densityOxy
+        lengthOxy = volumeOxy/((3.14159265359/4)*diameterBodyTube**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        oxCG_Z = finalOxCG_Z - lengthOxy/2
+        oxCG = Vector(0,0,oxCG_Z)
+
+        #MOI Calculations Assume Cylindrical Fuel Tank
+        MOI_X = (1/4)*massOxy*(diameterBodyTube/2)**2 + (1/12)*massOxy*lengthOxy**2
+        MOI_Y = MOI_X
+        MOI_Z = 0.5*massOxy*(diameterBodyTube/2)**2
+        oxMOI = Vector(MOI_X,MOI_Y,MOI_Z)
+
+        oxWeight = massOxy
+
+        return Inertia(oxMOI, oxCG, oxWeight)
+
+
     def _getFuelInertia(self, timeSinceIgnition):
         if self.initialFuelWeight == 0:
             return Inertia(Vector(0,0,0), Vector(0,0,0), 0)
@@ -207,5 +264,34 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         fuelCG = Vector(0,0,fuelCG_Z)
 
         fuelMOI = linInterp(self.times, self.fuelMOIs, timeSinceIgnition)
+
+        return Inertia(fuelMOI, fuelCG, fuelWeight)
+
+    def _getFuelInertiaEngine(self, timeSinceIgnition, ISP, engineThrust, massPropTotal, ratioOxyFuel, densityFuel, diameterBodyTube):
+        gravity = 9.81
+        initMassFuel = massPropTotal/(1+(1/ratioOxyFuel))
+        massFlowProp = (engineThrust/(gravity*ISP))
+        massFlowFuel  = massFlowProp/(1+(1/ratioOxyFuel))
+        initVolumeFuel = initMassFuel/densityFuel
+        initLengthFuel = initVolumeFuel/((3.14159265359/4)*diameterBodyTube**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        finalFuelCG_Z = initLengthFuel + self.stage.position.Z
+
+        massFuel = initMassFuel-massFlowFuel*timeSinceIgnition #Obtain current amount of oxydizer
+        
+        if massFuel < 0:
+            massFuel = 0
+
+        volumeFuel = massFuel/densityFuel
+        lengthFuel = volumeFuel/((3.14159265359/4)*diameterBodyTube**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        fuelCG_Z = finalFuelCG_Z - lengthFuel/2
+        fuelCG = Vector(0,0,fuelCG_Z)
+
+        #MOI Calculations Assume Cylindrical Fuel Tank
+        MOI_X = (1/4)*massFuel*(diameterBodyTube/2)**2 + (1/12)*massFuel*lengthFuel**2
+        MOI_Y = MOI_X
+        MOI_Z = 0.5*massFuel*(diameterBodyTube/2)**2
+        fuelMOI = Vector(MOI_X,MOI_Y,MOI_Z)
+
+        fuelWeight = massFuel
 
         return Inertia(fuelMOI, fuelCG, fuelWeight)
