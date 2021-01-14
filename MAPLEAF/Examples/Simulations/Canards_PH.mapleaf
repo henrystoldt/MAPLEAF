@@ -3,7 +3,7 @@
 
 SimControl{
     timeDiscretization RK45Adaptive
-    timeStep 0.02 #sec, CanardDeflections
+    timeStep 0.005 #sec, CanardDeflections
     plot Position FlightAnimation
     loggingLevel 2
 
@@ -20,45 +20,23 @@ Rocket{
     # Initial state
     position            (0 0 10) # m
     initialDirection    (0 0.1 1)
-    velocity            (0 0 10) #m/s
-
-
-    ControlSystem{
-        desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
-    
-        MomentController{
-            Type                    GainScheduledPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
-            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
-            scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
-        }
-
-        # Simulation will not take time steps larger than 1/updateRate
-            # If an update rate is specified and adaptive time stepping is selected, adaptive time stepping will only be used during the descent/recovery portion of the flight
-                # Constant RK4 time stepping will be substituted for the ascent portion
-                    # Specified initial time step will be rounded to the nearest integer divisor of the control system time step
-            # With an updateRate of 0 (default), the control system will simply run once per time step
-                # Note that because control system updates happen between Runge-Kutta time steps,
-                    # errors predicted/estimated by the adaptive time stepping methods will not include errors due to low control system update rates.
-        updateRate                  100 # Hz
-
-        controlledSystem            Rocket.Sustainer.Canards # Enter path to the controlled component in the Rocket
-    }
+    velocity            (0 0 0) #m/s
 
     Sustainer{
         class           Stage
         stageNumber      0 #First and only stage
         
         # Constant mass properties - remove to use component-buildup mass/cg/MOI
-        constCG             (0 0 -2.65) #m
-        constMass           50 # kg
-        constMOI            (85 85 0.5) # kg*m^2
+        #constCG             (0 0 -2.65) #m
+        #constMass           50 # kg
+        #constMOI            (85 85 0.5) # kg*m^2
 
         Nosecone{
             class           Nosecone
             mass            20.0
             position        (0 0 0)
             cg              (0 0 -0.2)
-            baseDiameter    0.1524
+            baseDiameter    3.66
             aspectRatio     5
             shape           tangentOgive
 
@@ -70,7 +48,7 @@ Rocket{
             mass            5 
             position        (0 0 -0.762)
             cg              (0 0 -1)
-            outerDiameter   0.1524
+            outerDiameter   3.66
             length          3.81
 
             surfaceRoughness    0.000050
@@ -117,9 +95,16 @@ Rocket{
             cg              (0 0 -2.762)
         }
 
-        Motor{
-            class           Motor
-            path            MAPLEAF/Examples/Motors/test2.txt
+        # Motor{
+        #     class           Motor
+        #     path            MAPLEAF/Examples/Motors/test2.txt
+        # }
+
+        DefinedMotor{
+        class           DefinedMotor
+        number          9
+        type            Merlin1C
+        path            MAPLEAF\Examples\Motors\Engine_list_test.txt
         }
 
         TailFins{
