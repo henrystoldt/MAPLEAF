@@ -1,0 +1,18 @@
+# Engine	Fuel Density	Oxydiser  Density	O:F Ratio	ISP	Thrust	Amount of Fuel	BodyTube D
+Merlin1C	510	1141	2.56	266	383362.4444	50000	3.66
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
