@@ -2,6 +2,7 @@
 In charge of initializing rocket components. Add new components to `stringNameToClassMap` to make them instantiate themselves when included in a Rocket
 '''
 
+from MAPLEAF.Rocket.Propulsion import DefinedMotor
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Rocket import (
     AeroDamping, AeroForce, BoatTail, BodyTube, FinSet, FixedForce, FixedMass,
@@ -25,6 +26,7 @@ stringNameToClassMap = {
     "TabulatedAeroForce":   TabulatedAeroForce,
     "TabulatedInertia":     TabulatedInertia,
     "Transition":           Transition,
+    "DefinedMotor":         DefinedMotor  #NEW FEATURE ADDED PH
 }
 
 def rocketComponentFactory(subDictPath, rocket, stage):
