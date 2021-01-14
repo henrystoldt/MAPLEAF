@@ -3,6 +3,7 @@ import re
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
+import math
 
 __all__ = [ "TabulatedMotor" , "DefinedMotor"]
 
@@ -149,7 +150,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
         massFlowOxy  = massFlowProp/(1+(1/self.motorOxyFuelRatio))
         initVolumeOxy = initMassOxy/self.motorOxyDensity
-        initLengthOxy = initVolumeOxy/((3.14159265359/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        initLengthOxy = initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
         finalOxCG_Z = initLengthOxy + self.stage.position.Z
 
         massOxy = initMassOxy-massFlowOxy*timeSinceIgnition #Obtain current amount of oxydizer
@@ -158,7 +159,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
             massOxy = 0
 
         volumeOxy = massOxy/self.motorOxyDensity
-        lengthOxy = volumeOxy/((3.14159265359/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        lengthOxy = volumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
         oxCG_Z = finalOxCG_Z - lengthOxy/2
         oxCG = Vector(0,0,oxCG_Z)
 
@@ -179,7 +180,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
         initVolumeOxy = initMassOxy/self.motorOxyDensity
-        initLengthOxy = initVolumeOxy/((3.14159265359/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        initLengthOxy = initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
         finalOxCG_Z = initLengthOxy + self.stage.position.Z
         
         #Fuel Information
@@ -187,7 +188,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
         massFlowFuel  = massFlowProp/(self.motorOxyFuelRatio+1)
         initVolumeFuel = initMassFuel/self.motorFuelDensity
-        initLengthFuel = initVolumeFuel/((3.14159265359/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        initLengthFuel = initVolumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
         finalFuelCG_Z = initLengthFuel + finalOxCG_Z
 
         massFuel = initMassFuel-massFlowFuel*timeSinceIgnition #Obtain current amount of oxydizer
@@ -196,7 +197,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
             massFuel = 0
 
         volumeFuel = massFuel/self.motorFuelDensity
-        lengthFuel = volumeFuel/((3.14159265359/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        lengthFuel = volumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
         fuelCG_Z = finalFuelCG_Z - lengthFuel/2
         fuelCG = Vector(0,0,fuelCG_Z)
 
