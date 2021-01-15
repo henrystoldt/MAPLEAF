@@ -153,7 +153,7 @@ def main(argv=None) -> int:
         runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
 
     elif args.nCores[0] > 1:
-        raise ValueError("ERROR: Can only run Monte Carlo of Optimization-type simulations in multi-threaded mode. Support for multi-threaded batch simulations coming soon.")
+        raise ValueError("ERROR: Can only run Monte Carlo or Optimization-type simulations in multi-threaded mode.")
 
     elif isBatchSim(simDef):
         print("Batch Simulation\n")
@@ -170,8 +170,8 @@ def main(argv=None) -> int:
     
     else: 
         # Run a regular, single simulation  
-        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
-        simRunner.run()
+        sim = Simulation(simDefinition=simDef, silent=args.silent)
+        sim.run()
 
     Logging.removeLogger()
 
