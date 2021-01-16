@@ -125,7 +125,10 @@ class Rocket(CompositeObject):
 
         self.finenessRatio = None
         ''' Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket '''
-     
+        
+        self.engineShutOff = False
+        '''Used to shut off engines in MAPLEAF.Rocket.Propulsion.DefinedMotor class. Currently set in MAPLE_AF.GNC.Navigation'''
+
         #### Init Hardware in the loop ####
         subDicts = rocketDictReader.getImmediateSubDicts()
         if "Rocket.HIL" in subDicts:
