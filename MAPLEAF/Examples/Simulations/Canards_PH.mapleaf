@@ -3,16 +3,17 @@
 
 SimControl{
     timeDiscretization RK45Adaptive
-    timeStep 0.005 #sec, CanardDeflections
-    plot Position FlightAnimation
+    timeStep 0.01 #sec, CanardDeflections
+    plot Thrust Position FlightAnimation 
     loggingLevel 2
 
     EndCondition Time
-    EndConditionValue 0.5
+    EndConditionValue 200
 
     TimeStepAdaptation{
         controller PID
     }
+    RocketPlot On
 }
 
 Rocket{             
@@ -26,7 +27,7 @@ Rocket{
         class           Stage
         stageNumber      0 #First and only stage
         
-        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        #Constant mass properties - remove to use component-buildup mass/cg/MOI
         #constCG             (0 0 -2.65) #m
         #constMass           50 # kg
         #constMOI            (85 85 0.5) # kg*m^2
@@ -37,7 +38,7 @@ Rocket{
             position        (0 0 0)
             cg              (0 0 -0.2)
             baseDiameter    3.66
-            aspectRatio     5
+            aspectRatio     2
             shape           tangentOgive
 
             surfaceRoughness    0.000050
@@ -45,11 +46,11 @@ Rocket{
 
         UpperBodyTube{
             class           Bodytube
-            mass            5 
-            position        (0 0 -0.762)
-            cg              (0 0 -1)
+            mass            50000
+            position        (0 0 -7.32)
+            cg              (0 0 -20)
             outerDiameter   3.66
-            length          3.81
+            length          40
 
             surfaceRoughness    0.000050
         }
@@ -88,12 +89,12 @@ Rocket{
             }
         }
 
-        GeneralMass{
-            class           Mass
-            mass            5
-            position        (0 0 -2.762)
-            cg              (0 0 -2.762)
-        }
+        # GeneralMass{
+        #     class           Mass
+        #     mass            5
+        #     position        (0 0 -2.762)
+        #     cg              (0 0 -2.762)
+        # }
 
         # Motor{
         #     class           Motor
