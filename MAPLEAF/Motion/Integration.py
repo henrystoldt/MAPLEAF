@@ -123,7 +123,7 @@ class Integrator:
     #### Constant time step methods ####
     def IntegrateEuler(self, initVal, initTime, derivativeFunc, dt):
         yPrime = derivativeFunc(initTime, initVal)
-        return initVal + yPrime * dt, 1.0, dt
+        return initVal + yPrime * dt, 1.0, 0.0, dt
 
     def IntegrateRK2MidPoint(self, initVal, initTime, derivativeFunc, dt):
         initSlope = derivativeFunc(initTime, initVal)
@@ -132,7 +132,7 @@ class Integrator:
         halfwayTime = initTime + dt/2
         halfwaySlope = derivativeFunc(halfwayTime, halfwayVal)
 
-        return initVal + halfwaySlope*dt, 1.0, dt
+        return initVal + halfwaySlope*dt, 1.0, 0.0, dt
 
     def IntegrateRK2Heun(self, initVal, initTime, derivativeFunc, dt):
         '''
@@ -153,7 +153,7 @@ class Integrator:
         endSlope = derivativeFunc(initTime + dt, endEstimate)
 
         slopeEstimate = (endSlope + initSlope)/2
-        return initVal + slopeEstimate*dt, 1.0, dt
+        return initVal + slopeEstimate*dt, 1.0, 0.0, dt
 
     def IntegrateRK4(self, initVal, initTime, derivativeFunc, dt):
         k1 = derivativeFunc(initTime, initVal)
@@ -170,7 +170,7 @@ class Integrator:
         k4 = derivativeFunc(endTime, endVal)
 
         slopeEstimate = ((k1+k4)/2 + k2 + k3) / 3
-        return initVal + slopeEstimate*dt, 1.0, dt
+        return initVal + slopeEstimate*dt, 1.0, 0.0, dt
 
     def IntegrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
         '''
@@ -204,7 +204,7 @@ class Integrator:
         for i in range(1, len(tab[-1])):
             totalDerivative = totalDerivative + tab[-1][i]*k[i]
 
-        return (initVal + totalDerivative*dt), 1.0, dt        
+        return (initVal + totalDerivative*dt), 1.0, 0.0, dt        
 
 class AdaptiveIntegrator():
     ''' Callable class for adaptive-dt ODE integration '''
@@ -307,13 +307,13 @@ class AdaptiveIntegrator():
         return self.errorLimitedAdaptiveIntegration(initVal, initTime, derivativeFunc, dt)
 
     def integrate(self, initVal, initTime, derivativeFunc, dt):
-        ''' Template method, replaced by one of the Constant time step methods below in self.__init__ '''
+        ''' Template method, replaced by one of the methods below in self.__init__ '''
         pass
 
     def errorLimitedAdaptiveIntegration(self, initVal, initTime, derivativeFunc, dt):
         # Set up incorrect values to force first iteration, like a do-while loop
         errorMagEstimate = 10000000
-        maxErrorMultiple = 100 # Will recompute timestep if estimated error > maxErrorMultiple * targetError
+        maxErrorMultiple = 20 # Will recompute timestep if estimated error > maxErrorMultiple * targetError
         dt *= 3
 
         # Loop will lower the actual time step taken if error is more than 3*target
@@ -334,7 +334,7 @@ class AdaptiveIntegrator():
         adaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
 
         # Correct finer result with error estimate (Richardson Extrapolation), timestepAdaptationFactor, actual time step taken
-        return result, adaptFactor, dt
+        return result, adaptFactor, errorMagEstimate, dt
 
     #### Time Step adjustment ####
     def limitAdaptationFactor(func):
@@ -378,6 +378,8 @@ class AdaptiveIntegrator():
     def getTimeStepAdjustmentFactor_PID(self, errorMag, dt):
         ''' Calculates the time step adjustment factor when using a PID controller '''
         errorInErrorMagnitude = (errorMag - self.targetError) / self.targetError
+        # Minimum value of the equation above is -1, correspondingly, we limit positive values to 1
+        errorInErrorMagnitude = min(1, errorInErrorMagnitude)
         return self, 1 + self.PIDController.getNewSetPoint(errorInErrorMagnitude, dt), dt
 
     #### Adaptive Integration Method ####

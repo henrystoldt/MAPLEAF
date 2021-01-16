@@ -94,7 +94,7 @@ def _runRegressionTests():
     print("\n----------------------------------------------------------------------")
     print("RUNNING REGRESSION TESTS\n")
 
-    return runBatchSim(["./MAPLEAF/Examples/Simulations/regressionTests.mapleaf"])
+    return runBatchSim(["./MAPLEAF/Examples/BatchSims/regressionTests.mapleaf"])
 
 
 #### Command line interface ####

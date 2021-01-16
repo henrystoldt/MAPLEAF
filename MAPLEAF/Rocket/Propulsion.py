@@ -1,6 +1,5 @@
 import re
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 import math
@@ -225,7 +224,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
         return Inertia(fuelMOI, -fuelCG, fuelWeight)
 
-class TabulatedMotor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent):
     '''
     Interface:
         Initialization:

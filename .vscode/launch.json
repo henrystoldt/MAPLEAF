@@ -11,7 +11,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
         },
 
         {
@@ -20,7 +21,8 @@
             "request": "launch",
             "module": "unittest",
             "args": [ "discover", "-v" ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
 
         {
@@ -29,16 +31,18 @@
             "request": "launch",
             "program": "${workspaceFolder}/MAPLEAF/Main.py",
             "args": [ "${file}" ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
 
         {
-            "name": "Regression Tests Conventional",
+            "name": "Regression Tests Conventional Rocket Only",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/test/regressionTesting/runCases.py",
-            "args": [ "--filter", "Conventional", "--printStackTraces" ],
-            "console": "integratedTerminal"
+            "program": "${workspaceFolder}/MAPLEAF/SimulationRunners/Batch.py",
+            "args": [ "--include", "Adaptation", "--print" ],
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
 
         {
@@ -47,7 +51,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/Main.py",
             "args": [ "--compareIntegrationSchemes", "${file}" ],
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
     ]
 }

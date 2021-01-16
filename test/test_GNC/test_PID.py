@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from MAPLEAF.GNC import GainScheduledPIDController, PIDController
+from MAPLEAF.GNC import ScheduledGainPIDController, PIDController
 
 
 class TestPIDController(unittest.TestCase):
@@ -77,15 +77,15 @@ class TestPIDController(unittest.TestCase):
 
 class TestGainSchedulePIDController(unittest.TestCase):
     def setUp(self):
-        self.gainScheduledPID = GainScheduledPIDController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", 2, 2, 7)
+        self.ScheduledGainPID = ScheduledGainPIDController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", 2, 2, 7)
 
     def test_getPIDCoeffs(self):
         MachNum, Alt = 0.15, 0
         expectedResult = np.array([ 7.5, 8.5, 9.5, 10.5, 11.5, 12.5 ])
-        result = self.gainScheduledPID._getPIDCoeffs(MachNum, Alt)
+        result = self.ScheduledGainPID._getPIDCoeffs(MachNum, Alt)
         self.assertTrue(np.allclose(result, expectedResult))
 
         MachNum, Alt = 0.1, 0.5
         expectedResult = np.array([ 4, 5, 6, 7.5, 8.5, 9.5 ])
-        result = self.gainScheduledPID._getPIDCoeffs(MachNum, Alt)
+        result = self.ScheduledGainPID._getPIDCoeffs(MachNum, Alt)
         self.assertTrue(np.allclose(result, expectedResult))

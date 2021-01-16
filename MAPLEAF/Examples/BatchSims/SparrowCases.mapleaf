@@ -1,0 +1,337 @@
+
+Sparrow287{
+
+	ParameterSweep{
+
+		AOAResults{
+			column	AOA(deg)
+			expectedValues	5.0,0.0,5.0,10.0,15.0,20.0,25.0,30.0,35.0,40.0,45.0
+		}
+
+		MachResults{
+			column	Mach
+			expectedValues	2.8703,2.8703,2.8703,2.8703,2.8703,2.8703,2.8703,2.8703,2.8703,2.8703,2.8703
+		}
+
+		velocitySweep{
+			parameterValues	(876.3705 -76.6725 0),(879.7181 0 0),(876.3705 76.67249 0),(866.3532 152.7615 0),(849.7425 227.6878 0),(826.6646 300.8813 0),(797.2954 371.785 0),(761.8583 439.8591 0),(720.6229 504.5856 0),(673.9032 565.4719 0),(622.0547 622.0547 0)
+			sweptParameter	Rocket.velocity
+		}
+	}
+
+	PlotsToGenerate{
+
+		ClPlot{
+			columnsToPlot	AeroCMZ
+
+			comparisonDataCFD{
+				columnsToPlot	Cl_CFD
+				file	./test/regressionTesting/Sparrow/Case2/ClVsAOA287CFD.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataWT{
+				columnsToPlot	Cl_WT
+				file	./test/regressionTesting/Sparrow/Case2/ClVsAOA287WT.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowLowMachCl.pdf
+			scalingFactor	-1
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			xLimits	-5 45
+			yLabel	$C_l$
+			yLimits	0 3
+		}
+
+		CnPlot{
+			columnsToPlot	AeroCMX
+
+			comparisonDataCFD{
+				columnsToPlot	Cn_CFD
+				file	./test/regressionTesting/Sparrow/Case2/CnVsAOA287CFD.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataWT{
+				columnsToPlot	Cn_WT
+				file	./test/regressionTesting/Sparrow/Case2/CnVsAOA287WT.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowLowMachCn.pdf
+			scalingFactor	-1
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			xLimits	-5 45
+			yLabel	$C_n$
+			yLimits	-5 5
+		}
+
+		CyPlot{
+			columnsToPlot	AeroCFX
+
+			comparisonDataCFD{
+				columnsToPlot	Cy_CFD
+				file	./test/regressionTesting/Sparrow/Case2/CyVsAOA287CFD.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataWT{
+				columnsToPlot	Cy_WT
+				file	./test/regressionTesting/Sparrow/Case2/CyVsAOA287WT.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowLowMachCy.pdf
+			scalingFactor	-1
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			xLimits	-5 45
+			yLabel	$C_y$
+			yLimits	-0.6 0.5
+		}
+	}
+
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
+}
+
+Sparrow46{
+
+	ParameterSweep{
+
+		AOAResults{
+			column	AOA(deg)
+			expectedValues	5.0,0.0,5.0,10.0,15.0,20.0,24.9999,30.0,35.9543,40.0001,45.0
+		}
+
+		MachResults{
+			column	Mach
+			expectedValues	4.6005,4.6005,4.6005,4.6005,4.6005,4.6005,4.6005,4.6005,4.4942,4.6005,4.6005
+		}
+
+		velocitySweep{
+			parameterValues	(1404.64 -122.89 0),(1410 0 0),(1404.64 122.89 0),(1388.58 244.844 0),(1361.96 364.935 0),(1324.97 482.249 0),(1277.9 595.892 0),(1221.1 705.001 0),(1115.01 808.743 0),(1080.12 906.331 0),(997.021 997.021 0)
+			sweptParameter	Rocket.velocity
+		}
+	}
+
+	PlotsToGenerate{
+
+		ClPlot{
+			columnsToPlot	AeroCMZ
+
+			comparisonDataCFD{
+				columnsToPlot	Cl_CFD
+				file	./test/regressionTesting/Sparrow/Case2/ClVsAOA46CFD.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataWT{
+				columnsToPlot	Cl_WT
+				file	./test/regressionTesting/Sparrow/Case2/ClVsAOA46WT.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowHighMachCl.pdf
+			scalingFactor	-1
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			xLimits	-5 45
+			yLabel	$C_l$
+			yLimits	0 3
+		}
+
+		CnPlot{
+			columnsToPlot	AeroCMX
+
+			comparisonDataCFD{
+				columnsToPlot	Cn_CFD
+				file	./test/regressionTesting/Sparrow/Case2/CnVsAOA46CFD.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataWT{
+				columnsToPlot	Cn_WT
+				file	./test/regressionTesting/Sparrow/Case2/CnVsAOA46WT.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowHighMachCn.pdf
+			scalingFactor	-1
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			xLimits	-5 45
+			yLabel	$C_n$
+			yLimits	-5 5
+		}
+
+		CyPlot{
+			columnsToPlot	AeroCFX
+
+			comparisonDataCFD{
+				columnsToPlot	Cy_CFD
+				file	./test/regressionTesting/Sparrow/Case2/CyVsAOA46CFD.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataWT{
+				columnsToPlot	Cy_WT
+				file	./test/regressionTesting/Sparrow/Case2/CyVsAOA46WT.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/Case2/SparrowHighMachCy.pdf
+			scalingFactor	-1
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			xLimits	-5 45
+			yLabel	$C_y$
+			yLimits	-1 0.3
+		}
+	}
+
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
+}
+
+SparrowWindTunnelCase{
+
+	ParameterSweep{
+
+		DragResults{
+			column	AeroCFZ
+			expectedValues	-0.34078841989825315,-0.3353097892984411,-0.3276544266829841,-0.3178740051150443,-0.3113502273114928,-0.31190052359957066,-0.30323535118139755,-0.2941728723631425,-0.2848739017679663,-0.2754783630958025
+		}
+
+		MachResults{
+			column	Mach
+			expectedValues	0.3263,0.4894,0.6525,0.8157,0.9788,1.1420000000000001,1.3051,1.4682,1.6314,1.7945
+		}
+
+		velocitySweep{
+			parameterValues	(0 0 100), (0 0 150), (0 0 200), (0 0 250), (0 0 300), (0 0 350), (0 0 400), (0 0 450), (0 0 500), (0 0 550)
+			sweptParameter	Rocket.velocity
+		}
+	}
+
+	PlotsToGenerate{
+
+		SamplePlot{
+			columnsToPlot	AeroCFZ
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/SparrowWindTunnelPlot.pdf
+			xColumnName	Mach
+			xLabel	Mach
+			xLimits	0.2 1.8
+			yLabel	$C_d$
+		}
+	}
+
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
+}
+
+SparrowWindTunnelCase2{
+
+	ParameterSweep{
+
+		AOAResults{
+			column	AOA(deg)
+			expectedValues	0.0,4.81,10.2787,22.535
+		}
+
+		MachResults{
+			column	Mach
+			expectedValues	1.5002,1.5002,1.5003,1.5042
+		}
+
+		velocitySweep{
+			parameterValues	(459.783 0 0), (458.167 0 38.5536), (452.462 0 82.0523), (425.831 0 176.69)
+			sweptParameter	Rocket.velocity
+		}
+	}
+
+	PlotsToGenerate{
+
+		SamplePlot{
+			columnsToPlot	AeroCMZ
+
+			comparisonDataCFD{
+				columnsToPlot	Cl_CFD
+				file	./test/regressionTesting/Sparrow/CFD_data.csv
+				legendLabel	CFD
+				lineFormat	-c
+				xColumnName	AOA
+			}
+
+			comparisonDataExp{
+				columnsToPlot	Cl_exp
+				file	./test/regressionTesting/Sparrow/ExpDataClvsAOA.csv
+				legendLabel	Experimental
+				lineFormat	.k
+				xColumnName	AOA
+			}
+
+			comparisonDataMissileDatcom{
+				columnsToPlot	Cl_MissleDatcom
+				file	./test/regressionTesting/Sparrow/SparrowMissleDatcom.csv
+				legendLabel	MissileDatcom
+				xColumnName	AOA
+			}
+
+			legendLabel	MAPLEAF
+			lineFormat	--b
+			overwrite	True
+			saveLocation	./test/regressionTesting/Sparrow/SparrowAOAPlot.pdf
+			xColumnName	AOA(deg)
+			xLabel	$\alpha$
+			yLabel	$C_l$
+		}
+	}
+
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/Sparrow.mapleaf
+}

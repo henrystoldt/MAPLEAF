@@ -95,10 +95,10 @@ class Rocket(CompositeObject):
         self.turbulenceOffWhenUnderChute = rocketDictReader.getBool("Environment.turbulenceOffWhenUnderChute")
         ''' (bool) '''
 
-        self.bodyTubeDiameter = self._getMaxBodyTubeDiameter()     
+        self.maxDiameter = self._getMaxBodyTubeDiameter()     
         ''' (float) Holds maximum constant-size body tube diameter, from bodytube components in stages '''
 
-        self.Aref = self.bodyTubeDiameter**2 / 4
+        self.Aref = math.pi * self.maxDiameter**2 / 4
         ''' 
             Reference area for force and moment coefficients.
             Maximum rocket cross-sectional area. Remains constant during flight to retain a 1:1 relationship b/w coefficients in different parts of flight.
@@ -125,7 +125,10 @@ class Rocket(CompositeObject):
 
         self.finenessRatio = None
         ''' Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket '''
-     
+        
+        self.engineShutOff = False
+        '''Used to shut off engines in MAPLEAF.Rocket.Propulsion.DefinedMotor class. Currently set in MAPLE_AF.GNC.Navigation'''
+
         #### Init Hardware in the loop ####
         subDicts = rocketDictReader.getImmediateSubDicts()
         if "Rocket.HIL" in subDicts:
@@ -156,7 +159,7 @@ class Rocket(CompositeObject):
         #### Init Guidance/Navigation/Control System (if required) ####
         self.controlSystem = None
         ''' None for uncontrolled rockets. `MAPLEAF.GNC.ControlSystems.RocketControlSystem` for controlled rockets '''
-        if rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None and stageToInitialize == None:
+        if ( rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None or rocketDictReader.tryGetString("ControlSystem.MomentController.Type") == "IdealMomentController") and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
             self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
@@ -168,12 +171,13 @@ class Rocket(CompositeObject):
         maxDiameter = 0
         for stageDict in stageDicts:
             componentDicts = self.rocketDictReader.getImmediateSubDicts(stageDict)
+            
             for componentDict in componentDicts:
                 className = self.rocketDictReader.getString(componentDict + ".class")
+                
                 if className == "Bodytube":
                     diameter = self.rocketDictReader.getFloat(componentDict + ".outerDiameter")
-                    if diameter > maxDiameter:
-                        maxDiameter = diameter
+                    maxDiameter = max(maxDiameter, diameter)
         
         return maxDiameter
 
@@ -268,7 +272,7 @@ class Rocket(CompositeObject):
         self.stages = PlanarInterface.sortByZLocation(self.stages)
         self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
 
-        if self.bodyTubeDiameter > 0:
+        if self.maxDiameter > 0:
             # Only run this if we're running a real rocket with body tubes
             self._ensureBaseDragIsAccountedFor()
 
@@ -336,7 +340,7 @@ class Rocket(CompositeObject):
             CGsubY += yCGs
 
         SubCGplt = plt.plot(CGsubZ, CGsubY, color='g', marker='.', label='Subcomponent CG', linestyle='None')
-        legendHeight = self.bodyTubeDiameter
+        legendHeight = self.maxDiameter
         plt.legend(loc='upper center', bbox_to_anchor = (0.5,-1.05))
         plt.show()
 
@@ -383,7 +387,7 @@ class Rocket(CompositeObject):
                 print("Adding zero-length BoatTail to the bottom of current bottom stage ({}) to account for base drag".format(bottomStage.name))
             # Create a zero-length, zero-mass boat tail to account for base drag
             zeroInertia = Inertia(Vector(0,0,0), Vector(0,0,0), 0)
-            diameter = self.bodyTubeDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
+            diameter = self.maxDiameter # TODO: Get the actual bottom-body-tube diameter from a future Stage.getRadius function
             length = 0
             position = bottomStage.getBottomInterfaceLocation()
             boatTail = BoatTail(
@@ -448,6 +452,7 @@ class Rocket(CompositeObject):
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
         self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
         
+
         ### Component Forces ###
         if not self.isUnderChute:
             # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
@@ -464,6 +469,7 @@ class Rocket(CompositeObject):
 
         else:
             # When under chute, neglect forces from other components
+            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(0, 0, 0, 0))
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
 
         componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
@@ -486,6 +492,10 @@ class Rocket(CompositeObject):
     
     #### Driving / Controlling Simulation ####
     def _runControlSystemAndLogStartingState(self, dt):
+        '''
+            Attempts to run the rocket control system (only runs if it's time to run again, based on its updated rate) (updating target positions for actuators)
+            Logs the state of the rocket to the main simulation log
+        '''
         startState = self.rigidBody.state
         startTime = self.rigidBody.time       
 
@@ -537,23 +547,35 @@ class Rocket(CompositeObject):
             # Override time step to accurately resolve discrete events
             if accuratePrediction:
                 # For time-deterministic events, just set the time step to ever so slightly past the event
-                dt = estimatedTimeToNextEvent + 1e-5
+                newDt = estimatedTimeToNextEvent + 1e-5
+                print("Rocket + SimEventDetector overriding time step from {} to {} to accurately trigger resolve time-deterministic event.".format(dt, newDt))
+                dt = newDt
             else:
                 # For time-nondeterministic events, slowly approach the event
-                dt = max(estimatedTimeToNextEvent/2, self.eventTimeStep)
+                newDt = max(estimatedTimeToNextEvent/1.5, self.eventTimeStep)
+                estimatedOccurenceTime = self.rigidBody.time + estimatedTimeToNextEvent
+                print("Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}".format(dt, newDt, estimatedOccurenceTime))
+                dt = newDt
                 
         # Logs line to mainSimLog
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
-        timeStepAdjustmentFactor, dt = self.rigidBody.timeStep(dt)
+        timeStepAdjustmentFactor, estimatedError, dt = self.rigidBody.timeStep(dt)
+
+        if "Adapt" in self.rigidBody.integrate.method:
+            # Add estimated error for the time step to the end of the simulation log line
+            try:
+                self.simRunner.mainSimulationLog[-2] += " {:<8.6f}".format(estimatedError)
+            except AttributeError:
+                pass # No logging set up
 
         # Return time step adaptation factor - will be 1 for constant time stepping
         return timeStepAdjustmentFactor, dt
     
     def _switchTo3DoF(self):
         ''' Switch to 3DoF simulation after recovery system is deployed '''
-        print("Switching to 3DoF model for descent")
+        print("Switching to 3DoF simulation")
         new3DoFState = RigidBodyState_3DoF(self.rigidBody.state.position, self.rigidBody.state.velocity)
         
         # Re-read time discretization in case an adaptive method has been selected while using a fixed-update rate control system - in that case, want to switch back to adaptive time stepping for the recovery (uncontrolled) portion of the flight

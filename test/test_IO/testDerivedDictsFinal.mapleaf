@@ -16,12 +16,36 @@ Dictionary1{
 
 Dictionary2{
 
-    SubDictionary2{
+    SubDictionary2{ # Testing derived dict from inside same file + !replace, !remove commands
         repLacedKey3    vaLue3
         repLacedKey4	vaLue4
         repLacedKey5    vaLue5
         repLacedKey6    replacement value with spaces in it
 
         key5            value5
+    }
+
+    SubDictionary3{ # Testing derived dict from another file
+        key3    value3
+        key4	value4
+        key5    value5
+        key6    value with spaces in it
+        badKey  1213
+        badKey2 3424  
+    }
+
+    # Testing including another file
+    Dict1{         
+        key1    value1
+        key2    value2
+
+        SubDict1{
+            key3    value3
+            key4	value4
+            key5    value5
+            key6    value with spaces in it
+            badKey  1213
+            badKey2 3424  
+        }
     }
 }

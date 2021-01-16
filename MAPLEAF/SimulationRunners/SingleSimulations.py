@@ -11,7 +11,7 @@ from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
-__all__ = [ "Simulation", "RemoteSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
+__all__ = [ "Simulation", "WindTunnelSimulation", "loadSimDefinition" ]
 
 def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
     ''' Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input '''
@@ -103,6 +103,7 @@ class Simulation():
                 # Take a time step
                 try:
                     if FinalTimeStepDt != None:
+                        print("Simulation Runner overriding time step from {} to {} to accurately meet end condition".format(self.dts[s], FinalTimeStepDt))
                         self.dts[s] = FinalTimeStepDt
 
                     timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
@@ -113,6 +114,14 @@ class Simulation():
                         except AttributeError:
                             pass
                 except:
+                    try:
+                        progressBar.close()
+                
+                        if not self.silent:
+                            sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                    except AttributeError:
+                        pass
+                    
                     self._handleSimulationCrash()
 
                 # Adjust time step
@@ -129,7 +138,7 @@ class Simulation():
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(0.0)
+            rocket._runControlSystemAndLogStartingState(self.dts[s])
 
             # Move on to next (dropped) stage
             s += 1
@@ -202,6 +211,8 @@ class Simulation():
             # Create main sim log header (written to once per time step)
             mainSimLogHeader = "Time(s) TimeStep(s)" 
             mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + " EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)"
+            if "Adapt" in rocket.rigidBody.integrate.method:
+                mainSimLogHeader += " EstimatedIntegrationError"
             if rocket.controlSystem != None:
                 mainSimLogHeader += rocket.controlSystem.getLogHeader()
 
@@ -280,7 +291,7 @@ class Simulation():
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:  
+        if rocket.controlSystem != None and rocket.controlSystem.controlledSystem != None: 
             # If rocket has moving fins, record their angles for plotting
             nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
             flight.actuatorDefls = [ [0] for i in range(nActuators) ]
@@ -412,8 +423,8 @@ class Simulation():
 
                 # Post process / calculate force/moment coefficients if desired
                 if self.loggingLevel >= 3:
-                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
-                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
+                    bodyDiameter = self.rocketStages[0].maxDiameter
+                    crossSectionalArea = self.rocketStages[0].Aref
                     expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                     logFilePaths.append(expandedLogPath)
 
@@ -447,25 +458,6 @@ class Simulation():
             # Plot all other columns from log files
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
-
-try:
-    import ray
-    rayAvailable = True
-except ImportError:
-    rayAvailable = False
-
-if rayAvailable:
-    @ray.remote
-    class RemoteSimulation(Simulation):
-        ''' 
-            Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
-            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
-        '''
-        @ray.method(num_returns=2)
-        def run(self):
-            return super().run()
-else:
-    RemoteSimulation = None
 
 class WindTunnelSimulation(Simulation):
     def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):

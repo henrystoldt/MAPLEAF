@@ -373,7 +373,22 @@ Rocket{
         desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
         
         MomentController{
-            Type                    GainScheduledPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
+                                    # ScheduledGainPIDRocket or IdealMomentController or ConstantGainPIDRocket
+                                        # ScheduledGainPIDRocket: Models rocket orientation dynamics, controlled by PID gain table and a controlled rocket component (Fins or Motor)
+                                        # IdealMomentController: No dynamics modelled, rocket always points exactly where the navigation system desires (Like having an ideal angular control system at all times)
+                                            # When using this option, MomentController.gainTableFilePath, MomentController.scheduledBy, and ControlSystem.controlledSystem are ignored
+                                        # ConstantGainPIDRocket: expects one set of coefficients for longitudinal PID controller (MomentController.P/I/Dxy) and one set for roll PID controller (MomentController.P/I/Dz)
+            Type                    ScheduledGainPIDRocket 
+
+            #Used when Moment Controller type is ConstantGainPIDRocket
+            Pxy                     100
+            Ixy                     5
+            Dxy                     20
+            Pz                      200
+            Iz                      10
+            Dz                      40
+            
+            #Used when Moment Controller type is ScheduledGainPIDRocket
             gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
             scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
         }

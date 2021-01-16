@@ -88,6 +88,7 @@ class SimEventDetector():
             if eventOccurred:
                 if self.triggerDelays[i] == 0:
                     # Call its function
+                    # TODO: Print message to simulation log saying that the event has been triggered
                     self.callbackFunctions[i]()
                 else:
                     # Schedule the event to happen in triggerDelay seconds
