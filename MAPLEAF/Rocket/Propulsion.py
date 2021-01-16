@@ -144,8 +144,9 @@ class DefinedMotor(RocketComponent, SubDictReader):
     def getLogHeader(self):
         return " {}Thrust(N)".format(self.name)
 
-    def _getMass(self, timeSinceIgnition):
-        return self.OxWeight(timeSinceIgnition) + self.FuelWeight(timeSinceIgnition)
+# NOT NEEDED?: LEFT OVER FUNCTION FROM OTHER MOTOR CLASS
+    # def _getMass(self, timeSinceIgnition):
+    #     return self.OxWeight(timeSinceIgnition) + self.FuelWeight(timeSinceIgnition)
 
     def _getOxInertia(self, timeSinceIgnition):
         gravity = 9.81
@@ -184,6 +185,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # TODO: Should this Value in kg??
         oxWeight = massOxy
 
+        # TODO: Do we need to return a negative CG?
         return Inertia(oxMOI, -oxCG, oxWeight)
 
     def _getFuelInertia(self, timeSinceIgnition):
