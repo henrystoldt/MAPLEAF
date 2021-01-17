@@ -185,12 +185,9 @@ Accessible as <code>mapleaf-batch</code> if …</p></div>
 
     nRuns, mCLogger, outputLists = _prepSim(simDefinition)    
 
-    if nCores &gt; 1 and rayAvailable:
+    if nCores &gt; 1:
         _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent, nCores)
-    else:
-        if nCores &gt; 1 and not rayAvailable:
-            print(&#34;ERROR: ray not found. Reverting to single-threaded mode.&#34;)
-            
+    else:            
         _runSimulations_SingleThreaded(simDefinition, nRuns, outputLists, mCLogger, silent)
     
     _showResults(simDefinition, outputLists, mCLogger)</code></pre>
