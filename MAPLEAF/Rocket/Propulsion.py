@@ -2,6 +2,7 @@ import re
 
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
+from MAPLEAF.IO import SubDictReader
 import math
 
 __all__ = [ "TabulatedMotor" , "DefinedMotor"]
