@@ -122,26 +122,5 @@ Rocket{
             thickness       0.0047625 # m
             surfaceRoughness    0.000050
         }
-
-        RecoverySystem{
-            class           RecoverySystem
-            mass            0
-            position        (0 0 -1)
-            cg              (0 0 -1)
-            numStages       2
-
-            # Apogee, Time, Altitude
-            stage1Trigger       Apogee
-            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
-            stage1ChuteArea     2 # m^2
-            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
-            stage1DelayTime     2 #s
-
-            stage2Trigger       Altitude
-            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
-            stage2ChuteArea     9 # m^2
-            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
-            stage2DelayTime     0 #s
-        }
     }
 }
