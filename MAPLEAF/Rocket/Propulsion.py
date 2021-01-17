@@ -150,7 +150,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
     def _getOxInertia(self, timeSinceIgnition):
         gravity = 9.81
-
+        
         initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
         massFlowOxy  = massFlowProp/(1+(1/self.motorOxyFuelRatio))
