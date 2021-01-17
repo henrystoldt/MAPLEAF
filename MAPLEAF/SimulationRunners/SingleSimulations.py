@@ -11,7 +11,7 @@ from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
-__all__ = [ "Simulation", "WindTunnelSimulation", "loadSimDefinition" ]
+__all__ = [ "Simulation", "runSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
 
 def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
     ''' Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input '''
@@ -463,6 +463,10 @@ class Simulation():
             # Plot all other columns from log files
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
+
+def runSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    sim = Simulation(simDefinitionFilePath, simDefinition, silent)
+    return sim.run()
 
 class WindTunnelSimulation(Simulation):
     def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):

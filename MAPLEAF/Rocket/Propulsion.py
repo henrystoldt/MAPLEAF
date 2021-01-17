@@ -1,6 +1,5 @@
 import re
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 from MAPLEAF.GNC import ActuatedSystem
@@ -17,7 +16,7 @@ def getTVCAngledThrustForce(thrustMagnitude, xDeflectionAngle, yDeflectionAngle)
     return Vector(thrustX, thrustY, thrustZ)
 
 
-class TabulatedMotor(RocketComponent, SubDictReader, ActuatedSystem):
+class TabulatedMotor(RocketComponent, ActuatedSystem):
     '''
     Interface:
         Initialization:
