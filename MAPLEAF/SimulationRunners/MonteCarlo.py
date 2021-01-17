@@ -78,9 +78,6 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
         Runs a probabilistic simulation a several times, collects and displays average results for common parameters
         Parallelized using [ray](https://github.com/ray-project/ray)
     '''
-    # TODO: Either re-use actors or switch to using tasks to avoid constantly creating new python processes
-        # Need to edit lines 142-143
-        # Same for other simulation runners
     import ray
     runRemoteSimulation = ray.remote(runSimulation)
     runRemoteSimulation.options(num_returns=2)
