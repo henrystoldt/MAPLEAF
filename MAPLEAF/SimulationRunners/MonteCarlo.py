@@ -5,24 +5,15 @@ from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 
 __all__ = [ "runMonteCarloSimulation" ]
 
-try:
-    import ray
-    rayAvailable = True
-except ImportError:
-    rayAvailable = False
-
 
 def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
     simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
 
     nRuns, mCLogger, outputLists = _prepSim(simDefinition)    
 
-    if nCores > 1 and rayAvailable:
+    if nCores > 1:
         _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent, nCores)
-    else:
-        if nCores > 1 and not rayAvailable:
-            print("ERROR: ray not found. Reverting to single-threaded mode.")
-            
+    else:            
         _runSimulations_SingleThreaded(simDefinition, nRuns, outputLists, mCLogger, silent)
     
     _showResults(simDefinition, outputLists, mCLogger)
@@ -90,10 +81,7 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
     # TODO: Either re-use actors or switch to using tasks to avoid constantly creating new python processes
         # Need to edit lines 142-143
         # Same for other simulation runners
-
-    if not rayAvailable:
-        raise ImportError("Could not import ray. Please make sure it is installed or run in single-threaded mode")
-
+    import ray
     runRemoteSimulation = ray.remote(runSimulation)
     runRemoteSimulation.options(num_returns=2)
 
