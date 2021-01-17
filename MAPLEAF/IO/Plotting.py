@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from MAPLEAF.Motion import interpolateRigidBodyStates, linInterpWeights
-from MAPLEAF.IO import RocketFlight
+from MAPLEAF.IO import RocketFlight, getAbsoluteFilePath
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
 
@@ -102,7 +102,7 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
     
     return names
 
-def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
+def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+", enableCache=True):
     '''
         Obtains columns matching one or more regex expressions in a log file.
         By default, log file contents are cached by file name.
@@ -120,7 +120,7 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+"):
     if isinstance(columnSpecs, str):
         columnSpecs = [ columnSpecs ]
     
-    if logPath in logFileCache:
+    if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
         with open(logPath, 'r') as file:
@@ -267,7 +267,7 @@ def plot_Earth_Mayavi(earthTexture='MAPLEAF/IO/blue_marble_spherical_splitFlippe
 
     # load and map the texture
     img = tvtk.JPEGReader()
-    img.file_name = earthTexture
+    img.file_name = getAbsoluteFilePath(earthTexture)
     texture = tvtk.Texture(input_connection=img.output_port, interpolate=1)
     # (interpolate for a less raster appearance when zoomed in)
 
@@ -371,10 +371,11 @@ def _keepNTimeSteps(flights, nFramesToKeep=600):
     else:
         return flights
 
-def _get3DPlotSize(Positions, sizeMultiple=1.1):
+def _get3DPlotSize(flight, sizeMultiple=1.1):
     '''
         Finds max X, Y, or Z distance from the origin reached during the a flight. Used to set the 3D plot size (which will be equal in all dimensions)
     '''
+    Positions = flight.Positions
     centerOfPlot = Vector(mean(Positions[0]), mean(Positions[1]), mean(Positions[2]))
 
     xRange = max(Positions[0]) - min(Positions[0])
@@ -632,7 +633,7 @@ def flightAnimation(flights, showPlot=True, saveAnimFileName=None):
         flight.Positions = Positions
 
     # Set xyz size of plot - equal in all dimensions
-    axisDimensions, centerOfPlot = _get3DPlotSize(flights[0].Positions) # Assumes the top stage travels the furthest
+    axisDimensions, centerOfPlot = _get3DPlotSize(flights[0]) # Assumes the top stage travels the furthest
 
     # Calculate frames at which engine turns off and main chute deploys
     for flight in flights:
@@ -743,3 +744,22 @@ def plotAndSummarizeScalarResult(scalarList, name="Apogee", monteCarloLogger=Non
 
     if showPlot:
         plt.show()
+
+### Colors ###
+def getColorPalette(nColors=4):
+    ''' Returns a list of nColors colors '''
+    if nColors > 8:
+        raise ValueError("Too many colors requested: {} (Max 8)".format(nColors))
+    if nColors < 3:
+        raise ValueError("Too few colors requested: {} (Min 3)".format(nColors))
+
+    colorPaletteDict = {        
+        3: [ '#003f5c', '#bc5090', '#ffa600'],
+        4: [ '#003f5c', '#7a5195', '#ef5675', '#ffa600'],
+        5: [ '#003f5c', '#58508d', '#bc5090', '#ff6361','#ffa600'],
+        6: [ '#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600'],
+        7: [ '#003f5c', '#374c80', '#7a5195', '#bc5090', '#ef5675', '#ff764a', '#ffa600'],
+        8: [ '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600' ]
+    }
+
+    return colorPaletteDict[nColors]

@@ -1,10 +1,12 @@
+import os
 import re
 import unittest
 from copy import deepcopy
 from test.testUtilities import assertVectorsAlmostEqual
 
 from MAPLEAF.IO import SimDefinition, defaultConfigValues
-from MAPLEAF.IO.simDefinition import getImmediateSubKey, getKeyLevel, isSubKey
+from MAPLEAF.IO.simDefinition import (getAbsoluteFilePath, getImmediateSubKey,
+                                      getKeyLevel, isSubKey)
 from MAPLEAF.Motion import Vector
 
 
@@ -137,6 +139,7 @@ class TestSimDefinition(unittest.TestCase):
         self.assertFalse(isSubKey("Rocket", "SimControl"))
         self.assertTrue(isSubKey("", "Rocket"))
         self.assertTrue(isSubKey("Dictionary1", "Dictionary1.key1"))
+        self.assertFalse(isSubKey("Case5", "Case5_0AOA"))
 
     def test_getKeyLevel(self):
         self.assertEqual(getKeyLevel("Rocket.name"), 1)
@@ -187,6 +190,14 @@ class TestSimDefinition(unittest.TestCase):
         self.assertTrue("Dictionary1.key3" not in self.simDef)
         self.assertTrue("Dictionary1.SubDictionary1.key3" in self.simDef)
         self.assertTrue("Dictionary1.SubDictionary1.key6" not in self.simDef)
+
+    def test_getAbsoluteFilePath(self):
+        filePath = getAbsoluteFilePath("testDerivedDicts.mapleaf", "./test/test_IO/")
+        self.assertTrue(os.path.isfile(filePath))
+
+    def test_circularImport(self):
+        with self.assertRaises(ValueError):
+            circularSimDef = SimDefinition("test/test_IO/circImportTest1.mapleaf")
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':

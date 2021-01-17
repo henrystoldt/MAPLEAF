@@ -1,12 +1,12 @@
 # MAPLEAF
      # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
-  SimControl{ 
+SimControl{ 
     EndCondition Altitude
     EndConditionValue 0
-    plot FlightAnimation VelocityZ&NoseconeFZ
+    plot FlightAnimation VelocityZ&NoseconeFZ TimeStep IntegrationError
     
-        # None, 1, 2
+    # None, 1, 2
     loggingLevel 2
 
     # Euler, RK2Midpoint, RK2Heun, RK4, RK12Adaptive, RK23Adaptive, RK45Adaptive - Implemented in Integrator class in rigidBody.py
@@ -49,6 +49,7 @@ Environment{
         locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
         randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
     }
+
     TurbulenceModel                     PinkNoise2D
     PinkNoiseModel{
         # To set the strength of pink noise fluctuations, provide the turbulenceIntensity OR the velocityStdDeviation

@@ -1,0 +1,13 @@
+Dict1{         
+    key1    value1
+    key2    value2
+
+    SubDict1{
+        key3    value3
+        key4	value4
+        key5    value5
+        key6    value with spaces in it
+        badKey  1213
+        badKey2 3424  
+    }
+}

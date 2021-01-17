@@ -76,5 +76,20 @@ class TestLaunchRail(unittest.TestCase):
 
         self.assertAlmostEqual(env.launchRail.length, 15)
 
+    def test_initPosition(self):
+        # Modify file to include a launch rail
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf")
+        simDef.setValue("Environment.LaunchSite.railLength", "10")
+
+        # Initialize environment with launch rail
+        env = Environment(simDef)
+
+        # Check that launch rail has been created
+        self.assertTrue(env.launchRail != None)
+
+        # Check initial launch rail position and direction
+        initPos = Vector(0, 0, 15+755) # Rocket position + launch site elevation
+        assertVectorsAlmostEqual(self, initPos, env.launchRail.initialPosition)
+
 if __name__ == "__main__":
     unittest.main()
