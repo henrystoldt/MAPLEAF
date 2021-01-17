@@ -1,7 +1,7 @@
 import random
 
 from MAPLEAF.IO import Logging, Plotting
-from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
+from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 
 __all__ = [ "runMonteCarloSimulation" ]
 
@@ -87,13 +87,23 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
         Runs a probabilistic simulation a several times, collects and displays average results for common parameters
         Parallelized using [ray](https://github.com/ray-project/ray)
     '''
+    # TODO: Either re-use actors or switch to using tasks to avoid constantly creating new python processes
+        # Need to edit lines 142-143
+        # Same for other simulation runners
+
+    if not rayAvailable:
+        raise ImportError("Could not import ray. Please make sure it is installed or run in single-threaded mode")
+
+    runRemoteSimulation = ray.remote(runSimulation)
+    runRemoteSimulation.options(num_returns=2)
+
     landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flights = outputLists
     resultsToOutput = simDefinition.getValue("MonteCarlo.output")
    
     def postProcess(rayObject):
         ''' Gets sim results from worker, appends results to outputLists '''
         # Get sim results
-        stagePaths = ray.get(rayObject)
+        stagePaths, logPaths = ray.get(rayObject)
         
         # Save results from the top stage
         flight = stagePaths[0]
@@ -137,8 +147,7 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
         simDefinition.rng = random.Random(newRandomSeed)
 
         # Start sim
-        simRunner = RemoteSimulation.remote(simDefinition=simDefinition, silent=True)
-        flightPathsFuture, _ = simRunner.run.remote()
+        flightPathsFuture = runRemoteSimulation.remote(simDefinition=simDefinition, silent=True)
         runningJobs.append(flightPathsFuture)
 
     # Wait for remaining sims to complete
