@@ -196,6 +196,20 @@ Accessible as <code>mapleaf-batch</code> if …</p></div>
     _showResults(simDefinition, outputLists, mCLogger)</code></pre>
 </details>
 </dd>
+<dt id="MAPLEAF.SimulationRunners.runSimulation"><code class="name flex">
+<span>def <span class="ident">runSimulation</span></span>(<span>simDefinitionFilePath=None, simDefinition=None, silent=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def runSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    sim = Simulation(simDefinitionFilePath, simDefinition, silent)
+    return sim.run()</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -2496,6 +2510,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.SimulationRunners.main" href="#MAPLEAF.SimulationRunners.main">main</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.run" href="#MAPLEAF.SimulationRunners.run">run</a></code></li>
 <li><code><a title="MAPLEAF.SimulationRunners.runMonteCarloSimulation" href="#MAPLEAF.SimulationRunners.runMonteCarloSimulation">runMonteCarloSimulation</a></code></li>
+<li><code><a title="MAPLEAF.SimulationRunners.runSimulation" href="#MAPLEAF.SimulationRunners.runSimulation">runSimulation</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

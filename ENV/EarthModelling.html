@@ -1220,7 +1220,10 @@ Method adapted from: <a href="https://en.wikipedia.org/wiki/Geographic_coordinat
 
     h = (1/self.e2)*(1/k - 1/Korig)*sqrt(p*p + z*z*k*k)
 
-    return degrees(lat), degrees(lon), h</code></pre>
+    return degrees(lat), degrees(lon), h
+
+# Re-use conversions to/from spherical coordinates from SphericalEarth
+    # Useful for Spherical Harmonic Gravity model calculations, which are performed in spherical coordinates</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.ENV.EarthModelling.WGS84.cartesianToSpherical"><code class="name flex">
