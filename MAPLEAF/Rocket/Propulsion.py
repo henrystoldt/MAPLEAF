@@ -125,22 +125,26 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Set ignition time to the current time so that flowrates resume when engines are turned on again
             self.ignitionTime = time
         else:
-        # If the Engine is turned off, flip this switch to be able to update total prop mass
+        # If the Engine is turned on, flip this switch to be able to update total prop mass when engines turn off again
             self.updateProp = False
 
         # Updates the total amount of propellant left when engines get shut off
         if self.rocket.engineShutOff == True and self.updateProp == False:
             self.updateAmountPropellant(time)
+
+        # Flips switch so that propellent does not get updated as engine remains off
             self.updateProp = True
 
-        # Set time since engines are turned on
+        # Set time since ignition when engines are turned on
         timeSinceIgnition = max(0, time - self.ignitionTime)
 
+        # Calls to obtain oxydiser and fuel inertia as propellant gets depleted.
         oxInertia = self._getOxInertia(timeSinceIgnition)
         fuelInertia = self._getFuelInertia(timeSinceIgnition)
         
         return oxInertia + fuelInertia
 
+    # Function to update global propellant mass when engines are turned off
     def updateAmountPropellant(self, time):
         gravity = 9.81
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP)) 
@@ -151,8 +155,11 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Checks to see the powered state of the engine
         timeSinceIgnition = max(0,time - self.ignitionTime)
         if self.rocket.engineShutOff == True:
+
+            # Sets the time to the current time so that mass flow of propellants goes to zero
             self.ignitionTime = time
 
+        #TODO: Add variable gravity as a function of altitude
         gravity = 9.81
 
         #TODO: Account for Variable ISP --> Mass flow of the propellants is computed asuming constant ISP
