@@ -3,12 +3,12 @@
 
 SimControl{
     timeDiscretization RK45Adaptive
-    timeStep 0.01 #sec, CanardDeflections
+    timeStep 0.02 #sec, CanardDeflections
     plot Thrust Position FlightAnimation 
     loggingLevel 2
 
     EndCondition Time
-    EndConditionValue 200
+    EndConditionValue 20
 
     TimeStepAdaptation{
         controller PID
@@ -21,7 +21,7 @@ Rocket{
     # Initial state
     position            (0 0 10) # m
     initialDirection    (0 0.1 1)
-    velocity            (0 0 0) #m/s
+    velocity            (0 0 10) #m/s
 
     Sustainer{
         class           Stage
@@ -34,7 +34,7 @@ Rocket{
 
         Nosecone{
             class           Nosecone
-            mass            20.0
+            mass            0
             position        (0 0 0)
             cg              (0 0 -0.2)
             baseDiameter    3.66
@@ -46,7 +46,7 @@ Rocket{
 
         UpperBodyTube{
             class           Bodytube
-            mass            50000
+            mass            3000000
             position        (0 0 -7.32)
             cg              (0 0 -20)
             outerDiameter   3.66
@@ -58,7 +58,7 @@ Rocket{
         Canards{
             class           FinSet
 
-            mass            2 # kg
+            mass            0 # kg
             position        (0 0 -0.8636)
             cg              (0 0 -0.8636)
 
@@ -67,7 +67,7 @@ Rocket{
             rootChord       0.1524 # m
             tipChord        0.0762 # m
             span            0.0635 # m
- 
+
             thickness       0.0047625 # m
             surfaceRoughness    0.000050
 
@@ -89,13 +89,6 @@ Rocket{
             }
         }
 
-        # GeneralMass{
-        #     class           Mass
-        #     mass            5
-        #     position        (0 0 -2.762)
-        #     cg              (0 0 -2.762)
-        # }
-
         # Motor{
         #     class           Motor
         #     path            MAPLEAF/Examples/Motors/test2.txt
@@ -110,7 +103,7 @@ Rocket{
 
         TailFins{
             class           FinSet 
-            mass            2 # kg
+            mass            0 # kg
             position        (0 0 -4.2672)
             cg              (0 0 -4.2762)
             
