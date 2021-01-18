@@ -119,12 +119,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
     #### Operational Functions ####
     def getInertia(self, time, state):
 
-        if time >= 5 and time <=20:
-            self.rocket.engineShutOff = True
-
-        if time >20:
-            self.rocket.engineShutOff = False
-
         # Checks the powered state of the engine
         if self.rocket.engineShutOff == True:
         
