@@ -22,6 +22,7 @@ class BodyTube(FixedMass, BodyComponent):
         # Tell the rocket/stage what its diameter is
         self.rocket.bodyTubeDiameter = self.outerDiameter
         self.stage.bodyTubeDiameter = self.outerDiameter
+        self.stage.bodyTubeLength = self.length
 
         self._precomputeGeometry()
 
