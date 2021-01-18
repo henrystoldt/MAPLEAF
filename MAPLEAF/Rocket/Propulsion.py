@@ -97,9 +97,17 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.motorOxyDensity = self.oxyDensity[place]
         self.motorOxyFuelRatio = self.oxyFuelRatio[place]
         self.motorEngineThrust = self.engineThrust[place]
-        self.motorMassPropTotal = self.massPropTotal[place]
+        # self.motorMassPropTotal = self.massPropTotal[place] #### CHANGE
         self.motorStageDiameter = self.diameterRef
         self.updateProp = False # Used to update the propellant total mass when motor is turned off
+
+        volumeTotal =  (math.pi/4)*(self.stage.bodyTubeDiameter**2)*self.stage.bodyTubeLength
+        volumeComponent = (1-0.67156462)*volumeTotal
+        volComponentFrac = volumeComponent/volumeTotal
+        volPropFrac = 1 - volComponentFrac
+        volumeProp = volPropFrac*volumeTotal
+
+        self.motorMassPropTotal = self.motorFuelDensity*volumeProp + ((volumeProp*self.motorFuelDensity*self.motorOxyFuelRatio)/(self.motorOxyDensity+self.motorFuelDensity*self.motorOxyFuelRatio))*(self.motorOxyDensity - self.motorFuelDensity)
 
         # Sets the initial CG of the Oxydiser (Stacked Above Fuel)
         # TODO: Right now, doesnt account for NoseConeLength  
@@ -168,18 +176,18 @@ class DefinedMotor(RocketComponent, SubDictReader):
         massPropBurned = massFlowProp*timeSinceIgnition
         burnTime = self.motorMassPropTotal/massFlowProp
         thrustMagnitude = 0
+
         #Determine the magnitude of Thrust from Specified Motor
         if timeSinceIgnition < 0 or timeSinceIgnition > burnTime:  #Checks to see if Engine is powered on
             thrustMagnitude = 0
         elif massPropBurned >= self.motorMassPropTotal: #Checks to see if propellent mass is used up
             thrustMagnitude = 0
-        elif self.rocket.engineShutOff == True:
+        elif self.rocket.engineShutOff == True: # CHecks the powered state of the motor
             thrustMagnitude = 0
         else:
             thrustMagnitude = self.motorEngineThrust*self.numMotors # set thrust to engine maximum
 
         #TODO: Generate variable thrust condition?
-        
         thrust = Vector(0,0,thrustMagnitude)
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
