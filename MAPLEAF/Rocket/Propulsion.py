@@ -36,11 +36,12 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.diameterRef =  self.stage.bodyTubeDiameter
         stage.motor = self
         self.classType = componentDictReader.getString("class")
+        
         self.ignitionTime = 0
 
-       # Impulse adjustments (mostly for Monte Carlo sims)
-       # self.impulseAdjustFactor = componentDictReader.getFloat("impulseAdjustFactor")
-       # self.burnTimeAdjustFactor = componentDictReader.getFloat("burnTimeAdjustFactor")
+    # Impulse adjustments (mostly for Monte Carlo sims)
+    # self.impulseAdjustFactor = componentDictReader.getFloat("impulseAdjustFactor")
+    # self.burnTimeAdjustFactor = componentDictReader.getFloat("burnTimeAdjustFactor")
 
         motorType = componentDictReader.getString("type")
         self.numMotors = int(float(componentDictReader.getString("number")))
@@ -77,6 +78,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.massPropTotal = []
         self.stageDiameter = []
 
+
         for dataLine in motorFileText:
             info = dataLine.split()
             self.motorSelection.append((info[0]))
@@ -97,29 +99,59 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.motorEngineThrust = self.engineThrust[place]
         self.motorMassPropTotal = self.massPropTotal[place]
         self.motorStageDiameter = self.diameterRef
+        self.updateProp = False # Used to update the propellant total mass when motor is turned off
 
     #### Operational Functions ####
     def getInertia(self, time, state):
-        timeSinceIgnition = max(0, time - self.ignitionTime)
+
+        # Checks the powered state of the engine
+        if self.rocket.engineShutOff == True:
         
+        # Set ignition time to the current time so that flowrates resume when engines are turned on again
+            self.ignitionTime = time
+        else:
+        # If the Engine is turned off, flip this switch to be able to update total prop mass
+            self.updateProp = False
+
+        # Updates the total amount of propellant left when engines get shut off
+        if self.rocket.engineShutOff == True and self.updateProp == False:
+            self.updateAmountPropellant(time)
+            self.updateProp = True
+
+        # Set time since engines are turned on
+        timeSinceIgnition = max(0, time - self.ignitionTime)
+
         oxInertia = self._getOxInertia(timeSinceIgnition)
         fuelInertia = self._getFuelInertia(timeSinceIgnition)
         
         return oxInertia + fuelInertia
 
+    def updateAmountPropellant(self, time):
+        gravity = 9.81
+        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP)) 
+        massPropBurned = massFlowProp*time
+        self.motorMassPropTotal = self.motorMassPropTotal - massPropBurned
+
     def getAeroForce(self, state, time, environment, CG):
+        # Checks to see the powered state of the engine
         timeSinceIgnition = max(0,time - self.ignitionTime)
+        if self.rocket.engineShutOff == True:
+            self.ignitionTime = time
+
         gravity = 9.81
 
         #TODO: Account for Variable ISP --> Mass flow of the propellants is computed asuming constant ISP
+
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP)) 
         massPropBurned = massFlowProp*timeSinceIgnition
         burnTime = self.motorMassPropTotal/massFlowProp
-        
+        thrustMagnitude = 0
         #Determine the magnitude of Thrust from Specified Motor
-        if timeSinceIgnition < 0 or timeSinceIgnition > burnTime: #Checks to see if Engine is powered on
+        if timeSinceIgnition < 0 or timeSinceIgnition > burnTime:  #Checks to see if Engine is powered on
             thrustMagnitude = 0
         elif massPropBurned >= self.motorMassPropTotal: #Checks to see if propellent mass is used up
+            thrustMagnitude = 0
+        elif self.rocket.engineShutOff == True:
             thrustMagnitude = 0
         else:
             thrustMagnitude = self.motorEngineThrust*self.numMotors # set thrust to engine maximum
@@ -130,6 +162,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
 
+    # NOT SURE IF THIS FUNCTION IS NEEDED ENTIRELY
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
         gravity = 9.81
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
@@ -150,7 +183,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
     def _getOxInertia(self, timeSinceIgnition):
         gravity = 9.81
-        
         initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
         massFlowOxy  = massFlowProp/(1+(1/self.motorOxyFuelRatio))
@@ -163,9 +195,9 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.finalOxCG_Z = initLengthOxy + self.stage.position.Z 
 
         # Sets mass of the oxydiser as the propellent is burned
-        massOxy = initMassOxy-massFlowOxy*timeSinceIgnition #Obtain current amount of oxydizer
+        massOxy = initMassOxy-massFlowOxy*timeSinceIgnition 
         
-        # Conditional Statement if Oxidiser Tank is Empty
+        # Conditional Statement if Oxydiser Tank is Empty
         if massOxy < 0:
             massOxy = 0
 
