@@ -101,8 +101,29 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.motorStageDiameter = self.diameterRef
         self.updateProp = False # Used to update the propellant total mass when motor is turned off
 
+        # Sets the initial CG of the Oxydiser (Stacked Above Fuel)
+        # TODO: Right now, doesnt account for NoseConeLength  
+        self.initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
+        self.initVolumeOxy = self.initMassOxy/self.motorOxyDensity
+        self.initLengthOxy = self.initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        self.initOxCG_Z = self.stage.position.Z + self.initLengthOxy/2
+        self.finalOxCG_Z = self.initLengthOxy + self.stage.position.Z
+
+        # Sets the Inital and Final CG Locations for the Fuel (Stacked Below Oxidizer)
+        self.initMassFuel = self.motorMassPropTotal/(self.motorOxyFuelRatio+1)
+        self.initVolumeFuel = self.initMassFuel/self.motorFuelDensity
+        initLengthFuel = self.initVolumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
+        self.initFuelCG_Z =  (self.finalOxCG_Z + initLengthFuel/2)
+        self.finalFuelCG_Z = initLengthFuel + self.finalOxCG_Z
+
     #### Operational Functions ####
     def getInertia(self, time, state):
+
+        if time >= 5 and time <=20:
+            self.rocket.engineShutOff = True
+
+        if time >20:
+            self.rocket.engineShutOff = False
 
         # Checks the powered state of the engine
         if self.rocket.engineShutOff == True:
@@ -186,13 +207,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
         initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
         massFlowOxy  = massFlowProp/(1+(1/self.motorOxyFuelRatio))
-        initVolumeOxy = initMassOxy/self.motorOxyDensity
-        initLengthOxy = initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-
-        # Sets the initial CG of the Oxydiser (Stacked Above Fuel)
-        # TODO: Right now, doesnt account for NoseConeLength  
-        self.initOxCG_Z = self.stage.position.Z + initLengthOxy/2
-        self.finalOxCG_Z = initLengthOxy + self.stage.position.Z 
 
         # Sets mass of the oxydiser as the propellent is burned
         massOxy = initMassOxy-massFlowOxy*timeSinceIgnition 
@@ -229,12 +243,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
         #Fuel Information
         initMassFuel = self.motorMassPropTotal/(self.motorOxyFuelRatio+1)
         massFlowFuel  = massFlowProp/(self.motorOxyFuelRatio+1)
-        initVolumeFuel = initMassFuel/self.motorFuelDensity
-        initLengthFuel = initVolumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-
-        # Sets the Inital and Final CG Locations for the Fuel (Stacked Below Oxidizer)
-        self.initFuelCG_Z =  (self.finalOxCG_Z + initLengthFuel/2)
-        self.finalFuelCG_Z = initLengthFuel + self.finalOxCG_Z
 
         # Computes the mass of fuel that is left in the tank
         massFuel = initMassFuel-massFlowFuel*timeSinceIgnition #Obtain current amount of oxydizer
