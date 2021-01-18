@@ -101,12 +101,17 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.motorStageDiameter = self.diameterRef
         self.updateProp = False # Used to update the propellant total mass when motor is turned off
 
+        # Computes the total available volume in the body tube
         volumeTotal =  (math.pi/4)*(self.stage.bodyTubeDiameter**2)*self.stage.bodyTubeLength
-        volumeComponent = (1-0.67156462)*volumeTotal
+        # Computes the amount of volume taken up by other components (Engine, Tanks, etc.)
+        volumeComponent = (1-0.67156462)*volumeTotal #NOTE: Random Compoenet Volume, fraction needs to be standardised
+        # Computes the fraction of components that are taken up in body tube
         volComponentFrac = volumeComponent/volumeTotal
+        # The rest of the space is taken up by fuel (SHould account for tanks, etc.)
         volPropFrac = 1 - volComponentFrac
+        # Total Volume of propellants that is in the Body Tube
         volumeProp = volPropFrac*volumeTotal
-
+        # Compute the total mass of the propellants from total volume taken up by fuel and oxydiser
         self.motorMassPropTotal = self.motorFuelDensity*volumeProp + ((volumeProp*self.motorFuelDensity*self.motorOxyFuelRatio)/(self.motorOxyDensity+self.motorFuelDensity*self.motorOxyFuelRatio))*(self.motorOxyDensity - self.motorFuelDensity)
 
         # Sets the initial CG of the Oxydiser (Stacked Above Fuel)
