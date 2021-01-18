@@ -1,15 +1,9 @@
 import random
 
 from MAPLEAF.IO import Logging, Plotting
-from MAPLEAF.SimulationRunners import RemoteSimulation, Simulation, loadSimDefinition
+from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 
 __all__ = [ "runMonteCarloSimulation" ]
-
-try:
-    import ray
-    rayAvailable = True
-except ImportError:
-    rayAvailable = False
 
 
 def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
@@ -17,12 +11,9 @@ def runMonteCarloSimulation(simDefinitionFilePath=None, simDefinition=None, sile
 
     nRuns, mCLogger, outputLists = _prepSim(simDefinition)    
 
-    if nCores > 1 and rayAvailable:
+    if nCores > 1:
         _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent, nCores)
-    else:
-        if nCores > 1 and not rayAvailable:
-            print("ERROR: ray not found. Reverting to single-threaded mode.")
-            
+    else:            
         _runSimulations_SingleThreaded(simDefinition, nRuns, outputLists, mCLogger, silent)
     
     _showResults(simDefinition, outputLists, mCLogger)
@@ -87,13 +78,17 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
         Runs a probabilistic simulation a several times, collects and displays average results for common parameters
         Parallelized using [ray](https://github.com/ray-project/ray)
     '''
+    import ray
+    runRemoteSimulation = ray.remote(runSimulation)
+    runRemoteSimulation.options(num_returns=2)
+
     landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flights = outputLists
     resultsToOutput = simDefinition.getValue("MonteCarlo.output")
    
     def postProcess(rayObject):
         ''' Gets sim results from worker, appends results to outputLists '''
         # Get sim results
-        stagePaths = ray.get(rayObject)
+        stagePaths, logPaths = ray.get(rayObject)
         
         # Save results from the top stage
         flight = stagePaths[0]
@@ -137,8 +132,7 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
         simDefinition.rng = random.Random(newRandomSeed)
 
         # Start sim
-        simRunner = RemoteSimulation.remote(simDefinition=simDefinition, silent=True)
-        flightPathsFuture, _ = simRunner.run.remote()
+        flightPathsFuture = runRemoteSimulation.remote(simDefinition=simDefinition, silent=True)
         runningJobs.append(flightPathsFuture)
 
     # Wait for remaining sims to complete
