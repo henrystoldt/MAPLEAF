@@ -654,7 +654,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
             if val[:2] == &#34;./&#34;:
                 val = val[2:]
 
-            if len(val) &gt; 8 and val[:8] == &#34;MAPLEAF/&#34;:
+            if pathIsRelativeToRepository(val):
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             

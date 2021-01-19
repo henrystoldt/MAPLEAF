@@ -468,7 +468,7 @@ class SimDefinition():
             if val[:2] == &#34;./&#34;:
                 val = val[2:]
 
-            if len(val) &gt; 8 and val[:8] == &#34;MAPLEAF/&#34;:
+            if pathIsRelativeToRepository(val):
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             
@@ -941,6 +941,9 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -&gt; Tuple[str]:
     suffix = &#34;.&#34;.join(keyNames[n:])
     return prefix, suffix
 
+def pathIsRelativeToRepository(possiblePath:str) -&gt; bool:
+    return  len(possiblePath) &gt; 8 and possiblePath[:8] == &#34;MAPLEAF/&#34;
+
 def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34;&#34;) -&gt; str:
     &#39;&#39;&#39; 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
@@ -1352,7 +1355,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
             if val[:2] == &#34;./&#34;:
                 val = val[2:]
 
-            if len(val) &gt; 8 and val[:8] == &#34;MAPLEAF/&#34;:
+            if pathIsRelativeToRepository(val):
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             
