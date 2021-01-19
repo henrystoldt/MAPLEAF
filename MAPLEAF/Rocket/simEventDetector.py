@@ -30,6 +30,7 @@ class SimEventDetector():
         self.conditionsEvalFunctions = []
         self.conditionValues = []
         self.triggerDelays = []
+        self.eventOccurred = False
 
     def subscribeToEvent(self, eventType, callbackFunction, eventTriggerValue=None, triggerDelay=0):
         '''
@@ -86,6 +87,7 @@ class SimEventDetector():
                 nextEventTimeDeterministic = timeDeterministic
 
             if eventOccurred:
+                self.eventOccurred = eventOccurred
                 if self.triggerDelays[i] == 0:
                     # Call its function
                     # TODO: Print message to simulation log saying that the event has been triggered
