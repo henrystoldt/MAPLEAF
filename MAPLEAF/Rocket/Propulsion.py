@@ -36,7 +36,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.diameterRef =  self.stage.bodyTubeDiameter
         stage.motor = self
         self.classType = componentDictReader.getString("class")
-        self.engineShutOffTime = None
         
         self.ignitionTime = 0
 
@@ -130,6 +129,12 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.initFuelCG_Z =  (self.finalOxCG_Z + initLengthFuel/2)
         self.finalFuelCG_Z = initLengthFuel + self.finalOxCG_Z
 
+        gravity = 9.81
+        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
+        burnTime = self.motorMassPropTotal/massFlowProp
+        self.rocket.engineShutOffTime = self.ignitionTime + burnTime
+        self.stage.engineShutOffTime = self.ignitionTime + burnTime # Engine Shuts off when the time exceeds burntime from when engines turn on.
+
     #### Operational Functions ####
     def getInertia(self, time, state):
 
@@ -207,7 +212,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.ignitionTime = ignitionTime
 
         if not fakeValue:
-            # self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + burnTime)
+            self.rocket.engineShutOffTime = self.ignitionTime + burnTime
             self.stage.engineShutOffTime = self.ignitionTime + burnTime # Engine Shuts off when the time exceeds burntime from when engines turn on.
 
     def getLogHeader(self):
