@@ -199,6 +199,11 @@ class TestSimDefinition(unittest.TestCase):
         with self.assertRaises(ValueError):
             circularSimDef = SimDefinition("test/test_IO/circImportTest1.mapleaf")
 
+    def test_relativeFilepath(self):
+        simulationDefinition = SimDefinition('test/test_IO/testRelativeMotorPath.mapleaf', silent=True)        
+        motorFilePath = simulationDefinition.getValue('Rocket.Sustainer.Motor.path')
+        self.assertTrue(os.path.isfile(motorFilePath))
+
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()

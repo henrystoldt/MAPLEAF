@@ -415,11 +415,16 @@ class SimDefinition():
         #### Parse any regular values in derived dict ####
         return self._parseDictionaryContents(Dict, workingText, i, derivedDictName, allowKeyOverwriting=True)
 
-    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self, Dict):
+    def _replaceRelativeFilePathsWithAbsolutePaths(self, Dict):
         ''' 
             Tries to detect paths relative to the MAPLEAF installation directory and replaces them with absolute paths.
             This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
         '''
+        if self.fileName != None:
+            fileDirectory = os.path.dirname(os.path.realpath(self.fileName))
+        else:
+            fileDirectory = None
+
         for key in Dict:
             # Iterate over all keys, looking for file path relative to the MAPLEAF repo
             val = Dict[key]
@@ -431,6 +436,13 @@ class SimDefinition():
             if len(val) > 8 and val[:8] == "MAPLEAF/":
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
+            
+            elif '/' in val or '.' in val:
+                # Check if the file path is relative to the location of the simulation definition file
+                if fileDirectory != None:
+                    possibleLocation = os.path.join(fileDirectory, val)
+                    if os.path.exists(possibleLocation):
+                        Dict[key] = possibleLocation
 
     def _parseSimDefinitionFile(self, fileName):
         Dict = {}
@@ -454,7 +466,7 @@ class SimDefinition():
         self._parseDictionaryContents(Dict, workingText, 0, "")
 
         # Look for file paths relative to the MAPLEAF install location, replace them with absolute paths
-        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(Dict)
+        self._replaceRelativeFilePathsWithAbsolutePaths(Dict)
 
         return Dict
 
