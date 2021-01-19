@@ -36,6 +36,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.diameterRef =  self.stage.bodyTubeDiameter
         stage.motor = self
         self.classType = componentDictReader.getString("class")
+        self.engineShutOffTime = None
         
         self.ignitionTime = 0
 
@@ -183,7 +184,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         thrustMagnitude = 0
 
         #Determine the magnitude of Thrust from Specified Motor
-        if timeSinceIgnition < 0 or timeSinceIgnition > burnTime:  #Checks to see if Engine is powered on
+        if timeSinceIgnition <= 0 or timeSinceIgnition > burnTime:  #Checks to see if Engine is powered on
             thrustMagnitude = 0
         elif massPropBurned >= self.motorMassPropTotal: #Checks to see if propellent mass is used up
             thrustMagnitude = 0
@@ -206,7 +207,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.ignitionTime = ignitionTime
 
         if not fakeValue:
-            self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + burnTime)
+            # self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + burnTime)
             self.stage.engineShutOffTime = self.ignitionTime + burnTime # Engine Shuts off when the time exceeds burntime from when engines turn on.
 
     def getLogHeader(self):
