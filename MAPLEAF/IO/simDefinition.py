@@ -433,7 +433,7 @@ class SimDefinition():
             if val[:2] == "./":
                 val = val[2:]
 
-            if len(val) > 8 and val[:8] == "MAPLEAF/":
+            if pathIsRelativeToRepository(val):
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             
@@ -905,6 +905,9 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -> Tuple[str]:
     prefix = ".".join(keyNames[:n])
     suffix = ".".join(keyNames[n:])
     return prefix, suffix
+
+def pathIsRelativeToRepository(possiblePath:str) -> bool:
+    return  len(possiblePath) > 8 and possiblePath[:8] == "MAPLEAF/"
 
 def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") -> str:
     ''' 
