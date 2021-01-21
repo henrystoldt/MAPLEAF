@@ -196,7 +196,7 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
             Fig/Axes inputs (to have lines plotted on existing graphs)
     '''
     
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt # Import statement here because the rest of this module it doesn't need it and it's a big dependency
     LLP = lineLabelPrefix
 
     # Make sure we have data at the same x-locations
