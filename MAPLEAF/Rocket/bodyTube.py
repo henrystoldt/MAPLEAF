@@ -22,7 +22,8 @@ class BodyTube(FixedMass, BodyComponent):
         # Tell the rocket/stage what its diameter is
         self.rocket.bodyTubeDiameter = self.outerDiameter
         self.stage.bodyTubeDiameter = self.outerDiameter
-        self.stage.bodyTubeLength = self.length
+        self.stage.bodyTubeLength = self.length # Added (used in DefinedMotor in Propulsion.py) - PH
+        self.stage.bodyTubePosition = self.position # Added (used in DefinedMotor in Propulsion.py) - PH
 
         self._precomputeGeometry()
 
