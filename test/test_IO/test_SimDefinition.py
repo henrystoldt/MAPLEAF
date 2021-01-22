@@ -204,6 +204,9 @@ class TestSimDefinition(unittest.TestCase):
         motorFilePath = simulationDefinition.getValue('Rocket.Sustainer.Motor.path')
         self.assertTrue(os.path.isfile(motorFilePath))
 
+        # Ensure relative path expansion does not corrupt plot line formats
+        self.assertEqual(simulationDefinition.getValue('Rocket.Sustainer.Motor.lineFormat'), '.')
+
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':
     unittest.main()

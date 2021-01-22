@@ -8,6 +8,7 @@ Rocket{
         Motor{
             class           Motor
             path            ../../MAPLEAF/Examples/Motors/test2.txt
+            lineFormat      . # This should not be expanded into a file path
         }
     }
 }
