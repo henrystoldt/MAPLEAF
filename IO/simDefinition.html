@@ -472,7 +472,7 @@ class SimDefinition():
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             
-            elif &#39;/&#39; in val or &#39;.&#39; in val:
+            if isFileName(val):
                 # Check if the file path is relative to the location of the simulation definition file
                 if fileDirectory != None:
                     possibleLocation = os.path.join(fileDirectory, val)
@@ -941,6 +941,14 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -&gt; Tuple[str]:
     suffix = &#34;.&#34;.join(keyNames[n:])
     return prefix, suffix
 
+def isFileName(value:str) -&gt; bool:
+    expectedExtensions = [&#34;.csv&#34;, &#39;.pdf&#39;, &#39;.mapleaf&#39;, &#39;.txt&#39;, &#39;.py&#39;, &#39;.eng&#39;] # And file extensions here to have filled paths in simulation definition files ending in these extensions auto corrected
+    for ext in expectedExtensions:
+        if ext in value:
+            return True
+    
+    return False
+
 def pathIsRelativeToRepository(possiblePath:str) -&gt; bool:
     return  len(possiblePath) &gt; 8 and possiblePath[:8] == &#34;MAPLEAF/&#34;
 
@@ -1359,7 +1367,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             
-            elif &#39;/&#39; in val or &#39;.&#39; in val:
+            if isFileName(val):
                 # Check if the file path is relative to the location of the simulation definition file
                 if fileDirectory != None:
                     possibleLocation = os.path.join(fileDirectory, val)

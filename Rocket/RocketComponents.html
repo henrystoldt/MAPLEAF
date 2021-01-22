@@ -198,12 +198,6 @@ class FixedMass(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getMass(self, time):
-        return self.inertia.mass
-
-    def getCG(self, time):
-        return self.inertia.CG
-
     def getAeroForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
@@ -938,12 +932,6 @@ Implements functionality to read/store inertia and position info from sim defini
     def getInertia(self, time, state):
         return self.inertia
 
-    def getMass(self, time):
-        return self.inertia.mass
-
-    def getCG(self, time):
-        return self.inertia.CG
-
     def getAeroForce(self, rocketState, time, environment, CG):
         return self.zeroForce</code></pre>
 </details>
@@ -976,19 +964,6 @@ Implements functionality to read/store inertia and position info from sim defini
     return self.zeroForce</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getCG"><code class="name flex">
-<span>def <span class="ident">getCG</span></span>(<span>self, time)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getCG(self, time):
-    return self.inertia.CG</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia"><code class="name flex">
 <span>def <span class="ident">getInertia</span></span>(<span>self, time, state)</span>
 </code></dt>
@@ -1000,19 +975,6 @@ Implements functionality to read/store inertia and position info from sim defini
 </summary>
 <pre><code class="python">def getInertia(self, time, state):
     return self.inertia</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getMass"><code class="name flex">
-<span>def <span class="ident">getMass</span></span>(<span>self, time)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getMass(self, time):
-    return self.inertia.mass</code></pre>
 </details>
 </dd>
 </dl>
@@ -1627,9 +1589,7 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce">getAeroForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getCG" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getCG">getCG</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getMass">getMass</a></code></li>
 </ul>
 </li>
 <li>

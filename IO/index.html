@@ -658,7 +658,7 @@ Would be parsed into a single-key Python dictionary, stored in self.dict:<br>
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
             
-            elif &#39;/&#39; in val or &#39;.&#39; in val:
+            if isFileName(val):
                 # Check if the file path is relative to the location of the simulation definition file
                 if fileDirectory != None:
                     possibleLocation = os.path.join(fileDirectory, val)
