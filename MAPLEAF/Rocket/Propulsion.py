@@ -120,15 +120,15 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         self.initVolumeOxy = self.initMassOxy/self.motorOxyDensity
         self.initLengthOxy = self.initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-        self.initOxCG_Z = -(self.stage.bodyTubePosition.Z - self.initLengthOxy/2) # Formally .position.Z
-        self.finalOxCG_Z = -(-self.initLengthOxy + self.stage.bodyTubePosition.Z) # Formally .position.Z
+        self.initOxCG_Z = (self.stage.bodyTubePosition.Z - self.initLengthOxy/2) # Formally .position.Z
+        self.finalOxCG_Z = (-self.initLengthOxy + self.stage.bodyTubePosition.Z) # Formally .position.Z
 
         # Sets the Inital and Final CG Locations for the Fuel (Stacked Below Oxidizer)
         self.initMassFuel = self.motorMassPropTotal/(self.motorOxyFuelRatio+1)
         self.initVolumeFuel = self.initMassFuel/self.motorFuelDensity
         initLengthFuel = self.initVolumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-        self.initFuelCG_Z =  (self.finalOxCG_Z + initLengthFuel/2)
-        self.finalFuelCG_Z = (initLengthFuel + self.finalOxCG_Z)
+        self.initFuelCG_Z =  (self.finalOxCG_Z - initLengthFuel/2)
+        self.finalFuelCG_Z = (-initLengthFuel + self.finalOxCG_Z)
 
         # TODO: Account for changing gravity value
         gravity = 9.81
@@ -245,7 +245,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Computes CG of Oxydiser as its depleted
         volumeOxy = massOxy/self.motorOxyDensity
         lengthOxy = volumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-        oxCG_Z = self.finalOxCG_Z - lengthOxy/2
+        oxCG_Z = self.finalOxCG_Z + lengthOxy/2
         oxCG = Vector(0,0,oxCG_Z)
 
         #MOI Calculations Assume Cylindrical Fuel Tank
@@ -259,7 +259,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         oxWeight = massOxy
 
         # TODO: Do we need to return a negative CG?
-        return Inertia(oxMOI, -oxCG, oxWeight)
+        return Inertia(oxMOI, oxCG, oxWeight)
 
     # Function used to model Fuel as its depleted. Returns CG, MOI, and Weight of Fuel
     def _getFuelInertia(self, timeSinceIgnition):
@@ -282,7 +282,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Computes the CG of the Fuel as it gets Burned
         volumeFuel = massFuel/self.motorFuelDensity
         lengthFuel = volumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-        fuelCG_Z = self.finalFuelCG_Z - lengthFuel/2
+        fuelCG_Z = self.finalFuelCG_Z + lengthFuel/2
         fuelCG = Vector(0,0,fuelCG_Z)
 
         #MOI Calculations Assume Cylindrical Fuel Tank
@@ -293,7 +293,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
         fuelWeight = massFuel
 
-        return Inertia(fuelMOI, -fuelCG, fuelWeight)
+        return Inertia(fuelMOI, fuelCG, fuelWeight)
 
 class TabulatedMotor(RocketComponent):
     '''
