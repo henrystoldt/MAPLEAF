@@ -120,15 +120,15 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         self.initVolumeOxy = self.initMassOxy/self.motorOxyDensity
         self.initLengthOxy = self.initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
-        self.initOxCG_Z = self.stage.bodyTubePosition.Z - self.initLengthOxy/2 # Formally .position.Z
-        self.finalOxCG_Z = -self.initLengthOxy + self.stage.bodyTubePosition.Z # Formally .position.Z
+        self.initOxCG_Z = -(self.stage.bodyTubePosition.Z - self.initLengthOxy/2) # Formally .position.Z
+        self.finalOxCG_Z = -(-self.initLengthOxy + self.stage.bodyTubePosition.Z) # Formally .position.Z
 
         # Sets the Inital and Final CG Locations for the Fuel (Stacked Below Oxidizer)
         self.initMassFuel = self.motorMassPropTotal/(self.motorOxyFuelRatio+1)
         self.initVolumeFuel = self.initMassFuel/self.motorFuelDensity
         initLengthFuel = self.initVolumeFuel/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube
         self.initFuelCG_Z =  (self.finalOxCG_Z + initLengthFuel/2)
-        self.finalFuelCG_Z = initLengthFuel + self.finalOxCG_Z
+        self.finalFuelCG_Z = (initLengthFuel + self.finalOxCG_Z)
 
         # TODO: Account for changing gravity value
         gravity = 9.81
