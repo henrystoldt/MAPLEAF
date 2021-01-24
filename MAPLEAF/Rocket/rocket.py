@@ -129,6 +129,8 @@ class Rocket(CompositeObject):
         self.engineShutOff = False
         '''Used to shut off engines in MAPLEAF.Rocket.Propulsion.DefinedMotor class. Currently set in MAPLE_AF.GNC.Navigation'''
 
+        self.orbitalVelocityReached = False
+
         #### Init Hardware in the loop ####
         subDicts = rocketDictReader.getImmediateSubDicts()
         if "Rocket.HIL" in subDicts:
@@ -356,6 +358,7 @@ class Rocket(CompositeObject):
         # Ignite next motor (set ignition time to the time of stage separation)
         currentTime = self.rigidBody.time
         self.stages[0].motor.updateIgnitionTime(currentTime)
+
 
         self._ensureBaseDragIsAccountedFor()
         self._updateFinenessRatio()
