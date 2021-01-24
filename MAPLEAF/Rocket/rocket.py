@@ -129,6 +129,9 @@ class Rocket(CompositeObject):
         self.engineShutOff = False
         '''Used to shut off engines in MAPLEAF.Rocket.Propulsion.DefinedMotor class. Currently set in MAPLE_AF.GNC.Navigation'''
 
+        self.orbitalVelocityReached = False
+        '''Used to in MAPLEAF.Rocket.Propulsion.DefinedMotor to continue thrusting when propellant has been depleated and the orbital velocity has not been reached'''
+
         #### Init Hardware in the loop ####
         subDicts = rocketDictReader.getImmediateSubDicts()
         if "Rocket.HIL" in subDicts:
