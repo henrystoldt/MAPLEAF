@@ -5,7 +5,7 @@ import numpy as np
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
-from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
+from MAPLEAF.Motion.Integration import AdaptiveIntegrator, ClassicalIntegrator
 
 
 class TestRocketControlSystem(unittest.TestCase):
@@ -87,7 +87,7 @@ class TestRocketControlSystem(unittest.TestCase):
         rocket = simRunner.createRocket()
 
         # Check that the time step has been changed to be fixed, and is 0.01 seconds
-        self.assertTrue(isinstance(rocket.rigidBody.integrate, Integrator)) # As oppopsed to AdaptiveIntegrator
+        self.assertTrue(isinstance(rocket.rigidBody.integrate, ClassicalIntegrator)) # As oppopsed to AdaptiveIntegrator
         self.assertEqual(rocket.rigidBody.integrate.method, "RK4") # Check it's been switched from RK45Adaptive
 
         dtAdjustmentFactor, dt = rocket.timeStep(0.01) # Recovery system should deploy during this time step

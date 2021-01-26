@@ -1,6 +1,6 @@
 import unittest
 
-from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
+from MAPLEAF.Motion.Integration import AdaptiveIntegrator, ClassicalIntegrator
 
 
 # https://lpsa.swarthmore.edu/NumInt/NumIntSecond.html
@@ -18,7 +18,7 @@ class TestIntegrator(unittest.TestCase):
 
     def test_IntegrateRK2Midpoint(self):
         #Simple test case, original result from website was 2.0175!
-        integrate = Integrator(method="RK2Midpoint")
+        integrate = ClassicalIntegrator(method="RK2Midpoint")
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         v2 = integrate(v1, 0.1, sampleDerivative, 0.1)[0]
         self.assertEqual(v2, 2.0172)
@@ -61,23 +61,23 @@ class TestIntegrator(unittest.TestCase):
 
     def test_IntegratorRK2Heun(self):
         #More complicated test case, based on radiative cooling
-        integrate = Integrator(method="RK2Heun")        
+        integrate = ClassicalIntegrator(method="RK2Heun")        
         v1 = integrate(1200, 0, sampleDerivative2, 240)[0]
         v2 = integrate(v1, 240, sampleDerivative2, 240)[0]
         self.assertAlmostEqual(v2, 584.27, 2)
 
     def test_IntegrateEuler(self):
-        integrate = Integrator(method="Euler")
+        integrate = ClassicalIntegrator(method="Euler")
         v1 = integrate(3, 0, sampleDerivative, 0.1)[0]
         self.assertEqual(v1, 2.4)
 
     def test_IntegrateRK4(self):
-        integrate = Integrator(method="RK4")
+        integrate = ClassicalIntegrator(method="RK4")
         v1 = integrate(3, 0, sampleDerivative, 0.2)[0]
         self.assertEqual(v1, 2.0112)
 
     def test_IntegrateRK4_38(self):    
-        integrate = Integrator(method="RK4_3/8")
+        integrate = ClassicalIntegrator(method="RK4_3/8")
         v1 = integrate(3, 0, sampleDerivative, 0.2)[0]
         self.assertAlmostEqual(v1, 2.0112)
 

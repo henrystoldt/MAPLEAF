@@ -1,24 +1,37 @@
-''' Defines ODE integrators for constant and adaptive time stepping. Used by the `MAPLEAF.Motion.RigidBody` classes to integrate rocket motion '''
+''' 
+    Defines ODE integrators for constant and adaptive time stepping. Used by the `MAPLEAF.Motion.RigidBody` classes to integrate rocket motion 
 
-import math
+    Both the integrator and the adaptive integrator classes are callable, meaning they can be called like a function once instantiated
+        This is facilitated by their __call__ methods
 
-__all__ = [ "integratorFactory" ]
+    See `MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.timeStep` for an example use of these Integrators 
+        (see `MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.__init__` for creation of the self.integrate function using the integratorFactory below)
 
-def checkButcherTableau(tableau):
-    ''' 
-        Checks that the Butcher tableau passed in represents a consistent R-K method 
-        Expected Format (Example is RK4 - 3/8 method):
+    Many of the integration methods defined below rely on Butcher tableaus, in MAPLEAF they are represented by lists of lists as follows:
+        Expected Format (Example is RK4 - 3/8 method, see conventional Butcher tableau here: https://en.wikipedia.org/wiki/List_of_Runge%E2%80%93Kutta_methods#3/8-rule_fourth-order_method):
             [                                   # Top 0 row ommitted
-                [ 1/3, 1/3 ],                   # Row 1: all coefficients sequentially
+                [ 1/3, 1/3 ],                   # Row 1: all coefficients sequentially, first column is current time (c_i), remainder are a_{i1} to a_{in} (derivative coefficients)
                 [ 2/3, -1/3, 1.0 ],             # Row 2: ''
                 [ 1.0, 1.0, -1.0, 1.0 ],        # Row 3: ''
                 [ 1/8, 3/8, 3/8, 1/8 ]          # Row 4: (result calculation row) - empty space on left ignored, just enter all coefficients
             ]
 
+        For adaptive methods, the bottom two rows are 'result calculation rows'
+            The second last row is expected to represent the higher-accuracy method
+            The last row is expected to represent the lower-accuracy method 
+            The difference between the results obtained from the two methods becomes the error estimate
+
         Learn about Butcher Tableaus here: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
             RK4 - 3/8 Butcher Tableau is present there in the Examples section
-    '''
+'''
+import math
+from abc import ABC, abstractmethod
+from typing import Callable
 
+__all__ = [ "integratorFactory" ]
+
+def checkButcherTableau(tableau):
+    ''' Checks that the Butcher tableau passed in represents a consistent R-K method '''
     lastRowLength = 0
     for i in range(len(tableau)):
         if len(tableau[i]) == lastRowLength:
@@ -81,25 +94,61 @@ def integratorFactory(integrationMethod="Euler", simDefinition=None, discardedTi
     
     else:
         # Constant time step integrator
-        return Integrator(method=integrationMethod)
+        return ClassicalIntegrator(method=integrationMethod)
 
-class Integrator:
+class Integrator(ABC):
+    @abstractmethod
+    def __call__(self, initVal, initTime:float, derivativeFunc:Callable, dt:float):
+        '''
+            See `ClassicalIntegrator._integrateEuler` for simplest possible implementation
+            
+            Inputs:
+                initVal: must be addable with other objects of its type
+                derivativeFunc: is expected to be a function which accepts the following arguments: initTime, initVal
+                    Should return an object representing the derivative of objects of type(initVal)
+                        - must be multipliable by objects of type(dt) -> should return an object of type(initVal) from the multiplication operation
+
+                    See `MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.rigidBodyStateDerivative` for an example of derivativeFunc
+
+            Returns (in order):
+                endVal:                     Value of quantity represented by initVal at time initTime+dt
+                timeStepAdaptationFactor:   For adaptive methods, suggest time step adaption (otherwise 1)
+                errorMagEstimate:           For adaptive methods, provide error estimate (otherwise 0)
+                dt:                         Return the size of the time step actually taken (error-limited adaptive integrators can override to shrink the time step)
+        '''
+
+class ClassicalIntegrator():
     ''' Callable class for constant-dt ODE integration '''
 
     def __init__(self, method="Euler"):
-        # Save integration method and associated
+        # Save integration method and associated Butcher tableau
         self.method = method
         self.tableau = None
+
         if method == "Euler":
-            self.integrate = self.IntegrateEuler
+            self.integrate = self._integrateEuler
         elif method == "RK2Midpoint":
-            self.integrate = self.IntegrateRK2MidPoint
+            self.integrate = self._integrateByButcherTableau
+            self.tableau = [
+                [0.5, 0.5],
+                [0,   1  ]
+            ]
         elif method == "RK2Heun":
-            self.integrate = self.IntegrateRK2Heun
+            self.integrate = self._integrateByButcherTableau
+            self.tableau = [
+                [1, 1],
+                [0.5, 0.5]
+            ]
         elif method == "RK4":
-            self.integrate = self.IntegrateRK4
+            self.integrate = self._integrateByButcherTableau
+            self.tableau = [
+                [0.5, 0.5],
+                [0.5, 0, 0.5],
+                [1, 0, 0, 1],
+                [1/6, 1/3, 1/3, 1/6]
+            ]
         elif method == "RK4_3/8":
-            self.integrate = self.IntegrateByButcherTableau
+            self.integrate = self._integrateByButcherTableau
             self.tableau = [
                 [ 1/3, 1/3 ],
                 [ 2/3, -1/3, 1.0 ],
@@ -116,63 +165,12 @@ class Integrator:
     def __call__(self, initVal, initTime, derivativeFunc, dt):
         return self.integrate(initVal, initTime, derivativeFunc, dt)
 
-    def integrate(self, initVal, initTime, derivativeFunc, dt):
-        ''' Template method, replaced by one of the Constant time step methods below in self.__init__ '''
-        pass
-
     #### Constant time step methods ####
-    def IntegrateEuler(self, initVal, initTime, derivativeFunc, dt):
+    def _integrateEuler(self, initVal, initTime, derivativeFunc, dt):
         yPrime = derivativeFunc(initTime, initVal)
         return initVal + yPrime * dt, 1.0, 0.0, dt
 
-    def IntegrateRK2MidPoint(self, initVal, initTime, derivativeFunc, dt):
-        initSlope = derivativeFunc(initTime, initVal)
-
-        halfwayVal = initVal + initSlope*(dt/2)
-        halfwayTime = initTime + dt/2
-        halfwaySlope = derivativeFunc(halfwayTime, halfwayVal)
-
-        return initVal + halfwaySlope*dt, 1.0, 0.0, dt
-
-    def IntegrateRK2Heun(self, initVal, initTime, derivativeFunc, dt):
-        '''
-            Integrates a function using second order Runge Kutta Method (Heun Variant).
-            Inputs:
-                initVal: Implement (+, *) operator
-                initTime: Implement (+) operator
-                derivativeFunc: Function(time, val)
-                    Should return an object of the same type as initVal, representing the derivative
-                    Accepts time and value objects of the same types as initTime, initVal
-                dt: Must implement multiplication
-            Outputs:
-                Returns estimated integral value after timestep dt
-        '''
-        initSlope = derivativeFunc(initTime, initVal)
-
-        endEstimate = initVal + initSlope*dt
-        endSlope = derivativeFunc(initTime + dt, endEstimate)
-
-        slopeEstimate = (endSlope + initSlope)/2
-        return initVal + slopeEstimate*dt, 1.0, 0.0, dt
-
-    def IntegrateRK4(self, initVal, initTime, derivativeFunc, dt):
-        k1 = derivativeFunc(initTime, initVal)
-
-        halfwayVal = initVal + k1*(dt/2)
-        halfwayTime = initTime + (dt/2)
-        k2 = derivativeFunc(halfwayTime, halfwayVal)
-
-        halfwayVal2 = initVal + k2*(dt/2)
-        k3 = derivativeFunc(halfwayTime, halfwayVal2)
-
-        endVal = initVal + k3*dt
-        endTime = initTime + dt
-        k4 = derivativeFunc(endTime, endVal)
-
-        slopeEstimate = ((k1+k4)/2 + k2 + k3) / 3
-        return initVal + slopeEstimate*dt, 1.0, 0.0, dt
-
-    def IntegrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
+    def _integrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
         '''
             Integrates a function based on a Butcher tableau defined in self.tableau
             Format expected is:
@@ -207,7 +205,7 @@ class Integrator:
         return (initVal + totalDerivative*dt), 1.0, 0.0, dt        
 
 class AdaptiveIntegrator():
-    ''' Callable class for adaptive-dt ODE integration '''
+    ''' Callable class for error-limited adaptive-dt ODE integration '''
 
     def __init__(self, method="RK45Adaptive", controller="constant", targetError=0.001, maxMinSafetyFactors=[1.5, 0.3, 0.9], PIDCoeffs=[1.0, 0.1, 0.0], maxTimeStep=5, minTimeStep=0.0001, discardedTimeStepCallback=None):
         '''
@@ -220,7 +218,6 @@ class AdaptiveIntegrator():
     
         self.derivativeCache = None # For some adaptive methods, the last derivative of the previous integration step is the same as the first of the following step. This field caches it
         if method == "RK12Adaptive": # Just a test method, already implemented non-butcher tableau version
-            self.integrate = self.IntegrateByButcherTableau_Adaptive
             self.tableau = [
                 [ 0.5, 0.5 ],
                 [ 0.0, 1.0 ],
@@ -228,7 +225,6 @@ class AdaptiveIntegrator():
             ]
             self.firstSameAsLast = False
         elif method == "RK23Adaptive": # Bogacki-Shampine method
-            self.integrate = self.IntegrateByButcherTableau_Adaptive
             self.tableau = [
                 [ 0.5, 0.5 ],
                 [ 3/4, 0.0, 3/4 ],
@@ -238,7 +234,6 @@ class AdaptiveIntegrator():
             ]
             self.firstSameAsLast = True
         elif method == "RK45Adaptive": # Dormand-Prince RK5(4)7FM method
-            self.integrate = self.IntegrateByButcherTableau_Adaptive
             self.tableau = [
                 [ 1/5, 1/5 ],
                 [ 3/10, 3/40, 9/40 ],
@@ -251,7 +246,6 @@ class AdaptiveIntegrator():
             ]
             self.firstSameAsLast = True
         elif method == "RK78Adaptive": # Dormand-Prince RK8(7)13M method (rational approximation)
-            self.integrate = self.IntegrateByButcherTableau_Adaptive
             self.tableau = [
                 [ 1/18, 1/18 ], 
                 [ 1/12, 1/48, 1/16 ], 
@@ -272,9 +266,7 @@ class AdaptiveIntegrator():
         else:
             raise ValueError("Integration method: {} not implemented. See SimDefinitionTemplate.txt for options.".format(method))
 
-        # If a butcher tableau is used to define the R-K method, check that it is valid
-        if self.tableau != None:
-            checkButcherTableau(self.tableau)
+        checkButcherTableau(self.tableau)
 
         # Save limiter info and target error, required for any adaptation scheme
         self.maxFactor, self.minFactor, self.safetyFactor = maxMinSafetyFactors
@@ -285,105 +277,88 @@ class AdaptiveIntegrator():
 
         ### Set up the chosen adaptation method ###
         if controller == "elementary":
-            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_Elementary
+            # Adjust time step size using an elementary controller
+            self.getTimeStepAdjustmentFactor = self._getTimeStepAdjustmentFactor_Elementary
 
         elif controller == "PID":
+            # Adjust time step size using a PID controller
             self.safetyFactor = 1
-            P, I, D = PIDCoeffs
             
             # Delayed import of GNC.PID to avoid circular import problems
             from MAPLEAF.GNC import PIDController
-            self.PIDController = PIDController(P, I, D, maxIntegral=1)
+            self.PIDController = PIDController(*PIDCoeffs, maxIntegral=1)
 
-            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_PID
+            self.getTimeStepAdjustmentFactor = self._getTimeStepAdjustmentFactor_PID
 
         elif controller == "Constant":
-            self.getTimeStepAdjustmentFactor = self.getTimeStepAdjustmentFactor_Constant
+            # Do not adjust the time step
+            self.getTimeStepAdjustmentFactor = self._getTimeStepAdjustmentFactor_Constant
 
         else:
             raise ValueError("Adaptive Integrator requires non-constant step size controller such as 'PID' or 'elementary'")
 
     def __call__(self, initVal, initTime, derivativeFunc, dt):
-        return self.errorLimitedAdaptiveIntegration(initVal, initTime, derivativeFunc, dt)
-
-    def integrate(self, initVal, initTime, derivativeFunc, dt):
-        ''' Template method, replaced by one of the methods below in self.__init__ '''
-        pass
-
-    def errorLimitedAdaptiveIntegration(self, initVal, initTime, derivativeFunc, dt):
         # Set up incorrect values to force first iteration, like a do-while loop
         errorMagEstimate = 10000000
         maxErrorMultiple = 20 # Will recompute timestep if estimated error > maxErrorMultiple * targetError
         dt *= 3
 
-        # Loop will lower the actual time step taken if error is more than 3*target
+        # Loop will lower the actual time step taken if error is more than 20*target
         while errorMagEstimate > maxErrorMultiple*self.targetError:
             if errorMagEstimate != 10000000:
                 # This means this is not the first loop. Therefore a previously-computed time step has been discarded, and will be recomputed below with a smaller time step
-                # if self.discardedTimeStepCallback != None:
-                self.discardedTimeStepCallback(self)
+                if self.discardedTimeStepCallback != None:
+                    self.discardedTimeStepCallback(self)
 
             dt = max(self.minTimeStep, dt/3)
-            result, errorMagEstimate, lastDerivativeEvaluation = self.integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
+            result, errorMagEstimate, lastDerivativeEvaluation = self._integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
             if math.isclose(dt,self.minTimeStep):
                 break
         
         if self.firstSameAsLast:
             self.derivativeCache = lastDerivativeEvaluation
 
-        adaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
+        # Compute adaptation factor
+        desiredAdaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
+        adaptFactor = self._limitAdaptationFactor(desiredAdaptFactor, dt)
 
-        # Correct finer result with error estimate (Richardson Extrapolation), timestepAdaptationFactor, actual time step taken
         return result, adaptFactor, errorMagEstimate, dt
-
+   
     #### Time Step adjustment ####
-    def limitAdaptationFactor(func):
+    def _limitAdaptationFactor(self, desiredAdaptFactor, dt):
         ''' 
-            Function decorator - limits the returned adaptation factor to enforce min/max time step size and min/max adaptation factor restrictions 
-            Expects the wrapped function to return two values: desiredAdaptationFactor, currentTimeStep
+            Apply adaptation limiters 
+            Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
+            The below checks which limitation is currently most restrictive and applies that one
         '''
+        # Calculate min/max adaptation factors based on min/max time step size restrictions
+        minFactor2 = self.minTimeStep / dt
+        maxFactor2 = self.maxTimeStep / dt
 
-        def limitedDtControllerFunction(*args, **kwargs):
-            # Calculate desired adaptation factor using the wrapped function
-            self, desiredAdaptFactor, currentTimeStep = func(*args, **kwargs)
+        # Calculate resulting total min/max factors
+        minFactor = max(minFactor2, self.minFactor)
+        maxFactor = min(maxFactor2, self.maxFactor)
 
-            ### Apply adaptation limiters ###
-            # Adaptation can be limited in two ways: by self.maxFactor/self.minFactor and by self.minTimeStep/self.maxTimeStep.
-                # The below checks which limitation is currently most restrictive and applies that one
-            
-            # Calculate min/max adaptation factors based on min/max time step size restrictions
-            minFactor2 = self.minTimeStep / currentTimeStep
-            maxFactor2 = self.maxTimeStep / currentTimeStep
+        # Apply limits
+        return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)
 
-            # Calculate resulting total min/max factors
-            minFactor = max(minFactor2, self.minFactor)
-            maxFactor = min(maxFactor2, self.maxFactor)
-
-            # Apply limits
-            return self.safetyFactor * min(max(desiredAdaptFactor, minFactor), maxFactor)
-        
-        return limitedDtControllerFunction
-
-    # Constant dt does not require limiting
-    def getTimeStepAdjustmentFactor_Constant(self, errorMag, dt):
-        ''' Calculates the time step adjustment factor when using a constant time stepping (always 1.0) '''
+    def _getTimeStepAdjustmentFactor_Constant(self, errorMag, dt):
+        ''' Don't adjust the time step (always 1.0) '''
         return 1
 
-    @limitAdaptationFactor
-    def getTimeStepAdjustmentFactor_Elementary(self, errorMag, dt):
+    def _getTimeStepAdjustmentFactor_Elementary(self, errorMag, dt):
         ''' Calculates the time step adjustment factor when using an elementary controller '''
-        return self, (self.targetError / (2*errorMag))**0.5, dt
+        return (self.targetError / (2*errorMag))**0.5
 
-    @limitAdaptationFactor
-    def getTimeStepAdjustmentFactor_PID(self, errorMag, dt):
+    def _getTimeStepAdjustmentFactor_PID(self, errorMag, dt):
         ''' Calculates the time step adjustment factor when using a PID controller '''
         errorInErrorMagnitude = (errorMag - self.targetError) / self.targetError
         # Minimum value of the equation above is -1, correspondingly, we limit positive values to 1
         errorInErrorMagnitude = min(1, errorInErrorMagnitude)
-        return self, 1 + self.PIDController.getNewSetPoint(errorInErrorMagnitude, dt), dt
+        return 1 + self.PIDController.getNewSetPoint(errorInErrorMagnitude, dt)
 
     #### Adaptive Integration Method ####
-    def IntegrateByButcherTableau_Adaptive(self, initVal, initTime, derivativeFunc, dt, firstSameAsLast=None):
+    def _integrate(self, initVal, initTime, derivativeFunc, dt, firstSameAsLast=None):
         '''
             Integrates a function based on a Butcher tableau defined in self.tableau
             Format expected is:
