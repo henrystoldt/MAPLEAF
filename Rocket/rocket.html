@@ -479,26 +479,24 @@ class Rocket(CompositeObject):
 
     def _getAppliedForce(self, time, state):
         &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
+        ### Precomputations and Logging ###
         self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
         
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)   # Get and log current air/wind properties
+        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
         
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
-        
+        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
 
         ### Component Forces ###
-        if not self.isUnderChute:
-            # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
+        if not self.isUnderChute:            
+            # Precompute and log
             Mach = AeroParameters.getMachNumber(state, environment)
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
+            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
 
-            # Log current rocket / flight conditions
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle))
-
-            # This function will be the inherited function CompositeObject.getAeroForce
+            # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
 
         else:
@@ -507,9 +505,6 @@ class Rocket(CompositeObject):
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
 
         componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
-
-        # Compute and log center of pressure z-location
-        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
@@ -518,6 +513,9 @@ class Rocket(CompositeObject):
         ### Launch Rail ###
         totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
 
+        # Log center of pressure z-location
+        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
+        # Log total forces
         self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
             componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
         )
@@ -595,17 +593,16 @@ class Rocket(CompositeObject):
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
-        timeStepAdjustmentFactor, estimatedError, dt = self.rigidBody.timeStep(dt)
+        integrationResult = self.rigidBody.timeStep(dt)
 
         if &#34;Adapt&#34; in self.rigidBody.integrate.method:
             # Add estimated error for the time step to the end of the simulation log line
             try:
-                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(estimatedError)
+                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
             except AttributeError:
                 pass # No logging set up
 
-        # Return time step adaptation factor - will be 1 for constant time stepping
-        return timeStepAdjustmentFactor, dt
+        return integrationResult
     
     def _switchTo3DoF(self):
         &#39;&#39;&#39; Switch to 3DoF simulation after recovery system is deployed &#39;&#39;&#39;
@@ -1095,26 +1092,24 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 
     def _getAppliedForce(self, time, state):
         &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
+        ### Precomputations and Logging ###
         self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
         
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)   # Get and log current air/wind properties
+        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
         
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
-        
+        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
 
         ### Component Forces ###
-        if not self.isUnderChute:
-            # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
+        if not self.isUnderChute:            
+            # Precompute and log
             Mach = AeroParameters.getMachNumber(state, environment)
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
+            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
 
-            # Log current rocket / flight conditions
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle))
-
-            # This function will be the inherited function CompositeObject.getAeroForce
+            # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
 
         else:
@@ -1123,9 +1118,6 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
 
         componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
-
-        # Compute and log center of pressure z-location
-        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
@@ -1134,6 +1126,9 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         ### Launch Rail ###
         totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
 
+        # Log center of pressure z-location
+        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
+        # Log total forces
         self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
             componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
         )
@@ -1211,17 +1206,16 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
-        timeStepAdjustmentFactor, estimatedError, dt = self.rigidBody.timeStep(dt)
+        integrationResult = self.rigidBody.timeStep(dt)
 
         if &#34;Adapt&#34; in self.rigidBody.integrate.method:
             # Add estimated error for the time step to the end of the simulation log line
             try:
-                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(estimatedError)
+                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
             except AttributeError:
                 pass # No logging set up
 
-        # Return time step adaptation factor - will be 1 for constant time stepping
-        return timeStepAdjustmentFactor, dt
+        return integrationResult
     
     def _switchTo3DoF(self):
         &#39;&#39;&#39; Switch to 3DoF simulation after recovery system is deployed &#39;&#39;&#39;
@@ -1469,17 +1463,16 @@ Populated by <code>_initializeStages</code>.</p></div>
     self._runControlSystemAndLogStartingState(dt)
 
     # Take timestep
-    timeStepAdjustmentFactor, estimatedError, dt = self.rigidBody.timeStep(dt)
+    integrationResult = self.rigidBody.timeStep(dt)
 
     if &#34;Adapt&#34; in self.rigidBody.integrate.method:
         # Add estimated error for the time step to the end of the simulation log line
         try:
-            self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(estimatedError)
+            self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
         except AttributeError:
             pass # No logging set up
 
-    # Return time step adaptation factor - will be 1 for constant time stepping
-    return timeStepAdjustmentFactor, dt</code></pre>
+    return integrationResult</code></pre>
 </details>
 </dd>
 </dl>

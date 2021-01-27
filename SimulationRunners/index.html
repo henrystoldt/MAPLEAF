@@ -1588,30 +1588,30 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
 
         #### Main Loop ####
-        s = 0 # Stage Index
-        while s &lt; len(self.rocketStages):
+        stageIndex = 0
+        while stageIndex &lt; len(self.rocketStages):
 
-            if s &gt; 0:
-                print(&#34;Computing stage {} drop path&#34;.format(s))
+            if stageIndex &gt; 0:
+                print(&#34;Computing stage {} drop path&#34;.format(stageIndex))
 
-            rocket = self.rocketStages[s]
-            endDetector = self.endDetectors[s]
-            flight = self.stageFlightPaths[s]
+            rocket = self.rocketStages[stageIndex]
+            endDetector = self.endDetectors[stageIndex]
+            flight = self.stageFlightPaths[stageIndex]
 
-            endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+            endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
                 
             while not endSimulation:
-                # Take a time step
+                ### Take a time step ###
                 try:
                     if FinalTimeStepDt != None:
-                        print(&#34;Simulation Runner overriding time step from {} to {} to accurately meet end condition&#34;.format(self.dts[s], FinalTimeStepDt))
-                        self.dts[s] = FinalTimeStepDt
+                        print(&#34;Simulation Runner overriding time step from {} to {} to accurately meet end condition&#34;.format(self.dts[stageIndex], FinalTimeStepDt))
+                        self.dts[stageIndex] = FinalTimeStepDt
 
-                    timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
+                    integrationResult = rocket.timeStep(self.dts[stageIndex])
 
-                    if s == 0: # Currently, progress bar only works for bottom stage
+                    if stageIndex == 0: # Currently, progress bar only works for bottom stage
                         try:
-                            progressBar.update(self.dts[s])
+                            progressBar.update(integrationResult.dt)
                         except AttributeError:
                             pass
                 except:
@@ -1619,14 +1619,15 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
                         progressBar.close()
                 
                         if not self.silent:
-                            sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                            sys.stdout.continueWritingToTerminal = True # sys.stdout is an instance of MAPLEAF.IO.Logging.Logger
                     except AttributeError:
                         pass
-                    
+
+                    # Save simulation results and print out stack trace                    
                     self._handleSimulationCrash()
 
-                # Adjust time step
-                self.dts[s] *= timeStepAdjustmentFactor
+                # Adjust time step size for next iteration
+                self.dts[stageIndex] = integrationResult.dt * integrationResult.timeStepAdaptationFactor
 
                 # HIL
                 if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
@@ -1636,13 +1637,13 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
                 self.cacheState(rocket, flight)
 
                 # Check whether we should end the simulation, or take a modified-size final time step    
-                endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+                endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[s])
+            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
 
             # Move on to next (dropped) stage
-            s += 1
+            stageIndex += 1
 
             try:
                 progressBar.close()
@@ -2163,30 +2164,30 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
         rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
 
     #### Main Loop ####
-    s = 0 # Stage Index
-    while s &lt; len(self.rocketStages):
+    stageIndex = 0
+    while stageIndex &lt; len(self.rocketStages):
 
-        if s &gt; 0:
-            print(&#34;Computing stage {} drop path&#34;.format(s))
+        if stageIndex &gt; 0:
+            print(&#34;Computing stage {} drop path&#34;.format(stageIndex))
 
-        rocket = self.rocketStages[s]
-        endDetector = self.endDetectors[s]
-        flight = self.stageFlightPaths[s]
+        rocket = self.rocketStages[stageIndex]
+        endDetector = self.endDetectors[stageIndex]
+        flight = self.stageFlightPaths[stageIndex]
 
-        endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+        endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
         while not endSimulation:
-            # Take a time step
+            ### Take a time step ###
             try:
                 if FinalTimeStepDt != None:
-                    print(&#34;Simulation Runner overriding time step from {} to {} to accurately meet end condition&#34;.format(self.dts[s], FinalTimeStepDt))
-                    self.dts[s] = FinalTimeStepDt
+                    print(&#34;Simulation Runner overriding time step from {} to {} to accurately meet end condition&#34;.format(self.dts[stageIndex], FinalTimeStepDt))
+                    self.dts[stageIndex] = FinalTimeStepDt
 
-                timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
+                integrationResult = rocket.timeStep(self.dts[stageIndex])
 
-                if s == 0: # Currently, progress bar only works for bottom stage
+                if stageIndex == 0: # Currently, progress bar only works for bottom stage
                     try:
-                        progressBar.update(self.dts[s])
+                        progressBar.update(integrationResult.dt)
                     except AttributeError:
                         pass
             except:
@@ -2194,14 +2195,15 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
                     progressBar.close()
             
                     if not self.silent:
-                        sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                        sys.stdout.continueWritingToTerminal = True # sys.stdout is an instance of MAPLEAF.IO.Logging.Logger
                 except AttributeError:
                     pass
-                
+
+                # Save simulation results and print out stack trace                    
                 self._handleSimulationCrash()
 
-            # Adjust time step
-            self.dts[s] *= timeStepAdjustmentFactor
+            # Adjust time step size for next iteration
+            self.dts[stageIndex] = integrationResult.dt * integrationResult.timeStepAdaptationFactor
 
             # HIL
             if(rocket.hardwareInTheLoopControl == &#34;yes&#34;):
@@ -2211,13 +2213,13 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
             self.cacheState(rocket, flight)
 
             # Check whether we should end the simulation, or take a modified-size final time step    
-            endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+            endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
         
         # Log last state (would be the starting state of the next time step)
-        rocket._runControlSystemAndLogStartingState(self.dts[s])
+        rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
 
         # Move on to next (dropped) stage
-        s += 1
+        stageIndex += 1
 
         try:
             progressBar.close()
