@@ -90,19 +90,19 @@ class TestRocketControlSystem(unittest.TestCase):
         self.assertTrue(isinstance(rocket.rigidBody.integrate, ClassicalIntegrator)) # As oppopsed to AdaptiveIntegrator
         self.assertEqual(rocket.rigidBody.integrate.method, "RK4") # Check it's been switched from RK45Adaptive
 
-        dtAdjustmentFactor, dt = rocket.timeStep(0.01) # Recovery system should deploy during this time step
+        integrationResult = rocket.timeStep(0.01) # Recovery system should deploy during this time step        
         rocket.simEventDetector.triggerEvents()
             # Time stepping should revert to the original method
-        self.assertAlmostEqual(dtAdjustmentFactor, 1.0)
-        self.assertAlmostEqual(dt, 0.01)
+        self.assertAlmostEqual(integrationResult.timeStepAdaptationFactor, 1.0)
+        self.assertAlmostEqual(integrationResult.dt, 0.01)
 
         # Check that original time stepping method is back
         self.assertTrue(isinstance(rocket.rigidBody.integrate, AdaptiveIntegrator))
         self.assertEqual(rocket.rigidBody.integrate.method, "RK45Adaptive")
 
-        dtAdjustmentFactor2, dt2 = rocket.timeStep(0.01)        
-        self.assertTrue(abs(dtAdjustmentFactor2 - 1.0) > 0.00000000000000001)
-        self.assertEqual(dt2, 0.01)
+        integrationResult2 = rocket.timeStep(0.01)        
+        self.assertTrue(abs(integrationResult2.timeStepAdaptationFactor - 1.0) > 0.00000000000000001)
+        self.assertEqual(integrationResult2.dt, 0.01)
 
         # Time step not currently adjusted back
 

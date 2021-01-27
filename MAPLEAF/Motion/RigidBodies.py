@@ -45,9 +45,13 @@ class RigidBody_3DoF:
         return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
 
     def timeStep(self, deltaT):
-        self.state, timeStepAdaptionFactor, estimatedError, actualDeltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-        self.time += actualDeltaT
-        return timeStepAdaptionFactor, estimatedError, actualDeltaT
+        integrationResult = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+
+        # This is where the simulation time and state are kept track of
+        self.time += integrationResult.dt
+        self.state = integrationResult.newValue
+
+        return integrationResult
 
 #### 6 DoF ####
 class RigidBody(RigidBody_3DoF):

@@ -198,7 +198,7 @@ RollingRocketCase{
 		Rocket.Sustainer.Motor.cg					(4.08e-06 4.08e-06 3.86e-07)
 		Rocket.Sustainer.Motor.burnTimeAdjustFactor 1.15
 		Rocket.Sustainer.TailFins.finCantAngle		5
-		Rocket.Sustainer.AltimeterMass.mass				0.03
+		Rocket.Sustainer.AltimeterMass.mass			0.03
 		SimControl.EndCondition						Time
 		SimControl.EndConditionValue				6
 		SimControl.timeStep							0.005

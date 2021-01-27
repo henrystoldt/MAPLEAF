@@ -48,6 +48,11 @@ def checkButcherTableau(tableau):
 
         lastRowLength = len(tableau[i])
 
+    for i in range(len(tableau)):
+        for j in range(len(tableau[i])):
+            if tableau[i][j] == 0:
+                tableau[i][j] = 1e-16
+
 def integratorFactory(integrationMethod="Euler", simDefinition=None, discardedTimeStepCallback=None):
     ''' 
         Returns a callable integrator object
@@ -96,6 +101,7 @@ def integratorFactory(integrationMethod="Euler", simDefinition=None, discardedTi
         # Constant time step integrator
         return ClassicalIntegrator(method=integrationMethod)
 
+
 class Integrator(ABC):
     @abstractmethod
     def __call__(self, initVal, initTime:float, derivativeFunc:Callable, dt:float):
@@ -111,13 +117,31 @@ class Integrator(ABC):
                     See `MAPLEAF.Motion.RigidBodies.RigidBody_3DoF.rigidBodyStateDerivative` for an example of derivativeFunc
 
             Returns (in order):
-                endVal:                     Value of quantity represented by initVal at time initTime+dt
-                timeStepAdaptationFactor:   For adaptive methods, suggest time step adaption (otherwise 1)
-                errorMagEstimate:           For adaptive methods, provide error estimate (otherwise 0)
-                dt:                         Return the size of the time step actually taken (error-limited adaptive integrators can override to shrink the time step)
+                An object of type IntegrationResult
+                
         '''
+        pass
 
-class ClassicalIntegrator():
+class IntegrationResult():
+    __slots__ = [ 'newValue', 'timeStepAdaptationFactor', 'errorMagEstimate', 'dt', 'derivativeEstimate' ]
+
+    def __init__(self, newValue, dt, derivativeEstimate, timeStepAdaptationFactor=1.0, errorMagEstimate=0.0):
+        '''
+            newValue:                   Value of quantity represented by initVal at time initTime+dt
+            dt:                         The size of the time step actually taken (error-limited adaptive integrators can override to shrink the time step)
+            derivativeEstimate:         Estimate of the value of the function derivative obtained by the integrator over the last time step
+            timeStepAdaptationFactor:   For adaptive methods, suggest time step adaption (otherwise 1)
+            errorMagEstimate:           For adaptive methods, provide error estimate (otherwise 0)            
+                errorMagEstimate:           For adaptive methods, provide error estimate (otherwise 0)
+            errorMagEstimate:           For adaptive methods, provide error estimate (otherwise 0)            
+        '''
+        self.newValue = newValue
+        self.dt = dt
+        self.derivativeEstimate = derivativeEstimate
+        self.timeStepAdaptationFactor = timeStepAdaptationFactor
+        self.errorMagEstimate = errorMagEstimate
+
+class ClassicalIntegrator(Integrator):
     ''' Callable class for constant-dt ODE integration '''
 
     def __init__(self, method="Euler"):
@@ -142,10 +166,10 @@ class ClassicalIntegrator():
         elif method == "RK4":
             self.integrate = self._integrateByButcherTableau
             self.tableau = [
-                [0.5, 0.5],
-                [0.5, 0, 0.5],
-                [1, 0, 0, 1],
-                [1/6, 1/3, 1/3, 1/6]
+                [ 0.5, 0.5 ],
+                [ 0.5, 0, 0.5 ],
+                [ 1, 0, 0, 1 ],
+                [ 1/6, 1/3, 1/3, 1/6 ]
             ]
         elif method == "RK4_3/8":
             self.integrate = self._integrateByButcherTableau
@@ -168,7 +192,7 @@ class ClassicalIntegrator():
     #### Constant time step methods ####
     def _integrateEuler(self, initVal, initTime, derivativeFunc, dt):
         yPrime = derivativeFunc(initTime, initVal)
-        return initVal + yPrime * dt, 1.0, 0.0, dt
+        return IntegrationResult(initVal + yPrime*dt, dt, yPrime)
 
     def _integrateByButcherTableau(self, initVal, initTime, derivativeFunc, dt):
         '''
@@ -190,21 +214,28 @@ class ClassicalIntegrator():
         k = [ derivativeFunc(initTime, initVal) ]
         # Calculate all other k's - one for each row of the tableau except the last one
         for i in range(len(tab) - 1):
-            evalTime = initTime + dt*tab[i][0]
-            dy = k[0] * tab[i][1]
+            evalDt = dt*tab[i][0]
+            evalTime = initTime + evalDt
+
+            evalK = k[0] / (1/(tab[i][1]*dt)) # Do not start summation with 0, because could be a non-scalar type
             for a in range(2, len(tab[i])):
-                dy = dy + k[a-1] * tab[i][a]
-            evalY = initVal + dy*dt
+                evalK = evalK + k[a-1] / (1/(tab[i][a] * dt))
+            evalY = initVal + evalK*1
+
             k.append(derivativeFunc(evalTime, evalY))
 
         # Calculate final result using last row of coefficients
-        totalDerivative = tab[-1][0] * k[0]
+        # In this summation and the one in the k-calculation loop above, terms are divided by the inverse of the terms they would normally be multiplied by
+            # This does not affect the results for scalars
+            # But it does prevent rigid body derivative objects from prematurely turning themselves into rigid body state objects (which occurs upon multiplication by a scalar)
+        derivative = k[0] / (1/ tab[-1][0]) # Do not start summation with 0, because could be a non-scalar type
         for i in range(1, len(tab[-1])):
-            totalDerivative = totalDerivative + tab[-1][i]*k[i]
+            derivative = derivative + k[i]/(1/tab[-1][i])
 
-        return (initVal + totalDerivative*dt), 1.0, 0.0, dt        
 
-class AdaptiveIntegrator():
+        return IntegrationResult((initVal + derivative*dt), dt, derivative)
+
+class AdaptiveIntegrator(Integrator):
     ''' Callable class for error-limited adaptive-dt ODE integration '''
 
     def __init__(self, method="RK45Adaptive", controller="constant", targetError=0.001, maxMinSafetyFactors=[1.5, 0.3, 0.9], PIDCoeffs=[1.0, 0.1, 0.0], maxTimeStep=5, minTimeStep=0.0001, discardedTimeStepCallback=None):
@@ -311,7 +342,7 @@ class AdaptiveIntegrator():
                     self.discardedTimeStepCallback(self)
 
             dt = max(self.minTimeStep, dt/3)
-            result, errorMagEstimate, lastDerivativeEvaluation = self._integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
+            result, derivative, errorMagEstimate, lastDerivativeEvaluation = self._integrate(initVal, initTime, derivativeFunc, dt, self.derivativeCache)
             if math.isclose(dt,self.minTimeStep):
                 break
         
@@ -320,9 +351,9 @@ class AdaptiveIntegrator():
 
         # Compute adaptation factor
         desiredAdaptFactor = self.getTimeStepAdjustmentFactor(errorMagEstimate, dt)
-        adaptFactor = self._limitAdaptationFactor(desiredAdaptFactor, dt)
+        limitedAdaptFactor = self._limitAdaptationFactor(desiredAdaptFactor, dt)
 
-        return result, adaptFactor, errorMagEstimate, dt
+        return IntegrationResult(result, dt, derivative, limitedAdaptFactor, errorMagEstimate)
    
     #### Time Step adjustment ####
     def _limitAdaptationFactor(self, desiredAdaptFactor, dt):
@@ -373,7 +404,7 @@ class AdaptiveIntegrator():
             Then final result is y + dt*(b1*k1 + b2*k2 + ...)
             For these adaptive methods, two rows of b's (b's and b*'s) produce two estimates of the solution
             Subtracting these gives an error estimate which can be used to adjust the time step size
-            It is assumed that the 
+            Also see comment at the top of this file
             Further explanation: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#Use
         '''
         tab = self.tableau
@@ -387,21 +418,27 @@ class AdaptiveIntegrator():
 
         # Calculate all other k's - one for each row of the tableau except the last two
         for i in range(len(tab) - 2):
-            evalTime = initTime + dt*tab[i][0]
-            dy = k[0] * tab[i][1]
+            evalDt = dt*tab[i][0]
+            evalTime = initTime + evalDt
+            
+            evalK = k[0] * tab[i][1] # Do not start summation with 0, because could be a non-scalar type
             for a in range(2, len(tab[i])):
-                dy = dy + k[a-1] * tab[i][a]
-            evalY = initVal + dy*dt
+                evalK += k[a-1] * tab[i][a]
+            evalY = initVal + evalK*dt
+
             k.append(derivativeFunc(evalTime, evalY))
 
         lastDerivativeEvaluation = k[-1]
 
         # Calculate final high/low accuracy results
-        fineDerivative = tab[-2][0] * k[0]
-        coarseDerivative = tab[-1][0] * k[0]
+        # In this summation and the one in the k-calculation loop above, terms are divided by the inverse of the terms they would normally be multiplied by
+            # This does not affect the results for scalars
+            # But it does prevent rigid body derivative objects from prematurely turning themselves into rigid body state objects (which occurs upon multiplication by a scalar)        
+        fineDerivative = k[0] / (1/tab[-2][0]) # Do not start summation with 0, because derivative could be a non-scalar type
+        coarseDerivative =  k[0] / (1/tab[-1][0]) # Do not start summation with 0, because derivative could be a non-scalar type
         for i in range(1, len(tab[-1])):
-            fineDerivative = fineDerivative + tab[-2][i]*k[i]
-            coarseDerivative = coarseDerivative + tab[-1][i]*k[i]
+            fineDerivative += k[i] / (1/tab[-2][i])
+            coarseDerivative += k[i] / (1/tab[-1][i])
 
         # Compute error estimate
         finePred = initVal + fineDerivative*dt
@@ -409,4 +446,4 @@ class AdaptiveIntegrator():
         errorEstimate = (-coarsePred + finePred)
         errorMagEstimate = abs(errorEstimate)
 
-        return finePred, errorMagEstimate, lastDerivativeEvaluation
+        return finePred, fineDerivative, errorMagEstimate, lastDerivativeEvaluation

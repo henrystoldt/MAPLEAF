@@ -442,26 +442,24 @@ class Rocket(CompositeObject):
 
     def _getAppliedForce(self, time, state):
         ''' Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket's acceleration '''
+        ### Precomputations and Logging ###
         self.simRunner.newForcesLogLine("{:<7.3f} ".format(time) + str(state))                  # Start a new line in the force Evaluation log
         
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)   # Get and log current air/wind properties
+        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
         
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
-        
+        self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
 
         ### Component Forces ###
-        if not self.isUnderChute:
-            # Precompute CG, AOA, roll angle, normal force direction, localFrameAirVel, Ma, UnitRe
+        if not self.isUnderChute:            
+            # Precompute and log
             Mach = AeroParameters.getMachNumber(state, environment)
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
+            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
 
-            # Log current rocket / flight conditions
-            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle))
-
-            # This function will be the inherited function CompositeObject.getAeroForce
+            # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
 
         else:
@@ -470,9 +468,6 @@ class Rocket(CompositeObject):
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
 
         componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
-
-        # Compute and log center of pressure z-location
-        self.appendToForceLogLine(" {:>10.5f}".format(AeroFunctions._getCPZ(componentForces)))
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
@@ -481,6 +476,9 @@ class Rocket(CompositeObject):
         ### Launch Rail ###
         totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
 
+        # Log center of pressure z-location
+        self.appendToForceLogLine(" {:>10.5f}".format(AeroFunctions._getCPZ(componentForces)))
+        # Log total forces
         self.appendToForceLogLine(" {:>8.5f} {:>8.6f} {:>8.4f} {:>8.4f}".format(
             componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
         )
@@ -558,17 +556,16 @@ class Rocket(CompositeObject):
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
-        timeStepAdjustmentFactor, estimatedError, dt = self.rigidBody.timeStep(dt)
+        integrationResult = self.rigidBody.timeStep(dt)
 
         if "Adapt" in self.rigidBody.integrate.method:
             # Add estimated error for the time step to the end of the simulation log line
             try:
-                self.simRunner.mainSimulationLog[-2] += " {:<8.6f}".format(estimatedError)
+                self.simRunner.mainSimulationLog[-2] += " {:<8.6f}".format(integrationResult.errorMagEstimate)
             except AttributeError:
                 pass # No logging set up
 
-        # Return time step adaptation factor - will be 1 for constant time stepping
-        return timeStepAdjustmentFactor, dt
+        return integrationResult
     
     def _switchTo3DoF(self):
         ''' Switch to 3DoF simulation after recovery system is deployed '''
