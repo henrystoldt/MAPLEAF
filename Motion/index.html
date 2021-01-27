@@ -996,6 +996,7 @@ Only worth it if we rotate many vectors per quaternion</p>
     def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod=&#34;Euler&#34;, discardedTimeStepCallback=None, simDefinition=None):
         &#39;&#39;&#39; Just calls RigidBodyState_3DoF constructor &#39;&#39;&#39;
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
+        self.lastStateDerivative = RigidBodyStateDerivative(rigidBodyState.velocity, Vector(0,0,0), rigidBodyState.angularVelocity, AngularVelocity(0,0,0))
 
     def rigidBodyStateDerivative(self, time, state):
         # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
@@ -1424,6 +1425,8 @@ Pos/Vel are expected to be Vectors - Defined with reference to the global frame<
           
         self.integrate = integratorFactory(integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
 
+        self.lastStateDerivative = RigidBodyStateDerivative_3DoF(rigidBodyState.velocity, Vector(0,0,0))
+
     def rigidBodyStateDerivative(self, time, state):
         force = self.forceFunc(time, state).force
         
@@ -1433,11 +1436,17 @@ Pos/Vel are expected to be Vectors - Defined with reference to the global frame<
         return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
 
     def timeStep(self, deltaT):
+        # TODO: Current derivative estimates are first-order, replace with a more accurate iterative method
+        self.state.estimatedDerivative = self.lastStateDerivative
+
         integrationResult = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
 
         # This is where the simulation time and state are kept track of
         self.time += integrationResult.dt
         self.state = integrationResult.newValue
+
+        # Save for next time step
+        self.lastStateDerivative = integrationResult.derivativeEstimate
 
         return integrationResult</code></pre>
 </details>
@@ -1475,11 +1484,17 @@ Pos/Vel are expected to be Vectors - Defined with reference to the global frame<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def timeStep(self, deltaT):
+    # TODO: Current derivative estimates are first-order, replace with a more accurate iterative method
+    self.state.estimatedDerivative = self.lastStateDerivative
+
     integrationResult = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
 
     # This is where the simulation time and state are kept track of
     self.time += integrationResult.dt
     self.state = integrationResult.newValue
+
+    # Save for next time step
+    self.lastStateDerivative = integrationResult.derivativeEstimate
 
     return integrationResult</code></pre>
 </details>
