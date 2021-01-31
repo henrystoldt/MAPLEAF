@@ -163,12 +163,6 @@ class FixedMass(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getMass(self, time):
-        return self.inertia.mass
-
-    def getCG(self, time):
-        return self.inertia.CG
-
     def getAeroForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 

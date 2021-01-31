@@ -12,7 +12,7 @@ class Inertia():
     def __init__(self, MOI, CG, mass, MOICentroidLocation=None):
         """ 
             * MOIVector: Ixx, Iyy, Izz  
-            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated.   
+            * MOICentroidLocation: The point (in the rocket frame) about which Ixx, Iyy, and Izz were calculated. Only required if different from CG
         """
         self.MOI = MOI
         self.CG = CG

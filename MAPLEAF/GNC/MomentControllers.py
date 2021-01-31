@@ -6,10 +6,10 @@ import abc
 
 import numpy as np
 
-from MAPLEAF.Motion import AeroParameters
+from MAPLEAF.Motion import AeroParameters, AngularVelocity, Vector
 from MAPLEAF.GNC import ConstantGainPIDController, ScheduledGainPIDController
 
-__all__ = ["ConstantGainPIDRocketMomentController", "ScheduledGainPIDRocketMomentController", "MomentController" ]
+__all__ = ["ConstantGainPIDRocketMomentController", "ScheduledGainPIDRocketMomentController", "MomentController", "IdealMomentController" ]
 
 class MomentController(abc.ABC):
     @abc.abstractmethod
@@ -81,3 +81,12 @@ class ConstantGainPIDRocketMomentController(MomentController, ConstantGainPIDCon
         '''
         orientationError = self._getOrientationError(rocketState, targetOrientation)
         return self.getNewSetPoint(orientationError, dt)
+
+class IdealMomentController():
+    def __init__(self, rocket):
+        self.rocket = rocket
+
+    def getDesiredMoments(self, rocketState, environment, targetOrientation, time, dt):
+        """ Exactly match the desired target orientation and set the rockets angular velocity to zero """
+        self.rocket.rigidBody.state.orientation = targetOrientation
+        self.rocket.rigidBody.state.angularVelocity = AngularVelocity(rotationVector=Vector(0,0,0))

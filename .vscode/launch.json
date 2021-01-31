@@ -40,7 +40,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/MAPLEAF/SimulationRunners/Batch.py",
-            "args": [ "--include", "Adaptation", "--print" ],
+            "args": [ "--include", "TimeStep", "--print" ],
             "console": "integratedTerminal",
             "justMyCode": false
         },

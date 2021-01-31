@@ -102,7 +102,7 @@ class FlatEarth(NoEarth):
         gravityMagnitude = inertia.mass * self.GM / distanceFromCenterOfEarth**2 # Checked that this equation gives results similar to the 
             # US Standard Atmosphere - offset a bit depending on what earth radius is used. Current 6371 km gives slightly lower values that USTDA.
 
-        return gravityMagnitude * gravityDirection
+        return gravityDirection * gravityMagnitude
 
 class SphericalEarth(EarthModel):
     ''' Models a non-rotating, uniform, spherical earth '''
@@ -163,7 +163,7 @@ class SphericalEarth(EarthModel):
         gravityMagnitude = inertia.mass * self.GM / distanceFromCenterOfEarth**2 # Checked that this equation gives results similar to the 
             # US Standard Atmosphere - offset a bit depending on what earth radius is used. Current 6371 km gives slightly lower values that USTDA.
 
-        return gravityMagnitude * gravityDirection
+        return gravityDirection * gravityMagnitude
 
     def getInertialToENUFrameRotation(self, x, y, z):
         ''' Returns a Quaternion that defines the rotation b/w the global inertia frame and the local, surface-normal North-East-Up (y-x-z) frame '''

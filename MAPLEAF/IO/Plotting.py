@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from MAPLEAF.Motion import interpolateRigidBodyStates, linInterpWeights
-from MAPLEAF.IO import RocketFlight
+from MAPLEAF.IO import RocketFlight, getAbsoluteFilePath
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
 
@@ -267,7 +267,7 @@ def plot_Earth_Mayavi(earthTexture='MAPLEAF/IO/blue_marble_spherical_splitFlippe
 
     # load and map the texture
     img = tvtk.JPEGReader()
-    img.file_name = earthTexture
+    img.file_name = getAbsoluteFilePath(earthTexture)
     texture = tvtk.Texture(input_connection=img.output_port, interpolate=1)
     # (interpolate for a less raster appearance when zoomed in)
 
