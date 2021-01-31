@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
-                        SubDictReader)
+                        SubDictReader, Log)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 

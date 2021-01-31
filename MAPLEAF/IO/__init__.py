@@ -12,8 +12,9 @@ MAPLEAF.IO Relies on MAPLEAF.Motion to implement a few convenience / parsing fun
 from .rocketFlight import *
 from .simDefinition import *
 from .subDictReader import *
+from .CythonLog import *
 
-subModules = [ rocketFlight, simDefinition, subDictReader ]
+subModules = [ rocketFlight, simDefinition, subDictReader, CythonLog ]
 
 __all__ = []
 
