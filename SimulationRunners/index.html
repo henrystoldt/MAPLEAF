@@ -1166,7 +1166,7 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
 </dd>
 <dt id="MAPLEAF.SimulationRunners.OptimizingSimRunner"><code class="flex name class">
 <span>class <span class="ident">OptimizingSimRunner</span></span>
-<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1)</span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False, parallel=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
@@ -1183,13 +1183,13 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         Configurable using the top-level &#39;Optimization&#39; dictionary in .mapleaf files
     &#39;&#39;&#39;
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, parallel=False):
         &#39;&#39;&#39; 
             Pass in nProcesses &gt; 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
             At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
         &#39;&#39;&#39;
         self.silent = silent
-        self.nCores = nCores
+        self.parallel = parallel
         self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
 
         if not silent:
@@ -1200,6 +1200,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
 
         # Parse the simulation definition&#39;s Optimization dictionary, but don&#39;t run it yet
+        self.costFunctionDefinition = self.simDefinition.getValue(&#34;Optimization.costFunction&#34;)        
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
@@ -1314,51 +1315,15 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
-    def _computeCostFunction_Parallel(self, trialSolutions) -&gt; float:
+    def _computeCostFunctionValues_Parallel(self, trialSolutions) -&gt; float:
         &#39;&#39;&#39; Given a values the independent variable, returns the cost function value &#39;&#39;&#39;
         import ray
-        runRemoteSimulation = ray.remote(runSimulation)
-        runRemoteSimulation.options(num_returns=2)
+        _computeCostFunctionRemotely = ray.remote(_computeCostFunction)
 
-        results = []
-
-        costFunctionDefinition = self.simDefinition.getValue(&#34;Optimization.costFunction&#34;)
-
-        def postProcess(future):
-            stageFlights, logFilePaths = ray.get(future)
-
-            if &#34;:&#34; in costFunctionDefinition:
-                # Cost function is expected to be a custom function defined in an importable module
-                modulePath, funcName = costFunctionDefinition.split(&#39;:&#39;)
-
-                customModule = importlib.import_module(modulePath)
-                customCostFunction = getattr(customModule, funcName)
-
-                # Call the user&#39;s custom function, passing in the paths to all log files from the present run
-                # User&#39;s function is expected to return a scalar value           
-                results.append(float( customCostFunction(logFilePaths) ))
-
-            else:
-                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
-                topStageFlight = stageFlights[0]
-                varVals = {
-                    &#34;flightTime&#34;:   topStageFlight.getFlightTime(),
-                    &#34;apogee&#34;:       topStageFlight.getApogee(),
-                    &#34;maxSpeed&#34;:     topStageFlight.getMaxSpeed(),
-                    &#34;maxHorizontalVel&#34;: topStageFlight.getMaxHorizontalVel(),
-                }
-                results.append(evalExpression(costFunctionDefinition, varVals))
-
-        resultFutures = []
+        costFunctionValues = []
         
         nSims = len(trialSolutions)
         for i in range(nSims):
-            # Don&#39;t start more sims than we have cores
-            if i &gt;= self.nCores:
-                # Post-process sims in order to ensure order of results matches order of inputs
-                index = i-self.nCores
-                postProcess(resultFutures[index])
-
             indVarValues = trialSolutions[i]
 
             # Create new sim definition
@@ -1369,21 +1334,16 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             self._updateDependentVariableValues(simDef, varDict)
 
             # Start the simulation and save the future returned
-            resultFuture = runRemoteSimulation.remote(simDefinition=simDef, silent=True)
-            resultFutures.append(resultFuture)
+            costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
 
-        # All simulation now started, wait for and post process any simulations that are still running
-        nRemaining = min(nSims, self.nCores)
-        if nRemaining &gt; 0:
-            for i in range(nRemaining):
-                index = i - nRemaining
-                postProcess(resultFutures[index])
+        # All simulation now started, wait for and retrieve the results
+        costFunctionValues = [ ray.get(value) for value in costFunctionValues ]
 
-        return results
+        return costFunctionValues
 
-    def _computeCostFunction_SingleThreaded(self, trialSolutions) -&gt; float:
+    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions) -&gt; float:
         &#39;&#39;&#39; Given a values the independent variable, returns the cost function value &#39;&#39;&#39;
-        results = []
+        costFunctionValues = []
         for indVarValues in trialSolutions:
             # Create new sim definition
             simDef = deepcopy(self.simDefinition)
@@ -1392,36 +1352,10 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
             self._updateDependentVariableValues(simDef, varDict)
 
-            # Run the simulation
-            simRunner = Simulation(simDefinition=simDef, silent=True)
-            stageFlights, logFilePaths = simRunner.run()
+            # Run the simulation and compute the cost function value, save the result
+            costFunctionValues.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
 
-            # Evaluate the cost function
-            costFunctionDefinition = simDef.getValue(&#34;Optimization.costFunction&#34;)
-
-            if &#34;:&#34; in costFunctionDefinition:
-                # Cost function is expected to be a custom function defined in an importable module
-                modulePath, funcName = costFunctionDefinition.split(&#39;:&#39;)
-
-                customModule = importlib.import_module(modulePath)
-                customCostFunction = getattr(customModule, funcName)
-
-                # Call the user&#39;s custom function, passing in the paths to all log files from the present run
-                # User&#39;s function is expected to return a scalar value           
-                results.append(float( customCostFunction(logFilePaths) ))
-
-            else:
-                # Cost function is expected to be an anonymous function defined in costFunctionDefinition
-                topStageFlight = stageFlights[0]
-                varVals = {
-                    &#34;flightTime&#34;:   topStageFlight.getFlightTime(),
-                    &#34;apogee&#34;:       topStageFlight.getApogee(),
-                    &#34;maxSpeed&#34;:     topStageFlight.getMaxSpeed(),
-                    &#34;maxHorizontalVel&#34;: topStageFlight.getMaxHorizontalVel(),
-                }
-                results.append(evalExpression(costFunctionDefinition, varVals))
-
-        return results
+        return costFunctionValues
 
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         &#39;&#39;&#39; 
@@ -1457,14 +1391,14 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
     #### Main Function ####
     def runOptimization(self):
         &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
-        if self.nCores &gt; 1:
+        if self.parallel:
             import ray
             ray.init()
-            self.optimizer.optimize(self._computeCostFunction_Parallel, iters=self.nIterations)
+            self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
             ray.shutdown()
         
         else:                
-            self.optimizer.optimize(self._computeCostFunction_SingleThreaded, iters=self.nIterations)
+            self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
         
         if self.showConvergence:
             print(&#34;Showing optimization convergence plot&#34;)
@@ -1487,14 +1421,14 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
 </summary>
 <pre><code class="python">def runOptimization(self):
     &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
-    if self.nCores &gt; 1:
+    if self.parallel:
         import ray
         ray.init()
-        self.optimizer.optimize(self._computeCostFunction_Parallel, iters=self.nIterations)
+        self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
         ray.shutdown()
     
     else:                
-        self.optimizer.optimize(self._computeCostFunction_SingleThreaded, iters=self.nIterations)
+        self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
     
     if self.showConvergence:
         print(&#34;Showing optimization convergence plot&#34;)

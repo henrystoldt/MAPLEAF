@@ -86,10 +86,8 @@ def buildParser() -&gt; argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        &#34;--nCores&#34;,
-        type=int,
-        nargs=1,
-        default=[1],
+        &#34;--parallel&#34;,
+        action=&#39;store_true&#39;,
         help=&#34;Use to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
     )
     parser.add_argument(
@@ -180,14 +178,31 @@ def main(argv=None) -&gt; int:
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
+    if args.parallel:
+        try:
+            import ray
+        except:
+            print(&#34;&#34;&#34;
+            Error importing ray. 
+            Ensure ray is installed (`pip install -U ray`) and importable (`import ray` should not throw an error). 
+            If on windows, consider trying Linux or running in WSL, at the time this was written, ray on windows was still in beta and unreliable.
+            Alternatively, run without parallelization.
+            &#34;&#34;&#34;)
+
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
         optSimRunner.runOptimization()
 
-    elif isMonteCarloSimulation(simDef):
-        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+    elif isMonteCarloSimulation(simDef):        
+        if not args.parallel:
+            nCores = 1
+        else:
+            import multiprocessing
+            nCores = multiprocessing.cpu_count()
 
-    elif args.nCores[0] &gt; 1:
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=nCores)
+
+    elif args.parallel:
         raise ValueError(&#34;ERROR: Can only run Monte Carlo of Optimization-type simulations in multi-threaded mode. Support for multi-threaded batch simulations coming soon.&#34;)
 
     elif isBatchSim(simDef):
@@ -266,10 +281,8 @@ if __name__ == &#34;__main__&#34;:
     )
 
     parser.add_argument(
-        &#34;--nCores&#34;,
-        type=int,
-        nargs=1,
-        default=[1],
+        &#34;--parallel&#34;,
+        action=&#39;store_true&#39;,
         help=&#34;Use to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray&#39;s Windows support has exited alpha, or use only on Linux/Mac.&#34;
     )
     parser.add_argument(
@@ -412,14 +425,31 @@ Expects to be called from the command line, usually using the <code>mapleaf</cod
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
+    if args.parallel:
+        try:
+            import ray
+        except:
+            print(&#34;&#34;&#34;
+            Error importing ray. 
+            Ensure ray is installed (`pip install -U ray`) and importable (`import ray` should not throw an error). 
+            If on windows, consider trying Linux or running in WSL, at the time this was written, ray on windows was still in beta and unreliable.
+            Alternatively, run without parallelization.
+            &#34;&#34;&#34;)
+
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
         optSimRunner.runOptimization()
 
-    elif isMonteCarloSimulation(simDef):
-        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+    elif isMonteCarloSimulation(simDef):        
+        if not args.parallel:
+            nCores = 1
+        else:
+            import multiprocessing
+            nCores = multiprocessing.cpu_count()
 
-    elif args.nCores[0] &gt; 1:
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=nCores)
+
+    elif args.parallel:
         raise ValueError(&#34;ERROR: Can only run Monte Carlo of Optimization-type simulations in multi-threaded mode. Support for multi-threaded batch simulations coming soon.&#34;)
 
     elif isBatchSim(simDef):

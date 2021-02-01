@@ -146,8 +146,9 @@ def getSystemInfo(printToConsole=False):
 
     try:
         # Add current git status
-        currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;]).decode()[:-1]
-        currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;]).decode()[:-1]
+        currentDirectory = os.path.dirname(__file__)
+        currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
+        currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
         result.append(&#34;# MAPLEAF, branch: {}, latest commit: {}&#34;.format(currentBranch, currentCommit))
     except:
         result.append(&#34;# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads&#34;)
@@ -381,8 +382,9 @@ Returns a string of the form fileBaseName + Number + extension</p></div>
 
     try:
         # Add current git status
-        currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;]).decode()[:-1]
-        currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;]).decode()[:-1]
+        currentDirectory = os.path.dirname(__file__)
+        currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
+        currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
         result.append(&#34;# MAPLEAF, branch: {}, latest commit: {}&#34;.format(currentBranch, currentCommit))
     except:
         result.append(&#34;# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads&#34;)
