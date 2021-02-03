@@ -11,7 +11,7 @@ from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
 
-__all__ = [ "Simulation", "WindTunnelSimulation", "loadSimDefinition" ]
+__all__ = [ "Simulation", "runSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
 
 def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
     ''' Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input '''
@@ -87,30 +87,30 @@ class Simulation():
             rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
 
         #### Main Loop ####
-        s = 0 # Stage Index
-        while s < len(self.rocketStages):
+        stageIndex = 0
+        while stageIndex < len(self.rocketStages):
 
-            if s > 0:
-                print("Computing stage {} drop path".format(s))
+            if stageIndex > 0:
+                print("Computing stage {} drop path".format(stageIndex))
 
-            rocket = self.rocketStages[s]
-            endDetector = self.endDetectors[s]
-            flight = self.stageFlightPaths[s]
+            rocket = self.rocketStages[stageIndex]
+            endDetector = self.endDetectors[stageIndex]
+            flight = self.stageFlightPaths[stageIndex]
 
-            endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+            endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
                 
             while not endSimulation:
-                # Take a time step
+                ### Take a time step ###
                 try:
                     if FinalTimeStepDt != None:
-                        print("Simulation Runner overriding time step from {} to {} to accurately meet end condition".format(self.dts[s], FinalTimeStepDt))
-                        self.dts[s] = FinalTimeStepDt
+                        print("Simulation Runner overriding time step from {} to {} to accurately meet end condition".format(self.dts[stageIndex], FinalTimeStepDt))
+                        self.dts[stageIndex] = FinalTimeStepDt
 
-                    timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
+                    integrationResult = rocket.timeStep(self.dts[stageIndex])
 
-                    if s == 0: # Currently, progress bar only works for bottom stage
+                    if stageIndex == 0: # Currently, progress bar only works for bottom stage
                         try:
-                            progressBar.update(self.dts[s])
+                            progressBar.update(integrationResult.dt)
                         except AttributeError:
                             pass
                 except:
@@ -118,14 +118,15 @@ class Simulation():
                         progressBar.close()
                 
                         if not self.silent:
-                            sys.stdout.continueWritingToTerminal = True # Actually editing a MAPLEAF.IO.Logging.Logger object here
+                            sys.stdout.continueWritingToTerminal = True # sys.stdout is an instance of MAPLEAF.IO.Logging.Logger
                     except AttributeError:
                         pass
-                    
+
+                    # Save simulation results and print out stack trace                    
                     self._handleSimulationCrash()
 
-                # Adjust time step
-                self.dts[s] *= timeStepAdjustmentFactor
+                # Adjust time step size for next iteration
+                self.dts[stageIndex] = integrationResult.dt * integrationResult.timeStepAdaptationFactor
 
                 # HIL
                 if(rocket.hardwareInTheLoopControl == "yes"):
@@ -135,13 +136,13 @@ class Simulation():
                 self.cacheState(rocket, flight)
 
                 # Check whether we should end the simulation, or take a modified-size final time step    
-                endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+                endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[s])
+            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
 
             # Move on to next (dropped) stage
-            s += 1
+            stageIndex += 1
 
             try:
                 progressBar.close()
@@ -458,6 +459,10 @@ class Simulation():
             # Plot all other columns from log files
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
+
+def runSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    sim = Simulation(simDefinitionFilePath, simDefinition, silent)
+    return sim.run()
 
 class WindTunnelSimulation(Simulation):
     def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):

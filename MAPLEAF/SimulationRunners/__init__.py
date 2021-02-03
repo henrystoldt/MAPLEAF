@@ -7,14 +7,13 @@ Includes some (`Simulation`) that run a single simulation, and others (`Optimizi
 
 # Make the classes in all submodules importable directly from MAPLEAF.Rocket
 from .SingleSimulations import *
-from .Parallel import *
 from .MonteCarlo import *
 from .Convergence import *
 from .Optimization import *
 from .Batch import *
 
 # For some reason CythonVector and company don't exist down here, so they won't import when running from MAPLEAF.Motion import *
-subModules = [ SingleSimulations, Parallel, MonteCarlo, Convergence, Optimization, Batch ]
+subModules = [ SingleSimulations, MonteCarlo, Convergence, Optimization, Batch ]
 
 __all__ = [ ]
 
