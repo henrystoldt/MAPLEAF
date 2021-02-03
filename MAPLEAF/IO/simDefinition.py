@@ -19,11 +19,6 @@ __all__ = [ "defaultConfigValues", "SimDefinition", "getAbsoluteFilePath" ]
 
 #################### Default value dictionary  #########################
 defaultConfigValues = {
-    "Optimization.ParticleSwarm.nParticles":                "20",
-    "Optimization.ParticleSwarm.nIterations":               "50",
-    "Optimization.ParticleSwarm.cognitiveParam":            "0.5",
-    "Optimization.ParticleSwarm.socialParam":               "0.6",
-    "Optimization.ParticleSwarm.inertiaParam":              "0.9",
     "Optimization.showConvergencePlot":                     "True",
 
     "MonteCarlo.output":                                    "landingLocations",

@@ -121,6 +121,14 @@ Optimization{
     }           
 
     showConvergencePlot                         True
+
+    InnerOptimization{
+        #Same as in main Optimization. Defines inner optimization which will run for every cost function optimization.
+
+        
+
+
+    }
 }
 
 MonteCarlo{
