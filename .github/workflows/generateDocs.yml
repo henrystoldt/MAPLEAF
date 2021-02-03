@@ -38,10 +38,6 @@ jobs:
           pip install -e .
           pip install pdoc3
 
-      - name: Run regression and verification/validation cases
-        run: |
-          mapleaf-batch
-
       - name: Generate python modules from the verification and validation results, will become verification and validation part of the documentation website
         run: |
           python3 ./test/V&V/PrepVerificationWebsite.py

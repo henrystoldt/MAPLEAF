@@ -79,6 +79,7 @@ clean.sh
 # Documentation
 doc
 docs
+MAPLEAF/V&V
 
 # PySwarms logs
 *.log
