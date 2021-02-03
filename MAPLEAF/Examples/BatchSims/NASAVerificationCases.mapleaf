@@ -25,7 +25,7 @@ NASADraglessSphere{
 			yLabel							ECI X Position (ft)
 			yLimits							2.0940e7 2.0956e7
 			legendLabel					MAPLEAF
-			saveLocation				./test/regressionTesting/NASADraglessSphere/X.pdf
+			saveLocation				./test/V&V/NASADraglessSphere/X.pdf
 			scalingFactor				3.280840 # Convert to feet
 
 			SIM4{
@@ -34,7 +34,7 @@ NASADraglessSphere{
 				lineFormat				-
 				lineColors				\#7a5195
 				legendLabel				NASA SIM 4
-				file							./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_04.csv
+				file							./test/V&V/NASADraglessSphere/Atmos_01_sim_04.csv
 			}
 			
 			SIM5{
@@ -43,7 +43,7 @@ NASADraglessSphere{
 				lineFormat				-.
 				lineColors				\#ef5675
 				legendLabel				NASA SIM 5
-				file							./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_05.csv
+				file							./test/V&V/NASADraglessSphere/Atmos_01_sim_05.csv
 			}
 			
 			SIM6{
@@ -52,7 +52,7 @@ NASADraglessSphere{
 				lineFormat				--
 				lineColors				\#ffa600
 				legendLabel				NASA SIM 6
-				file					./test/regressionTesting/NASADraglessSphere/Atmos_01_sim_06.csv
+				file					./test/V&V/NASADraglessSphere/Atmos_01_sim_06.csv
 			}
 		}
 
@@ -61,35 +61,35 @@ NASADraglessSphere{
 			!removeKeysContaining 'yLimits'
 			columnsToPlot				PositionY
 			yLabel							ECI Y Position (ft)
-			saveLocation				./test/regressionTesting/NASADraglessSphere/Y.pdf
+			saveLocation				./test/V&V/NASADraglessSphere/Y.pdf
 		}
 
 		!create ZLoc from NASADraglessSphere.PlotsToGenerate.YLoc{
 			!replace 'eiPosition_ft_Y' with 'eiPosition_ft_Z'
 			columnsToPlot				PositionZ
 			yLabel							ECI Z Position (ft)
-			saveLocation				./test/regressionTesting/NASADraglessSphere/Z.pdf
+			saveLocation				./test/V&V/NASADraglessSphere/Z.pdf
 		}
 
 		!create XVel from NASADraglessSphere.PlotsToGenerate.YLoc{
 			!replace 'eiPosition_ft_Y' with 'eiVelocity_ft_s_X'
 			columnsToPlot				VelocityX(m/s)
 			yLabel							ECI X Velocity (ft/s)
-			saveLocation				./test/regressionTesting/NASADraglessSphere/XVel.pdf
+			saveLocation				./test/V&V/NASADraglessSphere/XVel.pdf
 		}
 
 		!create YVel from NASADraglessSphere.PlotsToGenerate.YLoc{
 			!replace 'eiPosition_ft_Y' with 'eiVelocity_ft_s_Y'
 			columnsToPlot				VelocityY(m/s)
 			yLabel							ECI Y Velocity (ft/s)
-			saveLocation				./test/regressionTesting/NASADraglessSphere/YVel.pdf
+			saveLocation				./test/V&V/NASADraglessSphere/YVel.pdf
 		}
 
 		!create ZVel from NASADraglessSphere.PlotsToGenerate.YLoc{
 			!replace 'eiPosition_ft_Y' with 'eiVelocity_ft_s_Z'
 			columnsToPlot				VelocityZ(m/s)
 			yLabel							ECI Z Velocity (ft/s)
-			saveLocation				./test/regressionTesting/NASADraglessSphere/ZVel.pdf
+			saveLocation				./test/V&V/NASADraglessSphere/ZVel.pdf
 		}
 	}
 }
@@ -112,7 +112,7 @@ NASACdSphere_RoundEarth{
 	}
 
 	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
-		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASASphere_RoundEarth/'
+		!replace 'V&V/NASADraglessSphere/' with 'V&V/NASASphere_RoundEarth/'
 		!replace '/Atmos_01' with '/Atmos_05'
 	}
 }
@@ -131,7 +131,7 @@ NASACdSphere_WGS84{
 	}
 
 	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
-		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASASphere_WGS84Wind/'
+		!replace 'V&V/NASADraglessSphere/' with 'V&V/NASASphere_WGS84Wind/'
 		!replace '/Atmos_01' with '/Atmos_07'
 	}
 }
@@ -155,7 +155,7 @@ NASACdSphere_WGS84Wind{
 	}
 
 	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
-		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASASphere_WGS84Wind/'
+		!replace 'V&V/NASADraglessSphere/' with 'V&V/NASASphere_WGS84Wind/'
 		!replace '/Atmos_01' with '/Atmos_07'
 	}
 }
@@ -177,7 +177,7 @@ NASADampedBrick{
 	}
 
 	!create PlotsToGenerate from NASADraglessSphere.PlotsToGenerate{
-		!replace 'regressionTesting/NASADraglessSphere/' with 'regressionTesting/NASADampedBrick/'
+		!replace 'V&V/NASADraglessSphere/' with 'V&V/NASADampedBrick/'
 		!replace '/Atmos_01' with '/Atmos_03'
 		!removeKeysContaining 'yLimit'
 
@@ -187,7 +187,7 @@ NASADampedBrick{
 			lineColors					\#003f5c
 			yLabel						NED X (Roll) Euler Angle (deg)
 			legendLabel					MAPLEAF
-			saveLocation				./test/regressionTesting/NASADampedBrick/NED_XAngle.pdf
+			saveLocation				./test/V&V/NASADampedBrick/NED_XAngle.pdf
 			scalingFactor				57.2957795131 # Convert to degrees
 
 			SIM2{
@@ -195,7 +195,7 @@ NASADampedBrick{
 				xColumnName				time
 				lineFormat				-
 				legendLabel				NASA SIM 2
-				file							./test/regressionTesting/NASADampedBrick/Atmos_03_sim_02.csv
+				file							./test/V&V/NASADampedBrick/Atmos_03_sim_02.csv
 			}
 
 			SIM4{
@@ -204,7 +204,7 @@ NASADampedBrick{
 				lineFormat				-
 				legendLabel				NASA SIM 4
 				lineColors				\#7a5195
-				file					./test/regressionTesting/NASADampedBrick/Atmos_03_sim_04.csv
+				file					./test/V&V/NASADampedBrick/Atmos_03_sim_04.csv
 			}
 			
 			SIM5{
@@ -213,7 +213,7 @@ NASADampedBrick{
 				lineFormat				-.
 				lineColors				\#ef5675
 				legendLabel				NASA SIM 5
-				file					./test/regressionTesting/NASADampedBrick/Atmos_03_sim_05.csv
+				file					./test/V&V/NASADampedBrick/Atmos_03_sim_05.csv
 			}
 			
 			SIM6{
@@ -222,7 +222,7 @@ NASADampedBrick{
 				lineFormat				--
 				lineColors				\#ffa600
 				legendLabel				NASA SIM 6
-				file					./test/regressionTesting/NASADampedBrick/Atmos_03_sim_06.csv
+				file					./test/V&V/NASADampedBrick/Atmos_03_sim_06.csv
 			}
 		}
 
@@ -230,20 +230,20 @@ NASADampedBrick{
 			!replace 'eulerAngle_deg_Roll' with 'eulerAngle_deg_Pitch'
 			columnsToPlot				EulerAngleY
 			yLabel							NED Y (Pitch) Euler Angle (deg)
-			saveLocation				./test/regressionTesting/NASADampedBrick/NED_YAngle.pdf
+			saveLocation				./test/V&V/NASADampedBrick/NED_YAngle.pdf
 		}
 
 		!create ZAngle from NASADampedBrick.PlotsToGenerate.XAngle{
 			!replace 'eulerAngle_deg_Roll' with 'eulerAngle_deg_Yaw'
 			columnsToPlot				EulerAngleZ
 			yLabel							NED Z (Yaw) Euler Angle (deg)
-			saveLocation				./test/regressionTesting/NASADampedBrick/NED_ZAngle.pdf
+			saveLocation				./test/V&V/NASADampedBrick/NED_ZAngle.pdf
 		}
 	}
 }
 
 !create NASABrick from NASADampedBrick{
-	!replace 'regressionTesting/NASADampedBrick/' with 'regressionTesting/NASABrick/'
+	!replace 'V&V/NASADampedBrick/' with 'V&V/NASABrick/'
 	!replace '/Atmos_03' with '/Atmos_02'
 
 	ParameterOverrides{
@@ -280,7 +280,7 @@ NASATwoStageOrbitalRocket{
 	}
 
 	!create PlotsToGenerate from NASADampedBrick.PlotsToGenerate{
-		!replace 'regressionTesting/NASADampedBrick/' with 'regressionTesting/NASAOrbitalRocket/'
+		!replace 'V&V/NASADampedBrick/' with 'V&V/NASAOrbitalRocket/'
 		!replace '/Atmos_03' with '/Atmos_17'
 		!removeKeysContaining 'SIM2'	# No SIM 2 results present for this case
 
@@ -294,7 +294,7 @@ NASATwoStageOrbitalRocket{
 			yLimits							0	0.0001
 			yLabel							Air Density (slug / ft^3)
 			legendLabel					MAPLEAF
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/Density.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/Density.pdf
 			scalingFactor				0.00194032 # Convert to slug / ft^3 from kg/m^3
 
 			SIM4{
@@ -302,7 +302,7 @@ NASATwoStageOrbitalRocket{
 				xColumnName				time
 				lineFormat				-
 				legendLabel				NASA SIM 4
-				file							./test/regressionTesting/NASAOrbitalRocket/Atmos_17_sim_04.csv
+				file							./test/V&V/NASAOrbitalRocket/Atmos_17_sim_04.csv
 			}
 			
 			SIM5{
@@ -310,7 +310,7 @@ NASATwoStageOrbitalRocket{
 				xColumnName				time
 				lineFormat				-.
 				legendLabel				NASA SIM 5
-				file							./test/regressionTesting/NASAOrbitalRocket/Atmos_17_sim_05.csv
+				file							./test/V&V/NASAOrbitalRocket/Atmos_17_sim_05.csv
 			}
 			
 			SIM6{
@@ -318,7 +318,7 @@ NASATwoStageOrbitalRocket{
 				xColumnName				time
 				lineFormat				--
 				legendLabel				NASA SIM 6
-				file							./test/regressionTesting/NASAOrbitalRocket/Atmos_17_sim_06.csv
+				file							./test/V&V/NASAOrbitalRocket/Atmos_17_sim_06.csv
 			}
 		}
 
@@ -327,7 +327,7 @@ NASATwoStageOrbitalRocket{
 			!removeKeysContaining 'yLimits'
 			columnsToPlot				DynamicP
 			yLabel							Dynamic Pressure (psf)
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/DynamicP.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/DynamicP.pdf
 			scalingFactor				0.021 # Convert to psf from Pa
 		}		
 		
@@ -335,7 +335,7 @@ NASATwoStageOrbitalRocket{
 			!replace "dynamicPressure_lbf_ft2" with "mach"
 			columnsToPlot				Mach
 			yLabel							Mach
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/Mach.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/Mach.pdf
 			scalingFactor				1 
 		}
 
@@ -343,7 +343,7 @@ NASATwoStageOrbitalRocket{
 			!replace "dynamicPressure_lbf_ft2" with "aero_bodyMoment_ftlbf_M"
 			columnsToPlot				AeroMY
 			yLabel							Aerodynamic Pitching Moment (ft lb)
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroPitchMoment.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/AeroPitchMoment.pdf
 			scalingFactor				-0.7375621493 # Convert from Nm to ft lb
 		}
 
@@ -351,7 +351,7 @@ NASATwoStageOrbitalRocket{
 			!replace "dynamicPressure_lbf_ft2" with "aero_bodyMoment_ftlbf_N"
 			columnsToPlot				AeroMX
 			yLabel							Aerodynamic Yawing Moment (ft lb)
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroYawMoment.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/AeroYawMoment.pdf
 			scalingFactor				0.7375621493 # Convert from Nm to ft lb
 		}
 
@@ -359,7 +359,7 @@ NASATwoStageOrbitalRocket{
 			!replace "dynamicPressure_lbf_ft2" with "aero_bodyForce_lbf_Z"
 			columnsToPlot				AeroFX
 			yLabel							Aerodynamic Z-Force (lbf)
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroXForce.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/AeroXForce.pdf
 			scalingFactor				0.22480894244319 # Convert from N to lb
 		}
 
@@ -367,7 +367,7 @@ NASATwoStageOrbitalRocket{
 			!replace "dynamicPressure_lbf_ft2" with "aero_bodyForce_lbf_Y"
 			columnsToPlot				AeroFY
 			yLabel							Aerodynamic Y-Force (lbf)
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroYForce.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/AeroYForce.pdf
 			scalingFactor				0.22480894244319 # Convert from N to lb
 		}
 
@@ -375,7 +375,7 @@ NASATwoStageOrbitalRocket{
 			!replace "dynamicPressure_lbf_ft2" with "aero_bodyForce_lbf_X"
 			columnsToPlot				TabulatedAeroForcesFZ
 			yLabel						Aerodynamic Axial Force (lbf)
-			saveLocation				./test/regressionTesting/NASAOrbitalRocket/AeroAxialForce.pdf
+			saveLocation				./test/V&V/NASAOrbitalRocket/AeroAxialForce.pdf
 			scalingFactor				0.22480894244319 # Convert from N to lb
 		}
 	}
