@@ -54,7 +54,11 @@ class OptimizingSimRunner():
         '''
         self.silent = silent
         self.parallel = parallel
+        
         if simDefinition != None or simDefinitionFilePath != None:
+            # If we are receiving a complete simulation definition, assure we are the top level optimizer
+            self.isTopLevelOptimizer = True
+            
             simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
             self.optimizationReader = SubDictReader('Optimization', simDefinition)
 
@@ -65,8 +69,11 @@ class OptimizingSimRunner():
             simDefinition.setValue("SimControl.plot", "None")
             simDefinition.setValue("SimControl.RocketPlot", "Off")
         else:
+            # If we are receiving a sub dictionary reader, assume runner represents an inner optimization
             if subDictReader == None:
                 raise ValueError('subDictReader not initialized for a nested optimization')
+            
+            self.isTopLevelOptimizer = False
             self.optimizationReader = subDictReader
 
         # Parse the simulation definition's Optimization dictionary, but don't run it yet
@@ -186,7 +193,7 @@ class OptimizingSimRunner():
         return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
-    def _computeCostFunctionValues_Parallel(self, trialSolutions) -> float:
+    def _computeCostFunctionValues_Parallel(self, trialSolutions, verbose=None) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         import ray
         _computeCostFunctionRemotely = ray.remote(_computeCostFunction)
@@ -218,7 +225,7 @@ class OptimizingSimRunner():
 
         return costFunctionValues
 
-    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions) -> float:
+    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions, verbose=None) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         costFunctionValues = []
         for indVarValues in trialSolutions:
@@ -279,17 +286,18 @@ class OptimizingSimRunner():
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
         if self.parallel:
-            if self.optimizationReader.simDefDictPathToReadFrom == "Optimization":
-                # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
+            if self.isTopLevelOptimizer:
+                # Outermost optimizer is in charge of managing ray
                 import ray
                 ray.init()
-                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, self.nIterations, verbose=self.isTopLevelOptimizer) 
                 ray.shutdown()
             else:
-                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+                # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
+                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, self.nIterations, verbose=self.isTopLevelOptimizer)
 
         else:                
-            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, self.nIterations, verbose=self.isTopLevelOptimizer) 
         
         if self.showConvergence:
             print("Showing optimization convergence plot")
