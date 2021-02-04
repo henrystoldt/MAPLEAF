@@ -204,6 +204,12 @@ class OptimizingSimRunner():
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
             self._updateDependentVariableValues(simDef, varDict)
 
+            if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
+                innerOptimizer = self._createNestedOptimization(simDef)
+                cost, pos = innerOptimizer.runOptimization()
+                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
+                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
+
             # Start the simulation and save the future returned
             costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
 
@@ -236,7 +242,7 @@ class OptimizingSimRunner():
 
     def _createNestedOptimization(self, simDef):
         innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
-        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
+        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=True, parallel=self.parallel)
 
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         ''' 
@@ -273,11 +279,15 @@ class OptimizingSimRunner():
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
         if self.parallel:
-            import ray
-            ray.init()
-            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
-            ray.shutdown()
-        
+            if self.optimizationReader.simDefDictPathToReadFrom == "Optimization":
+                # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
+                import ray
+                ray.init()
+                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+                ray.shutdown()
+            else:
+                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+
         else:                
             cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
         
