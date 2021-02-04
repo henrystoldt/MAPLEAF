@@ -2747,7 +2747,10 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
 
         self.finenessRatio = None
         &#39;&#39;&#39; Used in some aerodynamic functions. Updated after initializing subcomponents, and throughout the flight. None if no BodyComponent(s) are present in the rocket &#39;&#39;&#39;
-     
+        
+        self.engineShutOff = False
+        &#39;&#39;&#39;Used to shut off engines in MAPLEAF.Rocket.Propulsion.DefinedMotor class. Currently set in MAPLE_AF.GNC.Navigation&#39;&#39;&#39;
+
         #### Init Hardware in the loop ####
         subDicts = rocketDictReader.getImmediateSubDicts()
         if &#34;Rocket.HIL&#34; in subDicts:
@@ -3236,6 +3239,10 @@ Always based on the maximum body tube diameter in the fully-assembled rocket.</p
 <dt id="MAPLEAF.Rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
 <dd>
 <div class="desc"><p>None for uncontrolled rockets. <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> for controlled rockets</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.engineShutOff"><code class="name">var <span class="ident">engineShutOff</span></code></dt>
+<dd>
+<div class="desc"><p>Used to shut off engines in MAPLEAF.Rocket.Propulsion.DefinedMotor class. Currently set in MAPLE_AF.GNC.Navigation</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.Rocket.engineShutOffTime"><code class="name">var <span class="ident">engineShutOffTime</span></code></dt>
 <dd>
@@ -5083,6 +5090,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.Rocket.controlSystem">controlSystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.engineShutOff" href="#MAPLEAF.Rocket.Rocket.engineShutOff">engineShutOff</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.environment" href="#MAPLEAF.Rocket.Rocket.environment">environment</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.eventTimeStep" href="#MAPLEAF.Rocket.Rocket.eventTimeStep">eventTimeStep</a></code></li>

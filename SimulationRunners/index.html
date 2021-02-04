@@ -1166,7 +1166,7 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
 </dd>
 <dt id="MAPLEAF.SimulationRunners.OptimizingSimRunner"><code class="flex name class">
 <span>class <span class="ident">OptimizingSimRunner</span></span>
-<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, silent=False, parallel=False)</span>
+<span>(</span><span>simDefinitionFilePath=None, simDefinition=None, subDictReader=None, silent=False, parallel=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
@@ -1183,24 +1183,30 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         Configurable using the top-level &#39;Optimization&#39; dictionary in .mapleaf files
     &#39;&#39;&#39;
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, parallel=False):
+    def __init__(self, simDefinitionFilePath=None, simDefinition=None, subDictReader = None, silent=False, parallel=False):
         &#39;&#39;&#39; 
             Pass in nProcesses &gt; 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
             At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
         &#39;&#39;&#39;
         self.silent = silent
         self.parallel = parallel
-        self.simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
+        if simDefinition != None or simDefinitionFilePath != None:
+            simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
+            self.optimizationReader = SubDictReader(&#39;Optimization&#39;, simDefinition)
 
-        if not silent:
-            print(&#34;Particle Swarm Optimization&#34;)
+            if not silent:
+                print(&#34;Particle Swarm Optimization&#34;)
 
-        # Ensure no output is produced during each simulation (cost function evaluation)
-        self.simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
-        self.simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+            # Ensure no output is produced during each simulation (cost function evaluation)
+            simDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
+            simDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
+        else:
+            if subDictReader == None:
+                raise ValueError(&#39;subDictReader not initialized for a nested optimization&#39;)
+            self.optimizationReader = subDictReader
 
         # Parse the simulation definition&#39;s Optimization dictionary, but don&#39;t run it yet
-        self.costFunctionDefinition = self.simDefinition.getValue(&#34;Optimization.costFunction&#34;)        
+        self.costFunctionDefinition = self.optimizationReader.getString(&#34;costFunction&#34;)        
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
@@ -1222,10 +1228,10 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         minVals = []
         maxVals = []
 
-        for key in self.simDefinition.getSubKeys(&#34;Optimization.IndependentVariables&#34;):
+        for key in self.optimizationReader.getSubKeys(&#34;IndependentVariables&#34;):
             # Value expected to be &#39;min &lt; key.Path &lt; max&#39;
             # Split into three parts using the &#39;&lt;&#39; characters
-            strings = self.simDefinition.getValue(key).split(&#39;&lt;&#39;)
+            strings = self.optimizationReader.getString(key).split(&#39;&lt;&#39;)
 
             if len(strings) != 3:
                 # ERROR: too many or too few values
@@ -1264,11 +1270,11 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         depVarNames = []
         depVarDefinitions = []
 
-        for depVar in self.simDefinition.getSubKeys(&#34;Optimization.DependentVariables&#34;):
+        for depVar in self.optimizationReader.getSubKeys(&#34;DependentVariables&#34;):
             # Value expected: [paramName]  [paramDefinitionString]
-            depVarKey = depVar.replace(&#34;Optimization.DependentVariables.&#34;, &#34;&#34;)
+            depVarKey = re.sub(&#34;Optimization.*DependentVariables.&#34;, &#34;&#34;, depVar)
             depVarNames.append(depVarKey)
-            depVarDefinitions.append(self.simDefinition.getValue(depVar))
+            depVarDefinitions.append(self.optimizationReader.getString(depVar))
 
         if not self.silent:
             # Output results to console
@@ -1284,14 +1290,15 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
             Returns the Optimizer, the user&#39;s desired number of iterations, and showConvergence (bool)
         &#39;&#39;&#39;
-        pSwarmReader = SubDictReader(&#34;Optimization.ParticleSwarm&#34;, self.simDefinition)
+        pathToParticleSwarmDict = self.optimizationReader.simDefDictPathToReadFrom + &#39;.ParticleSwarm&#39;
+        pSwarmReader = SubDictReader(pathToParticleSwarmDict, self.optimizationReader.simDefinition)
 
-        nParticles = pSwarmReader.getInt(&#34;nParticles&#34;)
-        nIterations = pSwarmReader.getInt(&#34;nIterations&#34;)
+        nParticles = pSwarmReader.tryGetInt(&#34;nParticles&#34;, defaultValue=20)
+        nIterations = pSwarmReader.tryGetInt(&#34;nIterations&#34;, defaultValue=50)
         
-        c1 = pSwarmReader.getFloat(&#34;cognitiveParam&#34;)
-        c2 = pSwarmReader.getFloat(&#34;socialParam&#34;)
-        w = pSwarmReader.getFloat(&#34;inertiaParam&#34;)
+        c1 = pSwarmReader.tryGetFloat(&#34;cognitiveParam&#34;, defaultValue=0.5)
+        c2 = pSwarmReader.tryGetFloat(&#34;socialParam&#34;, defaultValue=0.6)
+        w = pSwarmReader.tryGetFloat(&#34;inertiaParam&#34;, defaultValue=0.9)
         pySwarmOptions = { &#39;c1&#39;:c1, &#39;c2&#39;:c2, &#39;w&#39;:w }
 
         nVars = len(self.varNames)
@@ -1300,7 +1307,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         from pyswarms.single import GlobalBestPSO # Import here because for most sims it&#39;s not required
         optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
 
-        showConvergence = pSwarmReader.getBool(&#34;Optimization.showConvergencePlot&#34;)
+        showConvergence = self.optimizationReader.tryGetBool(&#34;showConvergencePlot&#34;, defaultValue=False)
 
         if not self.silent:
             print(&#34;Optimization Parameters:&#34;)
@@ -1308,7 +1315,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             print(&#34;{} Iterations&#34;.format(nIterations))
             print(&#34;c1 = {}, c2 = {}, w = {}\n&#34;.format(c1, c2, w))
             
-            costFunctionDefinition = self.simDefinition.getValue(&#34;Optimization.costFunction&#34;)
+            costFunctionDefinition = self.optimizationReader.getString(&#34;costFunction&#34;)
             print(&#34;Cost Function:&#34;)
             print(costFunctionDefinition + &#34;\n&#34;)
 
@@ -1327,7 +1334,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             indVarValues = trialSolutions[i]
 
             # Create new sim definition
-            simDef = deepcopy(self.simDefinition)
+            simDef = deepcopy(self.optimizationReader.simDefinition)
             
             # Update variable values
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
@@ -1346,16 +1353,26 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         costFunctionValues = []
         for indVarValues in trialSolutions:
             # Create new sim definition
-            simDef = deepcopy(self.simDefinition)
+            simDef = deepcopy(self.optimizationReader.simDefinition)
             
             # Update variable values
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
             self._updateDependentVariableValues(simDef, varDict)
 
+            if self.optimizationReader.simDefDictPathToReadFrom + &#39;.InnerOptimization&#39; in self.optimizationReader.getImmediateSubDicts():
+                innerOptimizer = self._createNestedOptimization(simDef)
+                cost, pos = innerOptimizer.runOptimization()
+                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
+                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
+
             # Run the simulation and compute the cost function value, save the result
             costFunctionValues.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
 
         return costFunctionValues
+
+    def _createNestedOptimization(self, simDef):
+        innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + &#39;.InnerOptimization&#39;, simDef)
+        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
 
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         &#39;&#39;&#39; 
@@ -1394,11 +1411,11 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         if self.parallel:
             import ray
             ray.init()
-            self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
             ray.shutdown()
         
         else:                
-            self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
         
         if self.showConvergence:
             print(&#34;Showing optimization convergence plot&#34;)
@@ -1406,7 +1423,9 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             # Show optimization history
             from pyswarms.utils.plotters import plot_cost_history
             plot_cost_history(self.optimizer.cost_history)
-            plt.show()</code></pre>
+            plt.show()
+
+        return cost, pos</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -1424,11 +1443,11 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
     if self.parallel:
         import ray
         ray.init()
-        self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+        cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
         ray.shutdown()
     
     else:                
-        self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
+        cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
     
     if self.showConvergence:
         print(&#34;Showing optimization convergence plot&#34;)
@@ -1436,7 +1455,9 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         # Show optimization history
         from pyswarms.utils.plotters import plot_cost_history
         plot_cost_history(self.optimizer.cost_history)
-        plt.show()</code></pre>
+        plt.show()
+
+    return cost, pos</code></pre>
 </details>
 </dd>
 </dl>
