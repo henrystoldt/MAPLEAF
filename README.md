@@ -130,7 +130,7 @@ To run the regression/verification/validation test suite, check out [README_Dev.
 
 ## Parallelization
 To run **Monte Carlo** or **Optimization** simulations in parallel:
-`mapleaf --nCores 8 MonteCarlo.mapleaf`
+`mapleaf --parallel MonteCarlo.mapleaf`
 
 MAPLEAF's parallelization is implemented using [ray](https://github.com/ray-project/ray).
 

@@ -66,8 +66,8 @@ class TestSimRunners(unittest.TestCase):
         runMonteCarloSimulation(simDefinition=mCSimDef, silent=True)
 
     def test_Optimization(self):
-        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef)
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf", silent=True)
+        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=True)
 
         # Check output of _loadIndependentVariables()
         self.assertEqual(optSimRunner.varKeys, [ "Rocket.Sustainer.UpperBodyTube.mass" ])        
@@ -92,6 +92,34 @@ class TestSimRunners(unittest.TestCase):
         # Check updating dependent variables values
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
+    
+    def test_nestedOptimization(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/MultiLoopOptimization.mapleaf", silent=True)
+        outerSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=True)
+        innerSimRunner = outerSimRunner._createNestedOptimization(simDef)
+        # Check output of _loadIndependentVariables()
+        self.assertEqual(innerSimRunner.varKeys, [ "Rocket.Sustainer.GeneralMass.mass" ])        
+        self.assertEqual(innerSimRunner.varNames, [ "GeneralMass" ])
+        self.assertEqual(innerSimRunner.minVals, [ 0.0045 ])
+        self.assertEqual(innerSimRunner.maxVals, [ 0.01 ])
+
+        # Check out of _loadDependentVariables()
+        self.assertEqual(innerSimRunner.dependentVars, [ "Rocket.Sustainer.AltimeterMass.mass" ])        
+        self.assertEqual(innerSimRunner.dependentVarDefinitions, [ "!0.01 + 0.0000475/GeneralMass!" ])
+
+        # Check output of _createOptimizer()
+        self.assertEqual(innerSimRunner.nIterations, 5)
+        self.assertEqual(innerSimRunner.showConvergence, False)
+        self.assertEqual(innerSimRunner.optimizer.n_particles, 2)
+
+        # Check updating independent variable values
+        indVarDict = innerSimRunner._updateIndependentVariableValues(simDef, [0.15] )
+        self.assertEqual(simDef.getValue("Rocket.Sustainer.GeneralMass.mass"), "0.15")
+        self.assertEqual(indVarDict, { "GeneralMass": 0.15 })
+
+        # Check updating dependent variables values
+        innerSimRunner._updateDependentVariableValues(simDef, indVarDict)
+        self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.AltimeterMass.mass")), 0.010316666667)
 
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
