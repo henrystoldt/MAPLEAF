@@ -1340,6 +1340,12 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
             self._updateDependentVariableValues(simDef, varDict)
 
+            if self.optimizationReader.simDefDictPathToReadFrom + &#39;.InnerOptimization&#39; in self.optimizationReader.getImmediateSubDicts():
+                innerOptimizer = self._createNestedOptimization(simDef)
+                cost, pos = innerOptimizer.runOptimization()
+                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
+                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
+
             # Start the simulation and save the future returned
             costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
 
@@ -1372,7 +1378,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
 
     def _createNestedOptimization(self, simDef):
         innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + &#39;.InnerOptimization&#39;, simDef)
-        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
+        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=True, parallel=self.parallel)
 
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         &#39;&#39;&#39; 
@@ -1409,11 +1415,15 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
     def runOptimization(self):
         &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
         if self.parallel:
-            import ray
-            ray.init()
-            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
-            ray.shutdown()
-        
+            if self.optimizationReader.simDefDictPathToReadFrom == &#34;Optimization&#34;:
+                # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
+                import ray
+                ray.init()
+                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+                ray.shutdown()
+            else:
+                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+
         else:                
             cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
         
@@ -1441,11 +1451,15 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
 <pre><code class="python">def runOptimization(self):
     &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
     if self.parallel:
-        import ray
-        ray.init()
-        cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
-        ray.shutdown()
-    
+        if self.optimizationReader.simDefDictPathToReadFrom == &#34;Optimization&#34;:
+            # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
+            import ray
+            ray.init()
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+            ray.shutdown()
+        else:
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+
     else:                
         cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
     
