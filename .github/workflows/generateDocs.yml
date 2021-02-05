@@ -40,7 +40,7 @@ jobs:
 
       - name: Generate python modules from the verification and validation results, will become verification and validation part of the documentation website
         run: |
-          python3 ./test/V&V/PrepVerificationWebsite.py
+          python3 ./test/V\&V/PrepVerificationWebsite.py
 
       - run: |
           pdoc --html --output-dir docs ./MAPLEAF --template-dir ./Resources/DocTemplate
