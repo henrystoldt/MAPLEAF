@@ -72,7 +72,16 @@ for caseResult in batchRun.casesRun:
             plotName = str(plotFileName.name).replace('.pdf', '')
             lines.append('\n{}'.format(plotName))
 
-            lines.append('\n<div><embed width="600" height="480" src="{}"/></div>'.format(plotFileName.as_uri()))
+            # Copy the plot to the fake module directory
+            newPlotPath = newFolderPath / plotFileName.name
+            shutil.copy(plotPath, newPlotPath)
+
+            # FOR LOCAL USE
+            # lines.append('\n<div><embed width="600" height="480" src="{}"/></div>'.format(newPlotPath.as_uri())) 
+            
+            # FOR ONLINE
+            onlinePath = "https://raw.githubusercontent.com/henrystoldt/MAPLEAF/documentation/V%26V/{}/{}".format(caseResult.name, plotFileName.name)
+            lines.append('\n<div><embed width="600" height="480" src="{}"/></div>'.format(onlinePath)) 
 
         lines.append('\n\n## Console Output:  ')
         indentedOutput = [ '    ' + x for x in caseResult.consoleOutput ]

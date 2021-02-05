@@ -44,6 +44,7 @@ jobs:
 
       - run: |
           pdoc --html --output-dir docs ./MAPLEAF --template-dir ./Resources/DocTemplate
+          python3 ./test/V\&V/MovePlotsToDocumentationFolder.py
           mv ./docs/MAPLEAF/* ./docs
           rm -r ./docs/MAPLEAF
 
