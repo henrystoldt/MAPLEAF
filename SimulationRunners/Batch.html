@@ -82,7 +82,7 @@ class BatchRun():
             printStackTraces=False, 
             include=None, 
             exclude=None,
-            percentErrorTolerance=0.01, 
+            percentErrorTolerance=0.1,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
@@ -997,7 +997,7 @@ if __name__ == &#34;__main__&#34;:
 <dl>
 <dt id="MAPLEAF.SimulationRunners.Batch.BatchRun"><code class="flex name class">
 <span>class <span class="ident">BatchRun</span></span>
-<span>(</span><span>batchDefinition: <a title="MAPLEAF.IO.simDefinition.SimDefinition" href="../IO/simDefinition.html#MAPLEAF.IO.simDefinition.SimDefinition">SimDefinition</a>, recordAll=False, printStackTraces=False, include=None, exclude=None, percentErrorTolerance=0.01, resultToValidate=None)</span>
+<span>(</span><span>batchDefinition: <a title="MAPLEAF.IO.simDefinition.SimDefinition" href="../IO/simDefinition.html#MAPLEAF.IO.simDefinition.SimDefinition">SimDefinition</a>, recordAll=False, printStackTraces=False, include=None, exclude=None, percentErrorTolerance=0.1, resultToValidate=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class to hold info about and results of a mapleaf-batch run</p></div>
@@ -1013,7 +1013,7 @@ if __name__ == &#34;__main__&#34;:
             printStackTraces=False, 
             include=None, 
             exclude=None,
-            percentErrorTolerance=0.01, 
+            percentErrorTolerance=0.1,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
