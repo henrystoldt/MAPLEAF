@@ -2,52 +2,85 @@
     This file generates python modules in ./MAPLEAF/V&V which will be turned into verification and validation website by pdoc3 every time the documentation is built
     One module/webpage is generated per folder in ./test/V&V/. All .pdf files in the folders are displayed on the page.
 """
-
 import os
+from pathlib import Path
 import shutil
+import sys
 
 from MAPLEAF.IO import SimDefinition
+from MAPLEAF.IO.Logging import Logger, removeLogger
 from MAPLEAF.SimulationRunners.Batch import BatchRun, run
 
 
-shutil.rmtree('./MAPLEAF/V&V')
+try:
+    shutil.rmtree('./MAPLEAF/V&V')
+except:
+    pass
 
 # Load the simulation definition file that defines all of the regression verification and validation cases
 batchDefinition = SimDefinition('./MAPLEAF/Examples/BatchSims/regressionTests.mapleaf')
 batchRun = BatchRun(batchDefinition)
 
 # Run all the cases to generate the result pdfs
-# run(batchRun)
+run(batchRun)
+resultSummary = []
+sys.stdout = Logger(resultSummary)
+batchRun.printResult()
+removeLogger()
 
 # Create the verification and validation folder, make it a python module
-os.mkdir('./MAPLEAF/V&V')
-with open("./MAPLEAF/V&V/__init__.py", "w+") as f:
-    f.write("''' Testing page '''")
+MAPLEAFPath = Path(__file__).parent.parent.parent.absolute()
+fakeModuleDirectory = MAPLEAFPath / 'MAPLEAF' / 'V&V'
+regressionTestingDirectory = MAPLEAFPath / 'test' / 'V&V'
 
-# Create all of the submodules
-filesAndFolders = os.listdir('./test/V&V')
-for folder in filesAndFolders:
-    completePath = os.path.join('./test/V&V', folder)
-    
-    if os.path.isdir(completePath):
-        newFolderPath = os.path.join('./MAPLEAF/V&V', folder)
-        os.mkdir(newFolderPath)
+os.mkdir(fakeModuleDirectory)
+with open(regressionTestingDirectory / '__init__.py', "r") as f:
+    templateText = f.read()
 
-        # Find all of the .pdfs for this case
-        allFiles = os.listdir(completePath)
-        pdfs = []
-        for file in allFiles:
-            if len(file) > 3 and file[-4:].lower() == '.pdf':
-                pdfs.append(os.path.join(completePath, file))
+with open(fakeModuleDirectory / "__init__.py", "w+") as f:
+    indentedSummary = ''.join([ '    ' + x for x in resultSummary ])
+    text = templateText.replace('{INSERT RESULTS HERE}', '\n\n## Console Output:  ' + indentedSummary)
+    f.write(text)
 
-        initPath = os.path.join(newFolderPath, '__init__.py')
-        with open(initPath, 'w+') as f:
-            lines = [ '"""' ]
-            for pdf in pdfs:
-                pdf = pdf.replace('\\', '/') 
-                pdf = pdf[2:]
-                lines.append('\n    <div><embed width="600" height="480" src="../../../../{}"/></div>'.format( pdf ))
 
-            lines.append('\n"""')
+# Create all of the submodules, one for each case
+for caseResult in batchRun.casesRun:    
+    newFolderPath = fakeModuleDirectory / caseResult.name
+    os.mkdir(newFolderPath)
 
-            f.writelines(lines)
+    initPath = newFolderPath / '__init__.py'
+    with open(initPath, 'w+') as f:
+        lines = [ '"""' ]
+
+        plots = caseResult.plotPaths
+
+        passed = caseResult.testsPassed
+        failed = caseResult.testsFailed
+        nTests = passed + failed
+        lines.append('\n{}/{} tests passed'.format(passed, nTests))
+
+        nPlots = len(plots)
+        if nPlots > 1:
+            lines.append('\n{} plots generated'.format(len(plots)))
+        else:
+            lines.append('\n{} plot generated'.format(len(plots)))
+
+        lines.append('\n\n## Plots:  ')
+
+        for plotPath in plots:
+            plotFileName = Path(plotPath).absolute()
+            plotName = str(plotFileName.name).replace('.pdf', '')
+            lines.append('\n{}'.format(plotName))
+
+            lines.append('\n<div><embed width="600" height="480" src="{}"/></div>'.format(plotFileName.as_uri()))
+
+        lines.append('\n\n## Console Output:  ')
+        indentedOutput = [ '    ' + x for x in caseResult.consoleOutput ]
+        if '\nR' in indentedOutput[0]:
+            # Make sure the first row is also indented
+            indentedOutput[0] = indentedOutput[0].replace('\nR', '\n    R')
+        lines.append(''.join(indentedOutput))
+
+        lines.append('\n"""')
+
+        f.writelines(lines)
