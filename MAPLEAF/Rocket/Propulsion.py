@@ -96,7 +96,8 @@ class DefinedMotor(RocketComponent, SubDictReader):
             self.massPropTotal.append(float(info[6]))
 
         # From the defined motor in the sim def, the data is pulled for that specific motor
-        place = self.motorSelection.index(motorType)
+            
+        place = self.motorSelection.index(re.sub('\.\d+', '', motorType))
         self.motorEngineThrust = self.engineThrust[place]
         self.motorISP = self.isp[place]
         self.motorFuelDensity = self.fuelDensity[place]
@@ -111,7 +112,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Computes the total available volume in the body tube
         volumeTotal =  (math.pi/4)*(self.stage.bodyTubeDiameter**2)*self.stage.bodyTubeLength
         # Computes the amount of volume taken up by other components (Engine, Tanks, etc.)
-        volumeComponent = (1-0.67156462)*volumeTotal #NOTE: Random Compoenet Volume, fraction needs to be standardised
+        volumeComponent = 0.05*volumeTotal #NOTE: Random Compoenet Volume, fraction needs to be standardised
         # Computes the fraction of components that are taken up in body tube
         volComponentFrac = volumeComponent/volumeTotal
         # The rest of the space is taken up by fuel (SHould account for tanks, etc.)
