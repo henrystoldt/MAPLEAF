@@ -85,7 +85,7 @@ for caseResult in batchRun.casesRun:
             
             # FOR ONLINE
             onlinePath = "https://raw.githubusercontent.com/henrystoldt/MAPLEAF/documentation/V%26V/{}/{}?raw=true".format(caseResult.name, plotFileName.name)
-            lines.append('\n<div><img width="600" height="480" src="{}"/></div>'.format(onlinePath)) 
+            lines.append('\n<div><img src="{}"/></div>'.format(onlinePath)) 
 
         lines.append('\n\n## Console Output:  ')
         indentedOutput = [ '    ' + x for x in caseResult.consoleOutput ]

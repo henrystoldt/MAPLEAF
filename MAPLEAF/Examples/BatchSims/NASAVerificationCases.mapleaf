@@ -274,7 +274,7 @@ NASATwoStageOrbitalRocket{
 		PositionX(m)	6598829.9
 		PositionY(m)	637702.775
 		PositionZ(m)	0.0
-		VelocityX(m/s)	2309.27  # NASA Sim 4: 2302.326; Sim 5: 2302.122
+		VelocityX(m/s)	2308.8505  # NASA Sim 4: 2302.326; Sim 5: 2302.122
 		VelocityY(m/s)	8475.945 # NASA Sim 4: 8479.134; Sim 5: 8479.22
 		VelocityZ(m/s)	0.0
 	}
@@ -282,7 +282,7 @@ NASATwoStageOrbitalRocket{
 	!create PlotsToGenerate from NASADampedBrick.PlotsToGenerate{
 		!replace 'V&V/NASADampedBrick/' with 'V&V/NASAOrbitalRocket/'
 		!replace '/Atmos_03' with '/Atmos_17'
-		!removeKeysContaining 'SIM2'	# No SIM 2 results present for this case
+		!removeKeysContaining 'SIM2'	# No NASA SIM 2 results present for this case
 
 		YAngle.offset  					90
 		YAngle.yLimits					10 60

@@ -89,7 +89,7 @@ TimeStepAdaptationDemo{
 
 	ExpectedFinalValues{
 		Mach	    	0.0
-		PositionX		-141.151
+		PositionX		-141.033
 		Time(s)	    	45.0
 	}
 

@@ -47,7 +47,7 @@ class BatchRun():
             printStackTraces=False, 
             include=None, 
             exclude=None,
-            percentErrorTolerance=0.01, 
+            percentErrorTolerance=0.1,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
