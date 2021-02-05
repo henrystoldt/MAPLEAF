@@ -101,7 +101,7 @@ StaticStabilityLongFinsOn{
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCNFin.csv
+			file							./test/V&V/StaticStability/StaticStabilityLongCnFin.csv
 			}					 
 		}
 	}	
@@ -409,7 +409,7 @@ StaticStabilityShortFinsOn{
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilitySHortCAFin.csv
+			file							./test/V&V/StaticStability/StaticStabilityShortCAFin.csv
 			}		 
 		}	
 
