@@ -39,14 +39,14 @@ ConventionalRocketCase{
 			legendLabel					MAPLEAF
 			scalingFactor				-1
 			overwrite					True
-			saveLocation				./test/regressionTesting/SooyConventional/ConventionalCN.pdf
+			saveLocation				./test/V&V/SooyConventional/ConventionalCN.pdf
 
 			AP98{
 				columnsToPlot			CN
 				xColumnName				AOA
 				lineFormat				-c
 				legendLabel				Aeroprediction98
-				file					./test/regressionTesting/SooyConventional/ConventionalAP98CN.csv
+				file					./test/V&V/SooyConventional/ConventionalAP98CN.csv
 			}
 
 			DC97{
@@ -54,7 +54,7 @@ ConventionalRocketCase{
 				xColumnName				AOA
 				lineFormat				--m
 				legendLabel				Datcom97
-				file					./test/regressionTesting/SooyConventional/ConventionalDC97CN.csv
+				file					./test/V&V/SooyConventional/ConventionalDC97CN.csv
 			}
 
 			WT{
@@ -63,7 +63,7 @@ ConventionalRocketCase{
 				lineFormmat				DC97
 				lineFormat				Pk
 				legendLabel				Wind Tunnel
-				file					./test/regressionTesting/SooyConventional/ConventionalWTCN.csv
+				file					./test/V&V/SooyConventional/ConventionalWTCN.csv
 			}
 
 			FLU3M{
@@ -72,7 +72,7 @@ ConventionalRocketCase{
 				lineFormat				x-.
 				lineColors				red
 				legendLabel				FLU3M
-				file					./test/regressionTesting/SooyConventional/ConventionalFLU3MCN.csv	
+				file					./test/V&V/SooyConventional/ConventionalFLU3MCN.csv	
 			}
 
 			TLNS{
@@ -81,7 +81,7 @@ ConventionalRocketCase{
 				lineFormat				d:
 				lineColors				\#bc5090
 				legendLabel				TLNS
-				file					./test/regressionTesting/SooyConventional/ConventionalTLNSCN.csv	
+				file					./test/V&V/SooyConventional/ConventionalTLNSCN.csv	
 			}
 
 			USER3D{
@@ -90,7 +90,7 @@ ConventionalRocketCase{
 				lineFormat				+-
 				lineColors				\#ff764a
 				legendLabel				USER3D
-				file					./test/regressionTesting/SooyConventional/ConventionalUSER3DCN.csv	
+				file					./test/V&V/SooyConventional/ConventionalUSER3DCN.csv	
 			}
 
 			# OpenRocket{
@@ -99,7 +99,7 @@ ConventionalRocketCase{
 			# 	lineFormat				-.
 			# 	lineColors				\#bc5090
 			# 	legendLabel				OpenRocket v15.03
-			# 	file					./test/regressionTesting/SooyConventional/OpenRocketResults.csv					
+			# 	file					./test/V&V/SooyConventional/OpenRocketResults.csv					
 			# }
 		}
 
@@ -180,7 +180,7 @@ BodyAloneCase{
 			legendLabel					MAPLEAF
 			scalingFactor				-0.341985568
 			overwrite					True
-			saveLocation				./test/regressionTesting/SooyBodyAlone/BodyAloneCN.pdf
+			saveLocation				./test/V&V/SooyBodyAlone/BodyAloneCN.pdf
 
 
 			AP98{
@@ -188,7 +188,7 @@ BodyAloneCase{
 				xColumnName				AOA
 				lineFormat				-c
 				legendLabel				Aeroprediction98
-				file					./test/regressionTesting/SooyBodyAlone/AP98CN.csv
+				file					./test/V&V/SooyBodyAlone/AP98CN.csv
 			}
 
 			DC97{
@@ -196,7 +196,7 @@ BodyAloneCase{
 				xColumnName				AOA
 				lineFormat				--m
 				legendLabel				Datcom97
-				file					./test/regressionTesting/SooyBodyAlone/DC97CN.csv
+				file					./test/V&V/SooyBodyAlone/DC97CN.csv
 			}
 
 			WT{
@@ -206,7 +206,7 @@ BodyAloneCase{
 				lineFormmat				DC97
 				lineFormat				Pk
 				legendLabel				Wind Tunnel
-				file					./test/regressionTesting/SooyBodyAlone/WTCN.csv
+				file					./test/V&V/SooyBodyAlone/WTCN.csv
 			}
 		}
 
