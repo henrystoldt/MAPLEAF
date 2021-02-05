@@ -241,8 +241,8 @@ def _runCase(caseName: str, batchRun: BatchRun):
         plotDicts = caseDictReader.getImmediateSubDicts("PlotsToGenerate")
         for plotDict in plotDicts:
             plotDictReader = SubDictReader(plotDict, simDefinition=batchRun.batchDefinition)
-            plotFilePath = _generatePlot(batchRun, plotDictReader, logFilePaths)
-            caseResult.plotPaths.append(plotFilePath)
+            plotFilePaths = _generatePlot(batchRun, plotDictReader, logFilePaths)
+            caseResult.plotPaths += plotFilePaths
 
     Logging.removeLogger()
 
@@ -532,7 +532,7 @@ def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
     return None, None
 
 #### 3. Plotting ####
-def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePaths):
+def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePaths: List[str]) -> List[str]:
     '''
         Called once for every plot dictionary. Handles plotting MAPLEAF's results and any provided comparison data. Saves plot.
 
@@ -541,6 +541,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
             logFilePaths:       (list (string)) 
 
         Outputs:
+            Returns a list of file paths for the plots generated
             Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
     '''
     # Read info from plotDictReader, create figure, set x/y limits, axes labels, etc...
@@ -603,10 +604,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     overwrite = plotDictReader.tryGetBool("overwrite", defaultValue=True)
 
     # Save plot
-    savedFiles = gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=False, printStatementPrefix="  ")
+    savedFiles = gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=True, printStatementPrefix="  ")
     plt.close(fig) # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
     
-    return savedFiles[0] # Always only saving the .pdf
+    return savedFiles
 
 def _setUpFigure(plotDictReader: SubDictReader):
     # Create plot

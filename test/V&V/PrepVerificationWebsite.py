@@ -52,7 +52,11 @@ for caseResult in batchRun.casesRun:
     with open(initPath, 'w+') as f:
         lines = [ '"""' ]
 
-        plots = caseResult.plotPaths
+        # We can only display .png plots, ignore the rest
+        plots = []
+        for plotPath in caseResult.plotPaths:
+            if '.png' in plotPath:
+                plots.append(plotPath)
 
         passed = caseResult.testsPassed
         failed = caseResult.testsFailed
@@ -69,7 +73,7 @@ for caseResult in batchRun.casesRun:
 
         for plotPath in plots:
             plotFileName = Path(plotPath).absolute()
-            plotName = str(plotFileName.name).replace('.pdf', '')
+            plotName = str(plotFileName.name).replace('.png', '')
             lines.append('\n{}'.format(plotName))
 
             # Copy the plot to the fake module directory
@@ -80,8 +84,8 @@ for caseResult in batchRun.casesRun:
             # lines.append('\n<div><embed width="600" height="480" src="{}"/></div>'.format(newPlotPath.as_uri())) 
             
             # FOR ONLINE
-            onlinePath = "https://raw.githubusercontent.com/henrystoldt/MAPLEAF/documentation/V%26V/{}/{}".format(caseResult.name, plotFileName.name)
-            lines.append('\n<div><embed width="600" height="480" src="{}"/></div>'.format(onlinePath)) 
+            onlinePath = "https://raw.githubusercontent.com/henrystoldt/MAPLEAF/documentation/V%26V/{}/{}?raw=true".format(caseResult.name, plotFileName.name)
+            lines.append('\n<div><img width="600" height="480" src="{}"/></div>'.format(onlinePath)) 
 
         lines.append('\n\n## Console Output:  ')
         indentedOutput = [ '    ' + x for x in caseResult.consoleOutput ]
