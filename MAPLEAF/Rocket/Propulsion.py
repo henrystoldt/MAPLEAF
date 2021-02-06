@@ -97,7 +97,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
         # From the defined motor in the sim def, the data is pulled for that specific motor
             
-        place = self.motorSelection.index(re.sub('\.\d+', '', motorType))
+        place = self.motorSelection.index(re.sub('\.\d+', '', motorType)) #TODO: make re check if there is letters in the string. If so, do not extract decimal or numbers. Potential bug for motor names containing "V1.1" etc.
         self.motorEngineThrust = self.engineThrust[place]
         self.motorISP = self.isp[place]
         self.motorFuelDensity = self.fuelDensity[place]
