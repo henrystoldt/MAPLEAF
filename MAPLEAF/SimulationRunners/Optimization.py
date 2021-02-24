@@ -54,11 +54,7 @@ class OptimizingSimRunner():
         '''
         self.silent = silent
         self.parallel = parallel
-        
         if simDefinition != None or simDefinitionFilePath != None:
-            # If we are receiving a complete simulation definition, assure we are the top level optimizer
-            self.isTopLevelOptimizer = True
-            
             simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
             self.optimizationReader = SubDictReader('Optimization', simDefinition)
 
@@ -69,11 +65,8 @@ class OptimizingSimRunner():
             simDefinition.setValue("SimControl.plot", "None")
             simDefinition.setValue("SimControl.RocketPlot", "Off")
         else:
-            # If we are receiving a sub dictionary reader, assume runner represents an inner optimization
             if subDictReader == None:
                 raise ValueError('subDictReader not initialized for a nested optimization')
-            
-            self.isTopLevelOptimizer = False
             self.optimizationReader = subDictReader
 
         # Parse the simulation definition's Optimization dictionary, but don't run it yet
@@ -193,7 +186,7 @@ class OptimizingSimRunner():
         return optimizer, nIterations, showConvergence
 
     #### Running the optimization ####
-    def _computeCostFunctionValues_Parallel(self, trialSolutions, verbose=None) -> float:
+    def _computeCostFunctionValues_Parallel(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         import ray
         _computeCostFunctionRemotely = ray.remote(_computeCostFunction)
@@ -211,12 +204,6 @@ class OptimizingSimRunner():
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
             self._updateDependentVariableValues(simDef, varDict)
 
-            if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
-                innerOptimizer = self._createNestedOptimization(simDef)
-                cost, pos = innerOptimizer.runOptimization()
-                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
-                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
-
             # Start the simulation and save the future returned
             costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
 
@@ -225,7 +212,7 @@ class OptimizingSimRunner():
 
         return costFunctionValues
 
-    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions, verbose=None) -> float:
+    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         costFunctionValues = []
         for indVarValues in trialSolutions:
@@ -249,7 +236,7 @@ class OptimizingSimRunner():
 
     def _createNestedOptimization(self, simDef):
         innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
-        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=True, parallel=self.parallel)
+        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
 
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         ''' 
@@ -286,18 +273,13 @@ class OptimizingSimRunner():
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
         if self.parallel:
-            if self.isTopLevelOptimizer:
-                # Outermost optimizer is in charge of managing ray
-                import ray
-                ray.init()
-                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, self.nIterations, verbose=self.isTopLevelOptimizer) 
-                ray.shutdown()
-            else:
-                # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
-                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, self.nIterations, verbose=self.isTopLevelOptimizer)
-
+            import ray
+            ray.init()
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+            ray.shutdown()
+        
         else:                
-            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, self.nIterations, verbose=self.isTopLevelOptimizer) 
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
         
         if self.showConvergence:
             print("Showing optimization convergence plot")
