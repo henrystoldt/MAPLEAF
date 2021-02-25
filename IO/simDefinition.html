@@ -947,7 +947,7 @@ def isFileName(value:str) -&gt; bool:
 def pathIsRelativeToRepository(possiblePath:str) -&gt; bool:
     return  len(possiblePath) &gt; 8 and possiblePath[:8] == &#34;MAPLEAF/&#34;
 
-def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34;&#34;) -&gt; str:
+def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34;&#34;, silent=False) -&gt; str:
     &#39;&#39;&#39; 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
         alternateRelativeLocation (str) location of an alternate file/folder the path could be relative to
@@ -976,7 +976,9 @@ def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34
             if absolutePath.exists():
                 return str(absolutePath)
                 
-    print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
+    if not silent:
+        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
+        
     return relativePath</code></pre>
 </details>
 </section>
@@ -988,7 +990,7 @@ def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="MAPLEAF.IO.simDefinition.getAbsoluteFilePath"><code class="name flex">
-<span>def <span class="ident">getAbsoluteFilePath</span></span>(<span>relativePath: str, alternateRelativeLocation: str = '') ‑> str</span>
+<span>def <span class="ident">getAbsoluteFilePath</span></span>(<span>relativePath: str, alternateRelativeLocation: str = '', silent=False) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
@@ -998,7 +1000,7 @@ Returns original relativePath if an absolute path is not found</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34;&#34;) -&gt; str:
+<pre><code class="python">def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = &#34;&#34;, silent=False) -&gt; str:
     &#39;&#39;&#39; 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
         alternateRelativeLocation (str) location of an alternate file/folder the path could be relative to
@@ -1027,7 +1029,9 @@ Returns original relativePath if an absolute path is not found</p></div>
             if absolutePath.exists():
                 return str(absolutePath)
                 
-    print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
+    if not silent:
+        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
+        
     return relativePath</code></pre>
 </details>
 </dd>
