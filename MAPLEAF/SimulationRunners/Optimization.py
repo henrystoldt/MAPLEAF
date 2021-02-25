@@ -160,7 +160,7 @@ class OptimizingSimRunner():
         if len(particlePositionDicts) > nParticles:
             raise ValueError("Number of initial particle positions: {}({}) cannot exceed the total number of particles: {}".format(len(particlePositionDicts), particlePositionDicts, nParticles))
 
-        initialParticlePositions = []
+        initialParticlePositions = np.empty((nParticles, nVars), dtype=np.float64)
         
         for i in range(nParticles):
             if i < len(particlePositionDicts):
@@ -181,9 +181,6 @@ class OptimizingSimRunner():
                 specifiedVariablePaths = []
                 specifiedVariableNames = []
 
-            # This array will store the initial position of one particle
-            position = np.array([0.0]*nVars)
-
             # Read or generate value for each variable
             for j in range(nVars):
                 independentVariable = self.varNames[j]
@@ -201,9 +198,7 @@ class OptimizingSimRunner():
                 else:
                     value = np.random.uniform(self.minVals[j], self.maxVals[j])
 
-                position[j] = value
-            
-            initialParticlePositions.append(position)
+                initialParticlePositions[i,j] = value
         
         return initialParticlePositions
 
@@ -227,7 +222,7 @@ class OptimizingSimRunner():
         varBounds = (self.minVals, self.maxVals)
 
         from pyswarms.single import GlobalBestPSO # Import here because for most sims it's not required
-        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds, init_pos=self.initPositions)
 
         showConvergence = self.optimizationReader.tryGetBool("showConvergencePlot", defaultValue=False)
 

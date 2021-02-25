@@ -121,7 +121,7 @@ class TestSimRunners(unittest.TestCase):
         innerSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.AltimeterMass.mass")), 0.010316666667)
 
-    def test_initializedOptimization(self):
+    def test_readInitialParticlePositions(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf", silent=True)
         opt = OptimizingSimRunner(simDefinition=simDef, silent=True)
 
@@ -133,8 +133,6 @@ class TestSimRunners(unittest.TestCase):
         bW2 = opt.initPositions[1][0]
         self.assertGreaterEqual(bW2, 0.01)
         self.assertLessEqual(bW2, 0.2)
-
-        # TODO: Test an actual run
 
         # Check that additional unexpected variables cause a crash
         extraVariableKey = 'Optimization.IndependentVariables.InitialParticlePositions.p1.extraVariable'
@@ -148,6 +146,28 @@ class TestSimRunners(unittest.TestCase):
         with self.assertRaises(ValueError):
             simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p1.bodyWeight', '0.21')
             opt = OptimizingSimRunner(simDefinition=simDef, silent=True)            
+
+        # Check that specifying the position of too many particles causes a crash
+        with self.assertRaises(ValueError):
+            simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p2.bodyWeight', '0.15')            
+            simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p3.bodyWeight', '0.15')            
+            opt = OptimizingSimRunner(simDefinition=simDef, silent=True)
+
+    def test_optimizationWithSpecifiedInitialParticlePositions(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf", silent=True)
+
+        # Make the optimization use a single particle, single iteration, and only a single time step
+        simDef.setValue('Optimization.ParticleSwarm.nParticles', '1')
+        simDef.setValue('Optimization.ParticleSwarm.nIterations', '1')
+        simDef.setValue('SimControl.EndCondition', 'Time')
+        simDef.setValue('SimControl.EndConditionValue', '0.005')
+        simDef.setValue('Optimization.showConvergencePlot', 'False')
+
+        opt = OptimizingSimRunner(simDefinition=simDef, silent=True)        
+        cost, pos = opt.runOptimization()
+
+        # Make sure the position matches the specified initial position
+        self.assertAlmostEqual(pos, 0.1)
 
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
