@@ -75,7 +75,7 @@ def findSimDefinitionFile(providedPath):
 
     # Check if it's a relative path that needs to be made absolute
     possibleRelPath = providedPath
-    absPath = getAbsoluteFilePath(possibleRelPath)
+    absPath = getAbsoluteFilePath(possibleRelPath, silent=True)
     if os.path.isfile(absPath):
         return absPath
     
