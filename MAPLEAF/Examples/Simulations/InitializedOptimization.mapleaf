@@ -6,6 +6,12 @@ Optimization{
 
     IndependentVariables{
         bodyWeight      0.01 < Rocket.Sustainer.UpperBodyTube.mass < 0.2
+
+        InitialParticlePositions{
+            p1{
+                bodyWeight 0.1
+            }
+        }
     }
 
     DependentVariables{
@@ -16,25 +22,6 @@ Optimization{
     ParticleSwarm{
         nParticles      2
         nIterations     5
-    }
-
-    InnerOptimization{
-        costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
-
-        IndependentVariables{
-            GeneralMass         0.0045 < Rocket.Sustainer.GeneralMass.mass < 0.01
-        }
-
-        DependentVariables{
-            Rocket.Sustainer.AltimeterMass.mass  !0.01 + 0.0000475/GeneralMass!
-        }
-
-        ParticleSwarm{
-            nParticles      2
-            nIterations     5
-        }
-
-
     }
 }
 

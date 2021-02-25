@@ -100,9 +100,21 @@ Optimization{
         # Define all the variables that the Optimizer is free to change (Must be scalar parameters in the Sim Definition file)
         # paramName                             Min Value   <       Path.To.Parameter             < Max Value
         bodyLength                              0           < Rocket.SecondStage.BodyTube.length  < 10
+        
+        InitialParticlePositions{ # (Optional) - initial positions randomly generated if not present
+            # Specify <= Optimization.ParticleSwarm.nParticles initial particle positions
+            # Each subdictionary created here represents one particle
+            # If < nParticles initial positions are specified, the remaining ones will be randomly generated
+            Init1{
+                # Dictionary names are arbitrary
+                # Order of variables within dictionaries also does not matter
+                # Omitted values will be randomly generated
+                bodyLength                      2
+            }
+        }
     }
     
-    DependentVariables{
+    DependentVariables{ # (Optional)
         # Define values of variables that are functions of the independent variables
         # Delimit computations with exclamation marks
         # Can use any math function, and the names of independent variables
@@ -123,11 +135,8 @@ Optimization{
     showConvergencePlot                         True
 
     InnerOptimization{
-        #Same as in main Optimization. Defines inner optimization which will run for every cost function optimization.
-
-        
-
-
+        # Same structure as main Optimization. Defines inner optimization which will run for every cost function optimization.
+        # Can nest further inner optimizations inside this one, arbitrarily deeply
     }
 }
 

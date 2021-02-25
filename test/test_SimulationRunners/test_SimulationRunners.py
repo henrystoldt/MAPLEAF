@@ -121,6 +121,34 @@ class TestSimRunners(unittest.TestCase):
         innerSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.AltimeterMass.mass")), 0.010316666667)
 
+    def test_initializedOptimization(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf", silent=True)
+        opt = OptimizingSimRunner(simDefinition=simDef, silent=True)
+
+        # Check that initial position has been loaded
+        bW1 = opt.initPositions[0][0]
+        self.assertAlmostEqual(bW1, 0.1)
+
+        # Check that the other initial position has been generated and is inside the expected bands
+        bW2 = opt.initPositions[1][0]
+        self.assertGreaterEqual(bW2, 0.01)
+        self.assertLessEqual(bW2, 0.2)
+
+        # TODO: Test an actual run
+
+        # Check that additional unexpected variables cause a crash
+        extraVariableKey = 'Optimization.IndependentVariables.InitialParticlePositions.p1.extraVariable'
+        with self.assertRaises(ValueError):
+            simDef.setValue(extraVariableKey, '25')
+            opt = OptimizingSimRunner(simDefinition=simDef, silent=True)            
+        
+        simDef.removeKey(extraVariableKey)
+
+        # Check that an out of bounds value causes a crash
+        with self.assertRaises(ValueError):
+            simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p1.bodyWeight', '0.21')
+            opt = OptimizingSimRunner(simDefinition=simDef, silent=True)            
+
     def test_convergenceSimulations(self):
         #### Set up sim definition ####
         convSimDef = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)

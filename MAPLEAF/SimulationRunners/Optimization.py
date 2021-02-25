@@ -2,6 +2,7 @@ import importlib
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
+import numpy as np
 import re
 
 from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader
@@ -73,6 +74,7 @@ class OptimizingSimRunner():
         self.costFunctionDefinition = self.optimizationReader.getString("costFunction")        
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
+        self.initPositions = self._loadInitialPositions()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
 
     def _loadIndependentVariables(self):
@@ -92,7 +94,7 @@ class OptimizingSimRunner():
         minVals = []
         maxVals = []
 
-        for key in self.optimizationReader.getSubKeys("IndependentVariables"):
+        for key in self.optimizationReader.getImmediateSubKeys("IndependentVariables"):
             # Value expected to be 'min < key.Path < max'
             # Split into three parts using the '<' characters
             strings = self.optimizationReader.getString(key).split('<')
@@ -148,6 +150,62 @@ class OptimizingSimRunner():
             print("")
 
         return depVarNames, depVarDefinitions
+
+    def _loadInitialPositions(self):
+        nParticles = self.optimizationReader.getInt("ParticleSwarm.nParticles")
+        nVars = len(self.varNames)
+
+        particlePositionDicts = self.optimizationReader.getImmediateSubDicts("IndependentVariables.InitialParticlePositions")
+
+        if len(particlePositionDicts) > nParticles:
+            raise ValueError("Number of initial particle positions: {}({}) cannot exceed the total number of particles: {}".format(len(particlePositionDicts), particlePositionDicts, nParticles))
+
+        initialParticlePositions = []
+        
+        for i in range(nParticles):
+            if i < len(particlePositionDicts):
+                # Some initialization data provided
+                particleDictionary = particlePositionDicts[i]
+                specifiedVariablePaths = self.optimizationReader.getImmediateSubKeys(particleDictionary)
+                specifiedVariableNames = []
+
+                # Populate name vector and Check that all provided variables exist
+                for v in specifiedVariablePaths:
+                    vName = v.split('.')[-1]
+                    specifiedVariableNames.append(vName)
+
+                    if vName not in self.varNames:
+                        raise ValueError("Variable {} not expected in {}. Only expecting independent variables: {}".format(v, particleDictionary, self.varNames))
+            else:
+                # All available initialization data already used
+                specifiedVariablePaths = []
+                specifiedVariableNames = []
+
+            # This array will store the initial position of one particle
+            position = np.array([0.0]*nVars)
+
+            # Read or generate value for each variable
+            for j in range(nVars):
+                independentVariable = self.varNames[j]
+
+                # Read provided data if available
+                if independentVariable in specifiedVariableNames:
+                    index = specifiedVariableNames.index(independentVariable)
+                    value = self.optimizationReader.getFloat(specifiedVariablePaths[index])
+
+                    # Check the value is within the expected bounds
+                    if value < self.minVals[j] or value > self.maxVals[j]:
+                        raise ValueError("{} value in initial particle position: {} ({}) outside of expected range ({}-{}".format(independentVariable, particleDictionary, value, self.minVals[j], self.maxVals[j]))
+
+                # Otherwise, choose a random value
+                else:
+                    value = np.random.uniform(self.minVals[j], self.maxVals[j])
+
+                position[j] = value
+            
+            initialParticlePositions.append(position)
+        
+        return initialParticlePositions
 
     def _createOptimizer(self):
         ''' 
