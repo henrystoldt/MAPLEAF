@@ -34,9 +34,10 @@
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
+import numpy as np
 import re
 
-from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader
+from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader, Logging
 from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
@@ -47,6 +48,7 @@ __all__ = [ &#34;OptimizingSimRunner&#34; ]
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
     # Run the simulation
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
+    Logging.removeLogger()
 
     # Evaluate the cost function
     if &#34;:&#34; in costFunctionDefinition:
@@ -105,6 +107,7 @@ class OptimizingSimRunner():
         self.costFunctionDefinition = self.optimizationReader.getString(&#34;costFunction&#34;)        
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
+        self.initPositions = self._loadInitialPositions()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
 
     def _loadIndependentVariables(self):
@@ -124,7 +127,7 @@ class OptimizingSimRunner():
         minVals = []
         maxVals = []
 
-        for key in self.optimizationReader.getSubKeys(&#34;IndependentVariables&#34;):
+        for key in self.optimizationReader.getImmediateSubKeys(&#34;IndependentVariables&#34;):
             # Value expected to be &#39;min &lt; key.Path &lt; max&#39;
             # Split into three parts using the &#39;&lt;&#39; characters
             strings = self.optimizationReader.getString(key).split(&#39;&lt;&#39;)
@@ -181,6 +184,57 @@ class OptimizingSimRunner():
 
         return depVarNames, depVarDefinitions
 
+    def _loadInitialPositions(self):
+        nParticles = self.optimizationReader.getInt(&#34;ParticleSwarm.nParticles&#34;)
+        nVars = len(self.varNames)
+
+        particlePositionDicts = self.optimizationReader.getImmediateSubDicts(&#34;IndependentVariables.InitialParticlePositions&#34;)
+
+        if len(particlePositionDicts) &gt; nParticles:
+            raise ValueError(&#34;Number of initial particle positions: {}({}) cannot exceed the total number of particles: {}&#34;.format(len(particlePositionDicts), particlePositionDicts, nParticles))
+
+        initialParticlePositions = np.empty((nParticles, nVars), dtype=np.float64)
+        
+        for i in range(nParticles):
+            if i &lt; len(particlePositionDicts):
+                # Some initialization data provided
+                particleDictionary = particlePositionDicts[i]
+                specifiedVariablePaths = self.optimizationReader.getImmediateSubKeys(particleDictionary)
+                specifiedVariableNames = []
+
+                # Populate name vector and Check that all provided variables exist
+                for v in specifiedVariablePaths:
+                    vName = v.split(&#39;.&#39;)[-1]
+                    specifiedVariableNames.append(vName)
+
+                    if vName not in self.varNames:
+                        raise ValueError(&#34;Variable {} not expected in {}. Only expecting independent variables: {}&#34;.format(v, particleDictionary, self.varNames))
+            else:
+                # All available initialization data already used
+                specifiedVariablePaths = []
+                specifiedVariableNames = []
+
+            # Read or generate value for each variable
+            for j in range(nVars):
+                independentVariable = self.varNames[j]
+
+                # Read provided data if available
+                if independentVariable in specifiedVariableNames:
+                    index = specifiedVariableNames.index(independentVariable)
+                    value = self.optimizationReader.getFloat(specifiedVariablePaths[index])
+
+                    # Check the value is within the expected bounds
+                    if value &lt; self.minVals[j] or value &gt; self.maxVals[j]:
+                        raise ValueError(&#34;{} value in initial particle position: {} ({}) outside of expected range ({}-{}&#34;.format(independentVariable, particleDictionary, value, self.minVals[j], self.maxVals[j]))
+
+                # Otherwise, choose a random value
+                else:
+                    value = np.random.uniform(self.minVals[j], self.maxVals[j])
+
+                initialParticlePositions[i,j] = value
+        
+        return initialParticlePositions
+
     def _createOptimizer(self):
         &#39;&#39;&#39; 
             Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
@@ -201,7 +255,7 @@ class OptimizingSimRunner():
         varBounds = (self.minVals, self.maxVals)
 
         from pyswarms.single import GlobalBestPSO # Import here because for most sims it&#39;s not required
-        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds, init_pos=self.initPositions)
 
         showConvergence = self.optimizationReader.tryGetBool(&#34;showConvergencePlot&#34;, defaultValue=False)
 
@@ -301,6 +355,30 @@ class OptimizingSimRunner():
             depValue = &#34;&#34;.join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
+    def _createContinuationFile(self, particlePositions):
+        # Create new simulation definition
+        restartDefinition = deepcopy(self.optimizationReader.simDefinition)
+
+        # Remove any existing initial particle positions
+        oldPositionEntries = self.optimizationReader.getSubKeys(&#39;IndependentVariables.InitialParticlePositions&#39;)
+        for p in oldPositionEntries:
+            restartDefinition.removeKey(p)
+
+        # Add the last particle positions
+        for i in range(len(particlePositions)):
+            position = particlePositions[i]
+            
+            for j in range(len(position)):
+                varName = self.varNames[j]
+                value = position[j]
+                path = self.optimizationReader.simDefDictPathToReadFrom + &#39;.IndependentVariables.InitialParticlePositions.p{}.{}&#39;.format(i, varName)
+                
+                restartDefinition.setValue(path, str(value))
+
+        # Save the result to file
+        newFileName = restartDefinition.fileName.replace(&#39;.mapleaf&#39;, &#39;_continue.mapleaf&#39;)
+        restartDefinition.writeToFile(newFileName)
+
     #### Main Function ####
     def runOptimization(self):
         &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
@@ -312,7 +390,9 @@ class OptimizingSimRunner():
         
         else:                
             cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
-        
+
+        self._createContinuationFile(self.optimizer.swarm.position)
+
         if self.showConvergence:
             print(&#34;Showing optimization convergence plot&#34;)
 
@@ -378,6 +458,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         self.costFunctionDefinition = self.optimizationReader.getString(&#34;costFunction&#34;)        
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
+        self.initPositions = self._loadInitialPositions()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
 
     def _loadIndependentVariables(self):
@@ -397,7 +478,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         minVals = []
         maxVals = []
 
-        for key in self.optimizationReader.getSubKeys(&#34;IndependentVariables&#34;):
+        for key in self.optimizationReader.getImmediateSubKeys(&#34;IndependentVariables&#34;):
             # Value expected to be &#39;min &lt; key.Path &lt; max&#39;
             # Split into three parts using the &#39;&lt;&#39; characters
             strings = self.optimizationReader.getString(key).split(&#39;&lt;&#39;)
@@ -454,6 +535,57 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
 
         return depVarNames, depVarDefinitions
 
+    def _loadInitialPositions(self):
+        nParticles = self.optimizationReader.getInt(&#34;ParticleSwarm.nParticles&#34;)
+        nVars = len(self.varNames)
+
+        particlePositionDicts = self.optimizationReader.getImmediateSubDicts(&#34;IndependentVariables.InitialParticlePositions&#34;)
+
+        if len(particlePositionDicts) &gt; nParticles:
+            raise ValueError(&#34;Number of initial particle positions: {}({}) cannot exceed the total number of particles: {}&#34;.format(len(particlePositionDicts), particlePositionDicts, nParticles))
+
+        initialParticlePositions = np.empty((nParticles, nVars), dtype=np.float64)
+        
+        for i in range(nParticles):
+            if i &lt; len(particlePositionDicts):
+                # Some initialization data provided
+                particleDictionary = particlePositionDicts[i]
+                specifiedVariablePaths = self.optimizationReader.getImmediateSubKeys(particleDictionary)
+                specifiedVariableNames = []
+
+                # Populate name vector and Check that all provided variables exist
+                for v in specifiedVariablePaths:
+                    vName = v.split(&#39;.&#39;)[-1]
+                    specifiedVariableNames.append(vName)
+
+                    if vName not in self.varNames:
+                        raise ValueError(&#34;Variable {} not expected in {}. Only expecting independent variables: {}&#34;.format(v, particleDictionary, self.varNames))
+            else:
+                # All available initialization data already used
+                specifiedVariablePaths = []
+                specifiedVariableNames = []
+
+            # Read or generate value for each variable
+            for j in range(nVars):
+                independentVariable = self.varNames[j]
+
+                # Read provided data if available
+                if independentVariable in specifiedVariableNames:
+                    index = specifiedVariableNames.index(independentVariable)
+                    value = self.optimizationReader.getFloat(specifiedVariablePaths[index])
+
+                    # Check the value is within the expected bounds
+                    if value &lt; self.minVals[j] or value &gt; self.maxVals[j]:
+                        raise ValueError(&#34;{} value in initial particle position: {} ({}) outside of expected range ({}-{}&#34;.format(independentVariable, particleDictionary, value, self.minVals[j], self.maxVals[j]))
+
+                # Otherwise, choose a random value
+                else:
+                    value = np.random.uniform(self.minVals[j], self.maxVals[j])
+
+                initialParticlePositions[i,j] = value
+        
+        return initialParticlePositions
+
     def _createOptimizer(self):
         &#39;&#39;&#39; 
             Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
@@ -474,7 +606,7 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         varBounds = (self.minVals, self.maxVals)
 
         from pyswarms.single import GlobalBestPSO # Import here because for most sims it&#39;s not required
-        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds, init_pos=self.initPositions)
 
         showConvergence = self.optimizationReader.tryGetBool(&#34;showConvergencePlot&#34;, defaultValue=False)
 
@@ -574,6 +706,30 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
             depValue = &#34;&#34;.join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
+    def _createContinuationFile(self, particlePositions):
+        # Create new simulation definition
+        restartDefinition = deepcopy(self.optimizationReader.simDefinition)
+
+        # Remove any existing initial particle positions
+        oldPositionEntries = self.optimizationReader.getSubKeys(&#39;IndependentVariables.InitialParticlePositions&#39;)
+        for p in oldPositionEntries:
+            restartDefinition.removeKey(p)
+
+        # Add the last particle positions
+        for i in range(len(particlePositions)):
+            position = particlePositions[i]
+            
+            for j in range(len(position)):
+                varName = self.varNames[j]
+                value = position[j]
+                path = self.optimizationReader.simDefDictPathToReadFrom + &#39;.IndependentVariables.InitialParticlePositions.p{}.{}&#39;.format(i, varName)
+                
+                restartDefinition.setValue(path, str(value))
+
+        # Save the result to file
+        newFileName = restartDefinition.fileName.replace(&#39;.mapleaf&#39;, &#39;_continue.mapleaf&#39;)
+        restartDefinition.writeToFile(newFileName)
+
     #### Main Function ####
     def runOptimization(self):
         &#39;&#39;&#39; Run the Optimization and show convergence history &#39;&#39;&#39;
@@ -585,7 +741,9 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
         
         else:                
             cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
-        
+
+        self._createContinuationFile(self.optimizer.swarm.position)
+
         if self.showConvergence:
             print(&#34;Showing optimization convergence plot&#34;)
 
@@ -617,7 +775,9 @@ At the time of this writing, Ray is not yet fully supported on Windows, so this 
     
     else:                
         cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
-    
+
+    self._createContinuationFile(self.optimizer.swarm.position)
+
     if self.showConvergence:
         print(&#34;Showing optimization convergence plot&#34;)
 
