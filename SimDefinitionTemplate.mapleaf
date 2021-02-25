@@ -105,12 +105,19 @@ Optimization{
             # Specify <= Optimization.ParticleSwarm.nParticles initial particle positions
             # Each subdictionary created here represents one particle
             # If < nParticles initial positions are specified, the remaining ones will be randomly generated
+
             Init1{
                 # Dictionary names are arbitrary
                 # Order of variables within dictionaries also does not matter
                 # Omitted values will be randomly generated
                 bodyLength                      2
             }
+
+            # Mainly for restart/continue files: Can specify the best position + cost found so far
+                # Particles will be attracted to this location
+                # Must define both bestPosition and bestCost or neither
+            bestPosition                        0.1330823 # Value should be space-separated when there are multiple independent variables (x1 x2 x3...)
+            bestCost                            0.1301609 # Should be a single scalar value, expected to match result from bestPosition
         }
     }
     

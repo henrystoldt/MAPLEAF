@@ -86,3 +86,6 @@ MAPLEAF/V&V
 
 # Notebooks
 *.ipynb
+
+# Optimization continuation files
+*_continue.mapleaf

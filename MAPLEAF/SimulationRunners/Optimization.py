@@ -76,6 +76,7 @@ class OptimizingSimRunner():
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.initPositions = self._loadInitialPositions()
+        self.bestPosition, self.bestCost = self._loadBestPosition()
         self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
 
     def _loadIndependentVariables(self):
@@ -203,6 +204,21 @@ class OptimizingSimRunner():
         
         return initialParticlePositions
 
+    def _loadBestPosition(self):
+        bestPosition = self.optimizationReader.tryGetString('IndependentVariables.InitialParticlePositions.bestPosition', defaultValue=None)
+        bestCost = self.optimizationReader.tryGetFloat('IndependentVariables.InitialParticlePositions.bestCost', defaultValue=None)
+
+        if bestPosition != None and bestCost != None:
+            bestPosition = [ float(x) for x in bestPosition.split(' ')]
+            bestPosition = np.array(bestPosition, np.float64)
+            bestCost = np.float64(bestCost)
+
+            return bestPosition, bestCost
+        elif bestPosition == None and bestCost == None:
+            return None, None
+        else:
+            raise ValueError('Please specify bestPosition and bestCost or neither, current values: {} and {}, respectively'.format(bestPosition, bestCost))
+
     def _createOptimizer(self):
         ''' 
             Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
@@ -224,6 +240,10 @@ class OptimizingSimRunner():
 
         from pyswarms.single import GlobalBestPSO # Import here because for most sims it's not required
         optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds, init_pos=self.initPositions)
+        
+        if self.bestPosition != None and self.bestCost != None:
+            optimizer.swarm.best_pos = self.bestPosition
+            optimizer.swarm.best_cost = self.bestCost
 
         showConvergence = self.optimizationReader.tryGetBool("showConvergencePlot", defaultValue=False)
 
@@ -323,7 +343,7 @@ class OptimizingSimRunner():
             depValue = "".join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
-    def _createContinuationFile(self, particlePositions):
+    def _createContinuationFile(self, particlePositions, bestPosition, bestCost):
         # Create new simulation definition
         restartDefinition = deepcopy(self.optimizationReader.simDefinition)
 
@@ -331,6 +351,12 @@ class OptimizingSimRunner():
         oldPositionEntries = self.optimizationReader.getSubKeys('IndependentVariables.InitialParticlePositions')
         for p in oldPositionEntries:
             restartDefinition.removeKey(p)
+
+        # Save best position and cost from present run
+        path = self.optimizationReader.simDefDictPathToReadFrom
+        positionString = ' '.join([ str(x) for x in bestPosition ])
+        restartDefinition.setValue(path + '.IndependentVariables.InitialParticlePositions.bestPosition', positionString)
+        restartDefinition.setValue(path + '.IndependentVariables.InitialParticlePositions.bestCost', str(bestCost))
 
         # Add the last particle positions
         for i in range(len(particlePositions)):
@@ -359,7 +385,7 @@ class OptimizingSimRunner():
         else:                
             cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
 
-        self._createContinuationFile(self.optimizer.swarm.position)
+        self._createContinuationFile(self.optimizer.swarm.position, pos, cost)
 
         if self.showConvergence:
             print("Showing optimization convergence plot")
