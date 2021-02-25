@@ -168,6 +168,12 @@ class OptimizingSimRunner():
             if i < len(particlePositionDicts):
                 # Some initialization data provided
                 particleDictionary = particlePositionDicts[i]
+
+                if i == 0:
+                    print("Loading specified initial particle positions")
+
+                print('    ' + particleDictionary + ':')
+
                 specifiedVariablePaths = self.optimizationReader.getImmediateSubKeys(particleDictionary)
                 specifiedVariableNames = []
 
@@ -192,6 +198,8 @@ class OptimizingSimRunner():
                     index = specifiedVariableNames.index(independentVariable)
                     value = self.optimizationReader.getFloat(specifiedVariablePaths[index])
 
+                    print('        {} = {}'.format(independentVariable, value))
+
                     # Check the value is within the expected bounds
                     if value < self.minVals[j] or value > self.maxVals[j]:
                         raise ValueError("{} value in initial particle position: {} ({}) outside of expected range ({}-{}".format(independentVariable, particleDictionary, value, self.minVals[j], self.maxVals[j]))
@@ -212,6 +220,9 @@ class OptimizingSimRunner():
             bestPosition = [ float(x) for x in bestPosition.split(' ')]
             bestPosition = np.array(bestPosition, np.float64)
             bestCost = np.float64(bestCost)
+
+            print("Loaded previous best position: {}".format(bestPosition))
+            print("Loaded previous best cost: {}\n".format(bestCost))
 
             return bestPosition, bestCost
         elif bestPosition == None and bestCost == None:
