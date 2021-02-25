@@ -21,7 +21,7 @@ Optimization{
 
     ParticleSwarm{
         nParticles      2
-        nIterations     5
+        nIterations     1
     }
 }
 

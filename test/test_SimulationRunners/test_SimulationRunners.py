@@ -153,8 +153,9 @@ class TestSimRunners(unittest.TestCase):
             simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p3.bodyWeight', '0.15')            
             opt = OptimizingSimRunner(simDefinition=simDef, silent=True)
 
-    def test_optimizationWithSpecifiedInitialParticlePositions(self):
-        simDef = SimDefinition("MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf", silent=True)
+    def test_optimizationContinuation(self):
+        definitionPath = "MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf"
+        simDef = SimDefinition(definitionPath, silent=True)
 
         # Make the optimization use a single particle, single iteration, and only a single time step
         simDef.setValue('Optimization.ParticleSwarm.nParticles', '1')
@@ -168,6 +169,20 @@ class TestSimRunners(unittest.TestCase):
 
         # Make sure the position matches the specified initial position
         self.assertAlmostEqual(pos, 0.1)
+
+        # Make sure a continue file has been created
+        continuationPath = definitionPath.replace('.mapleaf', '_continue.mapleaf')
+        self.assertTrue(os.path.isfile(continuationPath))
+
+        # Check that it can be run
+        restartDefinition = SimDefinition(continuationPath)
+        opt = OptimizingSimRunner(simDefinition=restartDefinition, silent=True)
+        opt.runOptimization()
+        
+        # Clean up files
+        os.remove(continuationPath)
+        secondContinuationPath = continuationPath.replace('.mapleaf', '_continue.mapleaf')
+        os.remove(secondContinuationPath)        
 
     def test_convergenceSimulations(self):
         #### Set up sim definition ####

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 
-from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader
+from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader, Logging
 from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
@@ -16,6 +16,7 @@ __all__ = [ "OptimizingSimRunner" ]
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
     # Run the simulation
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
+    Logging.removeLogger()
 
     # Evaluate the cost function
     if ":" in costFunctionDefinition:
@@ -322,6 +323,30 @@ class OptimizingSimRunner():
             depValue = "".join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
+    def _createContinuationFile(self, particlePositions):
+        # Create new simulation definition
+        restartDefinition = deepcopy(self.optimizationReader.simDefinition)
+
+        # Remove any existing initial particle positions
+        oldPositionEntries = self.optimizationReader.getSubKeys('IndependentVariables.InitialParticlePositions')
+        for p in oldPositionEntries:
+            restartDefinition.removeKey(p)
+
+        # Add the last particle positions
+        for i in range(len(particlePositions)):
+            position = particlePositions[i]
+            
+            for j in range(len(position)):
+                varName = self.varNames[j]
+                value = position[j]
+                path = self.optimizationReader.simDefDictPathToReadFrom + '.IndependentVariables.InitialParticlePositions.p{}.{}'.format(i, varName)
+                
+                restartDefinition.setValue(path, str(value))
+
+        # Save the result to file
+        newFileName = restartDefinition.fileName.replace('.mapleaf', '_continue.mapleaf')
+        restartDefinition.writeToFile(newFileName)
+
     #### Main Function ####
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
@@ -333,7 +358,9 @@ class OptimizingSimRunner():
         
         else:                
             cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
-        
+
+        self._createContinuationFile(self.optimizer.swarm.position)
+
         if self.showConvergence:
             print("Showing optimization convergence plot")
 
