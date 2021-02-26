@@ -80,18 +80,29 @@
 
 Optimization{
     ### Specify Optimization runs ###
-
-    # Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
         # The 'MonteCarlo' dictionary is disregarded when this one is present (no batch runs to calculate cost function)
         # However, if any parameters with _stdDev entries are present, their values are still sampled probabilistically each time the Optimizer runs a simulation
     
-    # Specify either:
-        # 1. A Python function, of these variables:
+    # Either:
+        # PSO: (default) Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
+            # Global optimization suitable for arbitrary cost functions in search spaces of arbitrary dimensionality
+                # Makes no guarantee of finding optimal solutions
+                # Does not compute the gradient of the cost function
+                # Alternative to genetic algorithms
+                # More information about particle swarm optimization: https://en.wikipedia.org/wiki/Particle_swarm_optimization
+        # OR Scipy's minimize function: scipy.optimize.minimize [method name] 
+            # Many of these methods are gradient-based, suitable for local optimization or global optimization with unipolar cost functions
+            # Ex: scipy.optimize.minimize BFGS          would use: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-bfgs.html
+            # More options here: https://docs.scipy.org/doc/scipy/reference/optimize.html
+    method PSO        
+    
+    # Either:
+        # A Python function, of these variables:
                 # flightTime, apogee, maxSpeed, maxHorizontalVel #TODO: dryWeight, takeoffWeight
                 # can also use any math function
             # costFunction                      0.5*(apogee-1e5) + 0.5*math.sqrt(dryWeight)
-        # 2. OR a custom function, which gets passed an array of log file paths (str)
-            # Number of log file paths received depends on SimControl.loggingLevel
+        # OR a custom function, which gets passed a list of log file paths (str)
+            # Number and type of log file paths received depends on SimControl.loggingLevel
             # costFunction                      [PathToModule]:[FunctionName]
                 # Function must be importable by running: from [PathToModule] import [FunctionName] in a Python console
     costFunction                                MAPLEAF.MyCustomCodeFile:MyCustomCostFunction
