@@ -13,7 +13,7 @@ import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       OptimizingSimRunner, Simulation,
+                                       optimizationRunnerFactory, Simulation,
                                        runMonteCarloSimulation)
 from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
@@ -155,7 +155,7 @@ def main(argv=None) -> int:
             """)
 
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
+        optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
         optSimRunner.runOptimization()
 
     elif isMonteCarloSimulation(simDef):        

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       OptimizingSimRunner, Simulation,
+                                       optimizationRunnerFactory, Simulation,
                                        runMonteCarloSimulation, WindTunnelSimulation)
 from MAPLEAF.Utilities import evalExpression
 
@@ -67,7 +67,7 @@ class TestSimRunners(unittest.TestCase):
 
     def test_Optimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf", silent=True)
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=True)
+        optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
 
         # Check output of _loadIndependentVariables()
         self.assertEqual(optSimRunner.varKeys, [ "Rocket.Sustainer.UpperBodyTube.mass" ])        
@@ -95,7 +95,7 @@ class TestSimRunners(unittest.TestCase):
     
     def test_nestedOptimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/MultiLoopOptimization.mapleaf", silent=True)
-        outerSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=True)
+        outerSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
         innerSimRunner = outerSimRunner._createNestedOptimization(simDef)
         # Check output of _loadIndependentVariables()
         self.assertEqual(innerSimRunner.varKeys, [ "Rocket.Sustainer.GeneralMass.mass" ])        
@@ -123,7 +123,7 @@ class TestSimRunners(unittest.TestCase):
 
     def test_readInitialParticlePositions(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf", silent=True)
-        opt = OptimizingSimRunner(simDefinition=simDef, silent=True)
+        opt = optimizationRunnerFactory(simDefinition=simDef, silent=True)
 
         # Check that initial position has been loaded
         bW1 = opt.initPositions[0][0]
@@ -138,20 +138,20 @@ class TestSimRunners(unittest.TestCase):
         extraVariableKey = 'Optimization.IndependentVariables.InitialParticlePositions.p1.extraVariable'
         with self.assertRaises(ValueError):
             simDef.setValue(extraVariableKey, '25')
-            opt = OptimizingSimRunner(simDefinition=simDef, silent=True)            
+            opt = optimizationRunnerFactory(simDefinition=simDef, silent=True)            
         
         simDef.removeKey(extraVariableKey)
 
         # Check that an out of bounds value causes a crash
         with self.assertRaises(ValueError):
             simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p1.bodyWeight', '0.21')
-            opt = OptimizingSimRunner(simDefinition=simDef, silent=True)            
+            opt = optimizationRunnerFactory(simDefinition=simDef, silent=True)            
 
         # Check that specifying the position of too many particles causes a crash
         with self.assertRaises(ValueError):
             simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p2.bodyWeight', '0.15')            
             simDef.setValue('Optimization.IndependentVariables.InitialParticlePositions.p3.bodyWeight', '0.15')            
-            opt = OptimizingSimRunner(simDefinition=simDef, silent=True)
+            opt = optimizationRunnerFactory(simDefinition=simDef, silent=True)
 
     def test_optimizationContinuation(self):
         definitionPath = "MAPLEAF/Examples/Simulations/InitializedOptimization.mapleaf"
@@ -164,7 +164,7 @@ class TestSimRunners(unittest.TestCase):
         simDef.setValue('SimControl.EndConditionValue', '0.005')
         simDef.setValue('Optimization.showConvergencePlot', 'False')
 
-        opt = OptimizingSimRunner(simDefinition=simDef, silent=True)        
+        opt = optimizationRunnerFactory(simDefinition=simDef, silent=True)        
         cost, pos = opt.runOptimization()
 
         # Make sure the position matches the specified initial position
@@ -176,7 +176,7 @@ class TestSimRunners(unittest.TestCase):
 
         # Check that it can be run
         restartDefinition = SimDefinition(continuationPath)
-        opt = OptimizingSimRunner(simDefinition=restartDefinition, silent=True)
+        opt = optimizationRunnerFactory(simDefinition=restartDefinition, silent=True)
         opt.runOptimization()
         
         # Clean up files

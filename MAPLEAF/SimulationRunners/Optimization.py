@@ -1,4 +1,5 @@
 import importlib
+from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
@@ -10,7 +11,7 @@ from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
 
-__all__ = [ "OptimizingSimRunner" ]
+__all__ = [ "optimizationRunnerFactory" ]
 
 
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
@@ -43,41 +44,27 @@ def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: s
         return evalExpression(costFunctionDefinition, varVals)
 
 
-class OptimizingSimRunner():
+class OptimizingSimRunner(ABC):
     '''
         Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
         Configurable using the top-level 'Optimization' dictionary in .mapleaf files
     '''
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, subDictReader = None, silent=False, parallel=False):
+    def __init__(self, optimizationReader, silent=False, parallel=False):
         ''' 
             Pass in nProcesses > 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
             At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
         '''
         self.silent = silent
         self.parallel = parallel
-        if simDefinition != None or simDefinitionFilePath != None:
-            simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
-            self.optimizationReader = SubDictReader('Optimization', simDefinition)
-
-            if not silent:
-                print("Particle Swarm Optimization")
-
-            # Ensure no output is produced during each simulation (cost function evaluation)
-            simDefinition.setValue("SimControl.plot", "None")
-            simDefinition.setValue("SimControl.RocketPlot", "Off")
-        else:
-            if subDictReader == None:
-                raise ValueError('subDictReader not initialized for a nested optimization')
-            self.optimizationReader = subDictReader
+        self.optimizationReader = optimizationReader
 
         # Parse the simulation definition's Optimization dictionary, but don't run it yet
-        self.costFunctionDefinition = self.optimizationReader.getString("costFunction")        
+        self.costFunctionDefinition = optimizationReader.getString("costFunction")
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.initPositions = self._loadInitialPositions()
         self.bestPosition, self.bestCost = self._loadBestPosition()
-        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
 
     def _loadIndependentVariables(self):
         ''' 
@@ -233,6 +220,73 @@ class OptimizingSimRunner():
         else:
             raise ValueError('Please specify bestPosition and bestCost or neither, current values: {} and {}, respectively'.format(bestPosition, bestCost))
 
+    #### Running the optimization ####
+    def _createNestedOptimization(self, simDef):
+        innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
+        return optimizationRunnerFactory(optimizationReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
+
+    def _updateIndependentVariableValues(self, simDefinition, indVarValues):
+        ''' 
+            Updates simDefinition with the independent variable values
+            Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
+        '''
+        # Independent variable values
+        indVarValueDict = {}
+        for i in range(len(indVarValues)):
+            simDefinition.setValue(self.varKeys[i], str(indVarValues[i]))
+            
+            varName = self.varNames[i]
+            indVarValueDict[varName] = indVarValues[i]
+
+        return indVarValueDict
+
+    def _updateDependentVariableValues(self, simDefinition, indVarValueDict):
+        ''' Set all the dependent variables defined in Optimization.DependentVariables in simDefinition. Each can be a function of the independent variable values in indVarValueDict '''
+        
+        for i in range(len(self.dependentVars)):
+            # Take the definition string, split out the parts to be computed (delimited by exclamation marks)
+                # "(0 0 !a+b!)" -> [ "(0 0", "a+b", ")" ] -> Need to evaluate all the odd-indexed values
+            splitDepVarDef = self.dependentVarDefinitions[i].split('!')
+            for j in range(1, len(splitDepVarDef), 2):
+                functionValue = evalExpression(splitDepVarDef[j], indVarValueDict)
+                # Overwrite the function definition with its string value
+                splitDepVarDef[j] = str(functionValue)
+            
+            # Re-combine strings, save result
+            depValue = "".join(splitDepVarDef)
+            simDefinition.setValue(self.dependentVars[i], depValue)
+
+
+def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, optimizationReader=None, silent=False, parallel=False) -> OptimizingSimRunner:
+    ''' Provide a subdictionary reader pointed at an optimization dictionary. Will read the dictionary, initialize an optimizing simulation runner and return it. '''
+    if simDefinition != None or simDefinitionFilePath != None:
+        simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
+        optimizationReader = SubDictReader('Optimization', simDefinition)
+
+        # Ensure no output is produced during each simulation (cost function evaluation)
+        simDefinition.setValue("SimControl.plot", "None")
+        simDefinition.setValue("SimControl.RocketPlot", "Off")
+    else:
+        if optimizationReader == None:
+            raise ValueError('subDictReader not initialized for a nested optimization')
+
+    method = optimizationReader.tryGetString('method', defaultValue='PSO')
+
+    if method == 'PSO':
+        return PSORunner(optimizationReader, silent=silent, parallel=parallel)
+    else:
+        raise ValueError('Optimization method: {} not implemented, try PSO'.format(method))
+
+class PSORunner(OptimizingSimRunner):
+    def __init__(self, subDictReader, silent=False, parallel=False):
+        if not silent:
+            print("Particle Swarm Optimization")
+
+        super().__init__(subDictReader, silent, parallel)
+
+        # Actually create the optimizer
+        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
+
     def _createOptimizer(self):
         ''' 
             Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
@@ -273,7 +327,6 @@ class OptimizingSimRunner():
 
         return optimizer, nIterations, showConvergence
 
-    #### Running the optimization ####
     def _computeCostFunctionValues_Parallel(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         import ray
@@ -321,41 +374,6 @@ class OptimizingSimRunner():
             costFunctionValues.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
 
         return costFunctionValues
-
-    def _createNestedOptimization(self, simDef):
-        innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
-        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
-
-    def _updateIndependentVariableValues(self, simDefinition, indVarValues):
-        ''' 
-            Updates simDefinition with the independent variable values
-            Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
-        '''
-        # Independent variable values
-        indVarValueDict = {}
-        for i in range(len(indVarValues)):
-            simDefinition.setValue(self.varKeys[i], str(indVarValues[i]))
-            
-            varName = self.varNames[i]
-            indVarValueDict[varName] = indVarValues[i]
-
-        return indVarValueDict
-
-    def _updateDependentVariableValues(self, simDefinition, indVarValueDict):
-        ''' Set all the dependent variables defined in Optimization.DependentVariables in simDefinition. Each can be a function of the independent variable values in indVarValueDict '''
-        
-        for i in range(len(self.dependentVars)):
-            # Take the definition string, split out the parts to be computed (delimited by exclamation marks)
-                # "(0 0 !a+b!)" -> [ "(0 0", "a+b", ")" ] -> Need to evaluate all the odd-indexed values
-            splitDepVarDef = self.dependentVarDefinitions[i].split('!')
-            for j in range(1, len(splitDepVarDef), 2):
-                functionValue = evalExpression(splitDepVarDef[j], indVarValueDict)
-                # Overwrite the function definition with its string value
-                splitDepVarDef[j] = str(functionValue)
-            
-            # Re-combine strings, save result
-            depValue = "".join(splitDepVarDef)
-            simDefinition.setValue(self.dependentVars[i], depValue)
 
     def _createContinuationFile(self, particlePositions, bestPosition, bestCost):
         # Create new simulation definition
