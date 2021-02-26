@@ -2,7 +2,7 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Optimization{
-    method              PSO
+    method              scipy.optimize.minimize Nelder-Mead
     costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
 
     IndependentVariables{
@@ -12,11 +12,6 @@ Optimization{
     DependentVariables{
         # Equation creates tradeoff between body weight and nose cone weight - optimal value is bodyWeight == 0.1224745
         Rocket.Sustainer.Nosecone.mass  !0.007506 + 0.015/bodyWeight!
-    }
-
-    ParticleSwarm{
-        nParticles      5
-        nIterations     20
     }
 }
 

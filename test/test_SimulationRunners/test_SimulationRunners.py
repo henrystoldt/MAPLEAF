@@ -65,7 +65,7 @@ class TestSimRunners(unittest.TestCase):
         #### Run Monte Carlo Simulations ####
         runMonteCarloSimulation(simDefinition=mCSimDef, silent=True)
 
-    def test_Optimization(self):
+    def test_PSOOptimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf", silent=True)
         optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
 
@@ -92,7 +92,20 @@ class TestSimRunners(unittest.TestCase):
         # Check updating dependent variables values
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
-    
+
+    def test_scipyMinimize(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/ScipyOptimization.mapleaf", silent=True)
+
+        # Make the optimization perform a single iteration of a simulation with only a single time step
+        simDef.setValue('Optimization.ScipyMinimize.maxIterations', '1')
+        simDef.setValue('Optimization.method', 'scipy.optimize.minimize Nelder-Mead')
+        simDef.setValue('SimControl.EndCondition', 'Time')
+        simDef.setValue('SimControl.EndConditionValue', '0.005')
+        simDef.setValue('Optimization.showConvergencePlot', 'False')        
+        
+        optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
+        optSimRunner.runOptimization()
+
     def test_nestedOptimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/MultiLoopOptimization.mapleaf", silent=True)
         outerSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)

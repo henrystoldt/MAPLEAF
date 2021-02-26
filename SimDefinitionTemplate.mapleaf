@@ -141,6 +141,7 @@ Optimization{
     }
 
     ParticleSwarm{
+        # Only used when method = PSO
         # More info:  https://pyswarms.readthedocs.io/en/latest/api/pyswarms.single.html#module-pyswarms.single.global_best
         nParticles                              20
         nIterations                             50
@@ -148,12 +149,20 @@ Optimization{
         cognitiveParam                          0.5 # aka c1        
         socialParam                             0.6 # aka c2        
         inertiaParam                            0.9 # aka w
-    }           
+    }
+
+    ScipyMinimize{
+        # Only used when method = scipy.optimize.minimize [method name]
+        # Provides arguments to the minimization function, more details here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize
+        tolerance                               0.01 # Ends optimization
+        maxIterations                           50 # Also ends optimization
+        printStatus                             True # Print convergence messages
+    }
 
     showConvergencePlot                         True
 
     InnerOptimization{
-        # Same structure as main Optimization. Defines inner optimization which will run for every cost function optimization.
+        # Same structure as main Optimization. Defines inner optimization which will run inside every cost function evaluation of the outer optimization.
         # Can nest further inner optimizations inside this one, arbitrarily deeply
     }
 }
