@@ -106,7 +106,7 @@ class OptimizingSimRunner(ABC):
             # Output setup to console
             print("Independent Variables: ")
             for i in range(len(varNames)):
-                print("{} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
+                print("    {} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
             print("")
 
         return varKeys, varNames, minVals, maxVals
@@ -134,7 +134,7 @@ class OptimizingSimRunner(ABC):
             # Output results to console
             print("Dependent variables:")
             for i in range(len(depVarNames)):
-                print("{} = {}".format(depVarNames[i], depVarDefinitions[i]))
+                print("    {} = {}".format(depVarNames[i], depVarDefinitions[i]))
             print("")
 
         return depVarNames, depVarDefinitions
@@ -465,8 +465,11 @@ class ScipyMinimizeRunner(OptimizingSimRunner):
 
             if len(self.costHistory) > 5:
                 result = max(self.costHistory)
-            else:
+            elif len(self.costHistory) > 0:
                 result = max(self.costHistory)*1.1
+            else:
+                # Crash on first iteration, should be within bounds -> crash
+                raise
 
         self.costHistory.append(result)
 
@@ -527,5 +530,8 @@ class ScipyMinimizeRunner(OptimizingSimRunner):
             plt.ylabel('Cost')
             plt.xlabel('Cost evaluation number')
             plt.show()
+
+        if not self.silent:
+            print("\nBest position: {}\nBest cost: {}\n".format(result.x, result.fun))
 
         return result.fun, result.x
