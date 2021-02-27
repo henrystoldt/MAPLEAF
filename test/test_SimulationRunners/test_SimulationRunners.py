@@ -12,6 +12,17 @@ from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
 from MAPLEAF.Utilities import evalExpression
 
 
+def runOptimization(simDef):
+    # Make the optimization perform a single iteration of a simulation with only a single time step
+    simDef.setValue('Optimization.ScipyMinimize.maxIterations', '1')
+    simDef.setValue('Optimization.method', 'scipy.optimize.minimize Nelder-Mead')
+    simDef.setValue('SimControl.EndCondition', 'Time')
+    simDef.setValue('SimControl.EndConditionValue', '0.005')
+    simDef.setValue('Optimization.showConvergencePlot', 'False')        
+    
+    optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
+    optSimRunner.runOptimization()
+
 class TestSimRunners(unittest.TestCase):
     def test_Init(self):
         with self.assertRaises(ValueError):
@@ -94,17 +105,18 @@ class TestSimRunners(unittest.TestCase):
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
 
     def test_scipyMinimize(self):
+        # Test regular run
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/ScipyOptimization.mapleaf", silent=True)
+        simDef.setValue('Optimization.method', 'scipy.optimize.minimize BFGS')
+        runOptimization(simDef)
 
-        # Make the optimization perform a single iteration of a simulation with only a single time step
-        simDef.setValue('Optimization.ScipyMinimize.maxIterations', '1')
+        # Test second method
         simDef.setValue('Optimization.method', 'scipy.optimize.minimize Nelder-Mead')
-        simDef.setValue('SimControl.EndCondition', 'Time')
-        simDef.setValue('SimControl.EndConditionValue', '0.005')
-        simDef.setValue('Optimization.showConvergencePlot', 'False')        
-        
-        optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
-        optSimRunner.runOptimization()
+        runOptimization(simDef)
+
+        # Test continuation
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/ScipyOptimization_continue.mapleaf", silent=True)
+        runOptimization(simDef)
 
     def test_nestedOptimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/MultiLoopOptimization.mapleaf", silent=True)

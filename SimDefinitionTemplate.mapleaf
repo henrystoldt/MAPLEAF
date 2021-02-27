@@ -94,6 +94,9 @@ Optimization{
             # Many of these methods are gradient-based, suitable for local optimization or global optimization with unipolar cost functions
             # Ex: scipy.optimize.minimize BFGS          would use: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-bfgs.html
             # More options here: https://docs.scipy.org/doc/scipy/reference/optimize.html
+                # Can't use the methods that require analytical jacobians (ex. Newton-CG, trust-ncg, dogleg, trust-exact, trust-krylov)
+            # These methods do not respect bounds and simply seek to minimize the cost function
+            # Initial position/guess will be at the center of the search space defined by the independent variable bounds
     method PSO        
     
     # Either:

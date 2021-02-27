@@ -407,6 +407,8 @@ class PSORunner(OptimizingSimRunner):
 
         # Save the result to file
         newFileName = restartDefinition.fileName.replace('.mapleaf', '_continue.mapleaf')
+        if not self.silent:
+            print('Creating continuation file: {}'.format(newFileName))
         restartDefinition.writeToFile(newFileName)
 
     #### Main Function ####
@@ -449,21 +451,60 @@ class ScipyMinimizeRunner(OptimizingSimRunner):
         super().__init__(optimizationReader, silent, parallel)
 
         self.showConvergence = optimizationReader.tryGetBool("showConvergencePlot", defaultValue=True)
+        self.costHistory = []
 
     def _evaluateCostFunction(self, independentVariableValues):
-        resultInList = self._computeCostFunctionValues_SingleThreaded([independentVariableValues])
-        return resultInList[0]
+        try:
+            # Scipy optimizers might not respect bounds, therefore things will crash every so often
+            resultInList = self._computeCostFunctionValues_SingleThreaded([independentVariableValues])
+            result = resultInList[0]
+        except:
+            # When this is the case, return a high cost
+            if not self.silent:
+                print("Simulation crash, assigning high cost: ", end="")
+
+            if len(self.costHistory) > 5:
+                result = max(self.costHistory)
+            else:
+                result = max(self.costHistory)*1.1
+
+        self.costHistory.append(result)
+
+        if not self.silent:
+            print(result)
+
+        return result
+
+    def _createContinuationFile(self, currentSolution):
+        # Create new simulation definition
+        restartDefinition = deepcopy(self.optimizationReader.simDefinition)
+
+        # To set the starting positions, constrain the bounds
+        for i in range(len(self.varNames)):
+            path = self.optimizationReader.simDefDictPathToReadFrom + '.IndependentVariables.' + self.varNames[i]
+            eps = 1e-12
+            value = "{} < {} < {}".format(currentSolution[i]-eps, self.varKeys[i], currentSolution[i]+eps)
+            restartDefinition.setValue(path, value)
+
+        # Save the result to file
+        newFileName = restartDefinition.fileName.replace('.mapleaf', '_continue.mapleaf')
+        if not self.silent:
+            print('Creating continuation file: {}'.format(newFileName))
+        restartDefinition.writeToFile(newFileName)
 
     def runOptimization(self):
         # Read options
         tolerance = self.optimizationReader.tryGetFloat('ScipyMinimize.tolerance', defaultValue=0.01)
         maxIterations = self.optimizationReader.tryGetInt('ScipyMinimize.maxIterations', defaultValue=50)
         printConvergence = self.optimizationReader.tryGetBool('ScipyMinimize.printStatus', defaultValue=True)
+        if self.silent:
+            printConvergence = False
 
         if not self.silent:
             print("Options:")
             print("    Tolerance: {}".format(tolerance))
             print("    Max Iterations: {}\n".format(maxIterations))
+            print("Running optimization:")
 
         options = {
             "maxiter": maxIterations,
@@ -479,3 +520,12 @@ class ScipyMinimizeRunner(OptimizingSimRunner):
         # Perform the minimization
         result = minimize(self._evaluateCostFunction, initialPosition, method=self.minimizeMethod, options=options, tol=tolerance)
 
+        self._createContinuationFile(result.x)
+
+        if self.showConvergence:
+            plt.plot(self.costHistory)
+            plt.ylabel('Cost')
+            plt.xlabel('Cost evaluation number')
+            plt.show()
+
+        return result.fun, result.x

@@ -8,6 +8,8 @@ from MAPLEAF.Motion.CythonVector import Vector
 
 __all__ = [ 'Quaternion' ]
 
+# TODO: Restrict magnitude more strictly to 1? -> Perhaps make child rotation class in which the quaternion magnitude is always 1.
+
 cdef class Quaternion:    
     '''
         Use objects of this class to store orientation information - direction and rotation
