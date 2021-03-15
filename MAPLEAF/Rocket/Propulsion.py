@@ -45,9 +45,9 @@ class DefinedMotor(RocketComponent, SubDictReader):
         
         self.ignitionTime = 0 # Default ignition time, if the engine gets turned off, this value gets delayed
 
-    # Impulse adjustments (mostly for Monte Carlo sims)
-    # self.impulseAdjustFactor = componentDictReader.getFloat("impulseAdjustFactor")
-    # self.burnTimeAdjustFactor = componentDictReader.getFloat("burnTimeAdjustFactor")
+        # Impulse adjustments (mostly for Monte Carlo sims)
+        # self.impulseAdjustFactor = componentDictReader.getFloat("impulseAdjustFactor")
+        # self.burnTimeAdjustFactor = componentDictReader.getFloat("burnTimeAdjustFactor")
 
         motorType = componentDictReader.getString("type") # Extracts the motor type from the consolidated engine data
         self.numMotors = int(float(componentDictReader.getString("number"))) # Extracts number of motors used in the stage
@@ -75,14 +75,16 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Parse data; Columns defined in MAPLEAF\Examples\Motors\Engine_list_test.txt
         # Gets defined values for: motorType, fuelDensity, oxyDensity, oxyFuelRatio, ISP and maxThrust
 
-        self.motorSelection = []
-        self.isp = []
-        self.fuelDensity = []
-        self.oxyDensity = []
-        self.oxyFuelRatio = []
-        self.engineThrust = []
-        self.massPropTotal = []
-        self.stageDiameter = []
+        self.motorSelection   =    []
+        self.isp              =    []
+        self.fuelDensity      =    []
+        self.oxyDensity       =    []
+        self.oxyFuelRatio     =    []
+        self.engineThrust     =    []
+        # self.massPropTotal  =    []
+        self.stageDiameter    =    []
+        self.motorMass        =    []
+        self.motorDiameter    =    []
 
         # Each column in the data spreadsheet is parsed out into individual columns
         for dataLine in motorFileText:
@@ -93,17 +95,19 @@ class DefinedMotor(RocketComponent, SubDictReader):
             self.oxyFuelRatio.append(float(info[3]))
             self.isp.append(float(info[4]))
             self.engineThrust.append(float(info[5]))
-            self.massPropTotal.append(float(info[6]))
+            self.motorMass.append(float(info[6]))
+            self.motorDiameter.append(float(info[7]))
 
         # From the defined motor in the sim def, the data is pulled for that specific motor
             
         place = self.motorSelection.index(re.sub('\.\d+', '', motorType)) #TODO: make re check if there is letters in the string. If so, do not extract decimal or numbers. Potential bug for motor names containing "V1.1" etc.
-        self.motorEngineThrust = self.engineThrust[place]
-        self.motorISP = self.isp[place]
-        self.motorFuelDensity = self.fuelDensity[place]
-        self.motorOxyDensity = self.oxyDensity[place]
+        self.motorISP          = self.isp[place]
+        self.motorFuelDensity  = self.fuelDensity[place]
+        self.motorOxyDensity   = self.oxyDensity[place]
         self.motorOxyFuelRatio = self.oxyFuelRatio[place]
-        self.motorEngineThrust = self.engineThrust[place]
+        self.motorEngineThrust = self.engineThrust[place]*self.numMotors
+        self.motorEnginemass   = self.motorMass[place]*self.numMotors
+        self.motorEngineDiameter = self.motorDiameter[place]
 
         self.motorStageDiameter = self.diameterRef # Diameter is pulled from bodyTube within stage
 
@@ -137,9 +141,8 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.initFuelCG_Z =  (self.finalOxCG_Z - initLengthFuel/2)
         self.finalFuelCG_Z = (-initLengthFuel + self.finalOxCG_Z)
 
-        # TODO: Account for changing gravity value
         gravity = 9.81
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP))
         burnTime = self.motorMassPropTotal/massFlowProp
 
         # Engine Shuts off when the time exceeds burntime from when engines turn on.
@@ -170,25 +173,26 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Set time since ignition when engines are turned on
         timeSinceIgnition = max(0, time - self.ignitionTime)
         gravity = 9.81
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP)) 
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP)) 
         burnTime = self.motorMassPropTotal/massFlowProp
 
         # Calls to obtain oxydiser and fuel inertia as propellant gets depleted.
         oxInertia = self._getOxInertia(timeSinceIgnition)
         fuelInertia = self._getFuelInertia(timeSinceIgnition)
+        engineInertia = self._getEngineInertia(timeSinceIgnition)
         
-        return oxInertia + fuelInertia
+        return oxInertia + fuelInertia + engineInertia
 
     # Function to update global propellant mass when engines are turned off
     def updateAmountPropellant(self, time):
         gravity = 9.81
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP)) 
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP)) 
         massPropBurned = massFlowProp*time
         self.motorMassPropTotal = self.motorMassPropTotal - massPropBurned
 
     def extraPropellantAmount(self, time):
         gravity = 9.81
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP))
         self.extraMassProp = massFlowProp*(self.timeExtraEnd-self.timeExtraStart)
         extraMassOx = self.extraMassProp/(1+(1/self.motorOxyFuelRatio))
         extraMassFuel = self.extraMassProp/(self.motorOxyFuelRatio+1)
@@ -204,12 +208,11 @@ class DefinedMotor(RocketComponent, SubDictReader):
             # Sets the time to the current time so that mass flow of propellants goes to zero
             self.ignitionTime = time
 
-        #TODO: Add variable gravity as a function of altitude
         gravity = 9.81
 
         #TODO: Account for Variable ISP --> Mass flow of the propellants is computed asuming constant ISP
 
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP)) 
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP)) 
         massPropBurned = massFlowProp*timeSinceIgnition
         burnTime = self.motorMassPropTotal/massFlowProp
         thrustMagnitude = 0
@@ -236,10 +239,10 @@ class DefinedMotor(RocketComponent, SubDictReader):
             thrustMagnitude = 0
 
         elif timeSinceIgnition > burnTime and self.rocket.orbitalVelocityReached == False and len(self.rocket.stages) == 1 and self.ThrustAfterBurnout == True:
-            thrustMagnitude = self.motorEngineThrust*self.numMotors
+            thrustMagnitude = self.motorEngineThrust
 
         else:
-            thrustMagnitude = self.motorEngineThrust*self.numMotors # set thrust to engine maximum if there is prop. and engine is on
+            thrustMagnitude = self.motorEngineThrust # set thrust to engine maximum if there is prop. and engine is on
 
         #TODO: Generate variable thrust condition?
         thrust = Vector(0,0,thrustMagnitude)
@@ -249,7 +252,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
     # Function is called to update the ignition time if multiple stages are used
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
         gravity = 9.81
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP))
         burnTime = self.motorMassPropTotal/massFlowProp
 
         self.ignitionTime = ignitionTime
@@ -271,7 +274,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # TODO: Account for variable gravity
         gravity = 9.81
         initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP))
         massFlowOxy  = massFlowProp/(1+(1/self.motorOxyFuelRatio))
 
         # Sets mass of the oxydiser as the propellent is burned
@@ -305,7 +308,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         gravity = 9.81
 
         # Mass Flow of Propellant Assuming Max Thrust and Constant ISP
-        massFlowProp = (self.motorEngineThrust*self.numMotors/(gravity*self.motorISP))
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP))
         
         #Fuel Information
         initMassFuel = self.motorMassPropTotal/(self.motorOxyFuelRatio+1)
@@ -333,6 +336,21 @@ class DefinedMotor(RocketComponent, SubDictReader):
         fuelWeight = massFuel
 
         return Inertia(fuelMOI, fuelCG, fuelWeight)
+
+    def _getEngineInertia(self, timeSinceIgnition):     
+        factor = 1
+        motorCG_Z = self.motorEngineDiameter*factor + self.stage.bodyTubePosition.Z - self.stage.bodyTubeLength
+        motorCG = Vector(0,0,motorCG_Z)
+
+        #MOI Calculations Assume Cylindrical Fuel Tank
+        MOI_X = (1/4)*self.motorEnginemass*(self.motorEngineDiameter/2)**2 + (1/12)*self.motorEnginemass*self.motorEngineDiameter**2
+        MOI_Y = MOI_X
+        MOI_Z = 0.5*self.motorEnginemass*(self.motorEngineDiameter/2)**2
+        motorMOI = Vector(MOI_X,MOI_Y,MOI_Z)
+
+        engineWeight = self.motorEnginemass
+
+        return Inertia(motorMOI, motorCG, engineWeight)
 
 class TabulatedMotor(RocketComponent):
     '''
