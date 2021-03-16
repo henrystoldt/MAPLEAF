@@ -158,7 +158,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
     def getInertia(self, time, state):
         # Checks the powered state of the engine
         if self.rocket.engineShutOff == True:
-        
         # Set ignition time to the current time so that flowrates resume when engines are turned on again
             self.ignitionTime = time
         else:
@@ -248,8 +247,10 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
         #TODO: Generate variable thrust condition?
         thrust = Vector(0,0,thrustMagnitude)
+
         #self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z, self.motorMassPropTotal))
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
+        self.rocket.appendToForceLogLine(" {:>10.4f}".format(self._getMass(timeSinceIgnition)))
         return ForceMomentSystem(thrust)
 
     # Function is called to update the ignition time if multiple stages are used
@@ -266,12 +267,29 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
     # Gets the log Header for the trhust value as a func. of time
     def getLogHeader(self):
-        #return " {}Thrust(N) {}MassPropRemaining".format(*[self.name]*2)
-        return " {}Thrust(N)".format(self.name)
+        return " {}Thrust(N) {}PropellantRemaining".format(*[self.name]*2)
+        #return " {}Thrust(N)".format([self.name])
 
-# NOT NEEDED?: LEFT OVER FUNCTION FROM OTHER MOTOR CLASS
-    # def _getMass(self, timeSinceIgnition):
-    #     return self.OxWeight(timeSinceIgnition) + self.FuelWeight(timeSinceIgnition)
+    def _getMass(self, timeSinceIgnition):
+        gravity = 9.81
+        massFlowProp = (self.motorEngineThrust/(gravity*self.motorISP))
+
+        #Oxydiser Information
+        initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
+        massFlowOxy  = massFlowProp/(1+(1/self.motorOxyFuelRatio))
+        # Sets mass of the oxydiser as the propellent is burned
+        massOxy = initMassOxy-massFlowOxy*timeSinceIgnition 
+        if massOxy < 0:
+            massOxy = 0
+
+        #Fuel Information
+        initMassFuel = self.motorMassPropTotal/(self.motorOxyFuelRatio+1)
+        massFlowFuel  = massFlowProp/(self.motorOxyFuelRatio+1)
+        massFuel = initMassFuel-massFlowFuel*timeSinceIgnition #Obtain current amount of oxydizer
+        if massFuel < 0:
+            massFuel = 0
+            
+        return massOxy + massFuel
 
     # Function used to model oxydiser as its depleted. Returns CG, MOI, and Weight of Oxydiser
     def _getOxInertia(self, timeSinceIgnition):
