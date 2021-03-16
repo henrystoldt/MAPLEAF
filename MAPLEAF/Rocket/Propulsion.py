@@ -150,10 +150,12 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.stage.engineShutOffTime = self.ignitionTime + burnTime
 
         self.stageList = None
+        self._changeStageDiameter(self.numMotors, self.motorEngineDiameter)
+        testA = self.stage.bodyTubeDiameter
+        testB = self.rocket.bodyTubeDiameter
 
     #### Operational Functions ####
     def getInertia(self, time, state):
-
         # Checks the powered state of the engine
         if self.rocket.engineShutOff == True:
         
@@ -246,6 +248,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
         #TODO: Generate variable thrust condition?
         thrust = Vector(0,0,thrustMagnitude)
+        #self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z, self.motorMassPropTotal))
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
 
@@ -263,6 +266,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
     # Gets the log Header for the trhust value as a func. of time
     def getLogHeader(self):
+        #return " {}Thrust(N) {}MassPropRemaining".format(*[self.name]*2)
         return " {}Thrust(N)".format(self.name)
 
 # NOT NEEDED?: LEFT OVER FUNCTION FROM OTHER MOTOR CLASS
@@ -351,6 +355,26 @@ class DefinedMotor(RocketComponent, SubDictReader):
         engineWeight = self.motorEnginemass
 
         return Inertia(motorMOI, motorCG, engineWeight)
+
+    def _changeStageDiameter(self, numEngines, engineDiameter):
+        # Stage Diameter gets updated according to number of engines specified.
+        # for a given number of rocket engines, the dictionary outputs a fraction of the engine diameter to bodytube diameter
+        # e.g. if 3 engines are used, the minimum bodytube diameter should be engine diameter/0.464102
+        circlePacking = {
+            1:1,
+            2:0.500,
+            3:0.464102,
+            4:0.414214,
+            5:0.370192,
+            6:0.333333,
+            7:0.333333,
+            8:0.302593,
+            9:0.276769
+        }
+        self.rocket.bodyTubeDiameter = engineDiameter/(circlePacking[numEngines])
+        self.stage.bodyTubeDiameter = engineDiameter/(circlePacking[numEngines])
+        
+
 
 class TabulatedMotor(RocketComponent):
     '''
