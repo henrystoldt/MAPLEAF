@@ -1,7 +1,7 @@
 import re
 
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
-from MAPLEAF.Rocket import RocketComponent
+from MAPLEAF.Rocket import RocketComponent, BodyTube
 from MAPLEAF.IO import SubDictReader
 import math
 
@@ -150,9 +150,8 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.stage.engineShutOffTime = self.ignitionTime + burnTime
 
         self.stageList = None
-        self._changeStageDiameter(self.numMotors, self.motorEngineDiameter)
-        testA = self.stage.bodyTubeDiameter
-        testB = self.rocket.bodyTubeDiameter
+        # self._changeStageDiameter(self.numMotors, self.motorEngineDiameter)
+
 
     #### Operational Functions ####
     def getInertia(self, time, state):
@@ -389,8 +388,9 @@ class DefinedMotor(RocketComponent, SubDictReader):
             8:0.302593,
             9:0.276769
         }
-        self.rocket.bodyTubeDiameter = engineDiameter/(circlePacking[numEngines])
-        self.stage.bodyTubeDiameter = engineDiameter/(circlePacking[numEngines])
+        # self.rocket.bodyTubeDiameter = engineDiameter/(circlePacking[numEngines])
+        # self.stage.bodyTubeDiameter = engineDiameter/(circlePacking[numEngines])
+        # self.Rocket.BodyTube._precomputeGeometry()
         
 
 
