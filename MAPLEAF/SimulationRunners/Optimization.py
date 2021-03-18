@@ -1,3 +1,4 @@
+from MAPLEAF import Rocket
 import importlib
 from copy import deepcopy
 
@@ -11,9 +12,85 @@ from MAPLEAF.Utilities import evalExpression
 
 __all__ = [ "OptimizingSimRunner" ]
 
+def updateSimDef(simDefinition: SimDefinition):
+    path = "MAPLE_AF\Examples\Motors\Engine_list_test.txt"
+
+    stage1EngineType = simDefinition.getValue("Rocket.FirstStage.Motor1.type")
+    stage1EngineDiameter = getEngineDiameter(path,stage1EngineType)
+    stage1NumEngines = int(simDefinition.getValue("Rocket.FirstStage.Motor1.number"))
+    stage1BodyTubeDiameter = str(computeStageDiameter(stage1NumEngines, stage1EngineDiameter))
+
+    simDefinition.setValue("Rocket.FirstStage.LowerBodyTube.outerDiameter", stage1BodyTubeDiameter)
+
+def computeStageDiameter(numEngines, engineDiameter):
+    # Stage Diameter gets updated according to number of engines specified.
+    # for a given number of rocket engines, the dictionary outputs a fraction of the engine diameter to bodytube diameter
+    # e.g. if 3 engines are used, the minimum bodytube diameter should be engine diameter/0.464102
+    circlePacking = {
+        1:1,
+        2:0.500,
+        3:0.464102,
+        4:0.414214,
+        5:0.370192,
+        6:0.333333,
+        7:0.333333,
+        8:0.302593,
+        9:0.276769
+    }
+    return engineDiameter/(circlePacking[numEngines])
+
+def getEngineDiameter(motorFilePath, motorName):
+    with open(motorFilePath, "r") as motorFile:
+        motorFileText = motorFile.read()
+
+    # Remove all comment rows
+    comment = re.compile("#.*") 
+    motorFileText = re.sub(comment, "", motorFileText)
+    
+    #Remove blank lines
+    motorFileText = [line for line in motorFileText.split('\n') if line.strip() != '']
+
+    # Parse data; Columns defined in MAPLEAF\Examples\Motors\Engine_list_test.txt
+    # Gets defined values for: motorType, fuelDensity, oxyDensity, oxyFuelRatio, ISP and maxThrust
+
+    motorSelection   =    []
+    isp              =    []
+    fuelDensity      =    []
+    oxyDensity       =    []
+    oxyFuelRatio     =    []
+    engineThrust     =    []
+    motorMass        =    []
+    motorDiameter    =    []
+
+    # Each column in the data spreadsheet is parsed out into individual columns
+    for dataLine in motorFileText:
+        info = dataLine.split()
+        motorSelection.append((info[0]))
+        fuelDensity.append(float(info[1]))
+        oxyDensity.append(float(info[2]))
+        oxyFuelRatio.append(float(info[3]))
+        isp.append(float(info[4]))
+        engineThrust.append(float(info[5]))
+        motorMass.append(float(info[6]))
+        motorDiameter.append(float(info[7]))
+
+    # From the defined motor in the sim def, the data is pulled for that specific motor
+        
+    place = motorSelection.index(re.sub('\.\d+', '', motorName)) #TODO: make re check if there is letters in the string. If so, do not extract decimal or numbers. Potential bug for motor names containing "V1.1" etc.
+    # motorISP          = isp[place]
+    # motorFuelDensity  = fuelDensity[place]
+    # motorOxyDensity   = oxyDensity[place]
+    # motorOxyFuelRatio = oxyFuelRatio[place]
+    # motorEngineThrust = engineThrust[place]*numMotors
+    # motorEnginemass   = motorMass[place]*numMotors
+    motorEngineDiameter = motorDiameter[place]
+    return motorEngineDiameter
 
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
     # Run the simulation
+
+    updateSimDef(simDefinition)
+    
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
 
     # Evaluate the cost function
