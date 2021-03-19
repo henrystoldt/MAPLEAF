@@ -25,7 +25,7 @@ def updateSimDef(simDefinition: SimDefinition):
     stage2EngineType = simDefinition.getValue("Rocket.SecondStage.Motor2.type")
     stage2EngineDiameter = getEngineDiameter(path,stage2EngineType)
     stage2NumEngines = int(simDefinition.getValue("Rocket.SecondStage.Motor2.number"))
-    stage2BodyTubeDiameter = str(computeStageDiameter(stage2NumEngines, stage2EngineDiameter))
+    stage2BodyTubeDiameter = str(round(computeStageDiameter(stage2NumEngines, stage2EngineDiameter),3))
 
     simDefinition.setValue("Rocket.FirstStage.LowerBodyTube.outerDiameter", stage1BodyTubeDiameter)
     simDefinition.setValue("Rocket.SecondStage.UpperBodyTube2.outerDiameter", stage2BodyTubeDiameter)
@@ -33,8 +33,9 @@ def updateSimDef(simDefinition: SimDefinition):
     lengthTransition = round(float(stage2BodyTubeDiameter)/5, 3)
 
     simDefinition.setValue("Rocket.SecondStage.DiameterChange2.length", str(lengthTransition))
+    simDefinition.setValue("Rocket.SecondStage.DiameterChange2.endDiameter", stage1BodyTubeDiameter)
     simDefinition.setValue("Rocket.SecondStage.DiameterChange2.startDiameter", stage2BodyTubeDiameter)
-    simDefinition.setValue("Rocket.SecondStage.DiameterChange2.startDiameter", stage1BodyTubeDiameter)
+    simDefinition.setValue("Rocket.SecondStage.DiameterChange1.endDiameter", stage2BodyTubeDiameter)
 
     transitionPosition = Vector(simDefinition.getValue("Rocket.SecondStage.DiameterChange2.position"))
 
@@ -160,7 +161,8 @@ class OptimizingSimRunner():
 
             # Ensure no output is produced during each simulation (cost function evaluation)
             simDefinition.setValue("SimControl.plot", "None")
-            simDefinition.setValue("SimControl.RocketPlot", "Off")
+            # simDefinition.setValue("SimControl.RocketPlot", "Off")
+            simDefinition.setValue("SimControl.RocketPlot", "On")
         else:
             if subDictReader == None:
                 raise ValueError('subDictReader not initialized for a nested optimization')
