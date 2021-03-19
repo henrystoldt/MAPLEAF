@@ -116,7 +116,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
         # Computes the total available volume in the body tube
         volumeTotal =  (math.pi/4)*(self.stage.bodyTubeDiameter**2)*self.stage.bodyTubeLength
         # Computes the amount of volume taken up by other components (Engine, Tanks, etc.)
-        volumeComponent = 0.05*volumeTotal #NOTE: Random Compoenet Volume, fraction needs to be standardised
+        volumeComponent = 0.10*volumeTotal #NOTE: Random Compoenet Volume, fraction needs to be standardised
         # Computes the fraction of components that are taken up in body tube
         volComponentFrac = volumeComponent/volumeTotal
         # The rest of the space is taken up by fuel (SHould account for tanks, etc.)
@@ -127,7 +127,6 @@ class DefinedMotor(RocketComponent, SubDictReader):
         self.motorMassPropTotal = self.motorFuelDensity*volumeProp + ((volumeProp*self.motorFuelDensity*self.motorOxyFuelRatio)/(self.motorOxyDensity+self.motorFuelDensity*self.motorOxyFuelRatio))*(self.motorOxyDensity - self.motorFuelDensity)
 
         # Sets the initial CG of the Oxydiser (Stacked Above Fuel)
-        # TODO: Right now, doesnt account for NoseConeLength, need to obtain position of the bodyTube  
         self.initMassOxy = self.motorMassPropTotal/(1+(1/self.motorOxyFuelRatio))
         self.initVolumeOxy = self.initMassOxy/self.motorOxyDensity
         self.initLengthOxy = self.initVolumeOxy/((math.pi/4)*self.motorStageDiameter**2) #Assumes cylindrical oxy tank with same diameter as bodytube

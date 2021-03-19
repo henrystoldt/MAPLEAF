@@ -9,6 +9,8 @@ from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader
 from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
 from MAPLEAF.Utilities import evalExpression
 
+from MAPLEAF.Motion import Vector
+
 
 __all__ = [ "OptimizingSimRunner" ]
 
@@ -20,7 +22,25 @@ def updateSimDef(simDefinition: SimDefinition):
     stage1NumEngines = int(simDefinition.getValue("Rocket.FirstStage.Motor1.number"))
     stage1BodyTubeDiameter = str(computeStageDiameter(stage1NumEngines, stage1EngineDiameter))
 
+    stage2EngineType = simDefinition.getValue("Rocket.SecondStage.Motor2.type")
+    stage2EngineDiameter = getEngineDiameter(path,stage2EngineType)
+    stage2NumEngines = int(simDefinition.getValue("Rocket.SecondStage.Motor2.number"))
+    stage2BodyTubeDiameter = str(computeStageDiameter(stage2NumEngines, stage2EngineDiameter))
+
     simDefinition.setValue("Rocket.FirstStage.LowerBodyTube.outerDiameter", stage1BodyTubeDiameter)
+    simDefinition.setValue("Rocket.SecondStage.UpperBodyTube2.outerDiameter", stage2BodyTubeDiameter)
+
+    lengthTransition = round(float(stage2BodyTubeDiameter)/5, 3)
+
+    simDefinition.setValue("Rocket.SecondStage.DiameterChange2.length", str(lengthTransition))
+    simDefinition.setValue("Rocket.SecondStage.DiameterChange2.startDiameter", stage2BodyTubeDiameter)
+    simDefinition.setValue("Rocket.SecondStage.DiameterChange2.startDiameter", stage1BodyTubeDiameter)
+
+    transitionPosition = Vector(simDefinition.getValue("Rocket.SecondStage.DiameterChange2.position"))
+
+    updateNextStagePosition = Vector(0,0,(-lengthTransition + transitionPosition.Z))
+
+    simDefinition.setValue("Rocket.FirstStage.position", str(updateNextStagePosition))
 
 def computeStageDiameter(numEngines, engineDiameter):
     # Stage Diameter gets updated according to number of engines specified.
