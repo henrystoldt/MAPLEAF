@@ -227,15 +227,18 @@ class DefinedMotor(RocketComponent, SubDictReader):
         #Determine the magnitude of Thrust from Specified Motor
         if (timeSinceIgnition <= 0 or timeSinceIgnition > burnTime) and len(self.rocket.stages) > 1: # Checks to see if Engine is powered on
             thrustMagnitude = 0
+            massFlowProp = 0
 
         # elif massPropBurned >= self.motorMassPropTotal and len(self.rocket.stages) > 1: # Checks to see if propellent mass is used up
         #     thrustMagnitude = 0
 
         elif self.ThrustAfterBurnout == False and len(self.rocket.stages) == 1 and timeSinceIgnition > burnTime:
             thrustMagnitude = 0
+            massFlowProp = 0
 
         elif self.rocket.engineShutOff == True: # Checks the powered state of the motor
             thrustMagnitude = 0
+            massFlowProp = 0
 
         elif timeSinceIgnition > burnTime and self.rocket.orbitalVelocityReached == False and len(self.rocket.stages) == 1 and self.ThrustAfterBurnout == True:
             thrustMagnitude = self.motorEngineThrust
@@ -243,12 +246,12 @@ class DefinedMotor(RocketComponent, SubDictReader):
         else:
             thrustMagnitude = self.motorEngineThrust # set thrust to engine maximum if there is prop. and engine is on
 
-        #TODO: Generate variable thrust condition?
         thrust = Vector(0,0,thrustMagnitude)
 
         #self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z, self.motorMassPropTotal))
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         self.rocket.appendToForceLogLine(" {:>10.4f}".format(self._getMass(timeSinceIgnition)))
+        self.rocket.appendToForceLogLine(" {:>10.4f}".format(massFlowProp))
         return ForceMomentSystem(thrust)
 
     # Function is called to update the ignition time if multiple stages are used
@@ -265,7 +268,7 @@ class DefinedMotor(RocketComponent, SubDictReader):
 
     # Gets the log Header for the trhust value as a func. of time
     def getLogHeader(self):
-        return " {}Thrust(N) {}PropellantRemaining".format(*[self.name]*2)
+        return " {}Thrust(N) {}PropellantRemaining {}PropellantMassFlow".format(*[self.name]*3)
         #return " {}Thrust(N)".format([self.name])
 
     def _getMass(self, timeSinceIgnition):
