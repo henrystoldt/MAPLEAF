@@ -196,9 +196,13 @@ class Simulation():
             # Output sim definition file and default value dict to the log only
             self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
 
+            self.timeStepLog = Log()
+
             # Start force evaluation log if required
             if self.loggingLevel >= 2:
                 self.forceEvaluationLog = []
+                self.derivativeEvaluationLog = Log()
+                
         elif self.silent:
             # No intention of writing things to a log file, just prevent them from being printed to the terminal
             _ = []

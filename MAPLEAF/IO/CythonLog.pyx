@@ -12,7 +12,7 @@ __all__ = [ "Log" ]
 cdef class Log():
     '''
         Class manages logs for any number of states that need to be logged.
-        Each state/parameter that needs to be logged is given its own column in the log
+        Each state/parameter that needs to be logged is given its own column in the log (represented as a python list)
         Each row holds values from a single time.
         When a new row is added to the log, any empty values in the previous row will be filled with the fill value.
 
@@ -44,7 +44,9 @@ cdef class Log():
 
     cpdef _completeLastLine(self):
         ''' Fill empty values in the current last row with self.fillValue. Called right before creating a new line '''
-        expectedNVals = len(self.logColumns["Time(s)"])
+        cdef int expectedNVals = len(self.logColumns["Time(s)"])
+        cdef int nVals
+
         for col in self.logColumns:
             nVals = len(self.logColumns[col])
             if nVals == expectedNVals:
