@@ -2,7 +2,6 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Optimization{
-    method              PSO
     costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
 
     IndependentVariables{
@@ -15,8 +14,27 @@ Optimization{
     }
 
     ParticleSwarm{
-        nParticles      5
-        nIterations     20
+        nParticles      2
+        nIterations     5
+    }
+
+    InnerOptimization{
+        costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
+
+        IndependentVariables{
+            GeneralMass         0.0045 < Rocket.Sustainer.GeneralMass.mass < 0.01
+        }
+
+        DependentVariables{
+            Rocket.Sustainer.AltimeterMass.mass  !0.01 + 0.0000475/GeneralMass!
+        }
+
+        ParticleSwarm{
+            nParticles      2
+            nIterations     5
+        }
+
+
     }
 }
 

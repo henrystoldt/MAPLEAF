@@ -327,35 +327,41 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     return resultsAxes, resultsFig, resultsAxins, convergenceAxes, convergenceFig, uncertaintyAxes, uncertaintyFig
 
 def saveFigureAndPrintNotification(fileName, figure, saveToDirectory, overwrite=False, pngVersion=True, epsVersion=True, pdfVersion=True, printStatementPrefix=""):
-        def saveFigure(filePath):
-            if overwrite or not os.path.exists(filePath):
-                figure.savefig(filePath)
-                print("{}Saved Image: {}".format(printStatementPrefix, filePath))
-            elif not overwrite and os.path.exists(filePath):
-                print("{}WARNING: Did not save image: {} - file already exists".format(printStatementPrefix, filePath))
-        
-        def getNoExtensionFilePath(filePath):
-            noExtensionPath = filePath
+    def saveFigure(filePath):
+        if overwrite or not os.path.exists(filePath):
+            figure.savefig(filePath)
+            print("{}Saved Image: {}".format(printStatementPrefix, filePath))
+        elif not overwrite and os.path.exists(filePath):
+            print("{}WARNING: Did not save image: {} - file already exists".format(printStatementPrefix, filePath))
+    
+    def getNoExtensionFilePath(filePath):
+        noExtensionPath = filePath
 
-            # Remove extension if it exists
-            if '.' in filePath:
-                dotIndex = filePath.rfind('.')
-                noExtensionPath = filePath[:dotIndex]
+        # Remove extension if it exists
+        if '.' in filePath:
+            dotIndex = filePath.rfind('.')
+            noExtensionPath = filePath[:dotIndex]
 
-            return noExtensionPath
+        return noExtensionPath
 
-        filePath = os.path.join(saveToDirectory, fileName)
-        noExtensionPath = getNoExtensionFilePath(filePath)
+    filePath = saveToDirectory + '/' + fileName
+    noExtensionPath = getNoExtensionFilePath(filePath)
+    savedFiles = []
 
-        # Save each desired version of the figure
-        if pngVersion:
-            pngFilePath = noExtensionPath + ".png"
-            saveFigure(pngFilePath)
+    # Save each desired version of the figure
+    if pngVersion:
+        pngFilePath = noExtensionPath + ".png"
+        saveFigure(pngFilePath)
+        savedFiles.append(pngFilePath)
 
-        if epsVersion:
-            epsFilePath = noExtensionPath + ".eps"
-            saveFigure(epsFilePath)
+    if epsVersion:
+        epsFilePath = noExtensionPath + ".eps"
+        saveFigure(epsFilePath)
+        savedFiles.append(epsFilePath)
 
-        if pdfVersion:
-            pdfFilePath = noExtensionPath + ".pdf"
-            saveFigure(pdfFilePath)
+    if pdfVersion:
+        pdfFilePath = noExtensionPath + ".pdf"
+        saveFigure(pdfFilePath)
+        savedFiles.append(pdfFilePath)
+    
+    return savedFiles

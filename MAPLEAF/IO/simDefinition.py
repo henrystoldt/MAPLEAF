@@ -19,11 +19,6 @@ __all__ = [ "defaultConfigValues", "SimDefinition", "getAbsoluteFilePath" ]
 
 #################### Default value dictionary  #########################
 defaultConfigValues = {
-    "Optimization.ParticleSwarm.nParticles":                "20",
-    "Optimization.ParticleSwarm.nIterations":               "50",
-    "Optimization.ParticleSwarm.cognitiveParam":            "0.5",
-    "Optimization.ParticleSwarm.socialParam":               "0.6",
-    "Optimization.ParticleSwarm.inertiaParam":              "0.9",
     "Optimization.showConvergencePlot":                     "True",
 
     "MonteCarlo.output":                                    "landingLocations",
@@ -917,7 +912,7 @@ def isFileName(value:str) -> bool:
 def pathIsRelativeToRepository(possiblePath:str) -> bool:
     return  len(possiblePath) > 8 and possiblePath[:8] == "MAPLEAF/"
 
-def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") -> str:
+def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "", silent=False) -> str:
     ''' 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
         alternateRelativeLocation (str) location of an alternate file/folder the path could be relative to
@@ -946,5 +941,7 @@ def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") 
             if absolutePath.exists():
                 return str(absolutePath)
                 
-    print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+    if not silent:
+        print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+        
     return relativePath

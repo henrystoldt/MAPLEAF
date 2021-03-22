@@ -2,7 +2,7 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Optimization{
-    method              PSO
+    method              scipy.optimize.minimize BFGS
     costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
 
     IndependentVariables{
@@ -10,13 +10,12 @@ Optimization{
     }
 
     DependentVariables{
-        # Equation creates tradeoff between body weight and nose cone weight - optimal value is bodyWeight == 0.1224745
+        # Equation creates tradeoff between body weight and nose cone weight - optimal value is bodyWeight == 0.1224745 (for total mass)
         Rocket.Sustainer.Nosecone.mass  !0.007506 + 0.015/bodyWeight!
     }
 
-    ParticleSwarm{
-        nParticles      5
-        nIterations     20
+    ScipyMinimize{
+        tolerance       0.01
     }
 }
 
@@ -34,7 +33,7 @@ SimControl{
 
 Environment{
     ConstantMeanWind{
-        velocity                    ( 2 0 0 ) #m/s
+        velocity                    ( 0 0 0 ) #m/s
     }
 }
 
@@ -46,7 +45,7 @@ Rocket{
 
         Nosecone{
             class           Nosecone
-            mass            0.007506
+            mass            0.11889
             position        (0 0 0)
             cg              (0 0 -0.063527)
             MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
@@ -77,7 +76,7 @@ Rocket{
 
         UpperBodyTube{
             class           Bodytube
-            mass            0.0531 
+            mass            0.1347 
             position        (0 0 -0.1)
             cg              (0 0 -0.28)
             MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)

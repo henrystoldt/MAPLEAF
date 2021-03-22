@@ -2,11 +2,16 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Optimization{
-    method              PSO
     costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
 
     IndependentVariables{
         bodyWeight      0.01 < Rocket.Sustainer.UpperBodyTube.mass < 0.2
+
+        InitialParticlePositions{
+            p1{
+                bodyWeight 0.1
+            }
+        }
     }
 
     DependentVariables{
@@ -15,8 +20,8 @@ Optimization{
     }
 
     ParticleSwarm{
-        nParticles      5
-        nIterations     20
+        nParticles      2
+        nIterations     1
     }
 }
 

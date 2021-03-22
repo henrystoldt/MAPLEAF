@@ -4,11 +4,12 @@
 '''
 import argparse
 import os
+import sys
 import time
 from distutils.util import strtobool
 from math import isnan
 from statistics import mean
-from typing import Union
+from typing import Union, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,6 +24,21 @@ __all__ = [ "main", "run", "BatchRun" ]
 #TODO: Print warning at the end for keys that weren't used in a run
     # Exclude keys from cases that were excluded from the current run
 
+class CaseResult():
+    def __init__(self, name: str, testsPassed: int, testsFailed: int, totalErrors: int, plotPaths: List[str], consoleOutput: List[str]):
+        self.name = name
+        self.testsPassed = testsPassed
+        self.testsFailed = testsFailed
+        self.totalErrors = totalErrors
+        self.plotPaths = plotPaths
+        self.consoleOutput = consoleOutput
+
+    def error(self, caseName, msg: str):
+        ''' Currently, errors are used to indicated problems directly related to MAPLEAF simulations '''
+        self.totalErrors += 1
+        self.testsFailed += 1
+        print(msg)
+
 class BatchRun():
     ''' Class to hold info about and results of a mapleaf-batch run '''
     def __init__(self, 
@@ -31,7 +47,7 @@ class BatchRun():
             printStackTraces=False, 
             include=None, 
             exclude=None,
-            percentErrorTolerance=0.01, 
+            percentErrorTolerance=0.1,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
@@ -40,11 +56,7 @@ class BatchRun():
         self.include = include
         self.exclude = exclude
 
-        self.casesRun = set()
-        self.casesFailed = set()
-        self.nTestsOk = 0
-        self.nTestsFailed = 0
-        self.totalSimErrors = 0
+        self.casesRun = []
         self.nComparisonSets = 0
         self.casesWithNewRecordedResults = set()
 
@@ -73,13 +85,29 @@ class BatchRun():
     
     def printResult(self, timeToRun=None) -> int:
         """ Outputs result summary """
+        # Count number of cases failed
+        casesFailed = []
+        nTestsFailed = 0
+        nTestsPassed = 0
+        for result in self.casesRun:
+            if result.testsFailed > 0 or result.totalErrors:
+                casesFailed.append(result.name)
+            
+            nTestsPassed += result.testsPassed
+            nTestsFailed += result.testsFailed
+
+        nCases = len(self.casesRun)
+        nCasesFailed = len(casesFailed)
+        nCasesPassed = nCases - nCasesFailed
+        nTests = nTestsFailed + nTestsPassed
+
         print("\n----------------------------------------------------------------------")
         print("BATCH RUN RESULTS")
 
         if timeToRun != None:
-            print("Ran {} Case(s) in {:>.2f} s".format(len(self.casesRun), timeToRun))
+            print("Ran {} Case(s) in {:>.2f} s".format(nCases, timeToRun))
         else:
-            print("Ran {} Case(s)".format(len(self.casesRun)))
+            print("Ran {} Case(s)".format(nCases))
 
         if self.resultToValidate != None:
             if len(self.validationErrors) > 0:
@@ -101,8 +129,8 @@ class BatchRun():
             print("New expected results were recorded for the following cases: {}".format(recordedCaseList))
             _writeModifiedTestDefinitionFile(self.batchDefinition)
 
-        if len(self.casesFailed) == 0:
-            print("{} Case(s) ok".format(len(self.casesRun)))
+        if nCasesFailed == 0:
+            print("{} Case(s) ok".format(nCases))
             print("")
             if self.warningCount == 0:
                 print("OK")
@@ -111,24 +139,15 @@ class BatchRun():
 
             return 0
         else:
-            nCasesFailed = len(self.casesFailed)
-            nTests = self.nTestsOk + self.nTestsFailed
-            print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, len(self.casesRun), self.nTestsFailed, nTests))
+            print("{}/{} Case(s) Failed, {}/{} Parameter Comparison(s) Failed".format(nCasesFailed, nCases, nTestsFailed, nTests))
             print("")
             print("Failed Cases:")
-            for case in self.casesFailed:
+            for case in casesFailed:
                 print(case)
             print("")
             print("FAIL")
 
             return 1
-
-    def error(self, caseName, msg: str):
-        ''' Currently, errors are used to indicated problems directly related to MAPLEAF simulations '''
-        self.warningCount += 1
-        self.nTestsFailed += 1
-        print(msg)
-        self.casesFailed.add(caseName)
 
     def warning(self, msg: str):
         ''' Currently, warnings are used when errors occur in processes not directly related to MAPLEAF simulations, like loading comparison data '''
@@ -166,12 +185,14 @@ def run(batchRun: BatchRun) -> int:
     # Get all the regression test cases
     testCases = batchRun.getCasesToRun()
 
+    # Run them
     for case in testCases:
-        _runCase(case, batchRun)
-        batchRun.casesRun.add(case)
+        caseResult = _runCase(case, batchRun)
+        batchRun.casesRun.append(caseResult)
 
+    # Print summary
     runTime = time.time() - startTime
-    return batchRun.printResult(runTime)
+    return batchRun.printResult(runTime) # Returns 0 or 1, suitable for the command line
 
 #### 1. Load / Run Sim ####
 def _runCase(caseName: str, batchRun: BatchRun):
@@ -192,6 +213,10 @@ def _runCase(caseName: str, batchRun: BatchRun):
             Modifies:   batchDefinition - records sim results is no expected results are provided  
             Prints:     One line to introduce case, one more line for each expected results  
     '''
+    # Create case result object to store outputs
+    caseResult = CaseResult(caseName, 0, 0, 0, [], [])
+    sys.stdout = Logging.Logger(caseResult.consoleOutput)
+
     print("\nRunning Case: {}".format(caseName))
     caseDictReader = SubDictReader(caseName, simDefinition=batchRun.batchDefinition)
     
@@ -206,9 +231,9 @@ def _runCase(caseName: str, batchRun: BatchRun):
     # Check whether simulation is a full flight sim or a parameter sweeping simulation
     caseSubDictionaries = caseDictReader.getImmediateSubDicts()
     if caseName + ".ParameterSweep" in caseSubDictionaries:
-        logFilePaths = _runParameterSweepCase(batchRun, caseDictReader, simDefinition)
+        logFilePaths = _runParameterSweepCase(batchRun, caseResult, caseDictReader, simDefinition)
     else:
-        logFilePaths = _runFullFlightCase(batchRun, caseDictReader, simDefinition)
+        logFilePaths = _runFullFlightCase(batchRun, caseResult, caseDictReader, simDefinition)
 
     #### Generate/Save plots ####
     if len(logFilePaths) > 0: # Don't generate plots for crashed sims
@@ -216,7 +241,12 @@ def _runCase(caseName: str, batchRun: BatchRun):
         plotDicts = caseDictReader.getImmediateSubDicts("PlotsToGenerate")
         for plotDict in plotDicts:
             plotDictReader = SubDictReader(plotDict, simDefinition=batchRun.batchDefinition)
-            _generatePlot(batchRun, plotDictReader, logFilePaths)
+            plotFilePaths = _generatePlot(batchRun, plotDictReader, logFilePaths)
+            caseResult.plotPaths += plotFilePaths
+
+    Logging.removeLogger()
+
+    return caseResult
 
 def _implementParameterOverrides(caseName: str, batchDefinition: SimDefinition, caseSimDefinition: SimDefinition):
     '''
@@ -246,7 +276,7 @@ def _implementParameterOverrides(caseName: str, batchDefinition: SimDefinition, 
         # Implement them
         caseSimDefinition.setValue(overridenKey, overrideValue)
 
-def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDefinition: SimDefinition):
+def _runParameterSweepCase(batchRun: BatchRun, caseResult: CaseResult, caseDictReader: SubDictReader, simDefinition: SimDefinition):
     ''' Runs a parameter sweep / wind tunnel simulation, checks+plots results '''
     print("  Parameter Sweep Case")
 
@@ -277,11 +307,14 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
         simRunner = WindTunnelSimulation(sweptParameters, parameterValues, simDefinition=simDefinition, silent=True, smoothLine=smoothLine)
         logFilePaths = simRunner.runSweep()
     except:
-        _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
+        _handleSimCrash(batchRun, caseResult, caseDictReader.simDefDictPathToReadFrom)
         logFilePaths = []
         return logFilePaths
     else:
         Logging.removeLogger()
+
+    # Continue recording console outputs
+    sys.stdout = Logging.Logger(caseResult.consoleOutput)
 
     for expectedResultsDict in expectedResultsDicts: # loop through expected results. Manually inputed values, as well as comparisonData in the plots
         expectedResultsCol = caseDictReader.getString(expectedResultsDict + ".column") # get column header that contains results in log files
@@ -298,7 +331,8 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
                 break # Stop looking on first column match
 
         if len(columnNames) != 1:
-            batchRun.error(caseDictReader.simDefDictPathToReadFrom, "   ERROR: Did not find exactly one column matching spec: {} in log files: {}. Instead, found: {} matching columns {}".format(expectedResultsCol, logFilePaths, len(columnNames), columnNames))
+            batchRun.warning(caseDictReader.simDefDictPathToReadFrom, "   ERROR: Did not find exactly one column matching spec: {} in log files: {}. Instead, found: {} matching columns {}".format(expectedResultsCol, logFilePaths, len(columnNames), columnNames))
+            caseResult.totalErrors += 1
             return
         else:
             resultData = columnDataLists[0]
@@ -321,12 +355,12 @@ def _runParameterSweepCase(batchRun: BatchRun, caseDictReader: SubDictReader, si
 
             if len(expectedResults) > 1:
                 for i in range(len(expectedResults)):
-                    _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
+                    _checkResult(batchRun, caseResult, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[i])
             else:
                 # If only a single, constant expected value is provided
                 nResults = round(len(resultData) / resultDataStep)
                 for i in range(nResults):
-                    _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[0])
+                    _checkResult(batchRun, caseResult, caseDictReader.simDefDictPathToReadFrom, expectedResultsCol, resultData[i*resultDataStep], expectedResults[0])
 
     return logFilePaths
 
@@ -367,18 +401,22 @@ def _parseParameterSweepValues(parameterValues):
 
     return parameterValues
 
-def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDefinition: SimDefinition):
+def _runFullFlightCase(batchRun: BatchRun, caseResult: CaseResult, caseDictReader: SubDictReader, simDefinition: SimDefinition):
     ''' Run a regular MAPLEAF simulation based on this case dictionary, checks+plots results '''
     print("  Full Flight Case")
     try:
         simRunner = Simulation(simDefinition=simDefinition, silent=True)
         _, logFilePaths = simRunner.run()
     except:
-        _handleSimCrash(batchRun, caseDictReader.simDefDictPathToReadFrom)
+        _handleSimCrash(batchRun, caseResult, caseDictReader.simDefDictPathToReadFrom)
         logFilePaths = []
         return logFilePaths
     else:
+        # Normally the logger that intercepts print statements is removed at the end of a simulation, when they crash we may have to do it manually
         Logging.removeLogger()
+
+    # Continue recording console outputs
+    sys.stdout = Logging.Logger(caseResult.consoleOutput)
 
     #### Compare and/or record numerical results from final simulation state, output pass/fail ####
     expectedResultKeys = caseDictReader.getSubKeys("ExpectedFinalValues")
@@ -387,14 +425,14 @@ def _runFullFlightCase(batchRun: BatchRun, caseDictReader: SubDictReader, simDef
         # If no expected results are provided, record the default set
         _setUpDefaultResultRecording(batchRun, caseDictReader, logFilePaths)
     
-    _checkSimResults(batchRun, caseDictReader, logFilePaths, expectedResultKeys)
+    _checkSimResults(batchRun, caseResult, caseDictReader, logFilePaths, expectedResultKeys)
 
     return logFilePaths
 
-def _handleSimCrash(batchRun: BatchRun, caseName):
+def _handleSimCrash(batchRun: BatchRun, caseResult: CaseResult, caseName):
     # Simulation Failed
     Logging.removeLogger() # Make sure we can print to the console
-    batchRun.error(caseName, "  ERROR: Simulation Crashed")
+    caseResult.error(caseName, "  ERROR: Simulation Crashed")
 
     if batchRun.printStackTraces:
         import traceback
@@ -412,7 +450,7 @@ def _setUpDefaultResultRecording(batchRun: BatchRun, caseDictReader: SubDictRead
     for column in colsToRecord:
         batchRun.batchDefinition.setValue(caseName + ".ExpectedFinalValues." + column, "Record" )
 
-def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFilePaths, expectedResultKeys):
+def _checkSimResults(batchRun: BatchRun, caseResult: CaseResult, caseDictReader: SubDictReader, logFilePaths, expectedResultKeys):
     ''' Checks every values in the expected results at end of sim dictionary '''
     for resultKey in expectedResultKeys:
         logColumnSpec = resultKey[resultKey.rfind(".")+1:] # From CaseName.ExpectedFinalValues.PositionX -> PositionX
@@ -424,7 +462,7 @@ def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFileP
             ## Regular Parameter Check ##
             expectedResult = caseDictReader.getFloat(resultKey)
             observedResult, columnName = _getSingleResultFromLogs(batchRun, logFilePaths, logColumnSpec)
-            _checkResult(batchRun, caseDictReader.simDefDictPathToReadFrom, columnName, observedResult, expectedResult)
+            _checkResult(batchRun, caseResult, caseDictReader.simDefDictPathToReadFrom, columnName, observedResult, expectedResult)
 
         except ValueError:
             ## Record value for this parameter? ##
@@ -438,10 +476,9 @@ def _checkSimResults(batchRun: BatchRun, caseDictReader: SubDictReader, logFileP
                 
             else:
                 ## Parsing error ##
-                print("  ERROR: Expected value: {} for parameter: {} not numeric or 'Record'".format(expectedResult, resultKey))
-                batchRun.warningCount += 1
+                batchRun.warning("  ERROR: Expected value: {} for parameter: {} not numeric or 'Record'".format(expectedResult, resultKey))
 
-def _checkResult(batchRun: BatchRun, caseName: str, columnName: str, observedResult: float, expectedResult: float):
+def _checkResult(batchRun: BatchRun, caseResult: CaseResult, caseName: str, columnName: str, observedResult: float, expectedResult: float):
     '''
         Checks whether the observed and expected results match to within the desired tolerance
 
@@ -457,8 +494,7 @@ def _checkResult(batchRun: BatchRun, caseName: str, columnName: str, observedRes
     '''    
     if observedResult == None:
         # Could end up here if a result is not found in the log file - perhaps a column name has been mis-spelled in the batch definition file?
-        batchRun.nTestsFailed += 1
-        batchRun.casesFailed.add(caseName)
+        caseResult.testsFailed += 1
     
     else:
         # Compute error %
@@ -471,12 +507,11 @@ def _checkResult(batchRun: BatchRun, caseName: str, columnName: str, observedRes
         # Print + Save Result
         if errorPercent > batchRun.percentErrorTolerance or isnan(errorPercent):
             print("  {:<25} FAIL     {:>15.7}, Expected: {:>15.7}, Disagreement: {:>10.2f} %".format(columnName + ":", observedResult, expectedResult, errorPercent))
-            batchRun.nTestsFailed += 1
-            batchRun.casesFailed.add(caseName)
+            caseResult.testsFailed += 1
 
         else:
             print("  {:<25} ok       {:>15.7}".format(columnName + ":", expectedResult))
-            batchRun.nTestsOk += 1
+            caseResult.testsPassed += 1
 
 def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
     ''' Returns the last value in the log column defined by logColumn Spec. Searches in each file in logFilePaths '''
@@ -497,7 +532,7 @@ def _getSingleResultFromLogs(batchRun: BatchRun, logFilePaths, logColumnSpec):
     return None, None
 
 #### 3. Plotting ####
-def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePaths):
+def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePaths: List[str]) -> List[str]:
     '''
         Called once for every plot dictionary. Handles plotting MAPLEAF's results and any provided comparison data. Saves plot.
 
@@ -506,6 +541,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
             logFilePaths:       (list (string)) 
 
         Outputs:
+            Returns a list of file paths for the plots generated
             Saves png, pdf, and eps plots to the location specified by  [PlotDictionary].saveLocation in the batch definition file
     '''
     # Read info from plotDictReader, create figure, set x/y limits, axes labels, etc...
@@ -568,8 +604,10 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     overwrite = plotDictReader.tryGetBool("overwrite", defaultValue=True)
 
     # Save plot
-    gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=False, printStatementPrefix="  ")
+    savedFiles = gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=True, printStatementPrefix="  ")
     plt.close(fig) # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
+    
+    return savedFiles
 
 def _setUpFigure(plotDictReader: SubDictReader):
     # Create plot

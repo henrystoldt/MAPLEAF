@@ -57,15 +57,15 @@ classes*.dot
 classes*.pdf
 
 # Exclude regression testing plots
-test/regressionTesting/*.pdf
-test/regressionTesting/*.png
-test/regressionTesting/*.eps
-test/regressionTesting/*/*.pdf
-test/regressionTesting/*/*.png
-test/regressionTesting/*/*.eps
-test/regressionTesting/*/*/*.pdf
-test/regressionTesting/*/*/*.png
-test/regressionTesting/*/*/*.eps
+test/V&V/*.pdf
+test/V&V/*.png
+test/V&V/*.eps
+test/V&V/*/*.pdf
+test/V&V/*/*.png
+test/V&V/*/*.eps
+test/V&V/*/*/*.pdf
+test/V&V/*/*/*.png
+test/V&V/*/*/*.eps
 
 # Exlude temporary files generated with regression testing results in them
 *_newExpectedResultsRecorded*
@@ -82,9 +82,13 @@ clean.sh
 # Documentation
 doc
 docs
+MAPLEAF/V&V
 
 # PySwarms logs
 *.log
 
 # Notebooks
 *.ipynb
+
+# Optimization continuation files
+*_continue.mapleaf
