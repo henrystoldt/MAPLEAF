@@ -17,7 +17,10 @@ time = [ 0 ]
 
 def logLine(times):
     times[0] += 1
-    logger.write('{} {} {} {} {} {} {} {}'.format(times[0], 0, 0, 0, 0, 0, 0, 0))
+    logString = '{} {} {}'.format(times[0], 0, 0)
+    logString += ' {} {} {}'.format(0, 0, 0)
+    logString += ' {} {}'.format(0, 0)
+    logger.write(logString)
     
 '''
 

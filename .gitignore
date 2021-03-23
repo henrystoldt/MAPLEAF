@@ -92,3 +92,6 @@ MAPLEAF/V&V
 
 # Optimization continuation files
 *_continue.mapleaf
+
+# Airspeed Velocity Benchmarking Results
+.asv
