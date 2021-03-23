@@ -12,10 +12,6 @@ def setup():
     os.chdir(Path(__file__).parent.parent)
 
 class Time:
-    """
-    An example benchmark that times the performance of various kinds
-    of iterating over dictionaries in Python.
-    """
     def time_simulationDefinitionParsing(self):
         simDef = SimDefinition("test/test_IO/testSimDefinition.mapleaf")
 
