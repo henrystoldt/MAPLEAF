@@ -91,6 +91,28 @@ More commands here: https://virtualenvwrapper.readthedocs.io/en/latest/command_r
 ## Profiling Performance with pyInstrument
 `pyinstrument -r html ./MAPLEAF/Main.py ./MAPLEAF/Examples/Simulations/Wind.mapleaf`
 
+## Benchmarking with airspeed velocity (asv)
+Benchmarks are defined in ./benchmarks/benchmarks.py  
+Benchmarking settings defined in ./asv.conf.json  
+
+#### Running benchmarks:
+Run benchmarks on latest commit in the master branch: `$ asv run`  
+Run benchmarks on new commits: `$ asv run NEW`  
+Run benchmarks on commits in a branch: `$ asv run master..myBranch`  
+To avoid running benchmarks for every single commit in a range of commits, use the `--steps NSTEPS` argument to specify how many times you would like to run the benchmark suite  
+To see error messages produced while trying to run benchmarks: `$ asv dev`  
+
+#### Viewing results:
+To view the web interface (performance vs time/commits):  
+1. `$ asv publish`  
+2. `$ asv preview`  
+3. Navigate to the IP address it provides you in your browser (often 127.0.0.1:8080)
+
+To view available sets of results in the command line: `$ asv show`  
+To view a single set of results: `$ asv show CommitHashHere`  
+
+More information: https://asv.readthedocs.io/en/stable/using.html
+
 ## Recompiling Cython code
 Some of the files in MAPLEAF are .pyx/.pxd instead of .py.  
 These are [Cython](https://cython.org/) code files.  
