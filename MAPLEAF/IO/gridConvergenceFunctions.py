@@ -176,7 +176,7 @@ def checkConvergence(coarseVals, medVals, fineVals, gridRefinementRatio, minConv
 def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, \
     xLabel=r"Plate location (m)", yLabel=r"Wall Heat Flux (W)", xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
-    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix="", lineLabels=["Coarse", "Medium", "Fine"], lineColor="k", \
+    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix="", lineLabels=["C", "M", "F"], lineColor="k", \
     createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
     resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None, showCoarse=True, showMedium=True, showFine=True):    
     '''
@@ -228,12 +228,7 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
         resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.2, antialiased=True, label=LLP+"Uncertainty")
     # Plot coarse/med/fine lines
     coarseLineStyle = "-."
-
-    if "rCF" in lineLabelPrefix:
-        medLineStyle = ":"
-    else:
-        medLineStyle = "--"
-
+    medLineStyle = "--"
     fineLineStyle = ":"
 
     if showCoarse:
@@ -246,7 +241,7 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
         resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=2)
 
     if showRichardson:
-        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+"Rich.")
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+"_R")
 
     if yLabel != None:
         resultsAxes.set_ylabel(yLabel)

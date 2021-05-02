@@ -1,12 +1,11 @@
 import csv
 from bisect import bisect_left
+from MAPLEAF.Motion import Vector
 
 __all__ = [ "Log" ]
 
 # TODO: Log class should replace Logger and RocketFlight objects
 # TODO: Log class should be able to re-populate itself from .csv file
-# TODO: need to determine exactly which objects should own log files
-    # a single log for a time steps. or a single log for each rocket stage
 
 
 cdef class Log():
@@ -80,6 +79,9 @@ cdef class Log():
 
     cpdef addColumn(self, colName):
         ''' Returns reference to the log column (list) '''
+        if colName in self.logColumns:
+            raise ValueError("Column {} already exists".format(colName))
+
         newCol = []
         self.logColumns[colName] = newCol
 
@@ -109,9 +111,50 @@ cdef class Log():
         # Retrieve value
         return self.logColumns[colName][desiredRow]
 
+    cpdef expandIterableColumns(self):
+        ''' Look for columns containing vector values, convert them into a triplet of values '''
+        columnNames = list(self.logColumns.keys())
+        
+        for column in columnNames:
+            if len(self.logColumns[column]) == 0:
+                continue
+
+            sampleItem = self.logColumns[column][0]
+            if isinstance(sampleItem, Vector):
+                # Expand the column into three (x,y,z components)
+                # First compute the new column names
+                columnSuffixes = [ 'X', 'Y', 'Z' ]
+            else:
+                try:
+                    if isinstance(sampleItem, str):
+                        continue
+
+                    testIterator = iter(sampleItem)
+                    columnSuffixes = range(len(sampleItem))
+
+                except TypeError:
+                    # Item is not iterable, skip
+                    continue
+
+                
+            for i in range(3):
+                if '(' in column:
+                    newColumnName = column.replace('(', columnSuffixes[i]+'(')
+                else:
+                    newColumnName = column + columnSuffixes[i]
+                
+                self.logColumns[newColumnName] = [ x[i] for x in self.logColumns[column] ]
+            
+            # Remove the original column
+            self.logColumns.pop(column)
+
+
     cpdef writeToCSV(self, fileName):
         # Fill any unfilled values on last line
         self._completeLastLine()
+        self.expandIterableColumns()
+
+        print("Writing log file: " + fileName)
 
         with open(fileName, 'w', newline='') as file:
             writer = csv.writer(file)

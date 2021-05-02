@@ -48,6 +48,7 @@ class Simulation():
         self.silent = silent
         ''' (bool) '''
 
+        self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
         self.computeStageDropPaths = strtobool(self.simDefinition.getValue("SimControl.StageDropPaths.compute"))
 
     def run(self, rocket=None):
@@ -140,6 +141,7 @@ class Simulation():
             
             # Log last state (would be the starting state of the next time step)
             rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+            rocket.writeLogsToFile()
 
             # Move on to next (dropped) stage
             stageIndex += 1
@@ -180,9 +182,7 @@ class Simulation():
         return rocket
 
     def _setUpLogging(self):
-        self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
-
-        if  self.loggingLevel > 0:
+        if self.loggingLevel > 0:
             # Set up logging so that the output of any print calls after this point is captured in mainSimulationLog
             self.mainSimulationLog = []
             if self.silent:
@@ -195,8 +195,6 @@ class Simulation():
             Logging.getSystemInfo(printToConsole=True)
             # Output sim definition file and default value dict to the log only
             self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
-
-            self.timeStepLog = Log()
 
             # Start force evaluation log if required
             if self.loggingLevel >= 2:

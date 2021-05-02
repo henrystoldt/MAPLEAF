@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import SubDictReader
+from MAPLEAF.IO import SubDictReader, Log
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
@@ -143,6 +143,18 @@ class Rocket(CompositeObject):
             self.hilInterface = HILInterface(quatUpdateRate,posUpdateRate,velUpdateRate, teensyComPort, imuComPort, teensyBaudrate, imuBaudrate)
         else:
             self.hardwareInTheLoopControl = "no"
+
+        #### Initialize Logging ####
+        self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
+        if self.loggingLevel > 0:
+            self.timeStepLog = Log()
+            self.timeStepLog.addColumn("Position(m)")
+            self.timeStepLog.addColumn("Velocity(m/s)")
+        else:
+            self.timeStepLog = None
+        ''' Log containing one entry per time step, logs rocket state. None if logging level == 0 '''
+        self.derivativeEvaluationLog = None if self.loggingLevel < 2 else Log()
+        ''' Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level < 2 '''
 
         #### Init Components ####
         self._initializeRigidBody()
@@ -525,6 +537,10 @@ class Rocket(CompositeObject):
         mainLogString = "{:<8.4f} {:>6.5f}".format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
         print(mainLogString)
 
+        self.timeStepLog.newLogRow(startTime)
+        self.timeStepLog.logValue("Position(m)", startState.position)
+        self.timeStepLog.logValue("Velocity(m/s)", startState.velocity)
+
     def timeStep(self, dt: float):
         '''
             Tells the simulation to take a time step of size dt.  
@@ -597,3 +613,8 @@ class Rocket(CompositeObject):
                 integrationMethod=originalTimeDiscretization, 
                 simDefinition=self.simDefinition
             )
+
+    #### After Simulation ####
+    def writeLogsToFile(self):
+        if self.timeStepLog != None:
+            self.timeStepLog.writeToCSV("timeStepLog.csv")
