@@ -141,7 +141,6 @@ class Simulation():
             
             # Log last state (would be the starting state of the next time step)
             rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
-            rocket.writeLogsToFile()
 
             # Move on to next (dropped) stage
             stageIndex += 1
@@ -155,6 +154,10 @@ class Simulation():
                 pass
 
         print("Simulation Complete")
+
+        # Write all logs to file
+        for rocket in self.rocketStages:
+            rocket.writeLogsToFile()
 
         logFilePaths = self._postProcess(simDefinition)
 

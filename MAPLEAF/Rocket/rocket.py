@@ -147,9 +147,14 @@ class Rocket(CompositeObject):
         #### Initialize Logging ####
         self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
         if self.loggingLevel > 0:
+            # Create the time step log and add columns to track the rocket state between each time step
             self.timeStepLog = Log()
-            self.timeStepLog.addColumn("Position(m)")
-            self.timeStepLog.addColumn("Velocity(m/s)")
+            zeroVector = Vector(0,0,0)
+            self.timeStepLog.addColumn("Position(m)", zeroVector)
+            self.timeStepLog.addColumn("Velocity(m/s)", zeroVector)
+            self.timeStepLog.addColumn("OrientationQuaternion", Quaternion(0,0,0,0))
+            self.timeStepLog.addColumn("EulerAngle(rad)", zeroVector)
+            self.timeStepLog.addColumn("AngularVelocity(rad/s)", zeroVector)
         else:
             self.timeStepLog = None
         ''' Log containing one entry per time step, logs rocket state. None if logging level == 0 '''
@@ -509,6 +514,12 @@ class Rocket(CompositeObject):
         startState = self.rigidBody.state
         startTime = self.rigidBody.time       
 
+        if self.timeStepLog is not None:
+            # Log the rocket state
+            self.timeStepLog.newLogRow(startTime)
+            self.timeStepLog.logValue("Position(m)", startState.position)
+            self.timeStepLog.logValue("Velocity(m/s)", startState.velocity)
+
         # Control loop (if applicable)
         controlLogString = "" # Empty string if not overridden by running the control loop
         if self.controlSystem != None and not self.isUnderChute:
@@ -529,6 +540,12 @@ class Rocket(CompositeObject):
             orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
             orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
             eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+
+            if self.timeStepLog is not None:
+                self.timeStepLog.logValue("OrientationQuaternion", startState.orientation)
+                self.timeStepLog.logValue("EulerAngle(rad)", eulerAngles)
+                self.timeStepLog.logValue("AngularVelocity(rad/s)", startState.angularVelocity)
+
             eulerAnglesString =  " {:>10.6f}".format(eulerAngles)
         except AttributeError:
             eulerAnglesString = "" # 3DoF mode
@@ -536,10 +553,6 @@ class Rocket(CompositeObject):
         # Log -> Main Sim Log
         mainLogString = "{:<8.4f} {:>6.5f}".format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
         print(mainLogString)
-
-        self.timeStepLog.newLogRow(startTime)
-        self.timeStepLog.logValue("Position(m)", startState.position)
-        self.timeStepLog.logValue("Velocity(m/s)", startState.velocity)
 
     def timeStep(self, dt: float):
         '''

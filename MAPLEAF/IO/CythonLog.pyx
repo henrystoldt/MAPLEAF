@@ -18,16 +18,17 @@ cdef class Log():
         Internally, the log is represented as a dict containing a list for each log column
     '''
     cdef public dict logColumns
-    cdef public double fillValue
+    cdef public dict fillValues
 
-    def __init__(self, columnNames=None, fillValue=0):
+    def __init__(self, columnNames=None, defaultFillValue=0):
         ''' 
             columnNames should be a list of strings 
             To get references to the log columns, initialize the log as empty and then use the addColumn(s) functions.
                 Those return the list(s) they add to the log for direct access
         '''
         self.logColumns = {}
-        self.fillValue = fillValue
+        self.fillValues = {}
+        self.fillValues["default"] = defaultFillValue
 
         # Each column starts out as an empty list
         if columnNames != None:
@@ -51,7 +52,10 @@ cdef class Log():
             if nVals == expectedNVals:
                 continue
             elif nVals < expectedNVals:
-                self.logColumns[col].append(self.fillValue)
+                try:
+                    self.logColumns[col].append(self.fillValues[col])
+                except KeyError:
+                    self.logColumns[col].append(self.fillValues["default"])
             else:
                 raise ValueError("More values than expected in log column: {} at time step: {}".format(col, self.logColumns["Time(s)"][-1]))
 
@@ -77,7 +81,7 @@ cdef class Log():
             if len(self.logColumns[col]) == nVals:
                 self.logColumns[col].pop()
 
-    cpdef addColumn(self, colName):
+    cpdef addColumn(self, colName, fillValue=None):
         ''' Returns reference to the log column (list) '''
         if colName in self.logColumns:
             raise ValueError("Column {} already exists".format(colName))
@@ -85,10 +89,17 @@ cdef class Log():
         newCol = []
         self.logColumns[colName] = newCol
 
+        if fillValue is not None:
+            self.fillValues[colName] = fillValue
+
         # Add fillValue for any existing rows
         nRows = len(self.logColumns["Time(s)"])
-        for i in range(nRows):
-            newCol.append(self.fillValue)
+        if fillValue is not None:
+            for i in range(nRows):
+                newCol.append(fillValue)
+        else:
+            for i in range(nRows):
+                newCol.append(self.fillValues["default"])
 
         return newCol
 
@@ -130,7 +141,7 @@ cdef class Log():
                         continue
 
                     testIterator = iter(sampleItem)
-                    columnSuffixes = range(len(sampleItem))
+                    columnSuffixes = [ str(x) for x in range(len(sampleItem)) ]
 
                 except TypeError:
                     # Item is not iterable, skip
