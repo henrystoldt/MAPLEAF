@@ -145,8 +145,14 @@ class Rocket(CompositeObject):
             self.hardwareInTheLoopControl = "no"
 
         #### Initialize Logging ####
-        self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
-        if self.loggingLevel > 0:
+        self.timeStepLog = None
+        ''' Log containing one entry per time step, logs rocket state. None if logging level == 0 '''
+        self.derivativeEvaluationLog = None
+        ''' Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level < 2 '''
+
+        loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
+
+        if loggingLevel > 0:
             # Create the time step log and add columns to track the rocket state between each time step
             self.timeStepLog = TimeStepLog()
             zeroVector = Vector(0,0,0)
@@ -158,12 +164,12 @@ class Rocket(CompositeObject):
 
             if "Adapt" in self.simDefinition.getValue("SimControl.timeDiscretization"):
                 self.timeStepLog.addColumn("EstimatedIntegrationError", 0)
-        else:
-            self.timeStepLog = None
-        ''' Log containing one entry per time step, logs rocket state. None if logging level == 0 '''
-        self.derivativeEvaluationLog = None if self.loggingLevel < 2 else Log()
-        ''' Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level < 2 '''
 
+        if loggingLevel > 1:
+            self.derivativeEvaluationLog = Log()
+            zeroVector = Vector(0,0,0)
+            self.derivativeEvaluationLog.addColumn("Wind(m/s)", zeroVector)            
+        
         #### Init Components ####
         self._initializeRigidBody()
         self._initializeStages()
@@ -470,6 +476,10 @@ class Rocket(CompositeObject):
         
         environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
         
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.newLogRow(time)
+            self.derivativeEvaluationLog.logValue("Wind(m/s)", environment.Wind)
+            
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
         self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
 
@@ -537,8 +547,8 @@ class Rocket(CompositeObject):
                 deflStrings = [ " {:>7.3f}".format(defl) for defl in newTargetActuatorDeflections ]
                 controlLogString = "".join(deflStrings)
 
-        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
         try: # 6DoF Mode
+            # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
             globalOrientation = startState.orientation
             orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
             orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
@@ -633,5 +643,7 @@ class Rocket(CompositeObject):
 
     #### After Simulation ####
     def writeLogsToFile(self):
-        if self.timeStepLog != None:
+        if self.timeStepLog is not None:
             self.timeStepLog.writeToCSV("timeStepLog.csv")
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.writeToCSV("derivativeEvaluationLog.csv")

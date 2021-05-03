@@ -364,6 +364,9 @@ class Simulation():
             for i in range(numDerivativeEvals):
                 self.forceEvaluationLog.pop(-1)
 
+                for rocket in self.rocketStages:
+                    rocket.derivativeEvaluationLog.deleteLastRow()
+
     def _handleSimulationCrash(self):
         ''' After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace '''
         print("ERROR: Simulation Crashed, Aborting")

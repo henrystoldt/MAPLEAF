@@ -65,7 +65,7 @@ cdef class Log():
         self._completeLastLine()
 
         # Check that time is always increasing (assumed by the getValue function, enables binary search for indices)
-        if len(self.logColumns["Time(s)"]) != 0 and currentTime <= self.logColumns["Time(s)"][-1]:
+        if len(self.logColumns["Time(s)"]) != 0 and currentTime < self.logColumns["Time(s)"][-1]:
             lastTime = self.logColumns["Time(s)"][-1]
             raise ValueError("Times in log rows must be increasing sequentially. New Row Time: {}, Last Row Time: {}".format(currentTime, lastTime))
 
