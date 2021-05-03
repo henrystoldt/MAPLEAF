@@ -81,12 +81,19 @@ class CompositeObject():
     def getAeroForce(self, state, time, environmentalConditions, rocketCG):
         '''
             Computes the aerodynamic force experienced by the stage.
-            Does not include gravitational force - this is expected to be added at the rocket level.
+            Does not include gravitational force - gravity is added at the rocket level.
         '''
         # Add up forces from all subcomponents
         totalAppliedComponentForce = ForceMomentSystem(Vector(0,0,0), rocketCG)
         for component in self.components:
-            totalAppliedComponentForce += component.getAeroForce(state, time, environmentalConditions, rocketCG)
+            componentForce = component.getAeroForce(state, time, environmentalConditions, rocketCG)
+
+            # Log applied forces and moments if desired
+            if hasattr(component, "forcesLog"):
+                component.forcesLog.append(componentForce.force)
+                component.momentsLog.append(componentForce.moment)
+
+            totalAppliedComponentForce += componentForce
 
         return totalAppliedComponentForce
 

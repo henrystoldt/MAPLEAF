@@ -9,16 +9,16 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 import math
 
 import matplotlib.pyplot as plt
-
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import SubDictReader, Log, TimeStepLog
+from MAPLEAF.IO import Log, SubDictReader, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
                             RigidBodyState, RigidBodyState_3DoF, Vector)
 from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
-                            PlanarInterface, SimEventDetector, Stage)
+                            PlanarInterface, SimEventDetector, Stage,
+                            initializeForceLogging)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
 
 __all__ = [ "Rocket" ]
@@ -443,6 +443,7 @@ class Rocket(CompositeObject):
                 "Auto-AddedZeroLengthBoatTail", 
                 self.surfaceRoughness
             )
+            initializeForceLogging(boatTail, "FakeRocketName.Auto-AddedZeroLengthBoatTail", self)
             bottomStage.components.append(boatTail)     
 
     def _updateFinenessRatio(self):

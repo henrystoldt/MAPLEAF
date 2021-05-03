@@ -340,9 +340,6 @@ class TabulatedAeroForce(AeroForce):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
-
 class TabulatedInertia(RocketComponent):
     ''' A zero-force component with time-varying tabulated inertia '''
     def __init__(self, componentDictReader, rocket, stage):
