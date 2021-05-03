@@ -168,7 +168,15 @@ class Rocket(CompositeObject):
         if loggingLevel > 1:
             self.derivativeEvaluationLog = Log()
             zeroVector = Vector(0,0,0)
-            self.derivativeEvaluationLog.addColumn("Wind(m/s)", zeroVector)            
+            self.derivativeEvaluationLog.addColumn("Wind(m/s)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("CG(m)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("MOI(kg*m^2)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("AirDensity(kg/m^3)", 0)
+            self.derivativeEvaluationLog.addColumn("Mach", 0)
+            self.derivativeEvaluationLog.addColumn("Mass(kg)", 0)
+            self.derivativeEvaluationLog.addColumn("UnitRe", 0)
+            self.derivativeEvaluationLog.addColumn("AOA(deg)", 0)
+            self.derivativeEvaluationLog.addColumn("RollAngle(deg)", 0)
         
         #### Init Components ####
         self._initializeRigidBody()
@@ -474,14 +482,13 @@ class Rocket(CompositeObject):
         ### Precomputations and Logging ###
         self.simRunner.newForcesLogLine("{:<7.3f} ".format(time) + str(state))                  # Start a new line in the force Evaluation log
         
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
-        
         if self.derivativeEvaluationLog is not None:
             self.derivativeEvaluationLog.newLogRow(time)
-            self.derivativeEvaluationLog.logValue("Wind(m/s)", environment.Wind)
+        
+        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
             
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
+        self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))
 
         ### Component Forces ###
         if not self.isUnderChute:            
@@ -490,7 +497,14 @@ class Rocket(CompositeObject):
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
-            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
+
+            if self.derivativeEvaluationLog is not None:
+                self.derivativeEvaluationLog.logValue("Mach", Mach)
+                self.derivativeEvaluationLog.logValue("UnitRe", unitRe)
+                self.derivativeEvaluationLog.logValue("AOA(deg)", AOA)
+                self.derivativeEvaluationLog.logValue("RollAngle(deg)", rollAngle)
+
+                self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
 
             # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
@@ -515,6 +529,13 @@ class Rocket(CompositeObject):
         self.appendToForceLogLine(" {:>8.5f} {:>8.6f} {:>8.4f} {:>8.4f}".format(
             componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
         )
+
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.logValue("Wind(m/s)", environment.Wind)
+            self.derivativeEvaluationLog.logValue("AirDensity(kg/m^3)", environment.Density)
+            self.derivativeEvaluationLog.logValue("CG(m)", rocketInertia.CG)
+            self.derivativeEvaluationLog.logValue("MOI(kg*m^2)", rocketInertia.MOI)
+            self.derivativeEvaluationLog.logValue("Mass(kg)", rocketInertia.mass)
 
         return totalForce
     
