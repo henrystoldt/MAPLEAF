@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import SubDictReader, Log
+from MAPLEAF.IO import SubDictReader, Log, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
@@ -148,7 +148,7 @@ class Rocket(CompositeObject):
         self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
         if self.loggingLevel > 0:
             # Create the time step log and add columns to track the rocket state between each time step
-            self.timeStepLog = Log()
+            self.timeStepLog = TimeStepLog()
             zeroVector = Vector(0,0,0)
             self.timeStepLog.addColumn("Position(m)", zeroVector)
             self.timeStepLog.addColumn("Velocity(m/s)", zeroVector)

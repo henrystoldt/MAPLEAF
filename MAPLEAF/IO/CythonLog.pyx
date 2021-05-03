@@ -2,7 +2,7 @@ import csv
 from bisect import bisect_left
 from MAPLEAF.Motion import Vector
 
-__all__ = [ "Log" ]
+__all__ = [ "Log", "TimeStepLog" ]
 
 # TODO: Log class should replace Logger and RocketFlight objects
 # TODO: Log class should be able to re-populate itself from .csv file
@@ -183,3 +183,24 @@ cdef class Log():
                 row = [ self.logColumns[col][i] for col in colNames ]
                 writer.writerow(row)
 
+cdef class TimeStepLog(Log):
+    '''
+        Adds functionality for post processing specific to time step logs for mapleaf
+    '''
+    
+    cpdef _calculateTimeStepSizes(self):
+        timeStepSizes = []
+        times = self.logColumns["Time(s)"]
+
+        nRows = len(times)
+        for i in range(nRows-1):
+            timeStepSizes.append(times[i+1] - times[i])
+        timeStepSizes.append(timeStepSizes[-1])
+
+        self.logColumns["TimeStep(s)"] = timeStepSizes
+
+    # TODO: Compute Euler angles as a post processing step as well?
+
+    cpdef writeToCSV(self, fileName):
+        self._calculateTimeStepSizes()
+        Log.writeToCSV(self, fileName)
