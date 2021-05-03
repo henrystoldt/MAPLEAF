@@ -168,15 +168,23 @@ class Rocket(CompositeObject):
         if loggingLevel > 1:
             self.derivativeEvaluationLog = Log()
             zeroVector = Vector(0,0,0)
-            self.derivativeEvaluationLog.addColumn("Wind(m/s)", zeroVector)
+
             self.derivativeEvaluationLog.addColumn("CG(m)", zeroVector)
             self.derivativeEvaluationLog.addColumn("MOI(kg*m^2)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("Mass(kg)", 0)
+            
+            self.derivativeEvaluationLog.addColumn("Wind(m/s)", zeroVector)
             self.derivativeEvaluationLog.addColumn("AirDensity(kg/m^3)", 0)
             self.derivativeEvaluationLog.addColumn("Mach", 0)
-            self.derivativeEvaluationLog.addColumn("Mass(kg)", 0)
             self.derivativeEvaluationLog.addColumn("UnitRe", 0)
             self.derivativeEvaluationLog.addColumn("AOA(deg)", 0)
             self.derivativeEvaluationLog.addColumn("RollAngle(deg)", 0)
+
+            self.derivativeEvaluationLog.addColumn("CPZ(m)", 0)
+            self.derivativeEvaluationLog.addColumn("AeroF(N)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("AeroM(Nm)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("GravityF(N)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("TotalF(N)", zeroVector)
         
         #### Init Components ####
         self._initializeRigidBody()
@@ -524,7 +532,8 @@ class Rocket(CompositeObject):
         totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
 
         # Log center of pressure z-location
-        self.appendToForceLogLine(" {:>10.5f}".format(AeroFunctions._getCPZ(componentForces)))
+        CPZ = AeroFunctions._getCPZ(componentForces)
+        self.appendToForceLogLine(" {:>10.5f}".format(CPZ))
         # Log total forces
         self.appendToForceLogLine(" {:>8.5f} {:>8.6f} {:>8.4f} {:>8.4f}".format(
             componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
@@ -536,6 +545,12 @@ class Rocket(CompositeObject):
             self.derivativeEvaluationLog.logValue("CG(m)", rocketInertia.CG)
             self.derivativeEvaluationLog.logValue("MOI(kg*m^2)", rocketInertia.MOI)
             self.derivativeEvaluationLog.logValue("Mass(kg)", rocketInertia.mass)
+            
+            self.derivativeEvaluationLog.logValue("CPZ(m)", CPZ)
+            self.derivativeEvaluationLog.logValue("AeroF(N)", componentForces.force)
+            self.derivativeEvaluationLog.logValue("AeroM(Nm)", componentForces.moment)
+            self.derivativeEvaluationLog.logValue("GravityF(N)", gravityForce.force)
+            self.derivativeEvaluationLog.logValue("TotalF(N)", totalForce.force)
 
         return totalForce
     
@@ -666,5 +681,6 @@ class Rocket(CompositeObject):
     def writeLogsToFile(self):
         if self.timeStepLog is not None:
             self.timeStepLog.writeToCSV("timeStepLog.csv")
+        
         if self.derivativeEvaluationLog is not None:
             self.derivativeEvaluationLog.writeToCSV("derivativeEvaluationLog.csv")
