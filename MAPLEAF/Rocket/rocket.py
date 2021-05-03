@@ -155,6 +155,9 @@ class Rocket(CompositeObject):
             self.timeStepLog.addColumn("OrientationQuaternion", Quaternion(0,0,0,0))
             self.timeStepLog.addColumn("EulerAngle(rad)", zeroVector)
             self.timeStepLog.addColumn("AngularVelocity(rad/s)", zeroVector)
+
+            if "Adapt" in self.simDefinition.getValue("SimControl.timeDiscretization"):
+                self.timeStepLog.addColumn("EstimatedIntegrationError", 0)
         else:
             self.timeStepLog = None
         ''' Log containing one entry per time step, logs rocket state. None if logging level == 0 '''
@@ -590,10 +593,11 @@ class Rocket(CompositeObject):
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
-        if "Adapt" in self.rigidBody.integrate.method:
+        if "Adapt" in self.rigidBody.integrate.method:        
             # Add estimated error for the time step to the end of the simulation log line
             try:
                 self.simRunner.mainSimulationLog[-2] += " {:<8.6f}".format(integrationResult.errorMagEstimate)
+                self.timeStepLog.logValue("EstimatedIntegrationError", integrationResult.errorMagEstimate)
             except AttributeError:
                 pass # No logging set up
 

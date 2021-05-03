@@ -113,6 +113,7 @@ cdef class Log():
         return newCols        
     
     cpdef logValue(self, colName, value):
+        ''' Throws KeyError if colName is not a valid column name '''
         self.logColumns[colName].append(value)
 
     cpdef getValue(self, time, colName):
