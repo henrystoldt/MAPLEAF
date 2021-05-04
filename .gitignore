@@ -26,6 +26,8 @@ for01*
 *forceEvaluationLog*
 *monteCarloLog*
 *controlSystemEvaluationLog*
+*Log*.csv
+MAPLEAF/Examples/Simulations/*Run*
 
 # Ignore pypy environment
 my-pypy-env
