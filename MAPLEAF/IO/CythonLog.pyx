@@ -166,22 +166,24 @@ cdef class Log():
         self._completeLastLine()
         self.expandIterableColumns()
 
-        print("Writing log file: " + fileName)
+        nRows = len(self.logColumns["Time(s)"])
 
-        with open(fileName, 'w', newline='') as file:
-            writer = csv.writer(file)
-            
-            # Print out headers
-            colNames = sorted(self.logColumns.keys())
-            colNames.remove("Time(s)")
-            colNames.insert(0, "Time(s)")
-            writer.writerow(colNames)
+        if nRows > 0:
+            print("Writing log file: " + fileName)
 
-            nRows = len(self.logColumns["Time(s)"])
-            for i in range(nRows):
-                # Assemble the row
-                row = [ self.logColumns[col][i] for col in colNames ]
-                writer.writerow(row)
+            with open(fileName, 'w', newline='') as file:
+                writer = csv.writer(file)
+                
+                # Print out headers
+                colNames = sorted(self.logColumns.keys())
+                colNames.remove("Time(s)")
+                colNames.insert(0, "Time(s)")
+                writer.writerow(colNames)
+
+                for i in range(nRows):
+                    # Assemble the row
+                    row = [ self.logColumns[col][i] for col in colNames ]
+                    writer.writerow(row)
 
 cdef class TimeStepLog(Log):
     '''
@@ -195,7 +197,9 @@ cdef class TimeStepLog(Log):
         nRows = len(times)
         for i in range(nRows-1):
             timeStepSizes.append(times[i+1] - times[i])
-        timeStepSizes.append(timeStepSizes[-1])
+
+        if nRows > 0:
+            timeStepSizes.append(timeStepSizes[-1])
 
         self.logColumns["TimeStep(s)"] = timeStepSizes
 
