@@ -4,7 +4,6 @@ import math
 from . import AeroFunctions
 from MAPLEAF.Motion import AeroParameters, Vector
 from MAPLEAF.Rocket import BodyComponent, FixedMass
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "BodyTube" ]
 
@@ -33,7 +32,6 @@ class BodyTube(FixedMass, BodyComponent):
         self.CPLocation = self.position - Vector(0,0,self.length/2)
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
 

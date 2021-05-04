@@ -37,29 +37,6 @@ class TestSimRunners(unittest.TestCase):
         shouldntCrash2 = Simulation(simDefinition=simDefinition, silent=True)
         shouldntCrash2.run()
 
-    def test_simLoggingColumnsMatchHeaders(self):
-        # Load sim definition file
-        simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
-        simDefinition.setValue("SimControl.EndConditionValue", "0.02")
-        test.testUtilities.setUpSimDefForMinimalRunCheck(simDefinition)
-
-        # Generate log file from a simulation
-        simDefinition.setValue("SimControl.loggingLevel", "2")
-        simDefinition.fileName = "test/tempTestFileasdf.mapleaf"
-        simRunner = Simulation(simDefinition=simDefinition, silent=True)
-        rocket = simRunner.createRocket()
-
-        forcesLogHeaderItemCount = len(simRunner.forceEvaluationLog[0].split())
-        mainLogHeaderItemCount = len(simRunner.mainSimulationLog[-1].split())
-
-        rocket.timeStep(0.001)
-
-        forcesLogFirstLineItemCount = len(simRunner.forceEvaluationLog[-1].split())
-        mainLogFirstLineItemCount = len(simRunner.mainSimulationLog[-1].split())
-
-        self.assertEqual(mainLogFirstLineItemCount, mainLogHeaderItemCount)
-        self.assertEqual(forcesLogHeaderItemCount, forcesLogFirstLineItemCount)
-
     def test_isMonteCarloSim(self):
         monteCarloSimDef = SimDefinition("MAPLEAF/Examples/Simulations/MonteCarlo.mapleaf", silent=True)
         self.assertTrue(isMonteCarloSimulation(monteCarloSimDef))
@@ -279,8 +256,8 @@ class TestSimRunners(unittest.TestCase):
         # Test running a sweep
         windTunnelSim.runSweep()
         
-        # Check number of rows in the force evaluation log (2 evaluations + 1 row of headers)
-        self.assertEqual(len(windTunnelSim.forceEvaluationLog), 3)
+        # Check number of rows in the force evaluation log (2 evaluations)
+        self.assertEqual(len(windTunnelSim.rocketStages[0].derivativeEvaluationLog.logColumns["Time(s)"]), 2)
 
     def tearDown(self):
         plt.cla()

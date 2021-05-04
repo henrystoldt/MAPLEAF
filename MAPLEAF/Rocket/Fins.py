@@ -250,6 +250,8 @@ class FinSet(FixedMass, ActuatedSystem):
             #Initialize each fin separately and keep in a list
             self.finList.append(Fin(componentDictReader, self, spanWiseDirection, rocket, stage))
 
+    # TODO: Replace this with control system log
+    # TODO: Remove all getLogHeader functions
     def getLogHeader(self):
         header = " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
         
@@ -282,14 +284,7 @@ class FinSet(FixedMass, ActuatedSystem):
         aeroForce.force.X *= totalInterferenceFactor
         aeroForce.force.Y *= totalInterferenceFactor
         aeroForce.moment.X *= totalInterferenceFactor
-        aeroForce.moment.Y *= totalInterferenceFactor          
-
-        #### Log results ####
-        forceLogLine = " {:>10.4f} {:>10.4f}".format(aeroForce.force, aeroForce.moment)
-        if self.controlSystem != None:
-            for i in range(len(self.actuatorList)):
-                forceLogLine += " {:>6.4}".format(self.finList[i].finAngle)
-        self.rocket.appendToForceLogLine(forceLogLine)
+        aeroForce.moment.Y *= totalInterferenceFactor
 
         return aeroForce
 

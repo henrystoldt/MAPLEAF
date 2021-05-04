@@ -148,9 +148,6 @@ class TabulatedMotor(RocketComponent):
         
         # Create Vector
         thrust = Vector(0,0, thrustMagnitude)
-
-        # Log and return
-        self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):

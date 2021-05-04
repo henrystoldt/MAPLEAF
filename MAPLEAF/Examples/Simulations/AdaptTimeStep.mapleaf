@@ -64,7 +64,6 @@ Environment{
     }
 }
 
-
 Rocket{
     position            (0 0 15) # m
     velocity            (0 0 50) #m/s

@@ -14,7 +14,6 @@ from scipy.interpolate import LinearNDInterpolator
 from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Inertia,
                             RigidBodyState, Vector, linInterp)
 from . import AeroFunctions
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
 
@@ -186,7 +185,6 @@ class FixedForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
@@ -217,7 +215,6 @@ class AeroForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
@@ -242,7 +239,6 @@ class AeroDamping(AeroForce):
         self.yDampingCoeffs = componentDictReader.getVector("yDampingCoeffs")
         self.xDampingCoeffs = componentDictReader.getVector("xDampingCoeffs")
     
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
@@ -335,7 +331,6 @@ class TabulatedAeroForce(AeroForce):
 
         return aeroCoefficients
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
@@ -385,7 +380,6 @@ class FractionalJetDamping(RocketComponent):
         
         self.dampingFraction = componentDictReader.getFloat("fraction")
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage's engine is firing
             # (Other stage's motors will have different exit planes)

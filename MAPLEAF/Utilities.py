@@ -22,18 +22,6 @@ def cacheLastResult(func):
 
     return memoized_func
 
-def logForceResult(func):
-    ''' Function decorator that appends force results to the forces log before returning the results '''
-    def loggedAeroFunction(*args):
-        aeroForce = func(*args)
-        
-        # Log to force evaluation log
-        rocketComponent = args[0]
-        rocketComponent.rocket.appendToForceLogLine(" {:>10.4f} {:>10.4f}".format(aeroForce.force, aeroForce.moment))
-        
-        return aeroForce
-    return loggedAeroFunction
-
 def evalExpression(statement: str, additionalVars={}):
     globalVars = {
         'math': math # Make math functions available
