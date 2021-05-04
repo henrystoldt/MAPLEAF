@@ -83,6 +83,7 @@ class BatchRun():
             include=None, 
             exclude=None,
             percentErrorTolerance=0.1,
+            absoluteErrorTolerance=1e-10,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
@@ -97,6 +98,7 @@ class BatchRun():
 
         self.warningCount = 0
         self.percentErrorTolerance = percentErrorTolerance
+        self.absoluteErrorTolerance = absoluteErrorTolerance
 
         self.validationErrors = []
         self.validationDataUsed = []
@@ -532,15 +534,15 @@ def _checkResult(batchRun: BatchRun, caseResult: CaseResult, caseName: str, colu
         caseResult.testsFailed += 1
     
     else:
-        # Compute error %
-        if expectedResult != 0:
-            error = abs(expectedResult - observedResult)
+        # Compute error and error percentage
+        error = abs(expectedResult - observedResult)
+        if expectedResult != 0:            
             errorPercent = abs(error * 100 / expectedResult)
         else:
             errorPercent = 0 if (expectedResult == observedResult) else 100
 
         # Print + Save Result
-        if errorPercent &gt; batchRun.percentErrorTolerance or isnan(errorPercent):
+        if (errorPercent &gt; batchRun.percentErrorTolerance and error &gt; batchRun.absoluteErrorTolerance) or isnan(errorPercent):
             print(&#34;  {:&lt;25} FAIL     {:&gt;15.7}, Expected: {:&gt;15.7}, Disagreement: {:&gt;10.2f} %&#34;.format(columnName + &#34;:&#34;, observedResult, expectedResult, errorPercent))
             caseResult.testsFailed += 1
 
@@ -997,7 +999,7 @@ if __name__ == &#34;__main__&#34;:
 <dl>
 <dt id="MAPLEAF.SimulationRunners.Batch.BatchRun"><code class="flex name class">
 <span>class <span class="ident">BatchRun</span></span>
-<span>(</span><span>batchDefinition: <a title="MAPLEAF.IO.simDefinition.SimDefinition" href="../IO/simDefinition.html#MAPLEAF.IO.simDefinition.SimDefinition">SimDefinition</a>, recordAll=False, printStackTraces=False, include=None, exclude=None, percentErrorTolerance=0.1, resultToValidate=None)</span>
+<span>(</span><span>batchDefinition: <a title="MAPLEAF.IO.simDefinition.SimDefinition" href="../IO/simDefinition.html#MAPLEAF.IO.simDefinition.SimDefinition">SimDefinition</a>, recordAll=False, printStackTraces=False, include=None, exclude=None, percentErrorTolerance=0.1, absoluteErrorTolerance=1e-10, resultToValidate=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Class to hold info about and results of a mapleaf-batch run</p></div>
@@ -1014,6 +1016,7 @@ if __name__ == &#34;__main__&#34;:
             include=None, 
             exclude=None,
             percentErrorTolerance=0.1,
+            absoluteErrorTolerance=1e-10,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
@@ -1028,6 +1031,7 @@ if __name__ == &#34;__main__&#34;:
 
         self.warningCount = 0
         self.percentErrorTolerance = percentErrorTolerance
+        self.absoluteErrorTolerance = absoluteErrorTolerance
 
         self.validationErrors = []
         self.validationDataUsed = []

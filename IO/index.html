@@ -51,8 +51,9 @@ MAPLEAF.IO Relies on MAPLEAF.Motion to implement a few convenience / parsing fun
 from .rocketFlight import *
 from .simDefinition import *
 from .subDictReader import *
+from .CythonLog import *
 
-subModules = [ rocketFlight, simDefinition, subDictReader ]
+subModules = [ rocketFlight, simDefinition, subDictReader, CythonLog ]
 
 __all__ = []
 
@@ -63,6 +64,10 @@ for subModule in subModules:
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
+<dt><code class="name"><a title="MAPLEAF.IO.CythonLog" href="CythonLog.html">MAPLEAF.IO.CythonLog</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="MAPLEAF.IO.HIL" href="HIL.html">MAPLEAF.IO.HIL</a></code></dt>
 <dd>
 <div class="desc"><p>Hardware in the loop simulation functionality.
@@ -152,6 +157,86 @@ Returns original relativePath if an absolute path is not found</p></div>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="MAPLEAF.IO.Log"><code class="flex name class">
+<span>class <span class="ident">Log</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class manages logs for any number of states that need to be logged.
+Each state/parameter that needs to be logged is given its own column in the log (represented as a python list)
+Each row holds values from a single time.
+When a new row is added to the log, any empty values in the previous row will be filled with the fill value.</p>
+<p>Internally, the log is represented as a dict containing a list for each log column</p>
+<p>columnNames should be a list of strings
+To get references to the log columns, initialize the log as empty and then use the addColumn(s) functions.
+Those return the list(s) they add to the log for direct access</p></div>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.IO.CythonLog.TimeStepLog" href="CythonLog.html#MAPLEAF.IO.CythonLog.TimeStepLog">TimeStepLog</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="MAPLEAF.IO.Log.fillValues"><code class="name">var <span class="ident">fillValues</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.logColumns"><code class="name">var <span class="ident">logColumns</span></code></dt>
+<dd>
+<div class="desc"><p>Return an attribute of instance, which is of type owner.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.IO.Log.addColumn"><code class="name flex">
+<span>def <span class="ident">addColumn</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns reference to the log column (list)</p></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.addColumns"><code class="name flex">
+<span>def <span class="ident">addColumns</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns list of references to the log columns (list[list])</p></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.deleteLastRow"><code class="name flex">
+<span>def <span class="ident">deleteLastRow</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.expandIterableColumns"><code class="name flex">
+<span>def <span class="ident">expandIterableColumns</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Look for columns containing vector values, convert them into a triplet of values</p></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.getValue"><code class="name flex">
+<span>def <span class="ident">getValue</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.logValue"><code class="name flex">
+<span>def <span class="ident">logValue</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Throws KeyError if colName is not a valid column name</p></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.newLogRow"><code class="name flex">
+<span>def <span class="ident">newLogRow</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Start a new row in the log. Typically called after a time step or force evaluation is completed</p></div>
+</dd>
+<dt id="MAPLEAF.IO.Log.writeToCSV"><code class="name flex">
+<span>def <span class="ident">writeToCSV</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="MAPLEAF.IO.RocketFlight"><code class="flex name class">
 <span>class <span class="ident">RocketFlight</span></span>
 </code></dt>
@@ -1879,6 +1964,43 @@ Ex 2 (Absolute): Can also pass in full absolute key, like 'Rocket.Stage1.Nosecon
 </dd>
 </dl>
 </dd>
+<dt id="MAPLEAF.IO.TimeStepLog"><code class="flex name class">
+<span>class <span class="ident">TimeStepLog</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds functionality for post processing specific to time step logs for mapleaf</p>
+<p>columnNames should be a list of strings
+To get references to the log columns, initialize the log as empty and then use the addColumn(s) functions.
+Those return the list(s) they add to the log for direct access</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="MAPLEAF.IO.CythonLog.Log" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log">Log</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="MAPLEAF.IO.TimeStepLog.writeToCSV"><code class="name flex">
+<span>def <span class="ident">writeToCSV</span></span>(<span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="MAPLEAF.IO.CythonLog.Log" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log">Log</a></b></code>:
+<ul class="hlist">
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.addColumn" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.addColumn">addColumn</a></code></li>
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.addColumns" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.addColumns">addColumns</a></code></li>
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.expandIterableColumns" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.expandIterableColumns">expandIterableColumns</a></code></li>
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.fillValues" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.fillValues">fillValues</a></code></li>
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.logColumns" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.logColumns">logColumns</a></code></li>
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.logValue" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.logValue">logValue</a></code></li>
+<li><code><a title="MAPLEAF.IO.CythonLog.Log.newLogRow" href="CythonLog.html#MAPLEAF.IO.CythonLog.Log.newLogRow">newLogRow</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 </dl>
 </section>
 </article>
@@ -1901,6 +2023,7 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
+<li><code><a title="MAPLEAF.IO.CythonLog" href="CythonLog.html">MAPLEAF.IO.CythonLog</a></code></li>
 <li><code><a title="MAPLEAF.IO.HIL" href="HIL.html">MAPLEAF.IO.HIL</a></code></li>
 <li><code><a title="MAPLEAF.IO.Logging" href="Logging.html">MAPLEAF.IO.Logging</a></code></li>
 <li><code><a title="MAPLEAF.IO.Plotting" href="Plotting.html">MAPLEAF.IO.Plotting</a></code></li>
@@ -1917,6 +2040,21 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="MAPLEAF.IO.Log" href="#MAPLEAF.IO.Log">Log</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.IO.Log.addColumn" href="#MAPLEAF.IO.Log.addColumn">addColumn</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.addColumns" href="#MAPLEAF.IO.Log.addColumns">addColumns</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.deleteLastRow" href="#MAPLEAF.IO.Log.deleteLastRow">deleteLastRow</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.expandIterableColumns" href="#MAPLEAF.IO.Log.expandIterableColumns">expandIterableColumns</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.fillValues" href="#MAPLEAF.IO.Log.fillValues">fillValues</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.getValue" href="#MAPLEAF.IO.Log.getValue">getValue</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.logColumns" href="#MAPLEAF.IO.Log.logColumns">logColumns</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.logValue" href="#MAPLEAF.IO.Log.logValue">logValue</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.newLogRow" href="#MAPLEAF.IO.Log.newLogRow">newLogRow</a></code></li>
+<li><code><a title="MAPLEAF.IO.Log.writeToCSV" href="#MAPLEAF.IO.Log.writeToCSV">writeToCSV</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="MAPLEAF.IO.RocketFlight" href="#MAPLEAF.IO.RocketFlight">RocketFlight</a></code></h4>
 <ul class="">
@@ -1966,6 +2104,12 @@ MAPLEAF
 <li><code><a title="MAPLEAF.IO.SubDictReader.tryGetInt" href="#MAPLEAF.IO.SubDictReader.tryGetInt">tryGetInt</a></code></li>
 <li><code><a title="MAPLEAF.IO.SubDictReader.tryGetString" href="#MAPLEAF.IO.SubDictReader.tryGetString">tryGetString</a></code></li>
 <li><code><a title="MAPLEAF.IO.SubDictReader.tryGetVector" href="#MAPLEAF.IO.SubDictReader.tryGetVector">tryGetVector</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.IO.TimeStepLog" href="#MAPLEAF.IO.TimeStepLog">TimeStepLog</a></code></h4>
+<ul class="">
+<li><code><a title="MAPLEAF.IO.TimeStepLog.writeToCSV" href="#MAPLEAF.IO.TimeStepLog.writeToCSV">writeToCSV</a></code></li>
 </ul>
 </li>
 </ul>

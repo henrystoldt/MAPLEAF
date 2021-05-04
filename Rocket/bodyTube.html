@@ -35,7 +35,6 @@
 from . import AeroFunctions
 from MAPLEAF.Motion import AeroParameters, Vector
 from MAPLEAF.Rocket import BodyComponent, FixedMass
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ &#34;BodyTube&#34; ]
 
@@ -64,7 +63,6 @@ class BodyTube(FixedMass, BodyComponent):
         self.CPLocation = self.position - Vector(0,0,self.length/2)
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
 
@@ -206,7 +204,6 @@ class BodyTube(FixedMass, BodyComponent):
         self.CPLocation = self.position - Vector(0,0,self.length/2)
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
 
@@ -313,7 +310,7 @@ class BodyTube(FixedMass, BodyComponent):
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.bodyTube.BodyTube.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -321,14 +318,31 @@ class BodyTube(FixedMass, BodyComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    Aref = self.rocket.Aref
+
+    # Normal Force ----------------------------------------------------------------------------------------
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    # Niskanen Eqn 3.26 - originally from Galejs
+    normalForceCoefficient = 1.1 * (math.sin(AOA))**2
+    normalForceCoefficient *= self.planformArea / Aref
+
+    # Drag -----------------------------------------------------------------------------------------------
+    # Skin Friction
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+    skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach, self.surfaceRoughness, \
+        self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    #There is no pressure drag associated with bodytubes - skin friction drag is total drag
+
+    # Damping moments --------------------------------------------------------------------------------------
+    dampingMoments = self._computeLongitudinalDampingMoments(rocketState, environment, CG)
     
-    return aeroForce</code></pre>
+    # Roll damping due to skin friction
+    dampingMoments += rollDampingMoment
+
+    # Compute &amp; dimensionalize total-------------------------------------------------------------------------
+    return AeroFunctions.forceFromCdCN(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.bodyTube.BodyTube.plotShape"><code class="name flex">

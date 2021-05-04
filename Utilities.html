@@ -54,18 +54,6 @@ def cacheLastResult(func):
 
     return memoized_func
 
-def logForceResult(func):
-    &#39;&#39;&#39; Function decorator that appends force results to the forces log before returning the results &#39;&#39;&#39;
-    def loggedAeroFunction(*args):
-        aeroForce = func(*args)
-        
-        # Log to force evaluation log
-        rocketComponent = args[0]
-        rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-        
-        return aeroForce
-    return loggedAeroFunction
-
 def evalExpression(statement: str, additionalVars={}):
     globalVars = {
         &#39;math&#39;: math # Make math functions available
@@ -131,28 +119,6 @@ Could use @functools.lru_cache(maxsize=1) to achieve the same behavior, but prob
     return eval(statement, globalVars, additionalVars)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Utilities.logForceResult"><code class="name flex">
-<span>def <span class="ident">logForceResult</span></span>(<span>func)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Function decorator that appends force results to the forces log before returning the results</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def logForceResult(func):
-    &#39;&#39;&#39; Function decorator that appends force results to the forces log before returning the results &#39;&#39;&#39;
-    def loggedAeroFunction(*args):
-        aeroForce = func(*args)
-        
-        # Log to force evaluation log
-        rocketComponent = args[0]
-        rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-        
-        return aeroForce
-    return loggedAeroFunction</code></pre>
-</details>
-</dd>
 </dl>
 </section>
 <section>
@@ -179,7 +145,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Utilities.cacheLastResult" href="#MAPLEAF.Utilities.cacheLastResult">cacheLastResult</a></code></li>
 <li><code><a title="MAPLEAF.Utilities.evalExpression" href="#MAPLEAF.Utilities.evalExpression">evalExpression</a></code></li>
-<li><code><a title="MAPLEAF.Utilities.logForceResult" href="#MAPLEAF.Utilities.logForceResult">logForceResult</a></code></li>
 </ul>
 </li>
 </ul>

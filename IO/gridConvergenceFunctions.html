@@ -209,9 +209,9 @@ def checkConvergence(coarseVals, medVals, fineVals, gridRefinementRatio, minConv
 def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, \
     xLabel=r&#34;Plate location (m)&#34;, yLabel=r&#34;Wall Heat Flux (W)&#34;, xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
-    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix=&#34;&#34;, lineLabels=[&#34;Coarse&#34;, &#34;Medium&#34;, &#34;Fine&#34;], lineColor=&#34;k&#34;, \
+    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix=&#34;&#34;, lineLabels=[&#34;C&#34;, &#34;M&#34;, &#34;F&#34;], lineColor=&#34;k&#34;, \
     createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
-    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None):    
+    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None, showCoarse=True, showMedium=True, showFine=True):    
     &#39;&#39;&#39;
         Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
         Show figures if showPlot is true
@@ -229,7 +229,7 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
             Fig/Axes inputs (to have lines plotted on existing graphs)
     &#39;&#39;&#39;
     
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt # Import statement here because the rest of this module it doesn&#39;t need it and it&#39;s a big dependency
     LLP = lineLabelPrefix
 
     # Make sure we have data at the same x-locations
@@ -258,16 +258,23 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     if showUncertainty:
         maxEst = [ f + e for f,e in zip(interpFineY, uncertainties)]
         minEst = [ f - e for f,e in zip(interpFineY, uncertainties)]
-        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True, label=LLP+&#34;Uncertainty&#34;)
+        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.2, antialiased=True, label=LLP+&#34;Uncertainty&#34;)
     # Plot coarse/med/fine lines
     coarseLineStyle = &#34;-.&#34;
     medLineStyle = &#34;--&#34;
     fineLineStyle = &#34;:&#34;
-    resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
-    resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, alpha=0.5)
-    resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=3)
+
+    if showCoarse:
+        resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
+
+    if showMedium:
+        resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, lw=2)
+
+    if showFine:
+        resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=2)
+
     if showRichardson:
-        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+&#34;Richardson&#34;)
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+&#34;_R&#34;)
 
     if yLabel != None:
         resultsAxes.set_ylabel(yLabel)
@@ -279,15 +286,22 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
         from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
         if resultsAxins == None:
-            resultsAxins = zoomed_inset_axes(resultsAxes, 20, loc=4) # zoom-factor: 2.5, location: upper-left
+            resultsAxins = zoomed_inset_axes(resultsAxes, insetZoom, loc=4) # zoom-factor: 2.5, location: upper-left
 
         if showUncertainty:
             resultsAxins.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True)
-        resultsAxins.plot(coarseX, coarseY, coarseLineStyle, alpha=0.5)
-        resultsAxins.plot(medX, medY, medLineStyle, alpha=0.5)
-        resultsAxins.plot(fineX, fineY, fineLineStyle, lw=3)
+
+        if showCoarse:
+            resultsAxins.plot(coarseX, coarseY, coarseLineStyle, color=lineColor, alpha=0.5)
+
+        if showMedium:
+            resultsAxins.plot(medX, medY, medLineStyle, color=lineColor, lw=2)
+
+        if showFine:
+            resultsAxins.plot(fineX, fineY, fineLineStyle, color=lineColor, lw=2)
+
         if showRichardson:
-            resultsAxins.plot(coarseX, richardsonVal, lineColor)
+            resultsAxins.plot(coarseX, richardsonVal, color=lineColor)
 
         resultsAxins.set_xlim(insetXLim[0], insetXLim[1]) # apply the x-limits
         resultsAxins.set_ylim(insetYLim[0], insetYLim[1]) # apply the y-limits
@@ -587,7 +601,7 @@ def saveFigureAndPrintNotification(fileName, figure, saveToDirectory, overwrite=
 </details>
 </dd>
 <dt id="MAPLEAF.IO.gridConvergenceFunctions.plotConvergence"><code class="name flex">
-<span>def <span class="ident">plotConvergence</span></span>(<span>coarseX, coarseY, medX, medY, fineX, fineY, minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, xLabel='Plate location (m)', yLabel='Wall Heat Flux (W)', xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6, 4), saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix='', lineLabels=['Coarse', 'Medium', 'Fine'], lineColor='k', createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None)</span>
+<span>def <span class="ident">plotConvergence</span></span>(<span>coarseX, coarseY, medX, medY, fineX, fineY, minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, xLabel='Plate location (m)', yLabel='Wall Heat Flux (W)', xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6, 4), saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix='', lineLabels=['C', 'M', 'F'], lineColor='k', createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None, showCoarse=True, showMedium=True, showFine=True)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
@@ -611,9 +625,9 @@ Fig/Axes inputs (to have lines plotted on existing graphs)</p></div>
 <pre><code class="python">def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, \
     xLabel=r&#34;Plate location (m)&#34;, yLabel=r&#34;Wall Heat Flux (W)&#34;, xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
-    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix=&#34;&#34;, lineLabels=[&#34;Coarse&#34;, &#34;Medium&#34;, &#34;Fine&#34;], lineColor=&#34;k&#34;, \
+    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix=&#34;&#34;, lineLabels=[&#34;C&#34;, &#34;M&#34;, &#34;F&#34;], lineColor=&#34;k&#34;, \
     createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
-    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None):    
+    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None, showCoarse=True, showMedium=True, showFine=True):    
     &#39;&#39;&#39;
         Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
         Show figures if showPlot is true
@@ -631,7 +645,7 @@ Fig/Axes inputs (to have lines plotted on existing graphs)</p></div>
             Fig/Axes inputs (to have lines plotted on existing graphs)
     &#39;&#39;&#39;
     
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt # Import statement here because the rest of this module it doesn&#39;t need it and it&#39;s a big dependency
     LLP = lineLabelPrefix
 
     # Make sure we have data at the same x-locations
@@ -660,16 +674,23 @@ Fig/Axes inputs (to have lines plotted on existing graphs)</p></div>
     if showUncertainty:
         maxEst = [ f + e for f,e in zip(interpFineY, uncertainties)]
         minEst = [ f - e for f,e in zip(interpFineY, uncertainties)]
-        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True, label=LLP+&#34;Uncertainty&#34;)
+        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.2, antialiased=True, label=LLP+&#34;Uncertainty&#34;)
     # Plot coarse/med/fine lines
     coarseLineStyle = &#34;-.&#34;
     medLineStyle = &#34;--&#34;
     fineLineStyle = &#34;:&#34;
-    resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
-    resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, alpha=0.5)
-    resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=3)
+
+    if showCoarse:
+        resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
+
+    if showMedium:
+        resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, lw=2)
+
+    if showFine:
+        resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=2)
+
     if showRichardson:
-        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+&#34;Richardson&#34;)
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+&#34;_R&#34;)
 
     if yLabel != None:
         resultsAxes.set_ylabel(yLabel)
@@ -681,15 +702,22 @@ Fig/Axes inputs (to have lines plotted on existing graphs)</p></div>
         from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
         if resultsAxins == None:
-            resultsAxins = zoomed_inset_axes(resultsAxes, 20, loc=4) # zoom-factor: 2.5, location: upper-left
+            resultsAxins = zoomed_inset_axes(resultsAxes, insetZoom, loc=4) # zoom-factor: 2.5, location: upper-left
 
         if showUncertainty:
             resultsAxins.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True)
-        resultsAxins.plot(coarseX, coarseY, coarseLineStyle, alpha=0.5)
-        resultsAxins.plot(medX, medY, medLineStyle, alpha=0.5)
-        resultsAxins.plot(fineX, fineY, fineLineStyle, lw=3)
+
+        if showCoarse:
+            resultsAxins.plot(coarseX, coarseY, coarseLineStyle, color=lineColor, alpha=0.5)
+
+        if showMedium:
+            resultsAxins.plot(medX, medY, medLineStyle, color=lineColor, lw=2)
+
+        if showFine:
+            resultsAxins.plot(fineX, fineY, fineLineStyle, color=lineColor, lw=2)
+
         if showRichardson:
-            resultsAxins.plot(coarseX, richardsonVal, lineColor)
+            resultsAxins.plot(coarseX, richardsonVal, color=lineColor)
 
         resultsAxins.set_xlim(insetXLim[0], insetXLim[1]) # apply the x-limits
         resultsAxins.set_ylim(insetYLim[0], insetYLim[1]) # apply the y-limits

@@ -32,7 +32,6 @@
 </summary>
 <pre><code class="python">from MAPLEAF.Motion import AeroParameters, ForceMomentSystem, Vector
 from MAPLEAF.Rocket import EventTypes, FixedMass
-from MAPLEAF.Utilities import logForceResult
 
 __pdoc__ = {
     &#39;RecoverySystem._deployNextStage&#39;: True
@@ -80,7 +79,6 @@ class RecoverySystem(FixedMass):
         self._deployNextStage()
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         &#39;&#39;&#39;
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
@@ -193,7 +191,6 @@ class RecoverySystem(FixedMass):
         self._deployNextStage()
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         &#39;&#39;&#39;
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
@@ -302,22 +299,28 @@ If this is the final recovery system stage, records the main chute deployment ti
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.Recovery.RecoverySystem.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Calculates force/moment applied by the recovery system using a simple drag coefficient + area model</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    &#39;&#39;&#39;
+        Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
+    &#39;&#39;&#39;
+    #### Calculate Aero Force ####
+    if self.currentStage == 0:
+        # No recovery system deployed yet
+        return ForceMomentSystem(Vector(0,0,0))
+    else:
+        # 3DoF force-only aero
+        airVel = AeroParameters.getAirVelRelativeToVehicle(rocketState, environment)
+        dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroParameters.getDynamicPressure(rocketState, environment)
+        totalForce = airVel.normalize() * dragForceMagnitude
+        return ForceMomentSystem(totalForce)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.Recovery.RecoverySystem.getLogHeader"><code class="name flex">

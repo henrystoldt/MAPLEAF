@@ -37,6 +37,8 @@ Classes and functions for creating simulation logs for regular simulations (Logg
 
 import os
 import sys
+import csv
+from bisect import bisect_left
 
 # TODO: When logging, keep track of messages containing &#39;error&#39; or &#39;warning&#39; -&gt; reprint those at the end of the simulation?
 
@@ -126,6 +128,8 @@ def findNextAvailableNumberedFileName(fileBaseName=&#34;monteCarloLog&#34;, exte
         If fileBaseName is simLog, returns the first of: simLog1, simLog2, simLog3, etc... that isn&#39;t already a file.
         Returns a string of the form fileBaseName + Number + extension
     &#39;&#39;&#39;
+    # TODO: Switch to a exponential+binary search (log(n) time as opposed to current O(n))?
+        # Even better if we only interact with the file system a single time (getting list of files/folders)
     fileNumber = 0
     filePath = None
     while filePath == None or os.path.exists(filePath):
@@ -221,10 +225,7 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
     print(&#34;Post Processing (Calculating aerodynamic coefficients) log file: {}&#34;.format(logFilePath))
 
     # Load log file into a dataframe
-    with open(logFilePath, &#39;r&#39;) as file:
-        lines = file.readlines()
-    skipRows, skipFooter = Plotting._getSkipRowsAndFooters_forceEvalLog(lines)
-    forcesLog = pd.read_csv(logFilePath, sep=&#34;\s+&#34;, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine=&#39;python&#39;)
+    forcesLog = pd.read_csv(logFilePath, dtype=np.float64)
 
     # Check if the file is already post-processed
     if &#34;AeroCFX(N)&#34; in forcesLog.columns:
@@ -247,8 +248,9 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
 
     # Compute force coefficients
     for col in forcesLog.columns:
-        isForcesColumn = &#34;FX(N)&#34; in col or &#34;FY(N)&#34; in col or &#34;FZ(N)&#34; in col
-        isMomentColumn = &#34;MX(Nm)&#34; in col or &#34;MY(Nm)&#34; in col or &#34;MZ(Nm)&#34; in col
+        isForcesColumn = &#34;(N)&#34; in col
+        isMomentColumn = &#34;(Nm)&#34; in col
+
         if isForcesColumn:
             # Avoid simply replacing &#39;F&#39; with &#39;CF&#39; in case names contain &#39;F&#39; elsewhere
             coordDir = col[-4]
@@ -285,8 +287,8 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
     forcesLog.drop(columns=columnsToDrop)
 
     # Write expanded log to file
-    newLogFilePath = logFilePath.replace(&#34;.txt&#34;, &#34;_expanded.txt&#34;)
-    forcesLog.to_csv(newLogFilePath, sep=&#39;\t&#39;, index=False)
+    newLogFilePath = logFilePath.replace(&#34;.csv&#34;, &#34;_expanded.csv&#34;)
+    forcesLog.to_csv(newLogFilePath, index=False)
 
     print(&#34;Writing expanded level 3 log to: {}&#34;.format(newLogFilePath))
 
@@ -315,6 +317,8 @@ Returns a string of the form fileBaseName + Number + extension</p></div>
         If fileBaseName is simLog, returns the first of: simLog1, simLog2, simLog3, etc... that isn&#39;t already a file.
         Returns a string of the form fileBaseName + Number + extension
     &#39;&#39;&#39;
+    # TODO: Switch to a exponential+binary search (log(n) time as opposed to current O(n))?
+        # Even better if we only interact with the file system a single time (getting list of files/folders)
     fileNumber = 0
     filePath = None
     while filePath == None or os.path.exists(filePath):
@@ -449,10 +453,7 @@ refLength:
     print(&#34;Post Processing (Calculating aerodynamic coefficients) log file: {}&#34;.format(logFilePath))
 
     # Load log file into a dataframe
-    with open(logFilePath, &#39;r&#39;) as file:
-        lines = file.readlines()
-    skipRows, skipFooter = Plotting._getSkipRowsAndFooters_forceEvalLog(lines)
-    forcesLog = pd.read_csv(logFilePath, sep=&#34;\s+&#34;, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine=&#39;python&#39;)
+    forcesLog = pd.read_csv(logFilePath, dtype=np.float64)
 
     # Check if the file is already post-processed
     if &#34;AeroCFX(N)&#34; in forcesLog.columns:
@@ -475,8 +476,9 @@ refLength:
 
     # Compute force coefficients
     for col in forcesLog.columns:
-        isForcesColumn = &#34;FX(N)&#34; in col or &#34;FY(N)&#34; in col or &#34;FZ(N)&#34; in col
-        isMomentColumn = &#34;MX(Nm)&#34; in col or &#34;MY(Nm)&#34; in col or &#34;MZ(Nm)&#34; in col
+        isForcesColumn = &#34;(N)&#34; in col
+        isMomentColumn = &#34;(Nm)&#34; in col
+
         if isForcesColumn:
             # Avoid simply replacing &#39;F&#39; with &#39;CF&#39; in case names contain &#39;F&#39; elsewhere
             coordDir = col[-4]
@@ -513,8 +515,8 @@ refLength:
     forcesLog.drop(columns=columnsToDrop)
 
     # Write expanded log to file
-    newLogFilePath = logFilePath.replace(&#34;.txt&#34;, &#34;_expanded.txt&#34;)
-    forcesLog.to_csv(newLogFilePath, sep=&#39;\t&#39;, index=False)
+    newLogFilePath = logFilePath.replace(&#34;.csv&#34;, &#34;_expanded.csv&#34;)
+    forcesLog.to_csv(newLogFilePath, index=False)
 
     print(&#34;Writing expanded level 3 log to: {}&#34;.format(newLogFilePath))
 

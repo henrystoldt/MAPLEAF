@@ -49,7 +49,6 @@ from scipy.interpolate import LinearNDInterpolator
 from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Inertia,
                             RigidBodyState, Vector, linInterp)
 from . import AeroFunctions
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ &#34;RocketComponent&#34;, &#34;BodyComponent&#34;, &#34;PlanarInterface&#34;, &#34;FixedMass&#34;, &#34;FixedForce&#34;, &#34;AeroForce&#34;, &#34;AeroDamping&#34;, &#34;TabulatedAeroForce&#34;, &#34;TabulatedInertia&#34;, &#34;FractionalJetDamping&#34; ]
 
@@ -221,7 +220,6 @@ class FixedForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
@@ -252,7 +250,6 @@ class AeroForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
@@ -277,7 +274,6 @@ class AeroDamping(AeroForce):
         self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
         self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
     
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
@@ -370,13 +366,9 @@ class TabulatedAeroForce(AeroForce):
 
         return aeroCoefficients
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
 
 class TabulatedInertia(RocketComponent):
     &#39;&#39;&#39; A zero-force component with time-varying tabulated inertia &#39;&#39;&#39;
@@ -423,7 +415,6 @@ class FractionalJetDamping(RocketComponent):
         
         self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage&#39;s engine is firing
             # (Other stage&#39;s motors will have different exit planes)
@@ -488,7 +479,6 @@ class FractionalJetDamping(RocketComponent):
         self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
         self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
     
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
@@ -517,7 +507,7 @@ class FractionalJetDamping(RocketComponent):
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -525,14 +515,17 @@ class FractionalJetDamping(RocketComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+    airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+    redimConst = self.Lref / (2*airspeed)
+    # Calculate moment coefficients from damping coefficients
+    localFrameAngularVelocity = Vector(*state.angularVelocity)
+    zMomentCoeff = self.zDampingCoeffs * localFrameAngularVelocity * redimConst
+    yMomentCoeff = self.yDampingCoeffs * localFrameAngularVelocity * redimConst
+    xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
+    momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
+
+    return AeroFunctions.forceFromCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
 </dl>
@@ -571,7 +564,6 @@ class FractionalJetDamping(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
@@ -598,7 +590,7 @@ class FractionalJetDamping(RocketComponent):
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -606,14 +598,8 @@ class FractionalJetDamping(RocketComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+    return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getInertia"><code class="name flex">
@@ -831,7 +817,6 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
@@ -846,7 +831,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -854,14 +839,8 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, rocketCG):
+    return self.force</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getInertia"><code class="name flex">
@@ -1003,7 +982,6 @@ Implements functionality to read/store inertia and position info from sim defini
         
         self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage&#39;s engine is firing
             # (Other stage&#39;s motors will have different exit planes)
@@ -1045,7 +1023,7 @@ Implements functionality to read/store inertia and position info from sim defini
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1053,14 +1031,25 @@ Implements functionality to read/store inertia and position info from sim defini
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+    # Only apply damping force if current stage&#39;s engine is firing
+        # (Other stage&#39;s motors will have different exit planes)
+    if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
+        currentRocketInertia = self.rocket.getInertia(time, rocketState)
+        
+        # Differentiate rate of MOI change
+        dt = 0.001
+        nextRocketInertia = self.rocket.getInertia(time+dt, rocketState)            
+        MOIChangeRate = (currentRocketInertia.MOI.X - nextRocketInertia.MOI.X) / dt
+
+        dampingFactor = MOIChangeRate * self.dampingFraction
+        
+        angVel = rocketState.angularVelocity
+        dampingMoment = Vector(-angVel.X*dampingFactor, -angVel.Y*dampingFactor, 0)
+
+        return ForceMomentSystem(Vector(0,0,0), moment=dampingMoment)
+    else:
+        return ForceMomentSystem(Vector(0,0,0))</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getInertia"><code class="name flex">
@@ -1399,13 +1388,9 @@ def getInertia(self, time, state) -&gt; Inertia:
 
         return aeroCoefficients
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
-        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1416,7 +1401,7 @@ def getInertia(self, time, state) -&gt; Inertia:
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1424,27 +1409,9 @@ def getInertia(self, time, state) -&gt; Inertia:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+    aeroCoefficients = self._getAeroCoefficients(state, environment)
+    return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1619,7 +1586,6 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce">TabulatedAeroForce</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce">getAeroForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getLogHeader">getLogHeader</a></code></li>
 </ul>
 </li>
 <li>

@@ -36,7 +36,6 @@ import numpy as np
 
 from MAPLEAF.Motion import AeroParameters, Interpolation
 from MAPLEAF.Rocket import AeroFunctions, BodyComponent, FixedMass
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ &#34;NoseCone&#34; ]
 
@@ -203,7 +202,6 @@ class NoseCone(FixedMass, BodyComponent):
             raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
 
     #### Operation Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
@@ -425,7 +423,6 @@ class NoseCone(FixedMass, BodyComponent):
             raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
 
     #### Operation Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
@@ -552,7 +549,7 @@ class NoseCone(FixedMass, BodyComponent):
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.noseCone.NoseCone.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -560,14 +557,31 @@ class NoseCone(FixedMass, BodyComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    Aref = self.rocket.Aref
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+
+    # Normal Force --------------------------------------------------------------------------------
+    # TODO: Account for rate of pitch/yaw rotation in AOA calculation? Or do separate Pitch/Yaw damping moments?
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    normalForceCoefficient = AeroFunctions.Barrowman_GetCN(AOA, Aref, 0, self.baseArea)
+
+    # Drag Force ---------------------------------------------------------------------------------------------
+    #### Skin Friction ####
+    skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach,  \
+        self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+    #### Pressure ####
+    pressureDragCoefficient = self._getCd_Pressure(Mach)
+
+    totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
+
+    # Damping moments --------------------------------------------------------------------------------------
+    # Roll damping due to skin friction
+    dampingMoments = rollDampingMoment
+
+    # Combine forces and return total -------------------------------------------------------------------------------------
+    return AeroFunctions.forceFromCdCN(rocketState, environment, totalDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.noseCone.NoseCone.plotShape"><code class="name flex">

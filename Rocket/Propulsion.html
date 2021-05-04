@@ -180,9 +180,6 @@ class TabulatedMotor(RocketComponent):
         
         # Create Vector
         thrust = Vector(0,0, thrustMagnitude)
-
-        # Log and return
-        self.rocket.appendToForceLogLine(&#34; {:&gt;10.4f}&#34;.format(thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
@@ -416,9 +413,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
         
         # Create Vector
         thrust = Vector(0,0, thrustMagnitude)
-
-        # Log and return
-        self.rocket.appendToForceLogLine(&#34; {:&gt;10.4f}&#34;.format(thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
@@ -506,9 +500,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
     
     # Create Vector
     thrust = Vector(0,0, thrustMagnitude)
-
-    # Log and return
-    self.rocket.appendToForceLogLine(&#34; {:&gt;10.4f}&#34;.format(thrust.Z))
     return ForceMomentSystem(thrust)</code></pre>
 </details>
 </dd>

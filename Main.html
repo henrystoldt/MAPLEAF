@@ -220,8 +220,8 @@ def main(argv=None) -&gt; int:
     
     else: 
         # Run a regular, single simulation  
-        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
-        simRunner.run()
+        sim = Simulation(simDefinition=simDef, silent=args.silent)
+        sim.run()
 
     Logging.removeLogger()
 
@@ -467,8 +467,8 @@ Expects to be called from the command line, usually using the <code>mapleaf</cod
     
     else: 
         # Run a regular, single simulation  
-        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
-        simRunner.run()
+        sim = Simulation(simDefinition=simDef, silent=args.silent)
+        sim.run()
 
     Logging.removeLogger()
 

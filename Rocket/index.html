@@ -244,6 +244,23 @@ Used to trigger stage separations and recovery system deployments.</p></div>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="MAPLEAF.Rocket.initializeForceLogging"><code class="name flex">
+<span>def <span class="ident">initializeForceLogging</span></span>(<span>component, subDictPath, rocket)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def initializeForceLogging(component, subDictPath, rocket):
+    if rocket.derivativeEvaluationLog is not None:
+        componentName = subDictPath[subDictPath.index(&#34;.&#34;)+1:]
+        zeroVector = Vector(0,0,0)
+        component.forcesLog = rocket.derivativeEvaluationLog.addColumn(componentName + &#34;F(N)&#34;, zeroVector)
+        component.momentsLog = rocket.derivativeEvaluationLog.addColumn(componentName + &#34;M(Nm)&#34;, zeroVector)</code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.Rocket.rocketComponentFactory"><code class="name flex">
 <span>def <span class="ident">rocketComponentFactory</span></span>(<span>subDictPath, rocket, stage)</span>
 </code></dt>
@@ -277,8 +294,13 @@ Also uses the stringNameToClassMap dictionary</p></div>
     className = componentDictReader.getString(&#34;class&#34;)
     referencedClass = stringNameToClassMap[className]
     
-    # Initialize it
-    return referencedClass(componentDictReader, rocket, stage)</code></pre>
+    # Initialize the rocket component
+    newComponent = referencedClass(componentDictReader, rocket, stage)
+
+    # Initialize logging component forces (if desired)
+    initializeForceLogging(newComponent, subDictPath, rocket)
+
+    return newComponent</code></pre>
 </details>
 </dd>
 </dl>
@@ -314,7 +336,6 @@ Also uses the stringNameToClassMap dictionary</p></div>
         self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
         self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
     
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
@@ -343,7 +364,7 @@ Also uses the stringNameToClassMap dictionary</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.AeroDamping.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -351,14 +372,17 @@ Also uses the stringNameToClassMap dictionary</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+    airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
+    redimConst = self.Lref / (2*airspeed)
+    # Calculate moment coefficients from damping coefficients
+    localFrameAngularVelocity = Vector(*state.angularVelocity)
+    zMomentCoeff = self.zDampingCoeffs * localFrameAngularVelocity * redimConst
+    yMomentCoeff = self.yDampingCoeffs * localFrameAngularVelocity * redimConst
+    xMomentCoeff = self.xDampingCoeffs * localFrameAngularVelocity * redimConst
+    momentCoeffs = [ xMomentCoeff, yMomentCoeff, zMomentCoeff ]
+
+    return AeroFunctions.forceFromCoefficients(state, environment, 0, 0, *momentCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
 </dl>
@@ -397,7 +421,6 @@ Also uses the stringNameToClassMap dictionary</p></div>
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
@@ -424,7 +447,7 @@ Also uses the stringNameToClassMap dictionary</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.AeroForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -432,14 +455,8 @@ Also uses the stringNameToClassMap dictionary</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+    return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.AeroForce.getInertia"><code class="name flex">
@@ -498,7 +515,6 @@ Modelled like a Transition object, but accounts for base drag.</p>
     canConnectToComponentBelow = False 
     &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
@@ -549,7 +565,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.BoatTail.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -557,14 +573,37 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+    Aref = self.rocket.Aref
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+    #### Normal Force ####
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+    #### Pressure Drag ####
+    Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+    Cd_pressure = Cd_base * self.CdAdjustmentFactor
+    Cd_pressure *= self.frontalArea / self.rocket.Aref
+
+    noEngine = (self.stage.engineShutOffTime == None)
+    if noEngine or time &gt; self.stage.engineShutOffTime:
+        # Add base drag if engine is off
+        Cd_pressure += Cd_base * self.bottomArea / Aref
+
+    #### Skin Friction Drag ####
+    if self.wettedArea == 0:
+        skinFrictionDragCoefficient = 0
+        rollDampingMoment = Vector(0,0,0)
+    else:
+        skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+             self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+    #### Total Drag ####
+    Cd = Cd_pressure + skinFrictionDragCoefficient
+
+    #### Assemble &amp; return final force object ####
+    return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
 </details>
 </dd>
 </dl>
@@ -771,7 +810,6 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
         self.CPLocation = self.position - Vector(0,0,self.length/2)
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
 
@@ -878,7 +916,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.BodyTube.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -886,14 +924,31 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    Aref = self.rocket.Aref
+
+    # Normal Force ----------------------------------------------------------------------------------------
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    # Niskanen Eqn 3.26 - originally from Galejs
+    normalForceCoefficient = 1.1 * (math.sin(AOA))**2
+    normalForceCoefficient *= self.planformArea / Aref
+
+    # Drag -----------------------------------------------------------------------------------------------
+    # Skin Friction
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+    skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach, self.surfaceRoughness, \
+        self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    #There is no pressure drag associated with bodytubes - skin friction drag is total drag
+
+    # Damping moments --------------------------------------------------------------------------------------
+    dampingMoments = self._computeLongitudinalDampingMoments(rocketState, environment, CG)
     
-    return aeroForce</code></pre>
+    # Roll damping due to skin friction
+    dampingMoments += rollDampingMoment
+
+    # Compute &amp; dimensionalize total-------------------------------------------------------------------------
+    return AeroFunctions.forceFromCdCN(rocketState, environment, skinFrictionDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.BodyTube.plotShape"><code class="name flex">
@@ -1376,6 +1431,8 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
             #Initialize each fin separately and keep in a list
             self.finList.append(Fin(componentDictReader, self, spanWiseDirection, rocket, stage))
 
+    # TODO: Replace this with control system log
+    # TODO: Remove all getLogHeader functions
     def getLogHeader(self):
         header = &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
         
@@ -1408,14 +1465,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
         aeroForce.force.X *= totalInterferenceFactor
         aeroForce.force.Y *= totalInterferenceFactor
         aeroForce.moment.X *= totalInterferenceFactor
-        aeroForce.moment.Y *= totalInterferenceFactor          
-
-        #### Log results ####
-        forceLogLine = &#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment)
-        if self.controlSystem != None:
-            for i in range(len(self.actuatorList)):
-                forceLogLine += &#34; {:&gt;6.4}&#34;.format(self.finList[i].finAngle)
-        self.rocket.appendToForceLogLine(forceLogLine)
+        aeroForce.moment.Y *= totalInterferenceFactor
 
         return aeroForce
 
@@ -1600,14 +1650,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
     aeroForce.force.X *= totalInterferenceFactor
     aeroForce.force.Y *= totalInterferenceFactor
     aeroForce.moment.X *= totalInterferenceFactor
-    aeroForce.moment.Y *= totalInterferenceFactor          
-
-    #### Log results ####
-    forceLogLine = &#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment)
-    if self.controlSystem != None:
-        for i in range(len(self.actuatorList)):
-            forceLogLine += &#34; {:&gt;6.4}&#34;.format(self.finList[i].finAngle)
-    self.rocket.appendToForceLogLine(forceLogLine)
+    aeroForce.moment.Y *= totalInterferenceFactor
 
     return aeroForce</code></pre>
 </details>
@@ -1734,7 +1777,6 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
@@ -1749,7 +1791,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.FixedForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1757,14 +1799,8 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, rocketCG):
+    return self.force</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.FixedForce.getInertia"><code class="name flex">
@@ -1906,7 +1942,6 @@ Implements functionality to read/store inertia and position info from sim defini
         
         self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage&#39;s engine is firing
             # (Other stage&#39;s motors will have different exit planes)
@@ -1948,7 +1983,7 @@ Implements functionality to read/store inertia and position info from sim defini
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.FractionalJetDamping.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1956,14 +1991,25 @@ Implements functionality to read/store inertia and position info from sim defini
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+    # Only apply damping force if current stage&#39;s engine is firing
+        # (Other stage&#39;s motors will have different exit planes)
+    if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
+        currentRocketInertia = self.rocket.getInertia(time, rocketState)
+        
+        # Differentiate rate of MOI change
+        dt = 0.001
+        nextRocketInertia = self.rocket.getInertia(time+dt, rocketState)            
+        MOIChangeRate = (currentRocketInertia.MOI.X - nextRocketInertia.MOI.X) / dt
+
+        dampingFactor = MOIChangeRate * self.dampingFraction
+        
+        angVel = rocketState.angularVelocity
+        dampingMoment = Vector(-angVel.X*dampingFactor, -angVel.Y*dampingFactor, 0)
+
+        return ForceMomentSystem(Vector(0,0,0), moment=dampingMoment)
+    else:
+        return ForceMomentSystem(Vector(0,0,0))</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.FractionalJetDamping.getInertia"><code class="name flex">
@@ -2119,7 +2165,6 @@ Implements functionality to read/store inertia and position info from sim defini
             raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
 
     #### Operation Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
@@ -2246,7 +2291,7 @@ Implements functionality to read/store inertia and position info from sim defini
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.NoseCone.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -2254,14 +2299,31 @@ Implements functionality to read/store inertia and position info from sim defini
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    Aref = self.rocket.Aref
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+
+    # Normal Force --------------------------------------------------------------------------------
+    # TODO: Account for rate of pitch/yaw rotation in AOA calculation? Or do separate Pitch/Yaw damping moments?
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    normalForceCoefficient = AeroFunctions.Barrowman_GetCN(AOA, Aref, 0, self.baseArea)
+
+    # Drag Force ---------------------------------------------------------------------------------------------
+    #### Skin Friction ####
+    skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, self.length, Mach,  \
+        self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+    #### Pressure ####
+    pressureDragCoefficient = self._getCd_Pressure(Mach)
+
+    totalDragCoefficient = pressureDragCoefficient + skinFrictionDragCoefficient
+
+    # Damping moments --------------------------------------------------------------------------------------
+    # Roll damping due to skin friction
+    dampingMoments = rollDampingMoment
+
+    # Combine forces and return total -------------------------------------------------------------------------------------
+    return AeroFunctions.forceFromCdCN(rocketState, environment, totalDragCoefficient, normalForceCoefficient, self.CPLocation, Aref, moment=dampingMoments)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.NoseCone.plotShape"><code class="name flex">
@@ -2519,7 +2581,6 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
         self._deployNextStage()
 
     #### Operational Functions ####
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG):
         &#39;&#39;&#39;
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
@@ -2581,22 +2642,28 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.RecoverySystem.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Calculates force/moment applied by the recovery system using a simple drag coefficient + area model</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+    &#39;&#39;&#39;
+        Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
+    &#39;&#39;&#39;
+    #### Calculate Aero Force ####
+    if self.currentStage == 0:
+        # No recovery system deployed yet
+        return ForceMomentSystem(Vector(0,0,0))
+    else:
+        # 3DoF force-only aero
+        airVel = AeroParameters.getAirVelRelativeToVehicle(rocketState, environment)
+        dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroParameters.getDynamicPressure(rocketState, environment)
+        totalForce = airVel.normalize() * dragForceMagnitude
+        return ForceMomentSystem(totalForce)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RecoverySystem.getLogHeader"><code class="name flex">
@@ -2766,6 +2833,53 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         else:
             self.hardwareInTheLoopControl = &#34;no&#34;
 
+        #### Initialize Logging ####
+        self.timeStepLog = None
+        &#39;&#39;&#39; Log containing one entry per time step, logs rocket state. None if logging level == 0 &#39;&#39;&#39;
+        self.derivativeEvaluationLog = None
+        &#39;&#39;&#39; Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2 &#39;&#39;&#39;
+
+        loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if loggingLevel &gt; 0:
+            # Create the time step log and add columns to track the rocket state between each time step
+            self.timeStepLog = TimeStepLog()
+            zeroVector = Vector(0,0,0)
+            self.timeStepLog.addColumn(&#34;Position(m)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;Velocity(m/s)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;OrientationQuaternion&#34;, Quaternion(0,0,0,0))
+            self.timeStepLog.addColumn(&#34;EulerAngle(rad)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;AngularVelocity(rad/s)&#34;, zeroVector)
+
+            if &#34;Adapt&#34; in self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;):
+                self.timeStepLog.addColumn(&#34;EstimatedIntegrationError&#34;, 0)
+
+        if loggingLevel &gt; 1:
+            self.derivativeEvaluationLog = Log()
+            zeroVector = Vector(0,0,0)
+
+            self.derivativeEvaluationLog.addColumn(&#34;Position(m)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;Velocity(m/s)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;OrientationQuaternion&#34;, Quaternion(0,0,0,0))
+            self.derivativeEvaluationLog.addColumn(&#34;AngularVelocity(rad/s)&#34;, zeroVector)
+
+            self.derivativeEvaluationLog.addColumn(&#34;CG(m)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;MOI(kg*m^2)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;Mass(kg)&#34;, 0)
+            
+            self.derivativeEvaluationLog.addColumn(&#34;Wind(m/s)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;AirDensity(kg/m^3)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;Mach&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;UnitRe&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;AOA(deg)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;RollAngle(deg)&#34;, 0)
+
+            self.derivativeEvaluationLog.addColumn(&#34;CPZ(m)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;AeroF(N)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;AeroM(Nm)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;GravityF(N)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;TotalF(N)&#34;, zeroVector)
+        
         #### Init Components ####
         self._initializeRigidBody()
         self._initializeStages()
@@ -3023,6 +3137,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 &#34;Auto-AddedZeroLengthBoatTail&#34;, 
                 self.surfaceRoughness
             )
+            initializeForceLogging(boatTail, &#34;FakeRocketName.Auto-AddedZeroLengthBoatTail&#34;, self)
             bottomStage.components.append(boatTail)     
 
     def _updateFinenessRatio(self):
@@ -3034,16 +3149,8 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         else:
             self.finenessRatio = length/maxDiameter
 
-    #### Logging ####
-    def appendToForceLogLine(self, txt: str):
-        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
-        try:
-            self.simRunner.forceEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim
-
     #### Component-buildup method for Force ####
-    def _getEnvironmentalConditions(self, time, state, logWind=True):
+    def _getEnvironmentalConditions(self, time, state):
         env = self.environment.getAirProperties(state.position, time)
 
         # Neglect turbulent component of wind if required
@@ -3058,22 +3165,19 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 env.MeanWind,
                 Vector(0, 0, 0),
             )
-
-        # Log Wind
-        if logWind:
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;7.4}&#34;.format(env.Wind, env.Density))
         
         return env
 
     def _getAppliedForce(self, time, state):
         &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
         ### Precomputations and Logging ###
-        self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
-        
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
-        
+        environment = self._getEnvironmentalConditions(time, state)               # Get and log current air/wind properties
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
+
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.newLogRow(time)
+            self.derivativeEvaluationLog.logValue(&#34;Position(m)&#34;, state.position)
+            self.derivativeEvaluationLog.logValue(&#34;Velocity(m/s)&#34;, state.velocity)
 
         ### Component Forces ###
         if not self.isUnderChute:            
@@ -3082,31 +3186,50 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
+
+            if self.derivativeEvaluationLog is not None:
+                self.derivativeEvaluationLog.logValue(&#34;Mach&#34;, Mach)
+                self.derivativeEvaluationLog.logValue(&#34;UnitRe&#34;, unitRe)
+                self.derivativeEvaluationLog.logValue(&#34;AOA(deg)&#34;, math.degrees(AOA))
+                self.derivativeEvaluationLog.logValue(&#34;RollAngle(deg)&#34;, rollAngle)
+                self.derivativeEvaluationLog.logValue(&#34;OrientationQuaternion&#34;, state.orientation)
+                self.derivativeEvaluationLog.logValue(&#34;AngularVelocity(rad/s)&#34;, state.angularVelocity)
 
             # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
 
         else:
             # When under chute, neglect forces from other components
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(0, 0, 0, 0))
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
-
-        componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
+            
+            # Log the recovery system&#39;s applied force (Normally handled in CompositeObject.getAeroForce)
+            if hasattr(self.recoverySystem, &#34;forcesLog&#34;):
+                self.recoverySystem.forcesLog.append(componentForces.force)
+                self.recoverySystem.momentsLog.append(componentForces.moment)
+    
+        # Move Force-Moment system to rocket CG
+        componentForces = componentForces.getAt(rocketInertia.CG)
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
         totalForce = componentForces + gravityForce
 
         ### Launch Rail ###
-        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
+        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)        
 
-        # Log center of pressure z-location
-        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
-        # Log total forces
-        self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
-            componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
-        )
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.logValue(&#34;Wind(m/s)&#34;, environment.Wind)
+            self.derivativeEvaluationLog.logValue(&#34;AirDensity(kg/m^3)&#34;, environment.Density)
+            self.derivativeEvaluationLog.logValue(&#34;CG(m)&#34;, rocketInertia.CG)
+            self.derivativeEvaluationLog.logValue(&#34;MOI(kg*m^2)&#34;, rocketInertia.MOI)
+            self.derivativeEvaluationLog.logValue(&#34;Mass(kg)&#34;, rocketInertia.mass)
+
+            CPZ = AeroFunctions._getCPZ(componentForces)            
+            self.derivativeEvaluationLog.logValue(&#34;CPZ(m)&#34;, CPZ)
+            self.derivativeEvaluationLog.logValue(&#34;AeroF(N)&#34;, componentForces.force)
+            self.derivativeEvaluationLog.logValue(&#34;AeroM(Nm)&#34;, componentForces.moment)
+            self.derivativeEvaluationLog.logValue(&#34;GravityF(N)&#34;, gravityForce.force)
+            self.derivativeEvaluationLog.logValue(&#34;TotalF(N)&#34;, totalForce.force)
 
         return totalForce
     
@@ -3120,32 +3243,42 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         startTime = self.rigidBody.time       
 
         # Control loop (if applicable)
-        controlLogString = &#34;&#34; # Empty string if not overridden by running the control loop
         if self.controlSystem != None and not self.isUnderChute:
-            environment = self._getEnvironmentalConditions(startTime, startState, logWind=False)
+            environment = self._getEnvironmentalConditions(startTime, startState)
 
             ### Run Control Loop ###
             newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
             
-            if newTargetActuatorDeflections != False:
+            # if newTargetActuatorDeflections != False:
                 # runControlLoopIfRequired returns False if the control doesn&#39;t run
                 # Add target deflections to the main log string
-                deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
-                controlLogString = &#34;&#34;.join(deflStrings)
+                # TODO: Control system should get its own log, this code is no longer functional
+                # deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
+                # controlLogString = &#34;&#34;.join(deflStrings)
 
-        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
-        try: # 6DoF Mode
-            globalOrientation = startState.orientation
-            orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
-            orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
-            eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
-            eulerAnglesString =  &#34; {:&gt;10.6f}&#34;.format(eulerAngles)
-        except AttributeError:
-            eulerAnglesString = &#34;&#34; # 3DoF mode
+        if self.timeStepLog is not None:
+            # Log the rocket state
+            self.timeStepLog.newLogRow(startTime)
+            self.timeStepLog.logValue(&#34;Position(m)&#34;, startState.position)
+            self.timeStepLog.logValue(&#34;Velocity(m/s)&#34;, startState.velocity)
 
-        # Log -&gt; Main Sim Log
-        mainLogString = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
-        print(mainLogString)
+            try: # 6DoF Mode
+                self.timeStepLog.logValue(&#34;OrientationQuaternion&#34;, startState.orientation)
+                self.timeStepLog.logValue(&#34;AngularVelocity(rad/s)&#34;, startState.angularVelocity)
+
+                # Also log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
+                globalOrientation = startState.orientation
+                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+                orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
+                eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+                self.timeStepLog.logValue(&#34;EulerAngle(rad)&#34;, eulerAngles)
+
+            except AttributeError:
+                pass # 3DoF mode
+
+        altitude = self.environment.earthModel.getAltitude(*startState.position)
+        consoleOutput = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, altitude)
+        print(consoleOutput)
 
     def timeStep(self, dt: float):
         &#39;&#39;&#39;
@@ -3177,19 +3310,14 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 print(&#34;Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}&#34;.format(dt, newDt, estimatedOccurenceTime))
                 dt = newDt
                 
-        # Logs line to mainSimLog
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
-        if &#34;Adapt&#34; in self.rigidBody.integrate.method:
-            # Add estimated error for the time step to the end of the simulation log line
-            try:
-                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
-            except AttributeError:
-                pass # No logging set up
-
+        if &#34;Adapt&#34; in self.rigidBody.integrate.method and self.timeStepLog is not None:
+            self.timeStepLog.logValue(&#34;EstimatedIntegrationError&#34;, integrationResult.errorMagEstimate)
+            
         return integrationResult
     
     def _switchTo3DoF(self):
@@ -3218,7 +3346,26 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 startTime=self.rigidBody.time, 
                 integrationMethod=originalTimeDiscretization, 
                 simDefinition=self.simDefinition
-            )</code></pre>
+            )
+
+    #### After Simulation ####
+    def writeLogsToFile(self, directory=&#34;.&#34;):
+        logfilePaths = []
+
+        if self.timeStepLog is not None:
+            rocketName = self.components[0].name # Rocket is named after its top stage
+            path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
+            
+            if self.timeStepLog.writeToCSV(path):
+                logfilePaths.append(path)
+
+            if self.derivativeEvaluationLog is not None:
+                path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
+                
+                if self.derivativeEvaluationLog.writeToCSV(path):
+                    logfilePaths.append(path)
+
+        return logfilePaths</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -3239,6 +3386,10 @@ Always based on the maximum body tube diameter in the fully-assembled rocket.</p
 <dt id="MAPLEAF.Rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
 <dd>
 <div class="desc"><p>None for uncontrolled rockets. <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> for controlled rockets</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.derivativeEvaluationLog"><code class="name">var <span class="ident">derivativeEvaluationLog</span></code></dt>
+<dd>
+<div class="desc"><p>Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.Rocket.engineShutOff"><code class="name">var <span class="ident">engineShutOff</span></code></dt>
 <dd>
@@ -3311,6 +3462,10 @@ Populated by <code>_initializeStages</code>.</p></div>
 <dd>
 <div class="desc"><p>Default surface roughness for all rocket components</p></div>
 </dd>
+<dt id="MAPLEAF.Rocket.Rocket.timeStepLog"><code class="name">var <span class="ident">timeStepLog</span></code></dt>
+<dd>
+<div class="desc"><p>Log containing one entry per time step, logs rocket state. None if logging level == 0</p></div>
+</dd>
 <dt id="MAPLEAF.Rocket.Rocket.turbulenceOffWhenUnderChute"><code class="name">var <span class="ident">turbulenceOffWhenUnderChute</span></code></dt>
 <dd>
 <div class="desc"><p>(bool)</p></div>
@@ -3318,23 +3473,6 @@ Populated by <code>_initializeStages</code>.</p></div>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.Rocket.appendToForceLogLine"><code class="name flex">
-<span>def <span class="ident">appendToForceLogLine</span></span>(<span>self, txt: str)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Appends txt to the current line of the parent <code><a title="MAPLEAF.SimulationRunners.Simulation" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation">Simulation</a></code>'s forceEvaluationLog</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def appendToForceLogLine(self, txt: str):
-    &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
-    try:
-        self.simRunner.forceEvaluationLog[-1] += txt
-    except AttributeError:
-        pass # Force logging not set up for this sim</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.Rocket.Rocket.getLength"><code class="name flex">
 <span>def <span class="ident">getLength</span></span>(<span>self)</span>
 </code></dt>
@@ -3438,20 +3576,43 @@ Populated by <code>_initializeStages</code>.</p></div>
             print(&#34;Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}&#34;.format(dt, newDt, estimatedOccurenceTime))
             dt = newDt
             
-    # Logs line to mainSimLog
     self._runControlSystemAndLogStartingState(dt)
 
     # Take timestep
     integrationResult = self.rigidBody.timeStep(dt)
 
-    if &#34;Adapt&#34; in self.rigidBody.integrate.method:
-        # Add estimated error for the time step to the end of the simulation log line
-        try:
-            self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
-        except AttributeError:
-            pass # No logging set up
-
+    if &#34;Adapt&#34; in self.rigidBody.integrate.method and self.timeStepLog is not None:
+        self.timeStepLog.logValue(&#34;EstimatedIntegrationError&#34;, integrationResult.errorMagEstimate)
+        
     return integrationResult</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.Rocket.writeLogsToFile"><code class="name flex">
+<span>def <span class="ident">writeLogsToFile</span></span>(<span>self, directory='.')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def writeLogsToFile(self, directory=&#34;.&#34;):
+    logfilePaths = []
+
+    if self.timeStepLog is not None:
+        rocketName = self.components[0].name # Rocket is named after its top stage
+        path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
+        
+        if self.timeStepLog.writeToCSV(path):
+            logfilePaths.append(path)
+
+        if self.derivativeEvaluationLog is not None:
+            path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
+            
+            if self.derivativeEvaluationLog.writeToCSV(path):
+                logfilePaths.append(path)
+
+    return logfilePaths</code></pre>
 </details>
 </dd>
 </dl>
@@ -4195,13 +4356,9 @@ Returns CGsubZ, CGsubY (two lists of scalars for a 2D plot)</p></div>
 
         return aeroCoefficients
 
-    @logForceResult
     def getAeroForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
-        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+        return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -4212,7 +4369,7 @@ Returns CGsubZ, CGsubY (two lists of scalars for a 2D plot)</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.TabulatedAeroForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -4220,27 +4377,9 @@ Returns CGsubZ, CGsubY (two lists of scalars for a 2D plot)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
-    
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.TabulatedAeroForce.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+    aeroCoefficients = self._getAeroCoefficients(state, environment)
+    return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
 </dl>
@@ -4488,9 +4627,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
         
         # Create Vector
         thrust = Vector(0,0, thrustMagnitude)
-
-        # Log and return
-        self.rocket.appendToForceLogLine(&#34; {:&gt;10.4f}&#34;.format(thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
@@ -4578,9 +4714,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
     
     # Create Vector
     thrust = Vector(0,0, thrustMagnitude)
-
-    # Log and return
-    self.rocket.appendToForceLogLine(&#34; {:&gt;10.4f}&#34;.format(thrust.Z))
     return ForceMomentSystem(thrust)</code></pre>
 </details>
 </dd>
@@ -4784,7 +4917,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = &#39;k&#39;)
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
@@ -4850,7 +4982,7 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.Transition.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -4858,14 +4990,50 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+    Aref = self.rocket.Aref
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    #### Normal Force ####
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+    #### Pressure Drag ####
+    if self.startDiameter &gt; self.endDiameter:
+        # Pressure base drag
+        Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+        Cd_pressure = Cd_base * self.CdAdjustmentFactor
+
+    else:
+        # Pressure drag calculated like a nose cone
+        if Mach &lt; 1:
+            # Niskanen pg. 48 eq. 3.87 - Power law interpolation
+            Cd_pressure = self.SubsonicCdPolyCoeffs[0] * Mach**self.SubsonicCdPolyCoeffs[1]
+
+        elif Mach &gt; 1 and Mach &lt; 1.3:
+            # Interpolate in transonic region - derived from Niskanen Appendix B, Eqns B.3 - B.6
+            Cd_pressure = self.TransonicCdPolyCoeffs[0] + self.TransonicCdPolyCoeffs[1]*Mach +  \
+                self.TransonicCdPolyCoeffs[2]*Mach**2 + self.TransonicCdPolyCoeffs[3]*Mach**3
+            
+        else:
+            Cd_pressure = getSupersonicPressureDragCoeff_Hoerner(self.coneHalfAngle, Mach)
     
-    return aeroForce</code></pre>
+    # Make reference are the rocket&#39;s, not this objects
+    Cd_pressure *= self.frontalArea / Aref 
+
+    #### Skin Friction Drag ####
+    if self.wettedArea == 0:
+        skinFrictionDragCoefficient = 0
+        rollDampingMoment = Vector(0,0,0)
+    else:
+        skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+             self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+    #### Total Drag ####
+    Cd = Cd_pressure + skinFrictionDragCoefficient
+
+    #### Assemble &amp; return final force object ####
+    return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.Transition.plotShape"><code class="name flex">
@@ -4959,6 +5127,7 @@ MAPLEAF
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="MAPLEAF.Rocket.initializeForceLogging" href="#MAPLEAF.Rocket.initializeForceLogging">initializeForceLogging</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocketComponentFactory" href="#MAPLEAF.Rocket.rocketComponentFactory">rocketComponentFactory</a></code></li>
 </ul>
 </li>
@@ -5088,8 +5257,8 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.Rocket.Aref" href="#MAPLEAF.Rocket.Rocket.Aref">Aref</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.Rocket.controlSystem">controlSystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.derivativeEvaluationLog" href="#MAPLEAF.Rocket.Rocket.derivativeEvaluationLog">derivativeEvaluationLog</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.engineShutOff" href="#MAPLEAF.Rocket.Rocket.engineShutOff">engineShutOff</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.environment" href="#MAPLEAF.Rocket.Rocket.environment">environment</a></code></li>
@@ -5110,7 +5279,9 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.Rocket.stages" href="#MAPLEAF.Rocket.Rocket.stages">stages</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.surfaceRoughness" href="#MAPLEAF.Rocket.Rocket.surfaceRoughness">surfaceRoughness</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.timeStep" href="#MAPLEAF.Rocket.Rocket.timeStep">timeStep</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.timeStepLog" href="#MAPLEAF.Rocket.Rocket.timeStepLog">timeStepLog</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Rocket.turbulenceOffWhenUnderChute" href="#MAPLEAF.Rocket.Rocket.turbulenceOffWhenUnderChute">turbulenceOffWhenUnderChute</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Rocket.writeLogsToFile" href="#MAPLEAF.Rocket.Rocket.writeLogsToFile">writeLogsToFile</a></code></li>
 </ul>
 </li>
 <li>
@@ -5140,7 +5311,6 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.TabulatedAeroForce" href="#MAPLEAF.Rocket.TabulatedAeroForce">TabulatedAeroForce</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.TabulatedAeroForce.getAeroForce" href="#MAPLEAF.Rocket.TabulatedAeroForce.getAeroForce">getAeroForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.TabulatedAeroForce.getLogHeader" href="#MAPLEAF.Rocket.TabulatedAeroForce.getLogHeader">getLogHeader</a></code></li>
 </ul>
 </li>
 <li>

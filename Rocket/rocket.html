@@ -44,18 +44,19 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 &#34;&#34;&#34;
 
 import math
+import os
 
 import matplotlib.pyplot as plt
-
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import SubDictReader
+from MAPLEAF.IO import Log, SubDictReader, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
                             RigidBodyState, RigidBodyState_3DoF, Vector)
 from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
-                            PlanarInterface, SimEventDetector, Stage)
+                            PlanarInterface, SimEventDetector, Stage,
+                            initializeForceLogging)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
 
 __all__ = [ &#34;Rocket&#34; ]
@@ -181,6 +182,53 @@ class Rocket(CompositeObject):
         else:
             self.hardwareInTheLoopControl = &#34;no&#34;
 
+        #### Initialize Logging ####
+        self.timeStepLog = None
+        &#39;&#39;&#39; Log containing one entry per time step, logs rocket state. None if logging level == 0 &#39;&#39;&#39;
+        self.derivativeEvaluationLog = None
+        &#39;&#39;&#39; Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2 &#39;&#39;&#39;
+
+        loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if loggingLevel &gt; 0:
+            # Create the time step log and add columns to track the rocket state between each time step
+            self.timeStepLog = TimeStepLog()
+            zeroVector = Vector(0,0,0)
+            self.timeStepLog.addColumn(&#34;Position(m)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;Velocity(m/s)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;OrientationQuaternion&#34;, Quaternion(0,0,0,0))
+            self.timeStepLog.addColumn(&#34;EulerAngle(rad)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;AngularVelocity(rad/s)&#34;, zeroVector)
+
+            if &#34;Adapt&#34; in self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;):
+                self.timeStepLog.addColumn(&#34;EstimatedIntegrationError&#34;, 0)
+
+        if loggingLevel &gt; 1:
+            self.derivativeEvaluationLog = Log()
+            zeroVector = Vector(0,0,0)
+
+            self.derivativeEvaluationLog.addColumn(&#34;Position(m)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;Velocity(m/s)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;OrientationQuaternion&#34;, Quaternion(0,0,0,0))
+            self.derivativeEvaluationLog.addColumn(&#34;AngularVelocity(rad/s)&#34;, zeroVector)
+
+            self.derivativeEvaluationLog.addColumn(&#34;CG(m)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;MOI(kg*m^2)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;Mass(kg)&#34;, 0)
+            
+            self.derivativeEvaluationLog.addColumn(&#34;Wind(m/s)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;AirDensity(kg/m^3)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;Mach&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;UnitRe&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;AOA(deg)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;RollAngle(deg)&#34;, 0)
+
+            self.derivativeEvaluationLog.addColumn(&#34;CPZ(m)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;AeroF(N)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;AeroM(Nm)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;GravityF(N)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;TotalF(N)&#34;, zeroVector)
+        
         #### Init Components ####
         self._initializeRigidBody()
         self._initializeStages()
@@ -438,6 +486,7 @@ class Rocket(CompositeObject):
                 &#34;Auto-AddedZeroLengthBoatTail&#34;, 
                 self.surfaceRoughness
             )
+            initializeForceLogging(boatTail, &#34;FakeRocketName.Auto-AddedZeroLengthBoatTail&#34;, self)
             bottomStage.components.append(boatTail)     
 
     def _updateFinenessRatio(self):
@@ -449,16 +498,8 @@ class Rocket(CompositeObject):
         else:
             self.finenessRatio = length/maxDiameter
 
-    #### Logging ####
-    def appendToForceLogLine(self, txt: str):
-        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
-        try:
-            self.simRunner.forceEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim
-
     #### Component-buildup method for Force ####
-    def _getEnvironmentalConditions(self, time, state, logWind=True):
+    def _getEnvironmentalConditions(self, time, state):
         env = self.environment.getAirProperties(state.position, time)
 
         # Neglect turbulent component of wind if required
@@ -473,22 +514,19 @@ class Rocket(CompositeObject):
                 env.MeanWind,
                 Vector(0, 0, 0),
             )
-
-        # Log Wind
-        if logWind:
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;7.4}&#34;.format(env.Wind, env.Density))
         
         return env
 
     def _getAppliedForce(self, time, state):
         &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
         ### Precomputations and Logging ###
-        self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
-        
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
-        
+        environment = self._getEnvironmentalConditions(time, state)               # Get and log current air/wind properties
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
+
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.newLogRow(time)
+            self.derivativeEvaluationLog.logValue(&#34;Position(m)&#34;, state.position)
+            self.derivativeEvaluationLog.logValue(&#34;Velocity(m/s)&#34;, state.velocity)
 
         ### Component Forces ###
         if not self.isUnderChute:            
@@ -497,31 +535,50 @@ class Rocket(CompositeObject):
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
+
+            if self.derivativeEvaluationLog is not None:
+                self.derivativeEvaluationLog.logValue(&#34;Mach&#34;, Mach)
+                self.derivativeEvaluationLog.logValue(&#34;UnitRe&#34;, unitRe)
+                self.derivativeEvaluationLog.logValue(&#34;AOA(deg)&#34;, math.degrees(AOA))
+                self.derivativeEvaluationLog.logValue(&#34;RollAngle(deg)&#34;, rollAngle)
+                self.derivativeEvaluationLog.logValue(&#34;OrientationQuaternion&#34;, state.orientation)
+                self.derivativeEvaluationLog.logValue(&#34;AngularVelocity(rad/s)&#34;, state.angularVelocity)
 
             # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
 
         else:
             # When under chute, neglect forces from other components
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(0, 0, 0, 0))
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
-
-        componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
+            
+            # Log the recovery system&#39;s applied force (Normally handled in CompositeObject.getAeroForce)
+            if hasattr(self.recoverySystem, &#34;forcesLog&#34;):
+                self.recoverySystem.forcesLog.append(componentForces.force)
+                self.recoverySystem.momentsLog.append(componentForces.moment)
+    
+        # Move Force-Moment system to rocket CG
+        componentForces = componentForces.getAt(rocketInertia.CG)
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
         totalForce = componentForces + gravityForce
 
         ### Launch Rail ###
-        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
+        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)        
 
-        # Log center of pressure z-location
-        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
-        # Log total forces
-        self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
-            componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
-        )
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.logValue(&#34;Wind(m/s)&#34;, environment.Wind)
+            self.derivativeEvaluationLog.logValue(&#34;AirDensity(kg/m^3)&#34;, environment.Density)
+            self.derivativeEvaluationLog.logValue(&#34;CG(m)&#34;, rocketInertia.CG)
+            self.derivativeEvaluationLog.logValue(&#34;MOI(kg*m^2)&#34;, rocketInertia.MOI)
+            self.derivativeEvaluationLog.logValue(&#34;Mass(kg)&#34;, rocketInertia.mass)
+
+            CPZ = AeroFunctions._getCPZ(componentForces)            
+            self.derivativeEvaluationLog.logValue(&#34;CPZ(m)&#34;, CPZ)
+            self.derivativeEvaluationLog.logValue(&#34;AeroF(N)&#34;, componentForces.force)
+            self.derivativeEvaluationLog.logValue(&#34;AeroM(Nm)&#34;, componentForces.moment)
+            self.derivativeEvaluationLog.logValue(&#34;GravityF(N)&#34;, gravityForce.force)
+            self.derivativeEvaluationLog.logValue(&#34;TotalF(N)&#34;, totalForce.force)
 
         return totalForce
     
@@ -535,32 +592,42 @@ class Rocket(CompositeObject):
         startTime = self.rigidBody.time       
 
         # Control loop (if applicable)
-        controlLogString = &#34;&#34; # Empty string if not overridden by running the control loop
         if self.controlSystem != None and not self.isUnderChute:
-            environment = self._getEnvironmentalConditions(startTime, startState, logWind=False)
+            environment = self._getEnvironmentalConditions(startTime, startState)
 
             ### Run Control Loop ###
             newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
             
-            if newTargetActuatorDeflections != False:
+            # if newTargetActuatorDeflections != False:
                 # runControlLoopIfRequired returns False if the control doesn&#39;t run
                 # Add target deflections to the main log string
-                deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
-                controlLogString = &#34;&#34;.join(deflStrings)
+                # TODO: Control system should get its own log, this code is no longer functional
+                # deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
+                # controlLogString = &#34;&#34;.join(deflStrings)
 
-        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
-        try: # 6DoF Mode
-            globalOrientation = startState.orientation
-            orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
-            orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
-            eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
-            eulerAnglesString =  &#34; {:&gt;10.6f}&#34;.format(eulerAngles)
-        except AttributeError:
-            eulerAnglesString = &#34;&#34; # 3DoF mode
+        if self.timeStepLog is not None:
+            # Log the rocket state
+            self.timeStepLog.newLogRow(startTime)
+            self.timeStepLog.logValue(&#34;Position(m)&#34;, startState.position)
+            self.timeStepLog.logValue(&#34;Velocity(m/s)&#34;, startState.velocity)
 
-        # Log -&gt; Main Sim Log
-        mainLogString = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
-        print(mainLogString)
+            try: # 6DoF Mode
+                self.timeStepLog.logValue(&#34;OrientationQuaternion&#34;, startState.orientation)
+                self.timeStepLog.logValue(&#34;AngularVelocity(rad/s)&#34;, startState.angularVelocity)
+
+                # Also log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
+                globalOrientation = startState.orientation
+                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+                orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
+                eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+                self.timeStepLog.logValue(&#34;EulerAngle(rad)&#34;, eulerAngles)
+
+            except AttributeError:
+                pass # 3DoF mode
+
+        altitude = self.environment.earthModel.getAltitude(*startState.position)
+        consoleOutput = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, altitude)
+        print(consoleOutput)
 
     def timeStep(self, dt: float):
         &#39;&#39;&#39;
@@ -592,19 +659,14 @@ class Rocket(CompositeObject):
                 print(&#34;Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}&#34;.format(dt, newDt, estimatedOccurenceTime))
                 dt = newDt
                 
-        # Logs line to mainSimLog
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
-        if &#34;Adapt&#34; in self.rigidBody.integrate.method:
-            # Add estimated error for the time step to the end of the simulation log line
-            try:
-                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
-            except AttributeError:
-                pass # No logging set up
-
+        if &#34;Adapt&#34; in self.rigidBody.integrate.method and self.timeStepLog is not None:
+            self.timeStepLog.logValue(&#34;EstimatedIntegrationError&#34;, integrationResult.errorMagEstimate)
+            
         return integrationResult
     
     def _switchTo3DoF(self):
@@ -633,7 +695,26 @@ class Rocket(CompositeObject):
                 startTime=self.rigidBody.time, 
                 integrationMethod=originalTimeDiscretization, 
                 simDefinition=self.simDefinition
-            )</code></pre>
+            )
+
+    #### After Simulation ####
+    def writeLogsToFile(self, directory=&#34;.&#34;):
+        logfilePaths = []
+
+        if self.timeStepLog is not None:
+            rocketName = self.components[0].name # Rocket is named after its top stage
+            path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
+            
+            if self.timeStepLog.writeToCSV(path):
+                logfilePaths.append(path)
+
+            if self.derivativeEvaluationLog is not None:
+                path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
+                
+                if self.derivativeEvaluationLog.writeToCSV(path):
+                    logfilePaths.append(path)
+
+        return logfilePaths</code></pre>
 </details>
 </section>
 <section>
@@ -797,6 +878,53 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         else:
             self.hardwareInTheLoopControl = &#34;no&#34;
 
+        #### Initialize Logging ####
+        self.timeStepLog = None
+        &#39;&#39;&#39; Log containing one entry per time step, logs rocket state. None if logging level == 0 &#39;&#39;&#39;
+        self.derivativeEvaluationLog = None
+        &#39;&#39;&#39; Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2 &#39;&#39;&#39;
+
+        loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+
+        if loggingLevel &gt; 0:
+            # Create the time step log and add columns to track the rocket state between each time step
+            self.timeStepLog = TimeStepLog()
+            zeroVector = Vector(0,0,0)
+            self.timeStepLog.addColumn(&#34;Position(m)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;Velocity(m/s)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;OrientationQuaternion&#34;, Quaternion(0,0,0,0))
+            self.timeStepLog.addColumn(&#34;EulerAngle(rad)&#34;, zeroVector)
+            self.timeStepLog.addColumn(&#34;AngularVelocity(rad/s)&#34;, zeroVector)
+
+            if &#34;Adapt&#34; in self.simDefinition.getValue(&#34;SimControl.timeDiscretization&#34;):
+                self.timeStepLog.addColumn(&#34;EstimatedIntegrationError&#34;, 0)
+
+        if loggingLevel &gt; 1:
+            self.derivativeEvaluationLog = Log()
+            zeroVector = Vector(0,0,0)
+
+            self.derivativeEvaluationLog.addColumn(&#34;Position(m)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;Velocity(m/s)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;OrientationQuaternion&#34;, Quaternion(0,0,0,0))
+            self.derivativeEvaluationLog.addColumn(&#34;AngularVelocity(rad/s)&#34;, zeroVector)
+
+            self.derivativeEvaluationLog.addColumn(&#34;CG(m)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;MOI(kg*m^2)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;Mass(kg)&#34;, 0)
+            
+            self.derivativeEvaluationLog.addColumn(&#34;Wind(m/s)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;AirDensity(kg/m^3)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;Mach&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;UnitRe&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;AOA(deg)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;RollAngle(deg)&#34;, 0)
+
+            self.derivativeEvaluationLog.addColumn(&#34;CPZ(m)&#34;, 0)
+            self.derivativeEvaluationLog.addColumn(&#34;AeroF(N)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;AeroM(Nm)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;GravityF(N)&#34;, zeroVector)
+            self.derivativeEvaluationLog.addColumn(&#34;TotalF(N)&#34;, zeroVector)
+        
         #### Init Components ####
         self._initializeRigidBody()
         self._initializeStages()
@@ -1054,6 +1182,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 &#34;Auto-AddedZeroLengthBoatTail&#34;, 
                 self.surfaceRoughness
             )
+            initializeForceLogging(boatTail, &#34;FakeRocketName.Auto-AddedZeroLengthBoatTail&#34;, self)
             bottomStage.components.append(boatTail)     
 
     def _updateFinenessRatio(self):
@@ -1065,16 +1194,8 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         else:
             self.finenessRatio = length/maxDiameter
 
-    #### Logging ####
-    def appendToForceLogLine(self, txt: str):
-        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
-        try:
-            self.simRunner.forceEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim
-
     #### Component-buildup method for Force ####
-    def _getEnvironmentalConditions(self, time, state, logWind=True):
+    def _getEnvironmentalConditions(self, time, state):
         env = self.environment.getAirProperties(state.position, time)
 
         # Neglect turbulent component of wind if required
@@ -1089,22 +1210,19 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 env.MeanWind,
                 Vector(0, 0, 0),
             )
-
-        # Log Wind
-        if logWind:
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;7.4}&#34;.format(env.Wind, env.Density))
         
         return env
 
     def _getAppliedForce(self, time, state):
         &#39;&#39;&#39; Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket&#39;s acceleration &#39;&#39;&#39;
         ### Precomputations and Logging ###
-        self.simRunner.newForcesLogLine(&#34;{:&lt;7.3f} &#34;.format(time) + str(state))                  # Start a new line in the force Evaluation log
-        
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
-        
+        environment = self._getEnvironmentalConditions(time, state)               # Get and log current air/wind properties
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
+
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.newLogRow(time)
+            self.derivativeEvaluationLog.logValue(&#34;Position(m)&#34;, state.position)
+            self.derivativeEvaluationLog.logValue(&#34;Velocity(m/s)&#34;, state.velocity)
 
         ### Component Forces ###
         if not self.isUnderChute:            
@@ -1113,31 +1231,50 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
+
+            if self.derivativeEvaluationLog is not None:
+                self.derivativeEvaluationLog.logValue(&#34;Mach&#34;, Mach)
+                self.derivativeEvaluationLog.logValue(&#34;UnitRe&#34;, unitRe)
+                self.derivativeEvaluationLog.logValue(&#34;AOA(deg)&#34;, math.degrees(AOA))
+                self.derivativeEvaluationLog.logValue(&#34;RollAngle(deg)&#34;, rollAngle)
+                self.derivativeEvaluationLog.logValue(&#34;OrientationQuaternion&#34;, state.orientation)
+                self.derivativeEvaluationLog.logValue(&#34;AngularVelocity(rad/s)&#34;, state.angularVelocity)
 
             # This function will be the (inherited) function CompositeObject.getAeroForce
             componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
 
         else:
             # When under chute, neglect forces from other components
-            self.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.0f} {:&gt;10.4f} {:&gt;10.4f}&#34;.format(0, 0, 0, 0))
             componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
-
-        componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
+            
+            # Log the recovery system&#39;s applied force (Normally handled in CompositeObject.getAeroForce)
+            if hasattr(self.recoverySystem, &#34;forcesLog&#34;):
+                self.recoverySystem.forcesLog.append(componentForces.force)
+                self.recoverySystem.momentsLog.append(componentForces.moment)
+    
+        # Move Force-Moment system to rocket CG
+        componentForces = componentForces.getAt(rocketInertia.CG)
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
         totalForce = componentForces + gravityForce
 
         ### Launch Rail ###
-        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
+        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)        
 
-        # Log center of pressure z-location
-        self.appendToForceLogLine(&#34; {:&gt;10.5f}&#34;.format(AeroFunctions._getCPZ(componentForces)))
-        # Log total forces
-        self.appendToForceLogLine(&#34; {:&gt;8.5f} {:&gt;8.6f} {:&gt;8.4f} {:&gt;8.4f}&#34;.format(
-            componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
-        )
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.logValue(&#34;Wind(m/s)&#34;, environment.Wind)
+            self.derivativeEvaluationLog.logValue(&#34;AirDensity(kg/m^3)&#34;, environment.Density)
+            self.derivativeEvaluationLog.logValue(&#34;CG(m)&#34;, rocketInertia.CG)
+            self.derivativeEvaluationLog.logValue(&#34;MOI(kg*m^2)&#34;, rocketInertia.MOI)
+            self.derivativeEvaluationLog.logValue(&#34;Mass(kg)&#34;, rocketInertia.mass)
+
+            CPZ = AeroFunctions._getCPZ(componentForces)            
+            self.derivativeEvaluationLog.logValue(&#34;CPZ(m)&#34;, CPZ)
+            self.derivativeEvaluationLog.logValue(&#34;AeroF(N)&#34;, componentForces.force)
+            self.derivativeEvaluationLog.logValue(&#34;AeroM(Nm)&#34;, componentForces.moment)
+            self.derivativeEvaluationLog.logValue(&#34;GravityF(N)&#34;, gravityForce.force)
+            self.derivativeEvaluationLog.logValue(&#34;TotalF(N)&#34;, totalForce.force)
 
         return totalForce
     
@@ -1151,32 +1288,42 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         startTime = self.rigidBody.time       
 
         # Control loop (if applicable)
-        controlLogString = &#34;&#34; # Empty string if not overridden by running the control loop
         if self.controlSystem != None and not self.isUnderChute:
-            environment = self._getEnvironmentalConditions(startTime, startState, logWind=False)
+            environment = self._getEnvironmentalConditions(startTime, startState)
 
             ### Run Control Loop ###
             newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
             
-            if newTargetActuatorDeflections != False:
+            # if newTargetActuatorDeflections != False:
                 # runControlLoopIfRequired returns False if the control doesn&#39;t run
                 # Add target deflections to the main log string
-                deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
-                controlLogString = &#34;&#34;.join(deflStrings)
+                # TODO: Control system should get its own log, this code is no longer functional
+                # deflStrings = [ &#34; {:&gt;7.3f}&#34;.format(defl) for defl in newTargetActuatorDeflections ]
+                # controlLogString = &#34;&#34;.join(deflStrings)
 
-        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
-        try: # 6DoF Mode
-            globalOrientation = startState.orientation
-            orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
-            orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
-            eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
-            eulerAnglesString =  &#34; {:&gt;10.6f}&#34;.format(eulerAngles)
-        except AttributeError:
-            eulerAnglesString = &#34;&#34; # 3DoF mode
+        if self.timeStepLog is not None:
+            # Log the rocket state
+            self.timeStepLog.newLogRow(startTime)
+            self.timeStepLog.logValue(&#34;Position(m)&#34;, startState.position)
+            self.timeStepLog.logValue(&#34;Velocity(m/s)&#34;, startState.velocity)
 
-        # Log -&gt; Main Sim Log
-        mainLogString = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
-        print(mainLogString)
+            try: # 6DoF Mode
+                self.timeStepLog.logValue(&#34;OrientationQuaternion&#34;, startState.orientation)
+                self.timeStepLog.logValue(&#34;AngularVelocity(rad/s)&#34;, startState.angularVelocity)
+
+                # Also log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
+                globalOrientation = startState.orientation
+                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+                orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
+                eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+                self.timeStepLog.logValue(&#34;EulerAngle(rad)&#34;, eulerAngles)
+
+            except AttributeError:
+                pass # 3DoF mode
+
+        altitude = self.environment.earthModel.getAltitude(*startState.position)
+        consoleOutput = &#34;{:&lt;8.4f} {:&gt;6.5f}&#34;.format(startTime, altitude)
+        print(consoleOutput)
 
     def timeStep(self, dt: float):
         &#39;&#39;&#39;
@@ -1208,19 +1355,14 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 print(&#34;Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}&#34;.format(dt, newDt, estimatedOccurenceTime))
                 dt = newDt
                 
-        # Logs line to mainSimLog
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
-        if &#34;Adapt&#34; in self.rigidBody.integrate.method:
-            # Add estimated error for the time step to the end of the simulation log line
-            try:
-                self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
-            except AttributeError:
-                pass # No logging set up
-
+        if &#34;Adapt&#34; in self.rigidBody.integrate.method and self.timeStepLog is not None:
+            self.timeStepLog.logValue(&#34;EstimatedIntegrationError&#34;, integrationResult.errorMagEstimate)
+            
         return integrationResult
     
     def _switchTo3DoF(self):
@@ -1249,7 +1391,26 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
                 startTime=self.rigidBody.time, 
                 integrationMethod=originalTimeDiscretization, 
                 simDefinition=self.simDefinition
-            )</code></pre>
+            )
+
+    #### After Simulation ####
+    def writeLogsToFile(self, directory=&#34;.&#34;):
+        logfilePaths = []
+
+        if self.timeStepLog is not None:
+            rocketName = self.components[0].name # Rocket is named after its top stage
+            path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
+            
+            if self.timeStepLog.writeToCSV(path):
+                logfilePaths.append(path)
+
+            if self.derivativeEvaluationLog is not None:
+                path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
+                
+                if self.derivativeEvaluationLog.writeToCSV(path):
+                    logfilePaths.append(path)
+
+        return logfilePaths</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1270,6 +1431,10 @@ Always based on the maximum body tube diameter in the fully-assembled rocket.</p
 <dt id="MAPLEAF.Rocket.rocket.Rocket.controlSystem"><code class="name">var <span class="ident">controlSystem</span></code></dt>
 <dd>
 <div class="desc"><p>None for uncontrolled rockets. <code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="../GNC/ControlSystems.html#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code> for controlled rockets</p></div>
+</dd>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.derivativeEvaluationLog"><code class="name">var <span class="ident">derivativeEvaluationLog</span></code></dt>
+<dd>
+<div class="desc"><p>Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2</p></div>
 </dd>
 <dt id="MAPLEAF.Rocket.rocket.Rocket.engineShutOff"><code class="name">var <span class="ident">engineShutOff</span></code></dt>
 <dd>
@@ -1342,6 +1507,10 @@ Populated by <code>_initializeStages</code>.</p></div>
 <dd>
 <div class="desc"><p>Default surface roughness for all rocket components</p></div>
 </dd>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.timeStepLog"><code class="name">var <span class="ident">timeStepLog</span></code></dt>
+<dd>
+<div class="desc"><p>Log containing one entry per time step, logs rocket state. None if logging level == 0</p></div>
+</dd>
 <dt id="MAPLEAF.Rocket.rocket.Rocket.turbulenceOffWhenUnderChute"><code class="name">var <span class="ident">turbulenceOffWhenUnderChute</span></code></dt>
 <dd>
 <div class="desc"><p>(bool)</p></div>
@@ -1349,23 +1518,6 @@ Populated by <code>_initializeStages</code>.</p></div>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.rocket.Rocket.appendToForceLogLine"><code class="name flex">
-<span>def <span class="ident">appendToForceLogLine</span></span>(<span>self, txt: str)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Appends txt to the current line of the parent <code><a title="MAPLEAF.SimulationRunners.Simulation" href="../SimulationRunners/index.html#MAPLEAF.SimulationRunners.Simulation">Simulation</a></code>'s forceEvaluationLog</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def appendToForceLogLine(self, txt: str):
-    &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`&#39;s forceEvaluationLog &#39;&#39;&#39;
-    try:
-        self.simRunner.forceEvaluationLog[-1] += txt
-    except AttributeError:
-        pass # Force logging not set up for this sim</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.Rocket.rocket.Rocket.getLength"><code class="name flex">
 <span>def <span class="ident">getLength</span></span>(<span>self)</span>
 </code></dt>
@@ -1469,20 +1621,43 @@ Populated by <code>_initializeStages</code>.</p></div>
             print(&#34;Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}&#34;.format(dt, newDt, estimatedOccurenceTime))
             dt = newDt
             
-    # Logs line to mainSimLog
     self._runControlSystemAndLogStartingState(dt)
 
     # Take timestep
     integrationResult = self.rigidBody.timeStep(dt)
 
-    if &#34;Adapt&#34; in self.rigidBody.integrate.method:
-        # Add estimated error for the time step to the end of the simulation log line
-        try:
-            self.simRunner.mainSimulationLog[-2] += &#34; {:&lt;8.6f}&#34;.format(integrationResult.errorMagEstimate)
-        except AttributeError:
-            pass # No logging set up
-
+    if &#34;Adapt&#34; in self.rigidBody.integrate.method and self.timeStepLog is not None:
+        self.timeStepLog.logValue(&#34;EstimatedIntegrationError&#34;, integrationResult.errorMagEstimate)
+        
     return integrationResult</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.rocket.Rocket.writeLogsToFile"><code class="name flex">
+<span>def <span class="ident">writeLogsToFile</span></span>(<span>self, directory='.')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def writeLogsToFile(self, directory=&#34;.&#34;):
+    logfilePaths = []
+
+    if self.timeStepLog is not None:
+        rocketName = self.components[0].name # Rocket is named after its top stage
+        path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
+        
+        if self.timeStepLog.writeToCSV(path):
+            logfilePaths.append(path)
+
+        if self.derivativeEvaluationLog is not None:
+            path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
+            
+            if self.derivativeEvaluationLog.writeToCSV(path):
+                logfilePaths.append(path)
+
+    return logfilePaths</code></pre>
 </details>
 </dd>
 </dl>
@@ -1524,8 +1699,8 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.Aref" href="#MAPLEAF.Rocket.rocket.Rocket.Aref">Aref</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag" href="#MAPLEAF.Rocket.rocket.Rocket.addZeroLengthBoatTailsToAccountForBaseDrag">addZeroLengthBoatTailsToAccountForBaseDrag</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.appendToForceLogLine" href="#MAPLEAF.Rocket.rocket.Rocket.appendToForceLogLine">appendToForceLogLine</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.controlSystem" href="#MAPLEAF.Rocket.rocket.Rocket.controlSystem">controlSystem</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.derivativeEvaluationLog" href="#MAPLEAF.Rocket.rocket.Rocket.derivativeEvaluationLog">derivativeEvaluationLog</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.engineShutOff" href="#MAPLEAF.Rocket.rocket.Rocket.engineShutOff">engineShutOff</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.engineShutOffTime" href="#MAPLEAF.Rocket.rocket.Rocket.engineShutOffTime">engineShutOffTime</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.environment" href="#MAPLEAF.Rocket.rocket.Rocket.environment">environment</a></code></li>
@@ -1546,7 +1721,9 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.stages" href="#MAPLEAF.Rocket.rocket.Rocket.stages">stages</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.surfaceRoughness" href="#MAPLEAF.Rocket.rocket.Rocket.surfaceRoughness">surfaceRoughness</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.timeStep" href="#MAPLEAF.Rocket.rocket.Rocket.timeStep">timeStep</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.timeStepLog" href="#MAPLEAF.Rocket.rocket.Rocket.timeStepLog">timeStepLog</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.rocket.Rocket.turbulenceOffWhenUnderChute" href="#MAPLEAF.Rocket.rocket.Rocket.turbulenceOffWhenUnderChute">turbulenceOffWhenUnderChute</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.rocket.Rocket.writeLogsToFile" href="#MAPLEAF.Rocket.rocket.Rocket.writeLogsToFile">writeLogsToFile</a></code></li>
 </ul>
 </li>
 </ul>

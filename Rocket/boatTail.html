@@ -38,7 +38,6 @@ from MAPLEAF.Rocket import BodyComponent, FixedMass
 from MAPLEAF.Rocket.noseCone import (computeSubsonicPolyCoeffs,
                                      computeTransonicPolyCoeffs,
                                      getSupersonicPressureDragCoeff_Hoerner)
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ &#34;Transition&#34;, &#34;BoatTail&#34; ]
 
@@ -157,7 +156,6 @@ class Transition(FixedMass, BodyComponent):
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = &#39;k&#39;)
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
@@ -218,7 +216,6 @@ class BoatTail(Transition):
     canConnectToComponentBelow = False 
     &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
@@ -289,7 +286,6 @@ Modelled like a Transition object, but accounts for base drag.</p>
     canConnectToComponentBelow = False 
     &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
@@ -340,7 +336,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -348,14 +344,37 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+    Aref = self.rocket.Aref
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
-    
-    return aeroForce</code></pre>
+    #### Normal Force ####
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+    #### Pressure Drag ####
+    Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+    Cd_pressure = Cd_base * self.CdAdjustmentFactor
+    Cd_pressure *= self.frontalArea / self.rocket.Aref
+
+    noEngine = (self.stage.engineShutOffTime == None)
+    if noEngine or time &gt; self.stage.engineShutOffTime:
+        # Add base drag if engine is off
+        Cd_pressure += Cd_base * self.bottomArea / Aref
+
+    #### Skin Friction Drag ####
+    if self.wettedArea == 0:
+        skinFrictionDragCoefficient = 0
+        rollDampingMoment = Vector(0,0,0)
+    else:
+        skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+             self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+    #### Total Drag ####
+    Cd = Cd_pressure + skinFrictionDragCoefficient
+
+    #### Assemble &amp; return final force object ####
+    return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
 </details>
 </dd>
 </dl>
@@ -503,7 +522,6 @@ Modelled like a Transition object, but accounts for base drag.</p>
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = &#39;k&#39;)
 
-    @logForceResult
     def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
@@ -569,7 +587,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <h3>Methods</h3>
 <dl>
 <dt id="MAPLEAF.Rocket.boatTail.Transition.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>*args)</span>
+<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -577,14 +595,50 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def loggedAeroFunction(*args):
-    aeroForce = func(*args)
+<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    Mach = AeroParameters.getMachNumber(rocketState, environment)
+    Aref = self.rocket.Aref
     
-    # Log to force evaluation log
-    rocketComponent = args[0]
-    rocketComponent.rocket.appendToForceLogLine(&#34; {:&gt;10.4f} {:&gt;10.4f}&#34;.format(aeroForce.force, aeroForce.moment))
+    #### Normal Force ####
+    AOA = AeroParameters.getTotalAOA(rocketState, environment)
+    CN = AeroFunctions.Barrowman_GetCN(AOA, Aref, self.topArea, self.bottomArea)
+
+    #### Pressure Drag ####
+    if self.startDiameter &gt; self.endDiameter:
+        # Pressure base drag
+        Cd_base = AeroFunctions.getBaseDragCoefficient(Mach)
+        Cd_pressure = Cd_base * self.CdAdjustmentFactor
+
+    else:
+        # Pressure drag calculated like a nose cone
+        if Mach &lt; 1:
+            # Niskanen pg. 48 eq. 3.87 - Power law interpolation
+            Cd_pressure = self.SubsonicCdPolyCoeffs[0] * Mach**self.SubsonicCdPolyCoeffs[1]
+
+        elif Mach &gt; 1 and Mach &lt; 1.3:
+            # Interpolate in transonic region - derived from Niskanen Appendix B, Eqns B.3 - B.6
+            Cd_pressure = self.TransonicCdPolyCoeffs[0] + self.TransonicCdPolyCoeffs[1]*Mach +  \
+                self.TransonicCdPolyCoeffs[2]*Mach**2 + self.TransonicCdPolyCoeffs[3]*Mach**3
+            
+        else:
+            Cd_pressure = getSupersonicPressureDragCoeff_Hoerner(self.coneHalfAngle, Mach)
     
-    return aeroForce</code></pre>
+    # Make reference are the rocket&#39;s, not this objects
+    Cd_pressure *= self.frontalArea / Aref 
+
+    #### Skin Friction Drag ####
+    if self.wettedArea == 0:
+        skinFrictionDragCoefficient = 0
+        rollDampingMoment = Vector(0,0,0)
+    else:
+        skinFrictionDragCoefficient, rollDampingMoment = AeroFunctions.getCylindricalSkinFrictionDragCoefficientAndRollDampingMoment(rocketState, environment, \
+             self.length, Mach, self.surfaceRoughness, self.wettedArea, Aref, self.rocket.finenessRatio, self.rocket.fullyTurbulentBL)
+
+    #### Total Drag ####
+    Cd = Cd_pressure + skinFrictionDragCoefficient
+
+    #### Assemble &amp; return final force object ####
+    return AeroFunctions.forceFromCdCN(rocketState, environment, Cd, CN, self.CPLocation, Aref, moment=rollDampingMoment)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.boatTail.Transition.plotShape"><code class="name flex">
