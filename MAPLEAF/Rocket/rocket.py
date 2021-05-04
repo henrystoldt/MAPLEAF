@@ -170,6 +170,11 @@ class Rocket(CompositeObject):
             self.derivativeEvaluationLog = Log()
             zeroVector = Vector(0,0,0)
 
+            self.derivativeEvaluationLog.addColumn("Position(m)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("Velocity(m/s)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("OrientationQuaternion", Quaternion(0,0,0,0))
+            self.derivativeEvaluationLog.addColumn("AngularVelocity(rad/s)", zeroVector)
+
             self.derivativeEvaluationLog.addColumn("CG(m)", zeroVector)
             self.derivativeEvaluationLog.addColumn("MOI(kg*m^2)", zeroVector)
             self.derivativeEvaluationLog.addColumn("Mass(kg)", 0)
@@ -494,6 +499,8 @@ class Rocket(CompositeObject):
         
         if self.derivativeEvaluationLog is not None:
             self.derivativeEvaluationLog.newLogRow(time)
+            self.derivativeEvaluationLog.logValue("Position(m)", state.position)
+            self.derivativeEvaluationLog.logValue("Velocity(m/s)", state.velocity)
         
         environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
             
@@ -511,8 +518,10 @@ class Rocket(CompositeObject):
             if self.derivativeEvaluationLog is not None:
                 self.derivativeEvaluationLog.logValue("Mach", Mach)
                 self.derivativeEvaluationLog.logValue("UnitRe", unitRe)
-                self.derivativeEvaluationLog.logValue("AOA(deg)", AOA)
+                self.derivativeEvaluationLog.logValue("AOA(deg)", math.degrees(AOA))
                 self.derivativeEvaluationLog.logValue("RollAngle(deg)", rollAngle)
+                self.derivativeEvaluationLog.logValue("OrientationQuaternion", state.orientation)
+                self.derivativeEvaluationLog.logValue("AngularVelocity(rad/s)", state.angularVelocity)
 
                 self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
 
@@ -686,12 +695,16 @@ class Rocket(CompositeObject):
         if self.timeStepLog is not None:
             rocketName = self.components[0].name # Rocket is named after its top stage
             path = os.path.join(directory, "{}_timeStepLog.csv".format(rocketName))
-            logfilePaths.append(path)
-            self.timeStepLog.writeToCSV(path)
-        
+            
+            if self.timeStepLog.writeToCSV(path):
+                logfilePaths.append(path)
+
             if self.derivativeEvaluationLog is not None:
                 path = os.path.join(directory, "{}_derivativeEvaluationLog.csv".format(rocketName))  
-                logfilePaths.append(path)
-                self.derivativeEvaluationLog.writeToCSV(path)
+                
+                if self.derivativeEvaluationLog.writeToCSV(path):
+                    logfilePaths.append(path)
 
+        import sys
+        print(logfilePaths, sys.__stdout__)
         return logfilePaths

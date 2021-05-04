@@ -163,6 +163,7 @@ cdef class Log():
 
     cpdef writeToCSV(self, fileName):
         # Fill any unfilled values on last line
+        # Returns true if a file is written, false if it is not (empty log)
         self._completeLastLine()
         self.expandIterableColumns()
 
@@ -184,6 +185,10 @@ cdef class Log():
                     # Assemble the row
                     row = [ self.logColumns[col][i] for col in colNames ]
                     writer.writerow(row)
+
+            return True
+        
+        return False
 
 cdef class TimeStepLog(Log):
     '''
@@ -207,4 +212,4 @@ cdef class TimeStepLog(Log):
 
     cpdef writeToCSV(self, fileName):
         self._calculateTimeStepSizes()
-        Log.writeToCSV(self, fileName)
+        return Log.writeToCSV(self, fileName)

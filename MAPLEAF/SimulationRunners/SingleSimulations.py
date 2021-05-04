@@ -412,36 +412,37 @@ class Simulation():
 
             # Find new file name without overwriting old logs
             periodIndex = simDefinition.fileName.rfind('.')
-            fileBaseName = simDefinition.fileName[:periodIndex] + "_simulationLog_run"
-            mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=".txt")
+            # fileBaseName = simDefinition.fileName[:periodIndex] + "_simulationLog_run"
+            # mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=".txt")
                 
-            logFilePaths.append(mainLogFilePath)
-            print("Writing main log to: {}".format(mainLogFilePath))
+            # logFilePaths.append(mainLogFilePath)
+            # print("Writing main log to: {}".format(mainLogFilePath))
 
-            # Write main log to file
-            with open(mainLogFilePath, 'w+') as file:
-                file.writelines(self.mainSimulationLog)
+            # # Write main log to file
+            # with open(mainLogFilePath, 'w+') as file:
+            #     file.writelines(self.mainSimulationLog)
 
             resultsFolderName = simDefinition.fileName[:periodIndex] + "_Run"
             resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderName, extension="")
             os.mkdir(resultsFolderName)
             for rocket in self.rocketStages:
-                rocket.writeLogsToFile(resultsFolderName)
+                logFilePaths += rocket.writeLogsToFile(resultsFolderName)
 
             # Write force evaluation log to file if desired
-            if self.loggingLevel >= 2:
-                forceLogFilePath = mainLogFilePath.replace("simulationLog", "forceEvaluationLog")
-                print("Writing force evaluation log to: {}".format(forceLogFilePath))
-                logFilePaths.append(forceLogFilePath)
-                with open(forceLogFilePath, 'w+') as file:
-                    file.writelines(self.forceEvaluationLog)
+            # if self.loggingLevel >= 2:
+                # forceLogFilePath = mainLogFilePath.replace("simulationLog", "forceEvaluationLog")
+                # print("Writing force evaluation log to: {}".format(forceLogFilePath))
+                # logFilePaths.append(forceLogFilePath)
+                # with open(forceLogFilePath, 'w+') as file:
+                #     file.writelines(self.forceEvaluationLog)
 
-                # Post process / calculate force/moment coefficients if desired
-                if self.loggingLevel >= 3:
-                    bodyDiameter = self.rocketStages[0].maxDiameter
-                    crossSectionalArea = self.rocketStages[0].Aref
-                    expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
-                    logFilePaths.append(expandedLogPath)
+            # Post process / calculate force/moment coefficients if desired
+            if self.loggingLevel >= 3:
+                bodyDiameter = self.rocketStages[0].maxDiameter
+                crossSectionalArea = self.rocketStages[0].Aref
+                forceLogFilePath = logFilePaths[-1]
+                expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
+                logFilePaths.append(expandedLogPath)
 
         return logFilePaths
 
@@ -514,6 +515,13 @@ class WindTunnelSimulation(Simulation):
 
             # Run a single force evaluation, which creates a forces log entry for this force evaluation
             rocket = self.createRocket()
+
+            # Track all derivative evaluations in a single log
+            if i == 0:
+                log = rocket.derivativeEvaluationLog
+            else:
+                rocket.derivativeEvaluationLog = log
+
             self.rocketStages = [ rocket ]
             rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 

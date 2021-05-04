@@ -78,7 +78,7 @@ B4-4SimpleRocketCase{
 		PositionZ(m)	67.818
 		VelocityX(m/s)	-0.0714
 		VelocityY(m/s)	0.0
-		VelocityZ(m/s)	-0.0007
+		VelocityZ(m/s)	-0.0007425
 	}
 
 	PlotsToGenerate{
@@ -175,7 +175,7 @@ HaisunaataCase{
 		PositionZ(m)	859.154
 		VelocityX(m/s)	-9.1115
 		VelocityY(m/s)	0.0
-		VelocityZ(m/s)	-0.0152
+		VelocityZ(m/s)	-0.015156
 	}
 
 	!create PlotsToGenerate from B4-4SimpleRocketCase.PlotsToGenerate{

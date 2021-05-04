@@ -7,18 +7,17 @@
 #Add [-v] for verbose output (displays names of all test functions)
 
 import os
+import shutil
 import test.testUtilities
 import unittest
 
-import matplotlib.pyplot as plt
-
 import MAPLEAF.IO.Plotting as Plotting
 import MAPLEAF.Main as Main
-from MAPLEAF.IO import SimDefinition
-from MAPLEAF.Motion import Quaternion
-from MAPLEAF.Motion import RigidBodyState_3DoF, RigidBodyState
-from MAPLEAF.IO import RocketFlight
-from MAPLEAF.Motion import Vector
+import matplotlib.pyplot as plt
+from MAPLEAF.IO import RocketFlight, SimDefinition
+from MAPLEAF.Motion import (Quaternion, RigidBodyState, RigidBodyState_3DoF,
+                            Vector)
+
 
 class TestPlotting(unittest.TestCase):
     '''
@@ -54,37 +53,26 @@ class TestPlotting(unittest.TestCase):
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDef)
         simDef.setValue("SimControl.EndConditionValue", "0.03")
 
-        expectedSimLogFilePath = "test/tempTestFileasdf_simulationLog_run1.txt"
-        expectedForcesLogFilePath = "test/tempTestFileasdf_forceEvaluationLog_run1.txt"
-        
-        # Remove log files if they've been left over from a failed run of this test
-        if os.path.exists(expectedSimLogFilePath):
-            os.remove(expectedSimLogFilePath)
-        if os.path.exists(expectedForcesLogFilePath):
-            os.remove(expectedForcesLogFilePath)
-
         # Generate log file from a simulation
         simDef.setValue("SimControl.loggingLevel", "2")
         simDef.fileName = "test/tempTestFileasdf.txt"
-        simRunner =  Main.Simulation(simDefinition=simDef, silent=True)
-        simRunner.run()
+        simRunner = Main.Simulation(simDefinition=simDef, silent=True)
+        _, logfilePaths = simRunner.run()
         
-
-
         # Try to plot one of its columns (AeroForce)
-        Plotting.tryPlottingFromLog(expectedForcesLogFilePath, ["AeroF"], showPlot=False)
+        Plotting.tryPlottingFromLog(logfilePaths[1], ["AeroF"], showPlot=False)
         ax = plt.gca()
         nLines = len(ax.lines)
         self.assertEqual(nLines, 3)
 
-        Plotting.tryPlottingFromLog(expectedSimLogFilePath, ["Position"], showPlot=False)
+        Plotting.tryPlottingFromLog(logfilePaths[0], ["Position"], showPlot=False)
         ax = plt.gca()
         nLines = len(ax.lines)
         self.assertEqual(nLines, 3)
 
         # Delete temp files
-        os.remove(expectedForcesLogFilePath)
-        os.remove(expectedSimLogFilePath)
+        logDirectory = os.path.dirname(logfilePaths[0])
+        shutil.rmtree(logDirectory)
 
     def test_plotFromLog(self):
         # Load sim definition file
@@ -92,41 +80,31 @@ class TestPlotting(unittest.TestCase):
         test.testUtilities.setUpSimDefForMinimalRunCheck(simDef)
         simDef.setValue("SimControl.EndConditionValue", "0.03")
 
-        expectedSimLogFilePath = "test/tempTestFileasdf_simulationLog_run1.txt"
-        expectedForcesLogFilePath = "test/tempTestFileasdf_forceEvaluationLog_run1.txt"
-        
-        # Remove log files if they've been left over from a failed run of this test
-        if os.path.exists(expectedSimLogFilePath):
-            os.remove(expectedSimLogFilePath)
-        if os.path.exists(expectedForcesLogFilePath):
-            os.remove(expectedForcesLogFilePath)
-
         # Generate log file from a simulation
         simDef.setValue("SimControl.loggingLevel", "2")
         simDef.fileName = "test/tempTestFileasdf.txt"
         simRunner =  Main.Simulation(simDefinition=simDef, silent=True)
-        simRunner.run()
+        _, logfilePaths = simRunner.run()
         
-
         # Try to plot one of its columns (AeroForce)
-        Plotting.plotFromLogFiles([expectedSimLogFilePath, expectedForcesLogFilePath], "Position&^Velocity", showPlot=False)
+        Plotting.plotFromLogFiles(logfilePaths, "Position&^Velocity", showPlot=False)
         # The '^' in front of Velocity is for a Regex match, indicating the start of a line
             # This will prevent it from also plotting the AngularVelocity along with the Position and Velocity columns
         ax = plt.gca()
         nLines = len(ax.lines)
         self.assertEqual(nLines, 6)
 
-
         # Try to plot one of its columns (AeroForce)
-        Plotting.plotFromLogFiles([expectedSimLogFilePath, expectedForcesLogFilePath], "Position&Velocity", showPlot=False)
+        Plotting.plotFromLogFiles(logfilePaths, "Position&Velocity", showPlot=False)
         ax = plt.gca()
         nLines = len(ax.lines)
         self.assertEqual(nLines, 9)
 
         # Delete temp files
-        os.remove(expectedForcesLogFilePath)
-        os.remove(expectedSimLogFilePath)
+        logDirectory = os.path.dirname(logfilePaths[0])
+        shutil.rmtree(logDirectory)
 
+        # Clear the plot
         plt.clf()
 
     def test_flightAnimation(self):

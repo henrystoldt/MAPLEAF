@@ -113,12 +113,12 @@ class TestMonteCarloLogger(unittest.TestCase):
 class TestOtherLogging(unittest.TestCase):
     def test_LogPostProcessing(self):
         import pandas as pd
-        testLogPath = "./test/test_IO/sampleFakeForcesLog.txt"
-        expandedLogPath = Logging.postProcessForceEvalLog("./test/test_IO/sampleFakeForcesLog.txt", refArea=3.5, refLength=2.1)
+        testLogPath = "./test/test_IO/sampleFakeForcesLog.csv"
+        expandedLogPath = Logging.postProcessForceEvalLog(testLogPath, refArea=3.5, refLength=2.1)
 
         # Load new log and check values
-        origLog = pd.read_csv(testLogPath, sep="\s+") 
-        newLog = pd.read_csv(expandedLogPath, sep="\s+")
+        origLog = pd.read_csv(testLogPath)
+        newLog = pd.read_csv(expandedLogPath)
 
         columnsToCheckMatch = {
             "AeroCFX": "CFX",

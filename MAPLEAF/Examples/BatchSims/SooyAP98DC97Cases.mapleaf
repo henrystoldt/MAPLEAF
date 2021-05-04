@@ -16,7 +16,7 @@ ConventionalRocketCase{
 		}
 		
 		AOAResults{
-			expectedValues			0.0085,5,10,15,20
+			expectedValues			0.00851,5,10,15,20
 			column					AOA(deg)
 		}
 
@@ -159,7 +159,7 @@ BodyAloneCase{
 		}
 		
 		AOAResults{
-			expectedValues			0.0087, 5, 10, 15, 20, 25, 30
+			expectedValues			0.00867, 5, 10, 15, 20, 25, 30
 			column					AOA(deg)
 		}
 
