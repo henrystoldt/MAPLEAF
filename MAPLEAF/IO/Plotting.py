@@ -123,20 +123,25 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+", enabl
     if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
-        with open(logPath, 'r') as file:
-            lines = file.readlines()
-
-        #### Figure out which lines are not part of the data table ####
-        if "simulationLog" in logPath:
-            skipRows, skipFooter = _getSkipRowsAndFooters_mainSimLog(lines)
-        elif "forceEvaluationLog" in logPath:
-            skipRows, skipFooter = _getSkipRowsAndFooters_forceEvalLog(lines)
+        if ".csv" in logPath:
+            df = pd.read_csv(logPath, dtype=np.float64)
+        
         else:
-            skipRows, skipFooter = (0, 0)
+            # LEGACY TODO: Remove
+            with open(logPath, 'r') as file:
+                lines = file.readlines()
 
-        #### Read file, grab desired columns ####
-        # Read file, skipping any lines found in the previous section
-        df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine='python')
+            #### Figure out which lines are not part of the data table ####
+            if "simulationLog" in logPath:
+                skipRows, skipFooter = _getSkipRowsAndFooters_mainSimLog(lines)
+            elif "forceEvaluationLog" in logPath:
+                skipRows, skipFooter = _getSkipRowsAndFooters_forceEvalLog(lines)
+            else:
+                skipRows, skipFooter = (0, 0)
+
+            #### Read file, grab desired columns ####
+            # Read file, skipping any lines found in the previous section
+            df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine='python')
             
         logFileCache[logPath] = df
         if len(logFileCache) > maxLogFileCacheSize:

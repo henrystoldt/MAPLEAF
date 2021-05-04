@@ -7,6 +7,7 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 """
 
 import math
+import os
 
 import matplotlib.pyplot as plt
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
@@ -679,9 +680,18 @@ class Rocket(CompositeObject):
             )
 
     #### After Simulation ####
-    def writeLogsToFile(self):
+    def writeLogsToFile(self, directory="."):
+        logfilePaths = []
+
         if self.timeStepLog is not None:
-            self.timeStepLog.writeToCSV("timeStepLog.csv")
+            rocketName = self.components[0].name # Rocket is named after its top stage
+            path = os.path.join(directory, "{}_timeStepLog.csv".format(rocketName))
+            logfilePaths.append(path)
+            self.timeStepLog.writeToCSV(path)
         
-        if self.derivativeEvaluationLog is not None:
-            self.derivativeEvaluationLog.writeToCSV("derivativeEvaluationLog.csv")
+            if self.derivativeEvaluationLog is not None:
+                path = os.path.join(directory, "{}_derivativeEvaluationLog.csv".format(rocketName))  
+                logfilePaths.append(path)
+                self.derivativeEvaluationLog.writeToCSV(path)
+
+        return logfilePaths

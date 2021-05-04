@@ -1,15 +1,15 @@
 import math
+import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
 
-from tqdm import tqdm
-
 from MAPLEAF.ENV import Environment
-from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
-                        SubDictReader, Log)
+from MAPLEAF.IO import (Log, Logging, Plotting, RocketFlight, SimDefinition,
+                        SubDictReader)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
+from tqdm import tqdm
 
 __all__ = [ "Simulation", "runSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
 
@@ -421,6 +421,12 @@ class Simulation():
             # Write main log to file
             with open(mainLogFilePath, 'w+') as file:
                 file.writelines(self.mainSimulationLog)
+
+            resultsFolderName = simDefinition.fileName[:periodIndex] + "_Run"
+            resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderName, extension="")
+            os.mkdir(resultsFolderName)
+            for rocket in self.rocketStages:
+                rocket.writeLogsToFile(resultsFolderName)
 
             # Write force evaluation log to file if desired
             if self.loggingLevel >= 2:
