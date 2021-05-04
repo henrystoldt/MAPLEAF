@@ -1,14 +1,15 @@
 import os
+import shutil
 import test.testUtilities
 import unittest
 
 import matplotlib.pyplot as plt
-
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import isMonteCarloSimulation
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       optimizationRunnerFactory, Simulation,
-                                       runMonteCarloSimulation, WindTunnelSimulation)
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, Simulation,
+                                       WindTunnelSimulation,
+                                       optimizationRunnerFactory,
+                                       runMonteCarloSimulation)
 from MAPLEAF.Utilities import evalExpression
 
 
@@ -254,10 +255,13 @@ class TestSimRunners(unittest.TestCase):
         windTunnelSim = WindTunnelSimulation(parametersToSweep=["Rocket.velocity"], parameterValues=[["(0 0 100)", "(0 0 200)"]], simDefinition=simDef, silent=True, smoothLine="False")
 
         # Test running a sweep
-        windTunnelSim.runSweep()
+        logfilePaths = windTunnelSim.runSweep()
         
         # Check number of rows in the force evaluation log (2 evaluations)
         self.assertEqual(len(windTunnelSim.rocketStages[0].derivativeEvaluationLog.logColumns["Time(s)"]), 2)
+        
+        logDirectory = os.path.dirname(logfilePaths[0])
+        shutil.rmtree(logDirectory)
 
     def tearDown(self):
         plt.cla()
