@@ -306,10 +306,16 @@ class Rocket(CompositeObject):
             self.stages[0].motor.updateIgnitionTime(-1000000000, fakeValue=True)
     
     def _switchToStatefulRigidBodyIfRequired(self):
+        '''
+            Query all of the rocket components to see if any of them are stateful by attempting to call their getExtraParametersToIntegrate function
+            If the rocket contains stateful components, the rocket state is converted to a StateList and all of these state variables requested by components are added to it
+            Otherwise, nothing changes and the rocket state remains a RigidBodyState
+        '''
         varNames = []
         initVals = []
         derivativeFuncs = []
 
+        # Query all of the components
         for stage in self.stages:
             for component in stage.components:
                 try:
@@ -320,6 +326,7 @@ class Rocket(CompositeObject):
                 except AttributeError:
                     pass # No extra parameters to integrate
 
+        # If any of the components are stateful, keep track of their states in the main rocket state
         if len(varNames) > 0:
             if len(varNames) != len(initVals) or len(initVals) != len(derivativeFuncs):
                 raise ValueError("ERROR: Mismatch in number of extra parameters names ({}), init values({}), and derivative functions({}) to integrate".format(len(varNames), len(initVals), len(derivativeFuncs)))
