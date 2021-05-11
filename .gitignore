@@ -1,6 +1,7 @@
 # Ignore the testWrite file, it will have a new date everytime the unit tests are run
 testWrite.mapleaf
 testSimConfigWrite.mapleaf
+testCSVLogOutput.csv
 TempFigureDir
 
 #Ignore Pycache
@@ -24,6 +25,9 @@ for01*
 *simulationLog*
 *forceEvaluationLog*
 *monteCarloLog*
+*controlSystemEvaluationLog*
+*Log*.csv
+MAPLEAF/Examples/Simulations/*Run*
 
 # Ignore pypy environment
 my-pypy-env
@@ -55,15 +59,15 @@ classes*.dot
 classes*.pdf
 
 # Exclude regression testing plots
-test/regressionTesting/*.pdf
-test/regressionTesting/*.png
-test/regressionTesting/*.eps
-test/regressionTesting/*/*.pdf
-test/regressionTesting/*/*.png
-test/regressionTesting/*/*.eps
-test/regressionTesting/*/*/*.pdf
-test/regressionTesting/*/*/*.png
-test/regressionTesting/*/*/*.eps
+test/V&V/*.pdf
+test/V&V/*.png
+test/V&V/*.eps
+test/V&V/*/*.pdf
+test/V&V/*/*.png
+test/V&V/*/*.eps
+test/V&V/*/*/*.pdf
+test/V&V/*/*/*.png
+test/V&V/*/*/*.eps
 
 # Exlude temporary files generated with regression testing results in them
 *_newExpectedResultsRecorded*
@@ -73,15 +77,23 @@ test/regressionTesting/*/*/*.eps
 *Cython*.cpp
 *Cython*.pyd
 *Cython*.so
+*Cython*.html
 
 clean.sh
 
 # Documentation
 doc
 docs
+MAPLEAF/V&V
 
 # PySwarms logs
 *.log
 
 # Notebooks
 *.ipynb
+
+# Optimization continuation files
+*_continue.mapleaf
+
+# Airspeed Velocity Benchmarking Results
+.asv
