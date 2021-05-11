@@ -3,12 +3,13 @@ In charge of initializing rocket components. Add new components to `stringNameTo
 '''
 
 from MAPLEAF.IO import SubDictReader
+from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import (
     AeroDamping, AeroForce, BoatTail, BodyTube, FinSet, FixedForce, FixedMass,
     FractionalJetDamping, NoseCone, RecoverySystem, SampleStatefulComponent, TabulatedAeroForce,
     TabulatedInertia, TabulatedMotor, Transition)
 
-__all__ = [ "stringNameToClassMap", "rocketComponentFactory" ]
+__all__ = [ "stringNameToClassMap", "rocketComponentFactory", "initializeForceLogging" ]
 
 stringNameToClassMap = {
     "AeroDamping":          AeroDamping,
@@ -44,5 +45,17 @@ def rocketComponentFactory(subDictPath, rocket, stage):
     className = componentDictReader.getString("class")
     referencedClass = stringNameToClassMap[className]
     
-    # Initialize it
-    return referencedClass(componentDictReader, rocket, stage)
+    # Initialize the rocket component
+    newComponent = referencedClass(componentDictReader, rocket, stage)
+
+    # Initialize logging component forces (if desired)
+    initializeForceLogging(newComponent, subDictPath, rocket)
+
+    return newComponent
+
+def initializeForceLogging(component, subDictPath, rocket):
+    if rocket.derivativeEvaluationLog is not None:
+        componentName = subDictPath[subDictPath.index(".")+1:]
+        zeroVector = Vector(0,0,0)
+        component.forcesLog = rocket.derivativeEvaluationLog.addColumn(componentName + "F(N)", zeroVector)
+        component.momentsLog = rocket.derivativeEvaluationLog.addColumn(componentName + "M(Nm)", zeroVector)

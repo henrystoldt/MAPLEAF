@@ -139,6 +139,7 @@ class TestSimDefinition(unittest.TestCase):
         self.assertFalse(isSubKey("Rocket", "SimControl"))
         self.assertTrue(isSubKey("", "Rocket"))
         self.assertTrue(isSubKey("Dictionary1", "Dictionary1.key1"))
+        self.assertFalse(isSubKey("Case5", "Case5_0AOA"))
 
     def test_getKeyLevel(self):
         self.assertEqual(getKeyLevel("Rocket.name"), 1)
@@ -197,6 +198,14 @@ class TestSimDefinition(unittest.TestCase):
     def test_circularImport(self):
         with self.assertRaises(ValueError):
             circularSimDef = SimDefinition("test/test_IO/circImportTest1.mapleaf")
+
+    def test_relativeFilepath(self):
+        simulationDefinition = SimDefinition('test/test_IO/testRelativeMotorPath.mapleaf', silent=True)        
+        motorFilePath = simulationDefinition.getValue('Rocket.Sustainer.Motor.path')
+        self.assertTrue(os.path.isfile(motorFilePath))
+
+        # Ensure relative path expansion does not corrupt plot line formats
+        self.assertEqual(simulationDefinition.getValue('Rocket.Sustainer.Motor.lineFormat'), '.')
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':

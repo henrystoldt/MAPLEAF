@@ -1,12 +1,11 @@
 import re
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 
 __all__ = [ "TabulatedMotor", "SampleStatefulComponent" ]
 
-class TabulatedMotor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent):
     '''
     Interface:
         Initialization:
@@ -149,9 +148,6 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         
         # Create Vector
         thrust = Vector(0,0, thrustMagnitude)
-
-        # Log and return
-        self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):

@@ -19,16 +19,11 @@ __all__ = [ "defaultConfigValues", "SimDefinition", "getAbsoluteFilePath" ]
 
 #################### Default value dictionary  #########################
 defaultConfigValues = {
-    "Optimization.ParticleSwarm.nParticles":                "20",
-    "Optimization.ParticleSwarm.nIterations":               "50",
-    "Optimization.ParticleSwarm.cognitiveParam":            "0.5",
-    "Optimization.ParticleSwarm.socialParam":               "0.6",
-    "Optimization.ParticleSwarm.inertiaParam":              "0.9",
     "Optimization.showConvergencePlot":                     "True",
 
     "MonteCarlo.output":                                    "landingLocations",
 
-    "SimControl.plot":                                      "Position Velocity AngularVelocity FlightAnimation",
+    "SimControl.plot":                                      "Position FlightAnimation",
     "SimControl.loggingLevel":                              "2",
     "SimControl.EndCondition":                              "Altitude",
     "SimControl.EndConditionValue":                         "-1",
@@ -415,11 +410,16 @@ class SimDefinition():
         #### Parse any regular values in derived dict ####
         return self._parseDictionaryContents(Dict, workingText, i, derivedDictName, allowKeyOverwriting=True)
 
-    def _replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(self, Dict):
+    def _replaceRelativeFilePathsWithAbsolutePaths(self, Dict):
         ''' 
             Tries to detect paths relative to the MAPLEAF installation directory and replaces them with absolute paths.
             This allows MAPLEAF to work when installed from pip and being run outside its installation directory.
         '''
+        if self.fileName != None:
+            fileDirectory = os.path.dirname(os.path.realpath(self.fileName))
+        else:
+            fileDirectory = None
+
         for key in Dict:
             # Iterate over all keys, looking for file path relative to the MAPLEAF repo
             val = Dict[key]
@@ -428,9 +428,16 @@ class SimDefinition():
             if val[:2] == "./":
                 val = val[2:]
 
-            if len(val) > 8 and val[:8] == "MAPLEAF/":
+            if pathIsRelativeToRepository(val):
                 # Replace the relative path with an absolute one
                 Dict[key] = getAbsoluteFilePath(val)
+            
+            if isFileName(val):
+                # Check if the file path is relative to the location of the simulation definition file
+                if fileDirectory != None:
+                    possibleLocation = os.path.join(fileDirectory, val)
+                    if os.path.exists(possibleLocation):
+                        Dict[key] = possibleLocation
 
     def _parseSimDefinitionFile(self, fileName):
         Dict = {}
@@ -441,8 +448,11 @@ class SimDefinition():
         file.close()
         
         # Remove comments
-        comment = re.compile("#.*") 
-        workingText = re.sub(comment, "", workingText)
+        comment = re.compile("(?<!\\\)#.*") 
+        workingText = re.sub(comment, "", workingText) 
+        
+        # Remove comment escape characters
+        workingText = re.sub(r"\\(?=#)", "", workingText) 
         
         # Remove blank lines
         workingText = [line for line in workingText.split('\n') if line.strip() != '']
@@ -451,7 +461,7 @@ class SimDefinition():
         self._parseDictionaryContents(Dict, workingText, 0, "")
 
         # Look for file paths relative to the MAPLEAF install location, replace them with absolute paths
-        self._replaceMAPLEAFRelativeFilePathsWithAbsolutePaths(Dict)
+        self._replaceRelativeFilePathsWithAbsolutePaths(Dict)
 
         return Dict
 
@@ -820,12 +830,18 @@ def isSubKey(potentialParent:str, potentialChild:str) -> bool:
         `isSubKey("Rocket", "Rocket.name")` -> True
         `isSubKey("SimControl", "Rocket.name")` -> False
     """
+    if potentialParent == "":
+        # All keys are children of an empty key
+        return True
+    
     pLength = len(potentialParent)
     cLength = len(potentialChild)
 
     if cLength <= pLength:
+        # Child key can't be shorter than parent key
         return False
-    elif potentialChild[:pLength] == potentialParent:
+    elif potentialChild[:pLength] == potentialParent and potentialChild[pLength] == ".":
+        # Child key must contain parent key
         return True
     else:
         return False
@@ -885,7 +901,18 @@ def splitKeyAtLevel(key:str, prefixLevel:int) -> Tuple[str]:
     suffix = ".".join(keyNames[n:])
     return prefix, suffix
 
-def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") -> str:
+def isFileName(value:str) -> bool:
+    expectedExtensions = [".csv", '.pdf', '.mapleaf', '.txt', '.py', '.eng'] # And file extensions here to have filled paths in simulation definition files ending in these extensions auto corrected
+    for ext in expectedExtensions:
+        if ext in value:
+            return True
+    
+    return False
+
+def pathIsRelativeToRepository(possiblePath:str) -> bool:
+    return  len(possiblePath) > 8 and possiblePath[:8] == "MAPLEAF/"
+
+def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "", silent=False) -> str:
     ''' 
         Takes a path defined relative to the MAPLEAF repository and tries to return an absolute path for the current installation.
         alternateRelativeLocation (str) location of an alternate file/folder the path could be relative to
@@ -914,5 +941,7 @@ def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "") 
             if absolutePath.exists():
                 return str(absolutePath)
                 
-    print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+    if not silent:
+        print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+        
     return relativePath

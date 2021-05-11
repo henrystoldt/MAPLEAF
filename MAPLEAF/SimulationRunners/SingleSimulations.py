@@ -1,17 +1,17 @@
 import math
+import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
 
-from tqdm import tqdm
-
 from MAPLEAF.ENV import Environment
-from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
+from MAPLEAF.IO import (Log, Logging, Plotting, RocketFlight, SimDefinition,
                         SubDictReader)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
+from tqdm import tqdm
 
-__all__ = [ "Simulation", "RemoteSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
+__all__ = [ "Simulation", "runSimulation", "WindTunnelSimulation", "loadSimDefinition" ]
 
 def loadSimDefinition(simDefinitionFilePath=None, simDefinition=None, silent=False):
     ''' Loads a simulation definition file into a `MAPLEAF.IO.SimDefinition` object - accepts either a file path or a `MAPLEAF.IO.SimDefinition` object as input '''
@@ -48,6 +48,7 @@ class Simulation():
         self.silent = silent
         ''' (bool) '''
 
+        self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
         self.computeStageDropPaths = strtobool(self.simDefinition.getValue("SimControl.StageDropPaths.compute"))
 
     def run(self, rocket=None):
@@ -87,36 +88,46 @@ class Simulation():
             rocket.hilInterface.setupHIL(self.rocketStages[0].rigidBody.state)
 
         #### Main Loop ####
-        s = 0 # Stage Index
-        while s < len(self.rocketStages):
+        stageIndex = 0
+        while stageIndex < len(self.rocketStages):
 
-            if s > 0:
-                print("Computing stage {} drop path".format(s))
+            if stageIndex > 0:
+                print("Computing stage {} drop path".format(stageIndex))
 
-            rocket = self.rocketStages[s]
-            endDetector = self.endDetectors[s]
-            flight = self.stageFlightPaths[s]
+            rocket = self.rocketStages[stageIndex]
+            endDetector = self.endDetectors[stageIndex]
+            flight = self.stageFlightPaths[stageIndex]
 
-            endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+            endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
                 
             while not endSimulation:
-                # Take a time step
-                # try:
-                if FinalTimeStepDt != None:
-                    self.dts[s] = FinalTimeStepDt
+                ### Take a time step ###
+                try:
+                    if FinalTimeStepDt != None:
+                        print("Simulation Runner overriding time step from {} to {} to accurately meet end condition".format(self.dts[stageIndex], FinalTimeStepDt))
+                        self.dts[stageIndex] = FinalTimeStepDt
 
-                timeStepAdjustmentFactor, self.dts[s] = rocket.timeStep(self.dts[s])
+                    integrationResult = rocket.timeStep(self.dts[stageIndex])
 
-                if s == 0: # Currently, progress bar only works for bottom stage
+                    if stageIndex == 0: # Currently, progress bar only works for bottom stage
                         try:
-                            progressBar.update(self.dts[s])
+                            progressBar.update(integrationResult.dt)
                         except AttributeError:
                             pass
-                # except:
-                #     self._handleSimulationCrash()
+                except:
+                    try:
+                        progressBar.close()
+                
+                        if not self.silent:
+                            sys.stdout.continueWritingToTerminal = True # sys.stdout is an instance of MAPLEAF.IO.Logging.Logger
+                    except AttributeError:
+                        pass
 
-                # Adjust time step
-                self.dts[s] *= timeStepAdjustmentFactor
+                    # Save simulation results and print out stack trace                    
+                    self._handleSimulationCrash()
+
+                # Adjust time step size for next iteration
+                self.dts[stageIndex] = integrationResult.dt * integrationResult.timeStepAdaptationFactor
 
                 # HIL
                 if(rocket.hardwareInTheLoopControl == "yes"):
@@ -126,13 +137,13 @@ class Simulation():
                 self.cacheState(rocket, flight)
 
                 # Check whether we should end the simulation, or take a modified-size final time step    
-                endSimulation, FinalTimeStepDt = endDetector(self.dts[s])
+                endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(0.0)
+            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
 
             # Move on to next (dropped) stage
-            s += 1
+            stageIndex += 1
 
             try:
                 progressBar.close()
@@ -143,6 +154,10 @@ class Simulation():
                 pass
 
         print("Simulation Complete")
+
+        # Write all logs to file
+        for rocket in self.rocketStages:
+            rocket.writeLogsToFile()
 
         logFilePaths = self._postProcess(simDefinition)
 
@@ -162,74 +177,35 @@ class Simulation():
             rocket.plotShape()  # Reference to this simRunner used to add to logs
 
         if stage == None:
-            self._setUpLogging()
-            self._createLogDataTableHeaders(rocket)
-
+            self._setUpConsoleLogging()
             self.stagingIndex = 0 # Initially zero, after dropping first stage: 1, after dropping second stage: 2, etc...
             
         return rocket
 
-    def _setUpLogging(self):
-        self.loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
-
-        if  self.loggingLevel > 0:
+    def _setUpConsoleLogging(self):
+        if self.loggingLevel > 0:
             # Set up logging so that the output of any print calls after this point is captured in mainSimulationLog
-            self.mainSimulationLog = []
+            self.consoleOutputLog = []
             if self.silent:
-                self.logger = Logging.Logger(self.mainSimulationLog, continueWritingToTerminal=False)
+                self.logger = Logging.Logger(self.consoleOutputLog, continueWritingToTerminal=False)
             else:
-                self.logger = Logging.Logger(self.mainSimulationLog)
+                self.logger = Logging.Logger(self.consoleOutputLog)
             sys.stdout = self.logger
             
             # Output system info to console and to log
             Logging.getSystemInfo(printToConsole=True)
             # Output sim definition file and default value dict to the log only
-            self.mainSimulationLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
+            self.consoleOutputLog += Logging.getSimDefinitionAndDefaultValueDictsForOutput(simDefinition=self.simDefinition, printToConsole=False)
 
-            # Start force evaluation log if required
-            if self.loggingLevel >= 2:
-                self.forceEvaluationLog = []
+            # Output header for data outputted to the console during the simulation
+            print("Starting Simulation:")
+            print("Time(s) Altitude(m,ASL)")
+                
         elif self.silent:
             # No intention of writing things to a log file, just prevent them from being printed to the terminal
             _ = []
             logger = Logging.Logger(_, continueWritingToTerminal=False)
             sys.stdout = logger
-
-    def _createLogDataTableHeaders(self, rocket):
-        print("Starting Simulation:")
-
-        if self.loggingLevel > 0 or not self.silent:
-            # Create main sim log header (written to once per time step)
-            mainSimLogHeader = "Time(s) TimeStep(s)" 
-            mainSimLogHeader += rocket.rigidBody.state.getLogHeader() + " EulerAngleX(rad) EulerAngleY(rad) EulerAngleZ(rad)"
-            if rocket.controlSystem != None:
-                mainSimLogHeader += rocket.controlSystem.getLogHeader()
-
-            # Actually print/log the main sim log header
-            print(mainSimLogHeader)
-
-            if self.loggingLevel >= 2:
-                # Create force evaluation log header (written to once per force evaluation (several time per time step for higher-order time discretizations))
-                # Columns always included
-                header = "Time(s)" + rocket.rigidBody.state.getLogHeader() + \
-                " WindX(m/s) WindY(m/s) WindZ(m/s) AirDensity(kg/m^3)" + \
-                " CGX(m), CGY(m), CGZ(m) Mass(kg) MOIx(kg*m^2) MOIy(kg*m^2) MOIz(kg*m^2)" + \
-                " Mach UnitRe AOA(deg) RollAngle(deg)"
-
-                # Columns for each rocket component
-                for stage in rocket.stages:
-                    for component in stage.components:
-                        try:
-                            header += component.getLogHeader()
-                        except AttributeError:
-                            pass
-
-                # Total force columns
-                header += " CPZ(m) AeroFX(N) AeroFY(N) AeroFZ(N) AeroMX(Nm)" + \
-                " AeroMY(Nm) AeroMZ(Nm) GravityFX(N) GravityFY(N) GravityFZ(N)" + \
-                " TotalFX(N) TotalFY(N) TotalFZ(N)"
-                
-                self.forceEvaluationLog.append(header)
 
     def _getEndDetectorFunction(self, rocket, simConfig, droppedStage=False):
         ''' 
@@ -280,7 +256,7 @@ class Simulation():
         flight = RocketFlight()
         flight.times.append(rocket.rigidBody.time)
         flight.rigidBodyStates.append(rocket.rigidBody.state)
-        if rocket.controlSystem != None:  
+        if rocket.controlSystem != None and rocket.controlSystem.controlledSystem != None: 
             # If rocket has moving fins, record their angles for plotting
             nActuators = len(rocket.controlSystem.controlledSystem.actuatorList)
             flight.actuatorDefls = [ [0] for i in range(nActuators) ]
@@ -327,14 +303,6 @@ class Simulation():
 
             self.stagingIndex += 1
 
-    def newForcesLogLine(self, txt):
-        try:
-            if len(self.forceEvaluationLog) > 0 and self.forceEvaluationLog[-1][-1:] != '\n':
-                self.forceEvaluationLog[-1] += "\n"
-            self.forceEvaluationLog.append(txt)
-        except AttributeError:
-            pass # Force logging not desired/set up for this simulation
-
     def discardForceLogsForPreviousTimeStep(self, integrator):
         if self.loggingLevel >= 2:
             # Figure out how many times this integrator evaluates a function derivative (rocket forces in our case)
@@ -345,7 +313,8 @@ class Simulation():
 
             # Remove that number of rows from the end of the force evaluation log
             for i in range(numDerivativeEvals):
-                self.forceEvaluationLog.pop(-1)
+                for rocket in self.rocketStages:
+                    rocket.derivativeEvaluationLog.deleteLastRow()
 
     def _handleSimulationCrash(self):
         ''' After a simulation crashes, tries to create log files and show plots anyways, before printing a stack trace '''
@@ -390,32 +359,28 @@ class Simulation():
         if self.loggingLevel > 0:
             logFilePaths = []
 
-            # Find new file name without overwriting old logs
+            # Create a new folder for the results of the current simulation
             periodIndex = simDefinition.fileName.rfind('.')
-            fileBaseName = simDefinition.fileName[:periodIndex] + "_simulationLog_run"
-            mainLogFilePath = Logging.findNextAvailableNumberedFileName(fileBaseName=fileBaseName, extension=".txt")
-                
-            logFilePaths.append(mainLogFilePath)
-            print("Writing main log to: {}".format(mainLogFilePath))
+            resultsFolderName = simDefinition.fileName[:periodIndex] + "_Run"
+            resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderName, extension="")
+            os.mkdir(resultsFolderName)
 
-            # Write main log to file
-            with open(mainLogFilePath, 'w+') as file:
-                file.writelines(self.mainSimulationLog)
+            # Write logs to file
+            for rocket in self.rocketStages:
+                logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
 
-            # Write force evaluation log to file if desired
-            if self.loggingLevel >= 2:
-                forceLogFilePath = mainLogFilePath.replace("simulationLog", "forceEvaluationLog")
-                print("Writing force evaluation log to: {}".format(forceLogFilePath))
-                logFilePaths.append(forceLogFilePath)
-                with open(forceLogFilePath, 'w+') as file:
-                    file.writelines(self.forceEvaluationLog)
+            # Calculate aerodynamic coefficients if desired
+            if self.loggingLevel >= 3:
+                bodyDiameter = self.rocketStages[0].maxDiameter
+                crossSectionalArea = self.rocketStages[0].Aref
+                forceLogFilePath = logFilePaths[-1]
+                expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
+                logFilePaths.append(expandedLogPath)
 
-                # Post process / calculate force/moment coefficients if desired
-                if self.loggingLevel >= 3:
-                    bodyDiameter = self.rocketStages[0].bodyTubeDiameter
-                    crossSectionalArea = math.pi * bodyDiameter * bodyDiameter / 4
-                    expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
-                    logFilePaths.append(expandedLogPath)
+            consoleOutputPath = os.path.join(resultsFolderName, "consoleOutput.txt")
+            print("Writing log file: {}".format(consoleOutputPath))
+            with open(consoleOutputPath, 'w+') as file:
+                file.writelines(self.consoleOutputLog)
 
         return logFilePaths
 
@@ -448,24 +413,9 @@ class Simulation():
             for plotDefinitionString in plotsToMake:
                 Plotting.plotFromLogFiles(logFilePaths, plotDefinitionString)
 
-try:
-    import ray
-    rayAvailable = True
-except ImportError:
-    rayAvailable = False
-
-if rayAvailable:
-    @ray.remote
-    class RemoteSimulation(Simulation):
-        ''' 
-            Exactly the same as Simulation, except the class itself, and its .run method are decorated with ray.remote()
-            to enable multithreaded/multi-node simulations using [ray](https://github.com/ray-project/ray)
-        '''
-        @ray.method(num_returns=2)
-        def run(self):
-            return super().run()
-else:
-    RemoteSimulation = None
+def runSimulation(simDefinitionFilePath=None, simDefinition=None, silent=False):
+    sim = Simulation(simDefinitionFilePath, simDefinition, silent)
+    return sim.run()
 
 class WindTunnelSimulation(Simulation):
     def __init__(self, parametersToSweep=None, parameterValues=None, simDefinitionFilePath=None, simDefinition=None, silent=False, smoothLine='False'):
@@ -503,6 +453,13 @@ class WindTunnelSimulation(Simulation):
 
             # Run a single force evaluation, which creates a forces log entry for this force evaluation
             rocket = self.createRocket()
+
+            # Track all derivative evaluations in a single log
+            if i == 0:
+                log = rocket.derivativeEvaluationLog
+            else:
+                rocket.derivativeEvaluationLog = log
+
             self.rocketStages = [ rocket ]
             rocket._getAppliedForce(0.0, rocket.rigidBody.state)
 
@@ -546,27 +503,14 @@ class WindTunnelSimulation(Simulation):
         ''' Override to ensure that logs aren't re-initialized for every simulation.
             mainSimulationLog will only be absent the first time this function is run
             Want to keep all the force data in a single log file '''
-        if not hasattr(self, 'mainSimulationLog'):
-            return super()._setUpLogging()
-
-    def _createLogDataTableHeaders(self, rocket):
-        ''' Prevents the log headers from being re-generated over and over '''
-        if self.forceEvaluationLog == []:
-            return super()._createLogDataTableHeaders(rocket)
+        if not hasattr(self, 'consoleOutputLog'):
+            return super()._setUpConsoleLogging()
 
     def _postProcess(self):
         ''' Creates an empty flight path object to prevent errors in the parent function, which is still run to create log files.
             Removes mainSimLog from (returned) log file paths since no time steps we taken by this sim '''
         # Create an empty flight path to prevent errors in the parent function)
         self.stageFlightPaths = [ RocketFlight() ]
-        logFilePaths = Simulation._postProcess(self, self.simDefinition)
-
-        # Because no time steps were taken, the main simulation log will not contain any tabular data.
-            # Remove it from logFilePaths (but file is still generated)
-        for logPath in logFilePaths:
-            if "simulationLog" in logPath:
-                logFilePaths.remove(logPath)
-
-        return logFilePaths
+        return Simulation._postProcess(self, self.simDefinition)
 
 

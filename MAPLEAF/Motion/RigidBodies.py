@@ -4,7 +4,7 @@ Rigid body classes contain the logic for calculating rigid body state derivative
 """
 
 from MAPLEAF.Motion import (AngularVelocity, RigidBodyStateDerivative,
-                            RigidBodyStateDerivative_3DoF, StateList, integratorFactory)
+                            RigidBodyStateDerivative_3DoF, StateList, integratorFactory, Vector)
 
 __all__ = [ "RigidBody_3DoF", "RigidBody", "StatefulRigidBody" ]
 
@@ -36,6 +36,8 @@ class RigidBody_3DoF:
           
         self.integrate = integratorFactory(integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
 
+        self.lastStateDerivative = RigidBodyStateDerivative_3DoF(rigidBodyState.velocity, Vector(0,0,0))
+
     def rigidBodyStateDerivative(self, time, state):
         force = self.forceFunc(time, state).force
         
@@ -45,9 +47,19 @@ class RigidBody_3DoF:
         return RigidBodyStateDerivative_3DoF(DposDt, DvelDt)
 
     def timeStep(self, deltaT):
-        self.state, timeStepAdaptionFactor, deltaT = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
-        self.time += deltaT
-        return timeStepAdaptionFactor, deltaT
+        # TODO: Current derivative estimates are first-order, replace with a more accurate iterative method
+        self.state.estimatedDerivative = self.lastStateDerivative
+
+        integrationResult = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+
+        # This is where the simulation time and state are kept track of
+        self.time += integrationResult.dt
+        self.state = integrationResult.newValue
+
+        # Save for next time step
+        self.lastStateDerivative = integrationResult.derivativeEstimate
+
+        return integrationResult
 
 #### 6 DoF ####
 class RigidBody(RigidBody_3DoF):
@@ -71,6 +83,7 @@ class RigidBody(RigidBody_3DoF):
     def __init__(self, rigidBodyState, forceParam, inertiaParam, integrationMethod="Euler", discardedTimeStepCallback=None, simDefinition=None):
         ''' Just calls RigidBodyState_3DoF constructor '''
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
+        self.lastStateDerivative = RigidBodyStateDerivative(rigidBodyState.velocity, Vector(0,0,0), rigidBodyState.angularVelocity, AngularVelocity(0,0,0))
 
     def rigidBodyStateDerivative(self, time, state):
         # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis

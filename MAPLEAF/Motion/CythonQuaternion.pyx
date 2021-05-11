@@ -8,7 +8,9 @@ from MAPLEAF.Motion.CythonVector import Vector
 
 __all__ = [ 'Quaternion' ]
 
-cdef class Quaternion:    
+# TODO: Restrict magnitude more strictly to 1? -> Perhaps make child rotation class in which the quaternion magnitude is always 1.
+
+cdef class Quaternion:
     '''
         Use objects of this class to store orientation information - direction and rotation
             Elements are: [ scalar, xi, yj, zk ] where scalar, x, y, and z are scalars
@@ -60,6 +62,22 @@ cdef class Quaternion:
             self.Q3 = components[3]
         else:
             raise ValueError("Not enough Initialization info provided")
+
+    def __getitem__(self, int position):
+        ''' Add ability to access components by index '''
+        if position == 0:
+            return self.Q0
+        elif position == 1:
+            return self.Q1
+        elif position == 2:
+            return self.Q2
+        elif position == 3:
+            return self.Q3
+        else:
+            raise IndexError("Index {} > 3".format(position))
+    
+    def __len__(self):
+        return 4
 
     def __str__(self):
         """Print Statement"""

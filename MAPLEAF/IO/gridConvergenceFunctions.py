@@ -176,9 +176,9 @@ def checkConvergence(coarseVals, medVals, fineVals, gridRefinementRatio, minConv
 def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     minConvergOrder=0.5, maxConvergOrder=2, writeSummaryToConsole=True, useAvgOrderOfConvergence=False, refinementRatio=1.5, \
     xLabel=r"Plate location (m)", yLabel=r"Wall Heat Flux (W)", xLim=None, yLim=None, showRichardson=True, showUncertainty=True, figSize=(6,4), \
-    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix="", lineLabels=["Coarse", "Medium", "Fine"], lineColor="k", \
+    saveToDirectory=None, overwrite=False, showPlot=True, lineLabelPrefix="", lineLabels=["C", "M", "F"], lineColor="k", \
     createZoomedInset=False, insetZoom=20, insetLoc=4, insetXLim=[1.16, 1.26], insetYLim=[10.25, 10.75], mark_insetLoc1=1, mark_insetLoc2=3, \
-    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None):    
+    resultsAxes=None, resultsAxins=None, resultsFig=None, convergenceAxes=None, convergenceFig=None, uncertaintyAxes=None, uncertaintyFig=None, showCoarse=True, showMedium=True, showFine=True):    
     '''
         Saves .png/.eps/.pdf figures in saveToDirectory folder, if one is specified
         Show figures if showPlot is true
@@ -196,7 +196,7 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
             Fig/Axes inputs (to have lines plotted on existing graphs)
     '''
     
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt # Import statement here because the rest of this module it doesn't need it and it's a big dependency
     LLP = lineLabelPrefix
 
     # Make sure we have data at the same x-locations
@@ -225,16 +225,23 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     if showUncertainty:
         maxEst = [ f + e for f,e in zip(interpFineY, uncertainties)]
         minEst = [ f - e for f,e in zip(interpFineY, uncertainties)]
-        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True, label=LLP+"Uncertainty")
+        resultsAxes.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.2, antialiased=True, label=LLP+"Uncertainty")
     # Plot coarse/med/fine lines
     coarseLineStyle = "-."
     medLineStyle = "--"
     fineLineStyle = ":"
-    resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
-    resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, alpha=0.5)
-    resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=3)
+
+    if showCoarse:
+        resultsAxes.plot(coarseX, coarseY, coarseLineStyle, label=LLP+lineLabels[0], color=lineColor, alpha=0.5)
+
+    if showMedium:
+        resultsAxes.plot(medX, medY, medLineStyle, label=LLP+lineLabels[1], color=lineColor, lw=2)
+
+    if showFine:
+        resultsAxes.plot(fineX, fineY, fineLineStyle, label=LLP+lineLabels[2], color=lineColor, lw=2)
+
     if showRichardson:
-        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+"Richardson")
+        resultsAxes.plot(coarseX, richardsonVal, lineColor, label=LLP+"_R")
 
     if yLabel != None:
         resultsAxes.set_ylabel(yLabel)
@@ -246,15 +253,22 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
         from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
 
         if resultsAxins == None:
-            resultsAxins = zoomed_inset_axes(resultsAxes, 20, loc=4) # zoom-factor: 2.5, location: upper-left
+            resultsAxins = zoomed_inset_axes(resultsAxes, insetZoom, loc=4) # zoom-factor: 2.5, location: upper-left
 
         if showUncertainty:
             resultsAxins.fill_between(coarseX, minEst, maxEst, facecolor=lineColor, alpha=0.15, antialiased=True)
-        resultsAxins.plot(coarseX, coarseY, coarseLineStyle, alpha=0.5)
-        resultsAxins.plot(medX, medY, medLineStyle, alpha=0.5)
-        resultsAxins.plot(fineX, fineY, fineLineStyle, lw=3)
+
+        if showCoarse:
+            resultsAxins.plot(coarseX, coarseY, coarseLineStyle, color=lineColor, alpha=0.5)
+
+        if showMedium:
+            resultsAxins.plot(medX, medY, medLineStyle, color=lineColor, lw=2)
+
+        if showFine:
+            resultsAxins.plot(fineX, fineY, fineLineStyle, color=lineColor, lw=2)
+
         if showRichardson:
-            resultsAxins.plot(coarseX, richardsonVal, lineColor)
+            resultsAxins.plot(coarseX, richardsonVal, color=lineColor)
 
         resultsAxins.set_xlim(insetXLim[0], insetXLim[1]) # apply the x-limits
         resultsAxins.set_ylim(insetYLim[0], insetYLim[1]) # apply the y-limits
@@ -308,35 +322,41 @@ def plotConvergence(coarseX, coarseY, medX, medY, fineX, fineY, \
     return resultsAxes, resultsFig, resultsAxins, convergenceAxes, convergenceFig, uncertaintyAxes, uncertaintyFig
 
 def saveFigureAndPrintNotification(fileName, figure, saveToDirectory, overwrite=False, pngVersion=True, epsVersion=True, pdfVersion=True, printStatementPrefix=""):
-        def saveFigure(filePath):
-            if overwrite or not os.path.exists(filePath):
-                figure.savefig(filePath)
-                print("{}Saved Image: {}".format(printStatementPrefix, filePath))
-            elif not overwrite and os.path.exists(filePath):
-                print("{}WARNING: Did not save image: {} - file already exists".format(printStatementPrefix, filePath))
-        
-        def getNoExtensionFilePath(filePath):
-            noExtensionPath = filePath
+    def saveFigure(filePath):
+        if overwrite or not os.path.exists(filePath):
+            figure.savefig(filePath)
+            print("{}Saved Image: {}".format(printStatementPrefix, filePath))
+        elif not overwrite and os.path.exists(filePath):
+            print("{}WARNING: Did not save image: {} - file already exists".format(printStatementPrefix, filePath))
+    
+    def getNoExtensionFilePath(filePath):
+        noExtensionPath = filePath
 
-            # Remove extension if it exists
-            if '.' in filePath:
-                dotIndex = filePath.rfind('.')
-                noExtensionPath = filePath[:dotIndex]
+        # Remove extension if it exists
+        if '.' in filePath:
+            dotIndex = filePath.rfind('.')
+            noExtensionPath = filePath[:dotIndex]
 
-            return noExtensionPath
+        return noExtensionPath
 
-        filePath = os.path.join(saveToDirectory, fileName)
-        noExtensionPath = getNoExtensionFilePath(filePath)
+    filePath = saveToDirectory + '/' + fileName
+    noExtensionPath = getNoExtensionFilePath(filePath)
+    savedFiles = []
 
-        # Save each desired version of the figure
-        if pngVersion:
-            pngFilePath = noExtensionPath + ".png"
-            saveFigure(pngFilePath)
+    # Save each desired version of the figure
+    if pngVersion:
+        pngFilePath = noExtensionPath + ".png"
+        saveFigure(pngFilePath)
+        savedFiles.append(pngFilePath)
 
-        if epsVersion:
-            epsFilePath = noExtensionPath + ".eps"
-            saveFigure(epsFilePath)
+    if epsVersion:
+        epsFilePath = noExtensionPath + ".eps"
+        saveFigure(epsFilePath)
+        savedFiles.append(epsFilePath)
 
-        if pdfVersion:
-            pdfFilePath = noExtensionPath + ".pdf"
-            saveFigure(pdfFilePath)
+    if pdfVersion:
+        pdfFilePath = noExtensionPath + ".pdf"
+        saveFigure(pdfFilePath)
+        savedFiles.append(pdfFilePath)
+    
+    return savedFiles

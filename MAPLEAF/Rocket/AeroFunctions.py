@@ -5,8 +5,6 @@ Functions to calculate parameters relevant to aerodynamic calculations -
 Used throughout the aeordynamics functions
 '''
 
-#TODO: This file needs to be split up neatly
-
 import math
 
 from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Quaternion,

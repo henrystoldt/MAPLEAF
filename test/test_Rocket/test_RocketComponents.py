@@ -39,16 +39,6 @@ class TestRocketComponents(unittest.TestCase):
         self.currentConditions = self.environment.getAirProperties(Vector(0,0,200)) # m
 
     #### FixedMass ####
-    def test_getMass(self):
-        self.assertEqual(self.nosecone.getMass(0), 5)
-        self.assertEqual(self.bodytube.getMass(0), 50)
-        self.assertEqual(self.fixedMass.getMass(0), 100)
-
-    def test_getCG(self):
-        self.almostEqualVectors(self.nosecone.getCG(0), Vector(0, 0, -0.2))
-        self.almostEqualVectors(self.bodytube.getCG(0), Vector(0, 0, -1))
-        self.almostEqualVectors(self.fixedMass.getCG(0), Vector(0, 0, 0))
-
     def test_getInertia(self):
         noseconeInertia = Inertia(Vector(0.001,0.001,0.001), Vector(0,0,-0.2), mass=5)
         bodytubeInertia = Inertia(Vector(0.001,0.001,0.001), Vector(0,0,-1), mass=50)
