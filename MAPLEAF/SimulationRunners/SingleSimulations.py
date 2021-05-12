@@ -155,10 +155,6 @@ class Simulation():
 
         print("Simulation Complete")
 
-        # Write all logs to file
-        for rocket in self.rocketStages:
-            rocket.writeLogsToFile()
-
         logFilePaths = self._postProcess(simDefinition)
 
         return self.stageFlightPaths, logFilePaths

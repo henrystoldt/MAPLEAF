@@ -122,11 +122,6 @@ class TestRigidBodyState(unittest.TestCase):
     #     result3 = (state2 + state3) - state3
     #     assertRigidBodyStatesalmostEqual(self, result3, state2)
 
-    def test_Logging(self):
-        headerItemCount = len(self.iRBS1.getLogHeader().split())
-        logItemCount = len(self.iRBS1.__str__().split())
-        self.assertEqual(headerItemCount, logItemCount)
-
 class TestRigidBodyState_3DoF(unittest.TestCase):
     def setUp(self):
         pos1 = Vector(0,1,2)
@@ -151,11 +146,6 @@ class TestRigidBodyState_3DoF(unittest.TestCase):
     #     expectedVel = Vector(-3,-3,-3)
     #     assertVectorsAlmostEqual(self, expectedPos, subtracted.position)
     #     assertVectorsAlmostEqual(self, expectedVel, subtracted.velocity)
-
-    def test_Logging(self):
-        headerItemCount = len(self.iRBS1.getLogHeader().split())
-        logItemCount = len(self.iRBS1.__str__().split())
-        self.assertEqual(headerItemCount, logItemCount)
 
 class TestStateList(unittest.TestCase):
 

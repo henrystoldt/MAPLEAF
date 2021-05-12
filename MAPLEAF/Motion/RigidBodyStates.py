@@ -43,10 +43,6 @@ class RigidBodyState_3DoF():
 
         return self.position.length() + self.velocity.length()
 
-    ### String Functions ###
-    def getLogHeader(self):
-        return " PositionX(m) PositionY(m) PositionZ(m) VelocityX(m/s) VelocityY(m/s) VelocityZ(m/s)"
-
     def __str__(self):
         ''' Called by print '''
         return " {:>10.3f} {:>10.4f}".format(self.position, self.velocity)
@@ -149,10 +145,6 @@ class RigidBodyState():
             return all([ x == y for (x,y) in zip(properties, otherProperties) ])
         except AttributeError:
             return False
-
-    ### String Functions ###
-    def getLogHeader(self):
-        return " PositionX(m) PositionY(m) PositionZ(m) VelocityX(m/s) VelocityY(m/s) VelocityZ(m/s) OrientationQuat0 OrientationQuat1 OrientationQuat2 OrientationQuat3 AngularVelocityX(rad/s) AngularVelocityY(rad/s) AngularVelocityZ(rad/s)"
 
     def __str__(self):
         ''' Called by print function '''
@@ -332,6 +324,7 @@ class StateList(list):
         return StateList([ -x for x in self ], _nameToIndexMap=self.nameToIndexMap)
 
     #### String functions ####
+    # TODO: Convert to new logging framework
     def getLogHeader(self):
         header = ""
         for i in range(len(self)):

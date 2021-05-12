@@ -114,27 +114,6 @@ class TestRocketComponents(unittest.TestCase):
         calculatedAero = tabMoment._getAeroCoefficients(zeroAOAState, self.currentConditions)
         assertIterablesAlmostEqual(self, expectedAero, calculatedAero)
 
-    #### Test Number of headers match number of entries for Force Logging ####
-    def test_Logging(self):
-        simRunner = Simulation("MAPLEAF/Examples/Simulations/test9.mapleaf", silent=True)
-        rocket = simRunner.createRocket()
-
-        state = rocket.rigidBody.state
-        time = 1
-
-        # Check that each component logs an equal number of columns to what it has in its header
-        for stage in rocket.stages:
-            for component in stage.components:
-                rocket.forceEvaluationLog = ["",]
-
-                try:
-                    headerItemsCount = len(component.getLogHeader().split())
-                    component.getAppliedForce(state, time, self.currentConditions, Vector(0,0,0))
-                    loggedItemsCount = len(simRunner.forceEvaluationLog[0].split())
-                    self.assertEqual(headerItemsCount, loggedItemsCount)
-                except AttributeError:
-                    pass
-
     #### Utilities ####
     def almostEqualVectors(self, Vector1, Vector2, n=7):
         self.assertAlmostEqual(Vector1.X, Vector2.X, n)

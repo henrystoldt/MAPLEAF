@@ -156,9 +156,6 @@ class TabulatedMotor(RocketComponent):
             self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + self.times[-1])
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
 
-    def getLogHeader(self):
-        return " {}Thrust(N)".format(self.name)
-
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -> midpoint rule integrates this perfectly
         totalImpulse = 0
@@ -211,9 +208,6 @@ class SampleStatefulComponent(RocketComponent):
         self.rocket = rocket
         self.stage = stage
         self.name = componentDictReader.getDictName()
-
-    def getLogHeader(self):
-        return " {}FZ(N)".format(self.name) # This will be in the header of the force logging file
 
     def getExtraParametersToIntegrate(self):
         # Examples below for a single parameter to be integrated, can put as many as required in these lists

@@ -62,9 +62,6 @@ class RecoverySystem(FixedMass):
             totalForce = airVel.normalize() * dragForceMagnitude
             return ForceMomentSystem(totalForce)
 
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*["Recovery"]*6)
-
     def _deployNextStage(self):
         ''' 
             Deploys the next stage of the recovery system  

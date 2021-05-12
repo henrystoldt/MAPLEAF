@@ -32,14 +32,6 @@ class RocketComponent(ABC):
         return
 
     #### Other optional functions ####
-    # def getLogHeader(self):
-    ''' 
-        Override this method to add columns to the log for that component, should return a string like:
-            " LogColumn1Name LogColumn2Name2"
-            string must begin with whitespace
-            Method will be called before running a simulation to set up logs
-    '''
-
     # def getExtraParametersToIntegrate(self):
     '''
         Override this method to make MAPLEAF integrate additional parameters (in addition to rigid body motion)
@@ -76,9 +68,6 @@ class BodyComponent(ABC):
             return Vector(self.position.X, self.position.Y, baseZCoord)
         else:
             return None
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
 
     def _getCenterOfPressure(self, *args) -> Vector:
         return self.CPLocation
@@ -214,9 +203,6 @@ class FixedForce(RocketComponent):
     def getAppliedForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
-
 class AeroForce(RocketComponent):
     ''' A zero-Inertia component with constant aerodynamic coefficients '''
     # Object is just a force, inertia is zero
@@ -243,9 +229,6 @@ class AeroForce(RocketComponent):
 
     def getAppliedForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
 
 class AeroDamping(AeroForce):
     ''' A zero-inertia component with constant aerodynamic damping coefficients '''
@@ -428,6 +411,3 @@ class FractionalJetDamping(RocketComponent):
 
     def getInertia(self, time, state):
         return self.inertia
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
