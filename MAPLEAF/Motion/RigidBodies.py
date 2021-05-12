@@ -38,7 +38,7 @@ class RigidBody_3DoF:
 
         self.lastStateDerivative = RigidBodyStateDerivative_3DoF(rigidBodyState.velocity, Vector(0,0,0))
 
-    def rigidBodyStateDerivative(self, time, state):
+    def getRigidBodyStateDerivative(self, time, state):
         force = self.forceFunc(time, state).force
         
         DposDt = state.velocity
@@ -50,7 +50,7 @@ class RigidBody_3DoF:
         # TODO: Current derivative estimates are first-order, replace with a more accurate iterative method
         self.state.estimatedDerivative = self.lastStateDerivative
 
-        integrationResult = self.integrate(self.state, self.time, self.rigidBodyStateDerivative, deltaT)
+        integrationResult = self.integrate(self.state, self.time, self.getRigidBodyStateDerivative, deltaT)
 
         # This is where the simulation time and state are kept track of
         self.time += integrationResult.dt
@@ -85,7 +85,7 @@ class RigidBody(RigidBody_3DoF):
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod=integrationMethod, simDefinition=simDefinition, discardedTimeStepCallback=discardedTimeStepCallback)
         self.lastStateDerivative = RigidBodyStateDerivative(rigidBodyState.velocity, Vector(0,0,0), rigidBodyState.angularVelocity, AngularVelocity(0,0,0))
 
-    def rigidBodyStateDerivative(self, time, state):
+    def getRigidBodyStateDerivative(self, time, state):
         # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
         appliedForce_localFrame = self.forceFunc(time, state)
         inertia = self.inertiaFunc(time, state)
@@ -104,6 +104,7 @@ class RigidBody(RigidBody_3DoF):
         ### Rotation - calculated in local frame (Euler equations) ###
         # convert angular velocity to global frame - to be added to orientation
         angVel_global = AngularVelocity(*state.orientation.rotate(state.angularVelocity)) # Will be transformed into a quaternion once multiplied by a timestep
+        
         # Calc angular acceleration (in local frame)
         moi = inertia.MOI
         dAngVelDtX = (appliedForce_localFrame.moment.X + (moi.Y - moi.Z) * state.angularVelocity.Y * state.angularVelocity.Z) / moi.X
@@ -122,7 +123,7 @@ class StatefulRigidBody(RigidBody):
         super().__init__(rigidBodyState, forceParam, inertiaParam, integrationMethod, discardedTimeStepCallback, simDefinition)
 
         self.state = StateList([ rigidBodyState ])
-        self.derivativeFuncs = [ self.rigidBodyStateDerivative ]
+        self.derivativeFuncs = [ self.getRigidBodyStateDerivative ]
 
     def addStateVariable(self, name, currentValue, derivativeFunction):
         ''' 
@@ -136,6 +137,16 @@ class StatefulRigidBody(RigidBody):
         return StateList([ derivativeFunc(time, state) for derivativeFunc in self.derivativeFuncs ], _nameToIndexMap=state.nameToIndexMap)
 
     def timeStep(self, deltaT):
-        self.state, timeStepAdaptationFactor, deltaT = self.integrate(self.state, self.time, self.getStateDerivative, deltaT)
-        self.time += deltaT
-        return timeStepAdaptationFactor, deltaT
+        # TODO: Current derivative estimates are first-order, replace with a more accurate iterative method
+        self.state.estimatedDerivative = self.lastStateDerivative
+
+        integrationResult = self.integrate(self.state, self.time, self.getStateDerivative, deltaT)
+
+        # This is where the simulation time and state are kept track of
+        self.time += integrationResult.dt
+        self.state = integrationResult.newValue
+
+        # Save for next time step
+        self.lastStateDerivative = integrationResult.derivativeEstimate
+
+        return integrationResult

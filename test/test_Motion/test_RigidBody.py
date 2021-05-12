@@ -237,7 +237,7 @@ class TestStatefulRigidBody(unittest.TestCase):
             return self.zeroForce
         movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, simDefinition=self.simDefinition)
         # Add the same rigid body state and state derivative function as a second state variable to be integrated
-        movingXBody.addStateVariable("secondRigidBodyState", movingXState, movingXBody.rigidBodyStateDerivative)
+        movingXBody.addStateVariable("secondRigidBodyState", movingXState, movingXBody.getRigidBodyStateDerivative)
         
         movingXBody.timeStep(1)
 
