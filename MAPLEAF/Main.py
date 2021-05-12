@@ -194,4 +194,4 @@ def main(argv=None) -> int:
     print("Exiting")
 
 if __name__ == "__main__":
-    main()
+    main(['C:\\Users\\rando\\Documents\\MAPLEAF\\MAPLEAF\\Examples\\Simulations\\AdaptTimeStep.mapleaf'])
