@@ -114,12 +114,7 @@ class FinSet(FixedMass, ActuatedSystem):
             self.trailingEdgeThickness = componentDictReader.getFloat(&#34;TrailingEdge.thickness&#34;)
         elif self.trailingEdgeShape != &#34;Tapered&#34;:
             raise ValueError(&#34;ERROR: Trailing edge shape: {} not implemented. Use &#39;Round&#39;, &#39;Blunt&#39;, or &#39;Tapered&#39;&#34;.format(self.trailingEdgeShape))
-
-        # Common fin properties for all child fins
-        self._precomputeGeometry()
         
-        # Initialize all the child fins in the self.finList list
-        self._initChildFins(componentDictReader, rocket, stage)
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
@@ -127,7 +122,7 @@ class FinSet(FixedMass, ActuatedSystem):
         # Initialize an actuator model for each fin
         ActuatedSystem.__init__(self, self.numFins)
 
-    def _precomputeGeometry(self):
+    def precomputeProperties(self):
         self._calculateSweepAngles()
 
         ### Compute Other Simple Properties ####
@@ -147,6 +142,9 @@ class FinSet(FixedMass, ActuatedSystem):
 
         self._precomputeSubsonicFinThicknessDrag()
         self._precomputeCPInterpolationPolynomial()
+
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(self.componentDictReader, self.rocket, self.stage)
     
     def _calculateSweepAngles(self):
         &#39;&#39;&#39; Compute Trailing Edge (TE) and Mid Chord sweep angles &#39;&#39;&#39;
@@ -294,7 +292,7 @@ class FinSet(FixedMass, ActuatedSystem):
         return header
 
     ### Functions used during simulation ###
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         #### If control system exists, use actuator deflections 1:1 to set fin angles ####
         if self.controlSystem != None:
             # Update fin angles
@@ -307,7 +305,7 @@ class FinSet(FixedMass, ActuatedSystem):
         #### Add up forces from all child Fins ####
         aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
         for fin in self.finList:
-            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+            aeroForce += fin.getAppliedForce(rocketState, time, environment, CG, precomputedData)
 
         # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
         
@@ -584,7 +582,7 @@ class Fin(FixedMass):
         totalForce = normalForce + axialForce
         return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
 
-    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+    def getAppliedForce(self, rocketState, time, environment, CG, precomputedData):
         [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
         return aeroForce</code></pre>
 </details>
@@ -731,7 +729,7 @@ class Fin(FixedMass):
         totalForce = normalForce + axialForce
         return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
 
-    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+    def getAppliedForce(self, rocketState, time, environment, CG, precomputedData):
         [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
         return aeroForce</code></pre>
 </details>
@@ -750,8 +748,8 @@ class Fin(FixedMass):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.Fins.Fin.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG, precomputedData)</span>
+<dt id="MAPLEAF.Rocket.Fins.Fin.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG, precomputedData)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -759,7 +757,7 @@ class Fin(FixedMass):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG, precomputedData):
     [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
     return aeroForce</code></pre>
 </details>
@@ -816,12 +814,7 @@ class Fin(FixedMass):
             self.trailingEdgeThickness = componentDictReader.getFloat(&#34;TrailingEdge.thickness&#34;)
         elif self.trailingEdgeShape != &#34;Tapered&#34;:
             raise ValueError(&#34;ERROR: Trailing edge shape: {} not implemented. Use &#39;Round&#39;, &#39;Blunt&#39;, or &#39;Tapered&#39;&#34;.format(self.trailingEdgeShape))
-
-        # Common fin properties for all child fins
-        self._precomputeGeometry()
         
-        # Initialize all the child fins in the self.finList list
-        self._initChildFins(componentDictReader, rocket, stage)
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
@@ -829,7 +822,7 @@ class Fin(FixedMass):
         # Initialize an actuator model for each fin
         ActuatedSystem.__init__(self, self.numFins)
 
-    def _precomputeGeometry(self):
+    def precomputeProperties(self):
         self._calculateSweepAngles()
 
         ### Compute Other Simple Properties ####
@@ -849,6 +842,9 @@ class Fin(FixedMass):
 
         self._precomputeSubsonicFinThicknessDrag()
         self._precomputeCPInterpolationPolynomial()
+
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(self.componentDictReader, self.rocket, self.stage)
     
     def _calculateSweepAngles(self):
         &#39;&#39;&#39; Compute Trailing Edge (TE) and Mid Chord sweep angles &#39;&#39;&#39;
@@ -996,7 +992,7 @@ class Fin(FixedMass):
         return header
 
     ### Functions used during simulation ###
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         #### If control system exists, use actuator deflections 1:1 to set fin angles ####
         if self.controlSystem != None:
             # Update fin angles
@@ -1009,7 +1005,7 @@ class Fin(FixedMass):
         #### Add up forces from all child Fins ####
         aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
         for fin in self.finList:
-            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+            aeroForce += fin.getAppliedForce(rocketState, time, environment, CG, precomputedData)
 
         # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
         
@@ -1172,8 +1168,8 @@ class Fin(FixedMass):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.Fins.FinSet.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+<dt id="MAPLEAF.Rocket.Fins.FinSet.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1181,7 +1177,7 @@ class Fin(FixedMass):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG):
     #### If control system exists, use actuator deflections 1:1 to set fin angles ####
     if self.controlSystem != None:
         # Update fin angles
@@ -1194,7 +1190,7 @@ class Fin(FixedMass):
     #### Add up forces from all child Fins ####
     aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
     for fin in self.finList:
-        aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+        aeroForce += fin.getAppliedForce(rocketState, time, environment, CG, precomputedData)
 
     # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
     
@@ -1289,6 +1285,40 @@ class Fin(FixedMass):
         plt.plot (Xvals, Yvals, color = &#39;k&#39;)</code></pre>
 </details>
 </dd>
+<dt id="MAPLEAF.Rocket.Fins.FinSet.precomputeProperties"><code class="name flex">
+<span>def <span class="ident">precomputeProperties</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def precomputeProperties(self):
+    self._calculateSweepAngles()
+
+    ### Compute Other Simple Properties ####
+    self.planformArea = self.span * (self.tipChord + self.rootChord) / 2
+    self.wettedArea = 2*self.planformArea
+    self.aspectRatio = (2*self.span)**2/self.planformArea # Aspect ratio of the wing that would be created by reflecting the fin about its root chord (Fleeman/Niskanen)
+    self.stallAngle = 15 * (1 + 1.1/self.aspectRatio) # Compute stall angle from Hoerner, &#39;Fluid Dynamic Lift&#39; for low aspect ratio wings
+
+    # Get the body radius where the fin is mounted
+    stageTopZ = self.stage.position.Z
+    distanceFromTopOfStageToTopOfThisFinSet = stageTopZ - self.position.Z
+    self.bodyRadius = self.stage.getRadius(distanceFromTopOfStageToTopOfThisFinSet)
+
+    self._calculateInterferenceFactors()
+    self._calculateMACProperties()
+    self._splitFinsIntoSlices()
+
+    self._precomputeSubsonicFinThicknessDrag()
+    self._precomputeCPInterpolationPolynomial()
+
+    # Initialize all the child fins in the self.finList list
+    self._initChildFins(self.componentDictReader, self.rocket, self.stage)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1325,16 +1355,17 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.Fins.Fin" href="#MAPLEAF.Rocket.Fins.Fin">Fin</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.Fins.Fin.finSet" href="#MAPLEAF.Rocket.Fins.Fin.finSet">finSet</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Fins.Fin.getAeroForce" href="#MAPLEAF.Rocket.Fins.Fin.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.Fin.getAppliedForce" href="#MAPLEAF.Rocket.Fins.Fin.getAppliedForce">getAppliedForce</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Rocket.Fins.FinSet" href="#MAPLEAF.Rocket.Fins.FinSet">FinSet</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getAeroForce" href="#MAPLEAF.Rocket.Fins.FinSet.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getAppliedForce" href="#MAPLEAF.Rocket.Fins.FinSet.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getChord" href="#MAPLEAF.Rocket.Fins.FinSet.getChord">getChord</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Fins.FinSet.getLogHeader" href="#MAPLEAF.Rocket.Fins.FinSet.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Fins.FinSet.plotShape" href="#MAPLEAF.Rocket.Fins.FinSet.plotShape">plotShape</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Fins.FinSet.precomputeProperties" href="#MAPLEAF.Rocket.Fins.FinSet.precomputeProperties">precomputeProperties</a></code></li>
 </ul>
 </li>
 </ul>

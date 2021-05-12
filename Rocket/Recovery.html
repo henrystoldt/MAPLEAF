@@ -79,7 +79,7 @@ class RecoverySystem(FixedMass):
         self._deployNextStage()
 
     #### Operational Functions ####
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         &#39;&#39;&#39;
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
         &#39;&#39;&#39;
@@ -191,7 +191,7 @@ class RecoverySystem(FixedMass):
         self._deployNextStage()
 
     #### Operational Functions ####
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         &#39;&#39;&#39;
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
         &#39;&#39;&#39;
@@ -298,8 +298,8 @@ If this is the final recovery system stage, records the main chute deployment ti
         self.rocket.simEventDetector.subscribeToEvent(nextTrigger, self._deployNextStage, eventTriggerValue=nextTriggerValue, triggerDelay=nextTriggerDelay)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Recovery.RecoverySystem.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+<dt id="MAPLEAF.Rocket.Recovery.RecoverySystem.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculates force/moment applied by the recovery system using a simple drag coefficient + area model</p></div>
@@ -307,7 +307,7 @@ If this is the final recovery system stage, records the main chute deployment ti
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG):
     &#39;&#39;&#39;
         Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
     &#39;&#39;&#39;
@@ -364,7 +364,7 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem" href="#MAPLEAF.Rocket.Recovery.RecoverySystem">RecoverySystem</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage" href="#MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage">_deployNextStage</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem.getAeroForce" href="#MAPLEAF.Rocket.Recovery.RecoverySystem.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem.getAppliedForce" href="#MAPLEAF.Rocket.Recovery.RecoverySystem.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem.getLogHeader" href="#MAPLEAF.Rocket.Recovery.RecoverySystem.getLogHeader">getLogHeader</a></code></li>
 </ul>
 </li>

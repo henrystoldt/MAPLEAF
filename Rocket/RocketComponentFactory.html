@@ -39,7 +39,7 @@ from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import (
     AeroDamping, AeroForce, BoatTail, BodyTube, FinSet, FixedForce, FixedMass,
-    FractionalJetDamping, NoseCone, RecoverySystem, TabulatedAeroForce,
+    FractionalJetDamping, NoseCone, RecoverySystem, SampleStatefulComponent, TabulatedAeroForce,
     TabulatedInertia, TabulatedMotor, Transition)
 
 __all__ = [ &#34;stringNameToClassMap&#34;, &#34;rocketComponentFactory&#34;, &#34;initializeForceLogging&#34; ]
@@ -56,6 +56,7 @@ stringNameToClassMap = {
     &#34;Motor&#34;:                TabulatedMotor,
     &#34;Nosecone&#34;:             NoseCone,
     &#34;RecoverySystem&#34;:       RecoverySystem,
+    &#34;StatefulSample&#34;:       SampleStatefulComponent,
     &#34;TabulatedAeroForce&#34;:   TabulatedAeroForce,
     &#34;TabulatedInertia&#34;:     TabulatedInertia,
     &#34;Transition&#34;:           Transition,

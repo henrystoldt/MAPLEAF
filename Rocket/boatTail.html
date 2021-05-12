@@ -156,7 +156,7 @@ class Transition(FixedMass, BodyComponent):
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = &#39;k&#39;)
 
-    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
@@ -216,7 +216,7 @@ class BoatTail(Transition):
     canConnectToComponentBelow = False 
     &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
 
-    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
@@ -286,7 +286,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
     canConnectToComponentBelow = False 
     &#39;&#39;&#39; Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket &#39;&#39;&#39;
 
-    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
@@ -335,8 +335,8 @@ Modelled like a Transition object, but accounts for base drag.</p>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+<dt id="MAPLEAF.Rocket.boatTail.BoatTail.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -344,7 +344,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
     Mach = AeroParameters.getMachNumber(rocketState, environment)
     Aref = self.rocket.Aref
     
@@ -522,7 +522,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = &#39;k&#39;)
 
-    def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
@@ -586,8 +586,8 @@ Modelled like a Transition object, but accounts for base drag.</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.boatTail.Transition.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+<dt id="MAPLEAF.Rocket.boatTail.Transition.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -595,7 +595,7 @@ Modelled like a Transition object, but accounts for base drag.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG) -&gt; ForceMomentSystem:
     Mach = AeroParameters.getMachNumber(rocketState, environment)
     Aref = self.rocket.Aref
     
@@ -716,13 +716,13 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.boatTail.BoatTail" href="#MAPLEAF.Rocket.boatTail.BoatTail">BoatTail</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.boatTail.BoatTail.canConnectToComponentBelow" href="#MAPLEAF.Rocket.boatTail.BoatTail.canConnectToComponentBelow">canConnectToComponentBelow</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce" href="#MAPLEAF.Rocket.boatTail.BoatTail.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.BoatTail.getAppliedForce" href="#MAPLEAF.Rocket.boatTail.BoatTail.getAppliedForce">getAppliedForce</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Rocket.boatTail.Transition" href="#MAPLEAF.Rocket.boatTail.Transition">Transition</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getAeroForce" href="#MAPLEAF.Rocket.boatTail.Transition.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.boatTail.Transition.getAppliedForce" href="#MAPLEAF.Rocket.boatTail.Transition.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.boatTail.Transition.plotShape" href="#MAPLEAF.Rocket.boatTail.Transition.plotShape">plotShape</a></code></li>
 </ul>
 </li>

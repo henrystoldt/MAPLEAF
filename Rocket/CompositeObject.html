@@ -49,7 +49,7 @@ class CompositeObject():
         Represents a collection of physical objects with masses.  
         Expects:  
             Components to have the following methods:  
-                .getAeroForce(state, time, environmentalConditions, rocketCG)  
+                .getAppliedForce(state, time, environmentalConditions, rocketCG)  
                 .getInertia(time)  
                 .getMass(time) (optional as long as getInertia is implemented)  
             Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed  
@@ -113,7 +113,8 @@ class CompositeObject():
 
     #TODO: Compute forces at interfaces between components
     
-    def getAeroForce(self, state, time, environmentalConditions, rocketCG):
+    @cacheLastResult
+    def getAppliedForce(self, state, time, environmentalConditions, rocketCG):
         &#39;&#39;&#39;
             Computes the aerodynamic force experienced by the stage.
             Does not include gravitational force - gravity is added at the rocket level.
@@ -121,7 +122,7 @@ class CompositeObject():
         # Add up forces from all subcomponents
         totalAppliedComponentForce = ForceMomentSystem(Vector(0,0,0), rocketCG)
         for component in self.components:
-            componentForce = component.getAeroForce(state, time, environmentalConditions, rocketCG)
+            componentForce = component.getAppliedForce(state, time, environmentalConditions, rocketCG)
 
             # Log applied forces and moments if desired
             if hasattr(component, &#34;forcesLog&#34;):
@@ -193,7 +194,7 @@ class CompositeObject():
 <div class="desc"><p>Represents a collection of physical objects with masses.<br>
 Expects:<br>
 Components to have the following methods:<br>
-.getAeroForce(state, time, environmentalConditions, rocketCG)<br>
+.getAppliedForce(state, time, environmentalConditions, rocketCG)<br>
 .getInertia(time)<br>
 .getMass(time) (optional as long as getInertia is implemented)<br>
 Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed<br>
@@ -207,7 +208,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
         Represents a collection of physical objects with masses.  
         Expects:  
             Components to have the following methods:  
-                .getAeroForce(state, time, environmentalConditions, rocketCG)  
+                .getAppliedForce(state, time, environmentalConditions, rocketCG)  
                 .getInertia(time)  
                 .getMass(time) (optional as long as getInertia is implemented)  
             Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed  
@@ -271,7 +272,8 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 
     #TODO: Compute forces at interfaces between components
     
-    def getAeroForce(self, state, time, environmentalConditions, rocketCG):
+    @cacheLastResult
+    def getAppliedForce(self, state, time, environmentalConditions, rocketCG):
         &#39;&#39;&#39;
             Computes the aerodynamic force experienced by the stage.
             Does not include gravitational force - gravity is added at the rocket level.
@@ -279,7 +281,7 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
         # Add up forces from all subcomponents
         totalAppliedComponentForce = ForceMomentSystem(Vector(0,0,0), rocketCG)
         for component in self.components:
-            componentForce = component.getAeroForce(state, time, environmentalConditions, rocketCG)
+            componentForce = component.getAppliedForce(state, time, environmentalConditions, rocketCG)
 
             # Log applied forces and moments if desired
             if hasattr(component, &#34;forcesLog&#34;):
@@ -340,34 +342,25 @@ Objects that do not inherit from FixedMass to be variable mass objects. Their in
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environmentalConditions, rocketCG)</span>
+<dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>*args)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Computes the aerodynamic force experienced by the stage.
-Does not include gravitational force - gravity is added at the rocket level.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, state, time, environmentalConditions, rocketCG):
-    &#39;&#39;&#39;
-        Computes the aerodynamic force experienced by the stage.
-        Does not include gravitational force - gravity is added at the rocket level.
-    &#39;&#39;&#39;
-    # Add up forces from all subcomponents
-    totalAppliedComponentForce = ForceMomentSystem(Vector(0,0,0), rocketCG)
-    for component in self.components:
-        componentForce = component.getAeroForce(state, time, environmentalConditions, rocketCG)
-
-        # Log applied forces and moments if desired
-        if hasattr(component, &#34;forcesLog&#34;):
-            component.forcesLog.append(componentForce.force)
-            component.momentsLog.append(componentForce.moment)
-
-        totalAppliedComponentForce += componentForce
-
-    return totalAppliedComponentForce</code></pre>
+<pre><code class="python">def memoized_func(*args):
+    # Return cached result if available
+    if cache[1] == args:
+        return cache[2]
+    
+    # Compute and cache result
+    result = func(*args)
+    cache[1] = args
+    cache[2] = result
+    return result</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG"><code class="name flex">
@@ -485,7 +478,7 @@ MAPLEAF
 <li>
 <h4><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject">CompositeObject</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAppliedForce" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getCG">getCG</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getInertia" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getInertia">getInertia</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass" href="#MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass">getMass</a></code></li>

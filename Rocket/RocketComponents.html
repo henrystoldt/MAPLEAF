@@ -63,8 +63,29 @@ class RocketComponent(ABC):
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
         return
+
+    #### Other optional functions ####
+    # def getLogHeader(self):
+    &#39;&#39;&#39; 
+        Override this method to add columns to the log for that component, should return a string like:
+            &#34; LogColumn1Name LogColumn2Name2&#34;
+            string must begin with whitespace
+            Method will be called before running a simulation to set up logs
+    &#39;&#39;&#39;
+
+    # def getExtraParametersToIntegrate(self):
+    &#39;&#39;&#39;
+        Override this method to make MAPLEAF integrate additional parameters (in addition to rigid body motion)
+        Should return three lists
+            - A list of (string) parameter names
+                - The parameter will then be accessible under state.parameterName whenever the rocket state is available
+            - A list of intial parameter values
+                - Values can be scalars or vectors, or any other parameter that implements addition, subtraction and multiplication/division by scalars
+            - A list of parameter derivative functions
+                - Derivative functions should accept two parameters, the current time and the current state object and return the corresponding derivative of the value of that parameter
+    &#39;&#39;&#39;
 
 class BodyComponent(ABC):
     &#39;&#39;&#39; 
@@ -153,7 +174,7 @@ class PlanarInterface():
         return componentInterfaces
 
     @classmethod
-    def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
+    def sortByZLocation(cls, components, state) -&gt; List[RocketComponent]:
         &#39;&#39;&#39; 
             Sort the components in order from top to bottom, component.position.Z
             This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
@@ -162,8 +183,7 @@ class PlanarInterface():
             try:
                 return component.position.Z
             except AttributeError:
-                zeroState = RigidBodyState()
-                return component.getInertia(0, zeroState).CG.Z
+                return component.getInertia(0, state).CG.Z
 
         components.sort(key=getZPosition, reverse=True)
         return components
@@ -197,7 +217,13 @@ class FixedMass(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getMass(self, time):
+        return self.inertia.mass
+
+    def getCG(self, time):
+        return self.inertia.CG
+
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
 class FixedForce(RocketComponent):
@@ -220,7 +246,7 @@ class FixedForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, rocketState, time, environment, rocketCG):
+    def getAppliedForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
     def getLogHeader(self):
@@ -250,7 +276,7 @@ class AeroForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
@@ -274,7 +300,7 @@ class AeroDamping(AeroForce):
         self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
         self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
     
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
@@ -366,7 +392,7 @@ class TabulatedAeroForce(AeroForce):
 
         return aeroCoefficients
 
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
@@ -398,7 +424,7 @@ class TabulatedInertia(RocketComponent):
         # MOI is last three columns, CG is the three before that, and mass is column 0
         return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])
     
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
 class FractionalJetDamping(RocketComponent):
@@ -415,7 +441,7 @@ class FractionalJetDamping(RocketComponent):
         
         self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
 
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage&#39;s engine is firing
             # (Other stage&#39;s motors will have different exit planes)
         if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
@@ -479,7 +505,7 @@ class FractionalJetDamping(RocketComponent):
         self.yDampingCoeffs = componentDictReader.getVector(&#34;yDampingCoeffs&#34;)
         self.xDampingCoeffs = componentDictReader.getVector(&#34;xDampingCoeffs&#34;)
     
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
@@ -506,8 +532,8 @@ class FractionalJetDamping(RocketComponent):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -515,7 +541,7 @@ class FractionalJetDamping(RocketComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+<pre><code class="python">def getAppliedForce(self, state, time, environment, rocketCG):
     airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
     redimConst = self.Lref / (2*airspeed)
     # Calculate moment coefficients from damping coefficients
@@ -564,7 +590,7 @@ class FractionalJetDamping(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
 
     def getLogHeader(self):
@@ -589,8 +615,8 @@ class FractionalJetDamping(RocketComponent):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.AeroForce.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -598,7 +624,7 @@ class FractionalJetDamping(RocketComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+<pre><code class="python">def getAppliedForce(self, state, time, environment, rocketCG):
     return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 </dd>
@@ -817,7 +843,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, rocketState, time, environment, rocketCG):
+    def getAppliedForce(self, rocketState, time, environment, rocketCG):
         return self.force
 
     def getLogHeader(self):
@@ -830,8 +856,8 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, rocketCG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedForce.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -839,7 +865,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, rocketCG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, rocketCG):
     return self.force</code></pre>
 </details>
 </dd>
@@ -911,7 +937,13 @@ Implements functionality to read/store inertia and position info from sim defini
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getMass(self, time):
+        return self.inertia.mass
+
+    def getCG(self, time):
+        return self.inertia.CG
+
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -930,8 +962,8 @@ Implements functionality to read/store inertia and position info from sim defini
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -939,8 +971,21 @@ Implements functionality to read/store inertia and position info from sim defini
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG):
     return self.zeroForce</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getCG"><code class="name flex">
+<span>def <span class="ident">getCG</span></span>(<span>self, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getCG(self, time):
+    return self.inertia.CG</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia"><code class="name flex">
@@ -954,6 +999,19 @@ Implements functionality to read/store inertia and position info from sim defini
 </summary>
 <pre><code class="python">def getInertia(self, time, state):
     return self.inertia</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.Rocket.RocketComponents.FixedMass.getMass"><code class="name flex">
+<span>def <span class="ident">getMass</span></span>(<span>self, time)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getMass(self, time):
+    return self.inertia.mass</code></pre>
 </details>
 </dd>
 </dl>
@@ -982,7 +1040,7 @@ Implements functionality to read/store inertia and position info from sim defini
         
         self.dampingFraction = componentDictReader.getFloat(&#34;fraction&#34;)
 
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage&#39;s engine is firing
             # (Other stage&#39;s motors will have different exit planes)
         if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
@@ -1022,8 +1080,8 @@ Implements functionality to read/store inertia and position info from sim defini
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1031,7 +1089,7 @@ Implements functionality to read/store inertia and position info from sim defini
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG):
     # Only apply damping force if current stage&#39;s engine is firing
         # (Other stage&#39;s motors will have different exit planes)
     if time &gt; self.stage.motor.ignitionTime and time &lt; self.stage.engineShutOffTime:
@@ -1138,7 +1196,7 @@ In a rocket, this means that (with the default normalVector pointing in the -'ve
         return componentInterfaces
 
     @classmethod
-    def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
+    def sortByZLocation(cls, components, state) -&gt; List[RocketComponent]:
         &#39;&#39;&#39; 
             Sort the components in order from top to bottom, component.position.Z
             This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
@@ -1147,8 +1205,7 @@ In a rocket, this means that (with the default normalVector pointing in the -'ve
             try:
                 return component.position.Z
             except AttributeError:
-                zeroState = RigidBodyState()
-                return component.getInertia(0, zeroState).CG.Z
+                return component.getInertia(0, state).CG.Z
 
         components.sort(key=getZPosition, reverse=True)
         return components</code></pre>
@@ -1201,7 +1258,7 @@ def createPlanarComponentInterfaces(cls, components):
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.RocketComponents.PlanarInterface.sortByZLocation"><code class="name flex">
-<span>def <span class="ident">sortByZLocation</span></span>(<span>components) ‑> List[<a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>]</span>
+<span>def <span class="ident">sortByZLocation</span></span>(<span>components, state) ‑> List[<a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a>]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Sort the components in order from top to bottom, component.position.Z
@@ -1211,7 +1268,7 @@ This function could be relocated somewhere more suitable, at the time of writing
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
+def sortByZLocation(cls, components, state) -&gt; List[RocketComponent]:
     &#39;&#39;&#39; 
         Sort the components in order from top to bottom, component.position.Z
         This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
@@ -1220,8 +1277,7 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
         try:
             return component.position.Z
         except AttributeError:
-            zeroState = RigidBodyState()
-            return component.getInertia(0, zeroState).CG.Z
+            return component.getInertia(0, state).CG.Z
 
     components.sort(key=getZPosition, reverse=True)
     return components</code></pre>
@@ -1250,8 +1306,29 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
-        return</code></pre>
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
+        return
+
+    #### Other optional functions ####
+    # def getLogHeader(self):
+    &#39;&#39;&#39; 
+        Override this method to add columns to the log for that component, should return a string like:
+            &#34; LogColumn1Name LogColumn2Name2&#34;
+            string must begin with whitespace
+            Method will be called before running a simulation to set up logs
+    &#39;&#39;&#39;
+
+    # def getExtraParametersToIntegrate(self):
+    &#39;&#39;&#39;
+        Override this method to make MAPLEAF integrate additional parameters (in addition to rigid body motion)
+        Should return three lists
+            - A list of (string) parameter names
+                - The parameter will then be accessible under state.parameterName whenever the rocket state is available
+            - A list of intial parameter values
+                - Values can be scalars or vectors, or any other parameter that implements addition, subtraction and multiplication/division by scalars
+            - A list of parameter derivative functions
+                - Derivative functions should accept two parameters, the current time and the current state object and return the corresponding derivative of the value of that parameter
+    &#39;&#39;&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1259,6 +1336,7 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent" href="Propulsion.html#MAPLEAF.Rocket.Propulsion.SampleStatefulComponent">SampleStatefulComponent</a></li>
 <li><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor" href="Propulsion.html#MAPLEAF.Rocket.Propulsion.TabulatedMotor">TabulatedMotor</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></li>
 <li><a title="MAPLEAF.Rocket.RocketComponents.FixedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce">FixedForce</a></li>
@@ -1268,8 +1346,8 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
+<dt id="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environmentalConditions, rocketCG) ‑> <a title="MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem" href="../Motion/forceMomentSystem.html#MAPLEAF.Motion.forceMomentSystem.ForceMomentSystem">ForceMomentSystem</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1278,7 +1356,7 @@ def sortByZLocation(cls, components) -&gt; List[RocketComponent]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abstractmethod
-def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
+def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG) -&gt; ForceMomentSystem:
     return</code></pre>
 </details>
 </dd>
@@ -1388,7 +1466,7 @@ def getInertia(self, time, state) -&gt; Inertia:
 
         return aeroCoefficients
 
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)</code></pre>
 </details>
@@ -1400,8 +1478,8 @@ def getInertia(self, time, state) -&gt; Inertia:
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, state, time, environment, rocketCG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1409,7 +1487,7 @@ def getInertia(self, time, state) -&gt; Inertia:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, state, time, environment, rocketCG):
+<pre><code class="python">def getAppliedForce(self, state, time, environment, rocketCG):
     aeroCoefficients = self._getAeroCoefficients(state, environment)
     return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)</code></pre>
 </details>
@@ -1454,7 +1532,7 @@ def getInertia(self, time, state) -&gt; Inertia:
         # MOI is last three columns, CG is the three before that, and mass is column 0
         return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])
     
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1464,8 +1542,8 @@ def getInertia(self, time, state) -&gt; Inertia:
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+<dt id="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1473,7 +1551,7 @@ def getInertia(self, time, state) -&gt; Inertia:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG):
     return self.zeroForce</code></pre>
 </details>
 </dd>
@@ -1519,14 +1597,14 @@ MAPLEAF
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping">AeroDamping</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroDamping.position" href="#MAPLEAF.Rocket.RocketComponents.AeroDamping.position">position</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce">AeroForce</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getInertia" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getInertia">getInertia</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.AeroForce.inertia" href="#MAPLEAF.Rocket.RocketComponents.AeroForce.inertia">inertia</a></code></li>
@@ -1547,7 +1625,7 @@ MAPLEAF
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce">FixedForce</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getInertia">getInertia</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedForce.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.FixedForce.getLogHeader">getLogHeader</a></code></li>
 </ul>
@@ -1555,14 +1633,16 @@ MAPLEAF
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass">FixedMass</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getAppliedForce">getAppliedForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getCG" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getCG">getCG</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getInertia">getInertia</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FixedMass.getMass" href="#MAPLEAF.Rocket.RocketComponents.FixedMass.getMass">getMass</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping">FractionalJetDamping</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getInertia" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getInertia">getInertia</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getLogHeader" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.inertia" href="#MAPLEAF.Rocket.RocketComponents.FractionalJetDamping.inertia">inertia</a></code></li>
@@ -1578,20 +1658,20 @@ MAPLEAF
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent">RocketComponent</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.RocketComponent.getInertia" href="#MAPLEAF.Rocket.RocketComponents.RocketComponent.getInertia">getInertia</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce">TabulatedAeroForce</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedAeroForce.getAppliedForce">getAppliedForce</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia">TabulatedInertia</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAeroForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAppliedForce" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getInertia" href="#MAPLEAF.Rocket.RocketComponents.TabulatedInertia.getInertia">getInertia</a></code></li>
 </ul>
 </li>

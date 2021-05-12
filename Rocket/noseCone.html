@@ -202,7 +202,7 @@ class NoseCone(FixedMass, BodyComponent):
             raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
 
     #### Operation Functions ####
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
 
@@ -423,7 +423,7 @@ class NoseCone(FixedMass, BodyComponent):
             raise TypeError(&#34;The nosecone shape {} is not recognized&#34;.format(self.shape))
 
     #### Operation Functions ####
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
 
@@ -548,8 +548,8 @@ class NoseCone(FixedMass, BodyComponent):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.Rocket.noseCone.NoseCone.getAeroForce"><code class="name flex">
-<span>def <span class="ident">getAeroForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
+<dt id="MAPLEAF.Rocket.noseCone.NoseCone.getAppliedForce"><code class="name flex">
+<span>def <span class="ident">getAppliedForce</span></span>(<span>self, rocketState, time, environment, CG)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -557,7 +557,7 @@ class NoseCone(FixedMass, BodyComponent):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getAeroForce(self, rocketState, time, environment, CG):
+<pre><code class="python">def getAppliedForce(self, rocketState, time, environment, CG):
     Aref = self.rocket.Aref
     Mach = AeroParameters.getMachNumber(rocketState, environment)
 
@@ -668,7 +668,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.aspectRatio" href="#MAPLEAF.Rocket.noseCone.NoseCone.aspectRatio">aspectRatio</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.baseDiameter" href="#MAPLEAF.Rocket.noseCone.NoseCone.baseDiameter">baseDiameter</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.canConnectToComponentAbove" href="#MAPLEAF.Rocket.noseCone.NoseCone.canConnectToComponentAbove">canConnectToComponentAbove</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.getAeroForce" href="#MAPLEAF.Rocket.noseCone.NoseCone.getAeroForce">getAeroForce</a></code></li>
+<li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.getAppliedForce" href="#MAPLEAF.Rocket.noseCone.NoseCone.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.length" href="#MAPLEAF.Rocket.noseCone.NoseCone.length">length</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.plotShape" href="#MAPLEAF.Rocket.noseCone.NoseCone.plotShape">plotShape</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.noseCone.NoseCone.shape" href="#MAPLEAF.Rocket.noseCone.NoseCone.shape">shape</a></code></li>

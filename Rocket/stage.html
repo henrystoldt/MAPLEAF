@@ -93,11 +93,13 @@ class Stage(CompositeObject, BodyComponent):
         # Initialize each component, add to componets
         for componentDict in subDicts:
             newComponent = rocketComponentFactory(componentDict, self.rocket, self)
-            self.components.append(newComponent)     
+            self.components.append(newComponent)
 
-        # Create Planar Interfaces b/w components
-        self.components = PlanarInterface.sortByZLocation(self.components)
-        self.componentInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.components)      
+            try:
+                if newComponent.name not in self.__dict__: # Avoid clobbering existing info
+                    setattr(self, newComponent.name, newComponent) # Make component available as stage.componentName
+            except AttributeError:
+                pass # Expect to arrive here if the component doesn&#39;t define a &#34;name&#34; attribute   
 
     def getComponentsOfType(self, type):
         matchingComponents = []
@@ -264,11 +266,13 @@ class Stage(CompositeObject, BodyComponent):
         # Initialize each component, add to componets
         for componentDict in subDicts:
             newComponent = rocketComponentFactory(componentDict, self.rocket, self)
-            self.components.append(newComponent)     
+            self.components.append(newComponent)
 
-        # Create Planar Interfaces b/w components
-        self.components = PlanarInterface.sortByZLocation(self.components)
-        self.componentInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.components)      
+            try:
+                if newComponent.name not in self.__dict__: # Avoid clobbering existing info
+                    setattr(self, newComponent.name, newComponent) # Make component available as stage.componentName
+            except AttributeError:
+                pass # Expect to arrive here if the component doesn&#39;t define a &#34;name&#34; attribute   
 
     def getComponentsOfType(self, type):
         matchingComponents = []
@@ -438,11 +442,13 @@ class Stage(CompositeObject, BodyComponent):
     # Initialize each component, add to componets
     for componentDict in subDicts:
         newComponent = rocketComponentFactory(componentDict, self.rocket, self)
-        self.components.append(newComponent)     
+        self.components.append(newComponent)
 
-    # Create Planar Interfaces b/w components
-    self.components = PlanarInterface.sortByZLocation(self.components)
-    self.componentInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.components)      </code></pre>
+        try:
+            if newComponent.name not in self.__dict__: # Avoid clobbering existing info
+                setattr(self, newComponent.name, newComponent) # Make component available as stage.componentName
+        except AttributeError:
+            pass # Expect to arrive here if the component doesn&#39;t define a &#34;name&#34; attribute   </code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.stage.Stage.plotShape"><code class="name flex">
@@ -480,7 +486,6 @@ Returns CGsubZ, CGsubY (two lists of scalars for a 2D plot)</p></div>
 <ul class="hlist">
 <li><code><b><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject">CompositeObject</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject.getAeroForce">getAeroForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject.getMass">getMass</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia" href="CompositeObject.html#MAPLEAF.Rocket.CompositeObject.CompositeObject.recomputeFixedMassInertia">recomputeFixedMassInertia</a></code></li>
 </ul>
