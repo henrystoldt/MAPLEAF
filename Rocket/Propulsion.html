@@ -188,9 +188,6 @@ class TabulatedMotor(RocketComponent):
             self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + self.times[-1])
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
 
-    def getLogHeader(self):
-        return &#34; {}Thrust(N)&#34;.format(self.name)
-
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -&gt; midpoint rule integrates this perfectly
         totalImpulse = 0
@@ -243,9 +240,6 @@ class SampleStatefulComponent(RocketComponent):
         self.rocket = rocket
         self.stage = stage
         self.name = componentDictReader.getDictName()
-
-    def getLogHeader(self):
-        return &#34; {}FZ(N)&#34;.format(self.name) # This will be in the header of the force logging file
 
     def getExtraParametersToIntegrate(self):
         # Examples below for a single parameter to be integrated, can put as many as required in these lists
@@ -300,9 +294,6 @@ class SampleStatefulComponent(RocketComponent):
         self.rocket = rocket
         self.stage = stage
         self.name = componentDictReader.getDictName()
-
-    def getLogHeader(self):
-        return &#34; {}FZ(N)&#34;.format(self.name) # This will be in the header of the force logging file
 
     def getExtraParametersToIntegrate(self):
         # Examples below for a single parameter to be integrated, can put as many as required in these lists
@@ -392,19 +383,6 @@ class SampleStatefulComponent(RocketComponent):
     CG = Vector(0, 0, CGz)
     
     return Inertia(MOI, CG, mass)</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FZ(N)&#34;.format(self.name) # This will be in the header of the force logging file</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getTankLevelDerivative"><code class="name flex">
@@ -595,9 +573,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
             self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + self.times[-1])
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
 
-    def getLogHeader(self):
-        return &#34; {}Thrust(N)&#34;.format(self.name)
-
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -&gt; midpoint rule integrates this perfectly
         totalImpulse = 0
@@ -695,19 +670,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
     return oxInertia + fuelInertia</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Propulsion.TabulatedMotor.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}Thrust(N)&#34;.format(self.name)</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.Rocket.Propulsion.TabulatedMotor.getTotalImpulse"><code class="name flex">
 <span>def <span class="ident">getTotalImpulse</span></span>(<span>self)</span>
 </code></dt>
@@ -773,7 +735,6 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getAppliedForce" href="#MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getExtraParametersToIntegrate" href="#MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getExtraParametersToIntegrate">getExtraParametersToIntegrate</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getInertia" href="#MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getLogHeader" href="#MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getTankLevelDerivative" href="#MAPLEAF.Rocket.Propulsion.SampleStatefulComponent.getTankLevelDerivative">getTankLevelDerivative</a></code></li>
 </ul>
 </li>
@@ -782,7 +743,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor.getAppliedForce" href="#MAPLEAF.Rocket.Propulsion.TabulatedMotor.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor.getInertia" href="#MAPLEAF.Rocket.Propulsion.TabulatedMotor.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor.getLogHeader" href="#MAPLEAF.Rocket.Propulsion.TabulatedMotor.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor.getTotalImpulse" href="#MAPLEAF.Rocket.Propulsion.TabulatedMotor.getTotalImpulse">getTotalImpulse</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Propulsion.TabulatedMotor.updateIgnitionTime" href="#MAPLEAF.Rocket.Propulsion.TabulatedMotor.updateIgnitionTime">updateIgnitionTime</a></code></li>
 </ul>

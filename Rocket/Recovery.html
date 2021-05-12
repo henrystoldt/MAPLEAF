@@ -94,9 +94,6 @@ class RecoverySystem(FixedMass):
             totalForce = airVel.normalize() * dragForceMagnitude
             return ForceMomentSystem(totalForce)
 
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[&#34;Recovery&#34;]*6)
-
     def _deployNextStage(self):
         &#39;&#39;&#39; 
             Deploys the next stage of the recovery system  
@@ -205,9 +202,6 @@ class RecoverySystem(FixedMass):
             dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroParameters.getDynamicPressure(rocketState, environment)
             totalForce = airVel.normalize() * dragForceMagnitude
             return ForceMomentSystem(totalForce)
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[&#34;Recovery&#34;]*6)
 
     def _deployNextStage(self):
         &#39;&#39;&#39; 
@@ -323,19 +317,6 @@ If this is the final recovery system stage, records the main chute deployment ti
         return ForceMomentSystem(totalForce)</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.Rocket.Recovery.RecoverySystem.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[&#34;Recovery&#34;]*6)</code></pre>
-</details>
-</dd>
 </dl>
 </dd>
 </dl>
@@ -365,7 +346,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage" href="#MAPLEAF.Rocket.Recovery.RecoverySystem._deployNextStage">_deployNextStage</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem.getAppliedForce" href="#MAPLEAF.Rocket.Recovery.RecoverySystem.getAppliedForce">getAppliedForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.Recovery.RecoverySystem.getLogHeader" href="#MAPLEAF.Rocket.Recovery.RecoverySystem.getLogHeader">getLogHeader</a></code></li>
 </ul>
 </li>
 </ul>

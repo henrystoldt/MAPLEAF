@@ -187,10 +187,6 @@ class Simulation():
 
         print(&#34;Simulation Complete&#34;)
 
-        # Write all logs to file
-        for rocket in self.rocketStages:
-            rocket.writeLogsToFile()
-
         logFilePaths = self._postProcess(simDefinition)
 
         return self.stageFlightPaths, logFilePaths
@@ -744,10 +740,6 @@ class WindTunnelSimulation(Simulation):
 
         print(&#34;Simulation Complete&#34;)
 
-        # Write all logs to file
-        for rocket in self.rocketStages:
-            rocket.writeLogsToFile()
-
         logFilePaths = self._postProcess(simDefinition)
 
         return self.stageFlightPaths, logFilePaths
@@ -1252,10 +1244,6 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
             pass
 
     print(&#34;Simulation Complete&#34;)
-
-    # Write all logs to file
-    for rocket in self.rocketStages:
-        rocket.writeLogsToFile()
 
     logFilePaths = self._postProcess(simDefinition)
 

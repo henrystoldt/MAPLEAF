@@ -422,10 +422,7 @@ Also uses the stringNameToClassMap dictionary</p></div>
         return self.inertia
 
     def getAppliedForce(self, state, time, environment, rocketCG):
-        return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+        return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -470,19 +467,6 @@ Also uses the stringNameToClassMap dictionary</p></div>
 </summary>
 <pre><code class="python">def getInertia(self, time, state):
     return self.inertia</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.AeroForce.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
 </details>
 </dd>
 </dl>
@@ -655,9 +639,6 @@ Examples: <code><a title="MAPLEAF.Rocket.NoseCone" href="#MAPLEAF.Rocket.NoseCon
         else:
             return None
 
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)
-
     def _getCenterOfPressure(self, *args) -&gt; Vector:
         return self.CPLocation
 
@@ -711,19 +692,6 @@ Examples: <code><a title="MAPLEAF.Rocket.NoseCone" href="#MAPLEAF.Rocket.NoseCon
         return Vector(self.position.X, self.position.Y, baseZCoord)
     else:
         return None</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.BodyComponent.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.BodyComponent.getMaxDiameter"><code class="name flex">
@@ -1810,10 +1778,7 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
         return self.inertia
 
     def getAppliedForce(self, rocketState, time, environment, rocketCG):
-        return self.force
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+        return self.force</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1846,19 +1811,6 @@ def getRadius(self, distanceFromTop: float) -&gt; float:
 </summary>
 <pre><code class="python">def getInertia(self, time, state):
     return self.inertia</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.FixedForce.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
 </details>
 </dd>
 </dl>
@@ -2027,10 +1979,7 @@ Implements functionality to read/store inertia and position info from sim defini
             return ForceMomentSystem(Vector(0,0,0))
 
     def getInertia(self, time, state):
-        return self.inertia
-
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
+        return self.inertia</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2087,19 +2036,6 @@ Implements functionality to read/store inertia and position info from sim defini
 </summary>
 <pre><code class="python">def getInertia(self, time, state):
     return self.inertia</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.FractionalJetDamping.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[self.name]*6)</code></pre>
 </details>
 </dd>
 </dl>
@@ -2658,9 +2594,6 @@ def sortByZLocation(cls, components, state) -&gt; List[RocketComponent]:
             totalForce = airVel.normalize() * dragForceMagnitude
             return ForceMomentSystem(totalForce)
 
-    def getLogHeader(self):
-        return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[&#34;Recovery&#34;]*6)
-
     def _deployNextStage(self):
         &#39;&#39;&#39; 
             Deploys the next stage of the recovery system  
@@ -2726,19 +2659,6 @@ def sortByZLocation(cls, components, state) -&gt; List[RocketComponent]:
         dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroParameters.getDynamicPressure(rocketState, environment)
         totalForce = airVel.normalize() * dragForceMagnitude
         return ForceMomentSystem(totalForce)</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.RecoverySystem.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)&#34;.format(*[&#34;Recovery&#34;]*6)</code></pre>
 </details>
 </dd>
 </dl>
@@ -3776,14 +3696,6 @@ Populated by <code>_initializeStages</code>.</p></div>
         return
 
     #### Other optional functions ####
-    # def getLogHeader(self):
-    &#39;&#39;&#39; 
-        Override this method to add columns to the log for that component, should return a string like:
-            &#34; LogColumn1Name LogColumn2Name2&#34;
-            string must begin with whitespace
-            Method will be called before running a simulation to set up logs
-    &#39;&#39;&#39;
-
     # def getExtraParametersToIntegrate(self):
     &#39;&#39;&#39;
         Override this method to make MAPLEAF integrate additional parameters (in addition to rigid body motion)
@@ -3857,9 +3769,6 @@ def getInertia(self, time, state) -&gt; Inertia:
         self.rocket = rocket
         self.stage = stage
         self.name = componentDictReader.getDictName()
-
-    def getLogHeader(self):
-        return &#34; {}FZ(N)&#34;.format(self.name) # This will be in the header of the force logging file
 
     def getExtraParametersToIntegrate(self):
         # Examples below for a single parameter to be integrated, can put as many as required in these lists
@@ -3949,19 +3858,6 @@ def getInertia(self, time, state) -&gt; Inertia:
     CG = Vector(0, 0, CGz)
     
     return Inertia(MOI, CG, mass)</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.SampleStatefulComponent.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}FZ(N)&#34;.format(self.name) # This will be in the header of the force logging file</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.SampleStatefulComponent.getTankLevelDerivative"><code class="name flex">
@@ -4921,9 +4817,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
             self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + self.times[-1])
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
 
-    def getLogHeader(self):
-        return &#34; {}Thrust(N)&#34;.format(self.name)
-
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -&gt; midpoint rule integrates this perfectly
         totalImpulse = 0
@@ -5019,19 +4912,6 @@ The motor is assumed to apply zero moment to the rocket, thrust is applied in z-
     fuelInertia = self._getFuelInertia(timeSinceIgnition)
     
     return oxInertia + fuelInertia</code></pre>
-</details>
-</dd>
-<dt id="MAPLEAF.Rocket.TabulatedMotor.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def getLogHeader(self):
-    return &#34; {}Thrust(N)&#34;.format(self.name)</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.Rocket.TabulatedMotor.getTotalImpulse"><code class="name flex">
@@ -5431,7 +5311,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.AeroForce.getAppliedForce" href="#MAPLEAF.Rocket.AeroForce.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.AeroForce.getInertia" href="#MAPLEAF.Rocket.AeroForce.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.AeroForce.getLogHeader" href="#MAPLEAF.Rocket.AeroForce.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.AeroForce.inertia" href="#MAPLEAF.Rocket.AeroForce.inertia">inertia</a></code></li>
 </ul>
 </li>
@@ -5448,7 +5327,6 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.BodyComponent.canConnectToComponentAbove" href="#MAPLEAF.Rocket.BodyComponent.canConnectToComponentAbove">canConnectToComponentAbove</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.BodyComponent.canConnectToComponentBelow" href="#MAPLEAF.Rocket.BodyComponent.canConnectToComponentBelow">canConnectToComponentBelow</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.BodyComponent.getBottomInterfaceLocation" href="#MAPLEAF.Rocket.BodyComponent.getBottomInterfaceLocation">getBottomInterfaceLocation</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.BodyComponent.getLogHeader" href="#MAPLEAF.Rocket.BodyComponent.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.BodyComponent.getMaxDiameter" href="#MAPLEAF.Rocket.BodyComponent.getMaxDiameter">getMaxDiameter</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.BodyComponent.getRadius" href="#MAPLEAF.Rocket.BodyComponent.getRadius">getRadius</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.BodyComponent.getTopInterfaceLocation" href="#MAPLEAF.Rocket.BodyComponent.getTopInterfaceLocation">getTopInterfaceLocation</a></code></li>
@@ -5493,7 +5371,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.FixedForce.getAppliedForce" href="#MAPLEAF.Rocket.FixedForce.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.FixedForce.getInertia" href="#MAPLEAF.Rocket.FixedForce.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.FixedForce.getLogHeader" href="#MAPLEAF.Rocket.FixedForce.getLogHeader">getLogHeader</a></code></li>
 </ul>
 </li>
 <li>
@@ -5510,7 +5387,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.FractionalJetDamping.getAppliedForce" href="#MAPLEAF.Rocket.FractionalJetDamping.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.FractionalJetDamping.getInertia" href="#MAPLEAF.Rocket.FractionalJetDamping.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.FractionalJetDamping.getLogHeader" href="#MAPLEAF.Rocket.FractionalJetDamping.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.FractionalJetDamping.inertia" href="#MAPLEAF.Rocket.FractionalJetDamping.inertia">inertia</a></code></li>
 </ul>
 </li>
@@ -5538,7 +5414,6 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.Rocket.RecoverySystem" href="#MAPLEAF.Rocket.RecoverySystem">RecoverySystem</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.RecoverySystem.getAppliedForce" href="#MAPLEAF.Rocket.RecoverySystem.getAppliedForce">getAppliedForce</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.RecoverySystem.getLogHeader" href="#MAPLEAF.Rocket.RecoverySystem.getLogHeader">getLogHeader</a></code></li>
 </ul>
 </li>
 <li>
@@ -5586,7 +5461,6 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Rocket.SampleStatefulComponent.getAppliedForce" href="#MAPLEAF.Rocket.SampleStatefulComponent.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.SampleStatefulComponent.getExtraParametersToIntegrate" href="#MAPLEAF.Rocket.SampleStatefulComponent.getExtraParametersToIntegrate">getExtraParametersToIntegrate</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.SampleStatefulComponent.getInertia" href="#MAPLEAF.Rocket.SampleStatefulComponent.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.SampleStatefulComponent.getLogHeader" href="#MAPLEAF.Rocket.SampleStatefulComponent.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.SampleStatefulComponent.getTankLevelDerivative" href="#MAPLEAF.Rocket.SampleStatefulComponent.getTankLevelDerivative">getTankLevelDerivative</a></code></li>
 </ul>
 </li>
@@ -5624,7 +5498,6 @@ MAPLEAF
 <ul class="">
 <li><code><a title="MAPLEAF.Rocket.TabulatedMotor.getAppliedForce" href="#MAPLEAF.Rocket.TabulatedMotor.getAppliedForce">getAppliedForce</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.TabulatedMotor.getInertia" href="#MAPLEAF.Rocket.TabulatedMotor.getInertia">getInertia</a></code></li>
-<li><code><a title="MAPLEAF.Rocket.TabulatedMotor.getLogHeader" href="#MAPLEAF.Rocket.TabulatedMotor.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.TabulatedMotor.getTotalImpulse" href="#MAPLEAF.Rocket.TabulatedMotor.getTotalImpulse">getTotalImpulse</a></code></li>
 <li><code><a title="MAPLEAF.Rocket.TabulatedMotor.updateIgnitionTime" href="#MAPLEAF.Rocket.TabulatedMotor.updateIgnitionTime">updateIgnitionTime</a></code></li>
 </ul>
