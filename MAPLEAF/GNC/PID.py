@@ -108,7 +108,7 @@ class EquationScheduledGainPIDController(PIDController):
 
         #Check that there are enough coefficients in the coefficients list
         self.numScheduledParameters = len(scheduledParameterList)
-        for i in range(self.numSCheduledParameters):
+        for i in range(self.numScheduledParameters):
             self.scheduledParametersPositionList(i) = (i)
 
         self.equationOrder = equationOrder
@@ -118,24 +118,24 @@ class EquationScheduledGainPIDController(PIDController):
         desiredNumberOfCoefficients = 0
         for i in range(self.equationOrder):
             possibleCombinations = cwithr(self.scheduledParametersPositionList,1)
-            numberOfCombinations - len(possibleCombinations)
-            desiredNumberOfCoefficients = desiredNumberOfCoefficiesnts numberOfCombinations
+            numberOfCombinations = len(possibleCombinations)
+            desiredNumberOfCoefficients = desiredNumberOfCoefficients + numberOfCombinations
         
-        if len(coefficientList) != desiredNumberOfCoefficients
+        if len(coefficientList) != desiredNumberOfCoefficients:
             raise ValueError("Number of given coefficients: {} not suitable for equation of order {} with {} scheduled parameters".format(len(self.coefficientList),\
-            self.equationOrder,self.numScheduledParameters)
+            self.equationOrder,self.numScheduledParameters))
 
-        self.variableValues = zeros(len(coefficientList));
+        self.variableValues = np.zeros(len(coefficientList))
 
-    def _updatevariablesFromParameters(self,parameterValues):
+    def _updateVariablesFromParameters(self,parameterValues):
         
         variableList = []
-        for order in range(equationOrder):
+        for order in range(self.equationOrder):
             variableCombinations = cwithr(self.scheduledParametersPositionList,order)
             variableList.append(variableCombinations)
 
         for variable in range(len(self.coefficientList)):
-            total = 1;
+            total = 1
             for parameter in variableList(variable):
                 total = total*parameterValues(parameter)
             self.variableValue(variable) = total
