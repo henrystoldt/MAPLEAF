@@ -60,6 +60,24 @@ class PIDController():
     def resetIntegral(self):
         self.errorIntegral = self.lastError * 0 # Done to handle arbitrary size np arrays
 
+class ConstantGainPIDController(PIDController):
+
+    def __init__(self, P=0, I=0, D=0, initialError=0, maxIntegral=None):
+        '''
+            Inputs:
+                P:                  (int) Proportional Gain
+                I:                  (int) Integral Gain
+                D:                  (int) Derivative Gain
+                DCol:               (int) zero-indexed column number of D Coefficient
+
+                Note:
+                    It is assumed that PCol, ICol, and DCol exist one after another in the table
+                
+                Inputs passed through to parent class (PICController):
+                    initialError, maxIntegral
+        '''
+        PIDController.__init__(self, P,I,D, initialError=initialError, maxIntegral=maxIntegral)
+
 class TableScheduledGainPIDController(PIDController):
     def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
         '''
