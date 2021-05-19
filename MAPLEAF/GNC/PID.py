@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator
+from itertools import combinations_with_replacement as cwithr
 
 __all__ = [ "PIDController", "ConstantGainPIDController", "ScheduledGainPIDController" ]
 
@@ -59,7 +60,7 @@ class PIDController():
     def resetIntegral(self):
         self.errorIntegral = self.lastError * 0 # Done to handle arbitrary size np arrays
 
-class ScheduledGainPIDController(PIDController):
+class TableScheduledGainPIDController(PIDController):
     def __init__(self, gainTableFilePath, nKeyColumns=2, PCol=3, DCol=5, initialError=0, maxIntegral=None):
         '''
             Inputs:
@@ -85,6 +86,71 @@ class ScheduledGainPIDController(PIDController):
         self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
 
     def updateCoefficientsFromGainTable(self, keyList):
+        P, I, D = self._getPIDCoeffs(keyList)
+        self.updateCoefficients(P, I, D)
+
+class EquationScheduledGainPIDController(PIDController):
+    def __init__(self, coefficientList, scheduledParameterList, equationOrder, initialError=0, maxIntegral=None):
+        '''
+            Inputs:
+                gainTableFilePath:  (string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
+                nKeyColumns:        (int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
+                PCol:               (int) zero-indexed column number of P Coefficient
+                DCol:               (int) zero-indexed column number of D Coefficient
+
+                Note:
+                    It is assumed that PCol, ICol, and DCol exist one after another in the table
+                
+                Inputs passed through to parent class (PICController):
+                    initialError, maxIntegral
+        '''
+        PIDController.__init__(self, 0,0,0, initialError=initialError, maxIntegral=maxIntegral)
+
+        #Check that there are enough coefficients in the coefficients list
+        self.numScheduledParameters = len(scheduledParameterList)
+        for i in range(self.numSCheduledParameters):
+            self.scheduledParametersPositionList(i) = (i)
+
+        self.equationOrder = equationOrder
+        self.coefficientList = coefficientList
+        self.variableValues = []
+
+        desiredNumberOfCoefficients = 0
+        for i in range(self.equationOrder):
+            possibleCombinations = cwithr(self.scheduledParametersPositionList,1)
+            numberOfCombinations - len(possibleCombinations)
+            desiredNumberOfCoefficients = desiredNumberOfCoefficiesnts numberOfCombinations
+        
+        if len(coefficientList) != desiredNumberOfCoefficients
+            raise ValueError("Number of given coefficients: {} not suitable for equation of order {} with {} scheduled parameters".format(len(self.coefficientList),\
+            self.equationOrder,self.numScheduledParameters)
+
+        self.variableValues = zeros(len(coefficientList));
+
+    def _updatevariablesFromParameters(self,parameterValues):
+        
+        variableList = []
+        for order in range(equationOrder):
+            variableCombinations = cwithr(self.scheduledParametersPositionList,order)
+            variableList.append(variableCombinations)
+
+        for variable in range(len(self.coefficientList)):
+            total = 1;
+            for parameter in variableList(variable):
+                total = total*parameterValues(parameter)
+            self.variableValue(variable) = total
+
+    def _getPIDCoeffs(parameterValues):
+
+        for 
+
+
+
+
+        #Create interpolation function for PID coefficients
+        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
+
+    def updateCoefficientsFromGainEquation(self, parameterValues):
         P, I, D = self._getPIDCoeffs(keyList)
         self.updateCoefficients(P, I, D)
 
