@@ -4,6 +4,8 @@ Classes and functions for creating simulation logs for regular simulations (Logg
 
 import os
 import sys
+import csv
+from bisect import bisect_left
 
 # TODO: When logging, keep track of messages containing 'error' or 'warning' -> reprint those at the end of the simulation?
 
@@ -93,6 +95,8 @@ def findNextAvailableNumberedFileName(fileBaseName="monteCarloLog", extension=".
         If fileBaseName is simLog, returns the first of: simLog1, simLog2, simLog3, etc... that isn't already a file.
         Returns a string of the form fileBaseName + Number + extension
     '''
+    # TODO: Switch to a exponential+binary search (log(n) time as opposed to current O(n))?
+        # Even better if we only interact with the file system a single time (getting list of files/folders)
     fileNumber = 0
     filePath = None
     while filePath == None or os.path.exists(filePath):
@@ -188,10 +192,7 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
     print("Post Processing (Calculating aerodynamic coefficients) log file: {}".format(logFilePath))
 
     # Load log file into a dataframe
-    with open(logFilePath, 'r') as file:
-        lines = file.readlines()
-    skipRows, skipFooter = Plotting._getSkipRowsAndFooters_forceEvalLog(lines)
-    forcesLog = pd.read_csv(logFilePath, sep="\s+", skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine='python')
+    forcesLog = pd.read_csv(logFilePath, dtype=np.float64)
 
     # Check if the file is already post-processed
     if "AeroCFX(N)" in forcesLog.columns:
@@ -214,8 +215,9 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
 
     # Compute force coefficients
     for col in forcesLog.columns:
-        isForcesColumn = "FX(N)" in col or "FY(N)" in col or "FZ(N)" in col
-        isMomentColumn = "MX(Nm)" in col or "MY(Nm)" in col or "MZ(Nm)" in col
+        isForcesColumn = "(N)" in col
+        isMomentColumn = "(Nm)" in col
+
         if isForcesColumn:
             # Avoid simply replacing 'F' with 'CF' in case names contain 'F' elsewhere
             coordDir = col[-4]
@@ -252,10 +254,9 @@ def postProcessForceEvalLog(logFilePath, refArea=1, refLength=1):
     forcesLog.drop(columns=columnsToDrop)
 
     # Write expanded log to file
-    newLogFilePath = logFilePath.replace(".txt", "_expanded.txt")
-    forcesLog.to_csv(newLogFilePath, sep='\t', index=False)
+    newLogFilePath = logFilePath.replace(".csv", "_expanded.csv")
+    forcesLog.to_csv(newLogFilePath, index=False)
 
     print("Writing expanded level 3 log to: {}".format(newLogFilePath))
 
     return newLogFilePath
-

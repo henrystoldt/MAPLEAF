@@ -1,6 +1,7 @@
 # Ignore the testWrite file, it will have a new date everytime the unit tests are run
 testWrite.mapleaf
 testSimConfigWrite.mapleaf
+testCSVLogOutput.csv
 TempFigureDir
 
 #Ignore Pycache
@@ -24,6 +25,9 @@ for01*
 *simulationLog*
 *forceEvaluationLog*
 *monteCarloLog*
+*controlSystemEvaluationLog*
+*Log*.csv
+MAPLEAF/Examples/Simulations/*Run*
 
 # Ignore pypy environment
 my-pypy-env
@@ -73,6 +77,7 @@ test/V&V/*/*/*.eps
 *Cython*.cpp
 *Cython*.pyd
 *Cython*.so
+*Cython*.html
 
 clean.sh
 
@@ -86,3 +91,9 @@ MAPLEAF/V&V
 
 # Notebooks
 *.ipynb
+
+# Optimization continuation files
+*_continue.mapleaf
+
+# Airspeed Velocity Benchmarking Results
+.asv

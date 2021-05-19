@@ -14,7 +14,7 @@ class CompositeObject():
         Represents a collection of physical objects with masses.  
         Expects:  
             Components to have the following methods:  
-                .getAeroForce(state, time, environmentalConditions, rocketCG)  
+                .getAppliedForce(state, time, environmentalConditions, rocketCG)  
                 .getInertia(time)  
                 .getMass(time) (optional as long as getInertia is implemented)  
             Objects that inherit from FixedMass to be fixed mass objects. Their inertias are cached and not recomputed  
@@ -78,15 +78,23 @@ class CompositeObject():
 
     #TODO: Compute forces at interfaces between components
     
-    def getAeroForce(self, state, time, environmentalConditions, rocketCG):
+    @cacheLastResult
+    def getAppliedForce(self, state, time, environmentalConditions, rocketCG):
         '''
             Computes the aerodynamic force experienced by the stage.
-            Does not include gravitational force - this is expected to be added at the rocket level.
+            Does not include gravitational force - gravity is added at the rocket level.
         '''
         # Add up forces from all subcomponents
         totalAppliedComponentForce = ForceMomentSystem(Vector(0,0,0), rocketCG)
         for component in self.components:
-            totalAppliedComponentForce += component.getAeroForce(state, time, environmentalConditions, rocketCG)
+            componentForce = component.getAppliedForce(state, time, environmentalConditions, rocketCG)
+
+            # Log applied forces and moments if desired
+            if hasattr(component, "forcesLog"):
+                component.forcesLog.append(componentForce.force)
+                component.momentsLog.append(componentForce.moment)
+
+            totalAppliedComponentForce += componentForce
 
         return totalAppliedComponentForce
 

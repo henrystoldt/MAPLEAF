@@ -80,29 +80,64 @@
 
 Optimization{
     ### Specify Optimization runs ###
-
-    # Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
         # The 'MonteCarlo' dictionary is disregarded when this one is present (no batch runs to calculate cost function)
         # However, if any parameters with _stdDev entries are present, their values are still sampled probabilistically each time the Optimizer runs a simulation
     
-    # Specify either:
-        # 1. A Python function, of these variables:
+    # Either:
+        # PSO: (default) Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
+            # Global optimization suitable for arbitrary cost functions in search spaces of arbitrary dimensionality
+                # Makes no guarantee of finding optimal solutions
+                # Does not compute the gradient of the cost function
+                # Alternative to genetic algorithms
+                # More information about particle swarm optimization: https://en.wikipedia.org/wiki/Particle_swarm_optimization
+        # OR Scipy's minimize function: scipy.optimize.minimize [method name] 
+            # Many of these methods are gradient-based, suitable for local optimization or global optimization with unipolar cost functions
+            # Ex: scipy.optimize.minimize BFGS          would use: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-bfgs.html
+            # More options here: https://docs.scipy.org/doc/scipy/reference/optimize.html
+                # Can't use the methods that require analytical jacobians (ex. Newton-CG, trust-ncg, dogleg, trust-exact, trust-krylov)
+            # These methods do not respect bounds and simply seek to minimize the cost function
+            # Initial position/guess will be at the center of the search space defined by the independent variable bounds
+    method PSO        
+    
+    # Either:
+        # A Python function, of these variables:
                 # flightTime, apogee, maxSpeed, maxHorizontalVel #TODO: dryWeight, takeoffWeight
                 # can also use any math function
             # costFunction                      0.5*(apogee-1e5) + 0.5*math.sqrt(dryWeight)
-        # 2. OR a custom function, which gets passed an array of log file paths (str)
-            # Number of log file paths received depends on SimControl.loggingLevel
+        # OR a custom function, which gets passed a list of log file paths (str)
+            # Number and type of log file paths received depends on SimControl.loggingLevel
             # costFunction                      [PathToModule]:[FunctionName]
                 # Function must be importable by running: from [PathToModule] import [FunctionName] in a Python console
     costFunction                                MAPLEAF.MyCustomCodeFile:MyCustomCostFunction
     
     IndependentVariables{
-        # Define all the variables that the Optimizer is free to change (Must be scalar parameters in the Sim Definition file)
+        # Define all the variables that the Optimizer is free to change (Must be scalar parameters in this Sim Definition file)
         # paramName                             Min Value   <       Path.To.Parameter             < Max Value
         bodyLength                              0           < Rocket.SecondStage.BodyTube.length  < 10
+        
+        InitialParticlePositions{ 
+            ### ONLY FOR METHOD==PSO ###
+            # (Optional) - initial positions randomly generated if not present
+            # Specify <= Optimization.ParticleSwarm.nParticles initial particle positions
+            # Each subdictionary created here represents one particle
+            # If < nParticles initial positions are specified, the remaining ones will be randomly generated
+
+            Init1{
+                # Dictionary names are arbitrary
+                # Order of variables within dictionaries also does not matter
+                # Omitted values will be randomly generated
+                bodyLength                      2
+            }
+
+            # Mainly for restart/continue files: Can specify the best position + cost found so far
+                # Particles will be attracted to this location
+                # Must define both bestPosition and bestCost or neither
+            bestPosition                        0.1330823 # Value should be space-separated when there are multiple independent variables (x1 x2 x3...)
+            bestCost                            0.1301609 # Should be a single scalar value, expected to match result from bestPosition
+        }
     }
     
-    DependentVariables{
+    DependentVariables{ # (Optional)
         # Define values of variables that are functions of the independent variables
         # Delimit computations with exclamation marks
         # Can use any math function, and the names of independent variables
@@ -111,6 +146,7 @@ Optimization{
     }
 
     ParticleSwarm{
+        # Only used when method = PSO
         # More info:  https://pyswarms.readthedocs.io/en/latest/api/pyswarms.single.html#module-pyswarms.single.global_best
         nParticles                              20
         nIterations                             50
@@ -118,16 +154,21 @@ Optimization{
         cognitiveParam                          0.5 # aka c1        
         socialParam                             0.6 # aka c2        
         inertiaParam                            0.9 # aka w
-    }           
+    }
+
+    ScipyMinimize{
+        # Only used when method = scipy.optimize.minimize [method name]
+        # Provides arguments to the minimization function, more details here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize
+        tolerance                               0.01 # Ends optimization
+        maxIterations                           50 # Also ends optimization
+        printStatus                             True # Print convergence messages
+    }
 
     showConvergencePlot                         True
 
     InnerOptimization{
-        #Same as in main Optimization. Defines inner optimization which will run for every cost function optimization.
-
-        
-
-
+        # Same structure as main Optimization. Defines inner optimization which will run inside every cost function evaluation of the outer optimization.
+        # Can nest further inner optimizations inside this one, arbitrarily deeply
     }
 }
 

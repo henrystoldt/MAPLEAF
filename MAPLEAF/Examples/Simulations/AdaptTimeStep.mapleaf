@@ -4,7 +4,7 @@
 SimControl{ 
     EndCondition Altitude
     EndConditionValue 0
-    plot FlightAnimation VelocityZ&NoseconeFZ TimeStep IntegrationError
+    plot None # FlightAnimation VelocityZ&NoseconeFZ TimeStep IntegrationError
     
     # None, 1, 2
     loggingLevel 2
@@ -63,7 +63,6 @@ Environment{
         randomSeed2                     63583 # Integer
     }
 }
-
 
 Rocket{
     position            (0 0 15) # m

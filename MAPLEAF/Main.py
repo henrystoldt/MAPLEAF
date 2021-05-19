@@ -13,7 +13,7 @@ import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
 from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       OptimizingSimRunner, Simulation,
+                                       optimizationRunnerFactory, Simulation,
                                        runMonteCarloSimulation)
 from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
@@ -75,7 +75,7 @@ def findSimDefinitionFile(providedPath):
 
     # Check if it's a relative path that needs to be made absolute
     possibleRelPath = providedPath
-    absPath = getAbsoluteFilePath(possibleRelPath)
+    absPath = getAbsoluteFilePath(possibleRelPath, silent=True)
     if os.path.isfile(absPath):
         return absPath
     
@@ -155,7 +155,7 @@ def main(argv=None) -> int:
             """)
 
     if isOptimizationProblem(simDef):
-        optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
+        optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
         optSimRunner.runOptimization()
 
     elif isMonteCarloSimulation(simDef):        
@@ -185,8 +185,8 @@ def main(argv=None) -> int:
     
     else: 
         # Run a regular, single simulation  
-        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
-        simRunner.run()
+        sim = Simulation(simDefinition=simDef, silent=args.silent)
+        sim.run()
 
     Logging.removeLogger()
 

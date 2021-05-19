@@ -7,18 +7,20 @@ New instances of `Rocket` are created by `MAPLEAF.SimulationRunners.Simulation` 
 """
 
 import math
+import os
 
 import matplotlib.pyplot as plt
-
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import SubDictReader
+from MAPLEAF.IO import Log, SubDictReader, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
-                            RigidBodyState, RigidBodyState_3DoF, Vector)
+                            RigidBodyState, RigidBodyState_3DoF,
+                            StatefulRigidBody, Vector)
 from MAPLEAF.Rocket import (AeroFunctions, BoatTail, BodyComponent,
-                            PlanarInterface, SimEventDetector, Stage)
+                            PlanarInterface, SimEventDetector, Stage,
+                            initializeForceLogging)
 from MAPLEAF.Rocket.CompositeObject import CompositeObject
 
 __all__ = [ "Rocket" ]
@@ -144,10 +146,60 @@ class Rocket(CompositeObject):
         else:
             self.hardwareInTheLoopControl = "no"
 
+        #### Initialize Logging ####
+        self.timeStepLog = None
+        ''' Log containing one entry per time step, logs rocket state. None if logging level == 0 '''
+        self.derivativeEvaluationLog = None
+        ''' Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level < 2 '''
+
+        loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
+
+        if loggingLevel > 0:
+            # Create the time step log and add columns to track the rocket state between each time step
+            self.timeStepLog = TimeStepLog()
+            zeroVector = Vector(0,0,0)
+            self.timeStepLog.addColumn("Position(m)", zeroVector)
+            self.timeStepLog.addColumn("Velocity(m/s)", zeroVector)
+            self.timeStepLog.addColumn("OrientationQuaternion", Quaternion(0,0,0,0))
+            self.timeStepLog.addColumn("EulerAngle(rad)", zeroVector)
+            self.timeStepLog.addColumn("AngularVelocity(rad/s)", zeroVector)
+
+            if "Adapt" in self.simDefinition.getValue("SimControl.timeDiscretization"):
+                self.timeStepLog.addColumn("EstimatedIntegrationError", 0)
+
+        if loggingLevel > 1:
+            self.derivativeEvaluationLog = Log()
+            zeroVector = Vector(0,0,0)
+
+            self.derivativeEvaluationLog.addColumn("Position(m)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("Velocity(m/s)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("OrientationQuaternion", Quaternion(0,0,0,0))
+            self.derivativeEvaluationLog.addColumn("AngularVelocity(rad/s)", zeroVector)
+
+            self.derivativeEvaluationLog.addColumn("CG(m)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("MOI(kg*m^2)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("Mass(kg)", 0)
+            
+            self.derivativeEvaluationLog.addColumn("Wind(m/s)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("AirDensity(kg/m^3)", 0)
+            self.derivativeEvaluationLog.addColumn("Mach", 0)
+            self.derivativeEvaluationLog.addColumn("UnitRe", 0)
+            self.derivativeEvaluationLog.addColumn("AOA(deg)", 0)
+            self.derivativeEvaluationLog.addColumn("RollAngle(deg)", 0)
+
+            self.derivativeEvaluationLog.addColumn("CPZ(m)", 0)
+            self.derivativeEvaluationLog.addColumn("AeroF(N)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("AeroM(Nm)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("GravityF(N)", zeroVector)
+            self.derivativeEvaluationLog.addColumn("TotalF(N)", zeroVector)
+        
         #### Init Components ####
+        self._createStages()
         self._initializeRigidBody()
-        self._initializeStages()
+        self._switchToStatefulRigidBodyIfRequired()
+        self._sortStagesAndComponents()
         self._initializeStagingTriggers()
+        self._precomputeComponentProperties()
 
         #### Init Parent classes ####
         CompositeObject.__init__(self, self.stages)
@@ -221,26 +273,22 @@ class Rocket(CompositeObject):
         # Get desired time discretization method
         timeDisc = self.rocketDictReader.getString("SimControl.timeDiscretization")
 
-        #### Initialize the rigid body ####
-        if self.simRunner != None:
-            self.rigidBody = RigidBody(
-                initState_globalInertialFrame, 
-                self._getAppliedForce, 
-                self.getInertia, 
-                integrationMethod=timeDisc, 
-                discardedTimeStepCallback=self.simRunner.discardForceLogsForPreviousTimeStep, 
-                simDefinition=self.simDefinition
-            )
-        else:
-            self.rigidBody = RigidBody(
-                initState_globalInertialFrame, 
-                self._getAppliedForce, 
-                self.getInertia, 
-                integrationMethod=timeDisc, 
-                simDefinition=self.simDefinition
-            )
+        #TODO: Check for additional parameters to integrate - if they exist create a StatefulRigidBody + RocketState instead!
+            # Ask each rocket component whether it would like to add parameters to integrate after all the components have been initialized
 
-    def _initializeStages(self):
+        discardDtCallback = None if (self.simRunner == None) else self.simRunner.discardForceLogsForPreviousTimeStep
+
+        #### Initialize the rigid body ####
+        self.rigidBody = RigidBody(
+            initState_globalInertialFrame, 
+            self._getAppliedForce, 
+            self.getInertia, 
+            integrationMethod=timeDisc, 
+            discardedTimeStepCallback=discardDtCallback,
+            simDefinition=self.simDefinition
+        )
+
+    def _createStages(self):
         ''' Initialize each of the stages and all of their subcomponents. '''
         stageDicts = self._getStageSubDicts()
 
@@ -269,7 +317,17 @@ class Rocket(CompositeObject):
                 newStage = Stage(stageDictReader, self)
                 self.stages.append(newStage)
 
-        self.stages = PlanarInterface.sortByZLocation(self.stages)
+                if newStage.name not in self.__dict__: # Avoid clobbering existing info
+                    setattr(self, newStage.name, newStage) # Make stage available as rocket.stageName
+
+    def _sortStagesAndComponents(self):
+        # Create Planar Interfaces b/w components inside stages
+        for stage in self.stages:
+            stage.components = PlanarInterface.sortByZLocation(stage.components, self.rigidBody.state)
+            stage.componentInterfaces = PlanarInterface.createPlanarComponentInterfaces(stage.components) 
+
+        # Create planar interfaces b/w stages
+        self.stages = PlanarInterface.sortByZLocation(self.stages, self.rigidBody.state)
         self.stageInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.stages)
 
         if self.maxDiameter > 0:
@@ -277,7 +335,7 @@ class Rocket(CompositeObject):
             self._ensureBaseDragIsAccountedFor()
 
     def _initializeStagingTriggers(self):
-        ''' Set up trigger conditions for staging '''
+        ''' Set up trigger conditions for staging '''       
         # Self.stage is not passed in if the current instance represents a rocket ready to launch - then we have to set up staging events
         if self.stage == None:
             for stageIndex in range(len(self.stages)):
@@ -300,6 +358,59 @@ class Rocket(CompositeObject):
             # Motor is burned out
             self.stages[0].motor.updateIgnitionTime(-1000000000, fakeValue=True)
     
+    def _switchToStatefulRigidBodyIfRequired(self):
+        '''
+            Query all of the rocket components to see if any of them are stateful by attempting to call their getExtraParametersToIntegrate function
+            If the rocket contains stateful components, the rocket state is converted to a StateList and all of these state variables requested by components are added to it
+            Otherwise, nothing changes and the rocket state remains a RigidBodyState
+        '''
+        varNames = []
+        initVals = []
+        derivativeFuncs = []
+
+        # Query all of the components
+        for stage in self.stages:
+            for component in stage.components:
+                try:
+                    paramNames, initValues, derivativeFunctions = component.getExtraParametersToIntegrate()
+                    varNames += paramNames
+                    initVals += initValues
+                    derivativeFuncs += derivativeFunctions
+                except AttributeError:
+                    pass # No extra parameters to integrate
+
+        # If any of the components are stateful, keep track of their states in the main rocket state
+        if len(varNames) > 0:
+            if len(varNames) != len(initVals) or len(initVals) != len(derivativeFuncs):
+                raise ValueError("ERROR: Mismatch in number of extra parameters names ({}), init values({}), and derivative functions({}) to integrate".format(len(varNames), len(initVals), len(derivativeFuncs)))
+            
+            # Switch to a stateful rigid body
+            initState = self.rigidBody.state
+            forceFunc = self.rigidBody.forceFunc
+            inertiaFunc = self.rigidBody.inertiaFunc
+            integrationMethod = self.rocketDictReader.getString("SimControl.timeDiscretization")
+            discardDtCallback = None if (self.simRunner == None) else self.simRunner.discardForceLogsForPreviousTimeStep
+            self.rigidBody = StatefulRigidBody(
+                initState,
+                forceFunc,
+                inertiaFunc,
+                integrationMethod=integrationMethod,
+                discardedTimeStepCallback=discardDtCallback,
+                simDefinition=self.simDefinition
+            )
+
+            # Add the additional state variables
+            for i in range(len(varNames)):
+                self.rigidBody.addStateVariable(varNames[i], initVals[i], derivativeFuncs[i])
+
+    def _precomputeComponentProperties(self):
+        for stage in self.stages:
+            for component in stage.components:
+                try:
+                    component.precomputeProperties()
+                except AttributeError:
+                    pass
+
     def _moveStatePositionToCG(self):
         ''' Moves self.rigidBody.state.position to have it represent the rocket's initial CG position, not the initial nose cone position '''
         initInertia = self.getInertia(0, self.rigidBody.state)
@@ -362,6 +473,7 @@ class Rocket(CompositeObject):
 
     def _dropStage(self, stageIndex=-1):
         droppedStage = self.stages.pop(stageIndex)
+        delattr(self, droppedStage.name)
         self.recomputeFixedMassInertia()
 
         if self.controlSystem != None:
@@ -401,6 +513,7 @@ class Rocket(CompositeObject):
                 "Auto-AddedZeroLengthBoatTail", 
                 self.surfaceRoughness
             )
+            initializeForceLogging(boatTail, "FakeRocketName.Auto-AddedZeroLengthBoatTail", self)
             bottomStage.components.append(boatTail)     
 
     def _updateFinenessRatio(self):
@@ -412,16 +525,8 @@ class Rocket(CompositeObject):
         else:
             self.finenessRatio = length/maxDiameter
 
-    #### Logging ####
-    def appendToForceLogLine(self, txt: str):
-        ''' Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.Simulation`'s forceEvaluationLog '''
-        try:
-            self.simRunner.forceEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim
-
     #### Component-buildup method for Force ####
-    def _getEnvironmentalConditions(self, time, state, logWind=True):
+    def _getEnvironmentalConditions(self, time, state):
         env = self.environment.getAirProperties(state.position, time)
 
         # Neglect turbulent component of wind if required
@@ -436,22 +541,19 @@ class Rocket(CompositeObject):
                 env.MeanWind,
                 Vector(0, 0, 0),
             )
-
-        # Log Wind
-        if logWind:
-            self.appendToForceLogLine(" {:>10.4f} {:>7.4}".format(env.Wind, env.Density))
         
         return env
 
     def _getAppliedForce(self, time, state):
         ''' Get the total force currently being experienced by the rocket, used by self.rigidBody to calculate the rocket's acceleration '''
         ### Precomputations and Logging ###
-        self.simRunner.newForcesLogLine("{:<7.3f} ".format(time) + str(state))                  # Start a new line in the force Evaluation log
-        
-        environment = self._getEnvironmentalConditions(time, state, logWind=True)               # Get and log current air/wind properties
-        
+        environment = self._getEnvironmentalConditions(time, state)               # Get and log current air/wind properties
         rocketInertia = self.getInertia(time, state)                                            # Get and log current rocket inertia
-        self.appendToForceLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(rocketInertia.CG, rocketInertia.mass, rocketInertia.MOI))      
+
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.newLogRow(time)
+            self.derivativeEvaluationLog.logValue("Position(m)", state.position)
+            self.derivativeEvaluationLog.logValue("Velocity(m/s)", state.velocity)
 
         ### Component Forces ###
         if not self.isUnderChute:            
@@ -460,31 +562,50 @@ class Rocket(CompositeObject):
             unitRe = AeroParameters.getReynoldsNumber(state, environment, 1.0)
             AOA = AeroParameters.getTotalAOA(state, environment)
             rollAngle = AeroParameters.getRollAngle(state, environment)
-            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(Mach, unitRe, math.degrees(AOA), rollAngle)) 
 
-            # This function will be the (inherited) function CompositeObject.getAeroForce
-            componentForces = self.getAeroForce(state, time, environment, rocketInertia.CG) 
+            if self.derivativeEvaluationLog is not None:
+                self.derivativeEvaluationLog.logValue("Mach", Mach)
+                self.derivativeEvaluationLog.logValue("UnitRe", unitRe)
+                self.derivativeEvaluationLog.logValue("AOA(deg)", math.degrees(AOA))
+                self.derivativeEvaluationLog.logValue("RollAngle(deg)", rollAngle)
+                self.derivativeEvaluationLog.logValue("OrientationQuaternion", state.orientation)
+                self.derivativeEvaluationLog.logValue("AngularVelocity(rad/s)", state.angularVelocity)
+
+            # This function will be the inherited function CompositeObject.getAppliedForce
+            componentForces = self.getAppliedForce(state, time, environment, rocketInertia.CG) 
 
         else:
             # When under chute, neglect forces from other components
-            self.appendToForceLogLine(" {:>10.4f} {:>10.0f} {:>10.4f} {:>10.4f}".format(0, 0, 0, 0))
-            componentForces = self.recoverySystem.getAeroForce(state, time, environment, Vector(0,0,-1))
-
-        componentForces = componentForces.getAt(rocketInertia.CG) # Move Force-Moment system to rocket CG
+            componentForces = self.recoverySystem.getAppliedForce(state, time, environment, Vector(0,0,-1))
+            
+            # Log the recovery system's applied force (Normally handled in CompositeObject.getAppliedForce)
+            if hasattr(self.recoverySystem, "forcesLog"):
+                self.recoverySystem.forcesLog.append(componentForces.force)
+                self.recoverySystem.momentsLog.append(componentForces.moment)
+    
+        # Move Force-Moment system to rocket CG
+        componentForces = componentForces.getAt(rocketInertia.CG)
            
         ### Gravity ###
         gravityForce = self.environment.getGravityForce(rocketInertia, state)        
         totalForce = componentForces + gravityForce
 
         ### Launch Rail ###
-        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)
+        totalForce = self.environment.applyLaunchTowerForce(state, time, totalForce)        
 
-        # Log center of pressure z-location
-        self.appendToForceLogLine(" {:>10.5f}".format(AeroFunctions._getCPZ(componentForces)))
-        # Log total forces
-        self.appendToForceLogLine(" {:>8.5f} {:>8.6f} {:>8.4f} {:>8.4f}".format(
-            componentForces.force, componentForces.moment, gravityForce.force, totalForce.force)
-        )
+        if self.derivativeEvaluationLog is not None:
+            self.derivativeEvaluationLog.logValue("Wind(m/s)", environment.Wind)
+            self.derivativeEvaluationLog.logValue("AirDensity(kg/m^3)", environment.Density)
+            self.derivativeEvaluationLog.logValue("CG(m)", rocketInertia.CG)
+            self.derivativeEvaluationLog.logValue("MOI(kg*m^2)", rocketInertia.MOI)
+            self.derivativeEvaluationLog.logValue("Mass(kg)", rocketInertia.mass)
+
+            CPZ = AeroFunctions._getCPZ(componentForces)            
+            self.derivativeEvaluationLog.logValue("CPZ(m)", CPZ)
+            self.derivativeEvaluationLog.logValue("AeroF(N)", componentForces.force)
+            self.derivativeEvaluationLog.logValue("AeroM(Nm)", componentForces.moment)
+            self.derivativeEvaluationLog.logValue("GravityF(N)", gravityForce.force)
+            self.derivativeEvaluationLog.logValue("TotalF(N)", totalForce.force)
 
         return totalForce
     
@@ -498,32 +619,42 @@ class Rocket(CompositeObject):
         startTime = self.rigidBody.time       
 
         # Control loop (if applicable)
-        controlLogString = "" # Empty string if not overridden by running the control loop
         if self.controlSystem != None and not self.isUnderChute:
-            environment = self._getEnvironmentalConditions(startTime, startState, logWind=False)
+            environment = self._getEnvironmentalConditions(startTime, startState)
 
             ### Run Control Loop ###
             newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
             
-            if newTargetActuatorDeflections != False:
+            # if newTargetActuatorDeflections != False:
                 # runControlLoopIfRequired returns False if the control doesn't run
                 # Add target deflections to the main log string
-                deflStrings = [ " {:>7.3f}".format(defl) for defl in newTargetActuatorDeflections ]
-                controlLogString = "".join(deflStrings)
+                # TODO: Control system should get its own log, this code is no longer functional
+                # deflStrings = [ " {:>7.3f}".format(defl) for defl in newTargetActuatorDeflections ]
+                # controlLogString = "".join(deflStrings)
 
-        # Log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
-        try: # 6DoF Mode
-            globalOrientation = startState.orientation
-            orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
-            orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
-            eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
-            eulerAnglesString =  " {:>10.6f}".format(eulerAngles)
-        except AttributeError:
-            eulerAnglesString = "" # 3DoF mode
+        if self.timeStepLog is not None:
+            # Log the rocket state
+            self.timeStepLog.newLogRow(startTime)
+            self.timeStepLog.logValue("Position(m)", startState.position)
+            self.timeStepLog.logValue("Velocity(m/s)", startState.velocity)
 
-        # Log -> Main Sim Log
-        mainLogString = "{:<8.4f} {:>6.5f}".format(startTime, dt) + str(startState) + eulerAnglesString + controlLogString
-        print(mainLogString)
+            try: # 6DoF Mode
+                self.timeStepLog.logValue("OrientationQuaternion", startState.orientation)
+                self.timeStepLog.logValue("AngularVelocity(rad/s)", startState.angularVelocity)
+
+                # Also log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
+                globalOrientation = startState.orientation
+                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+                orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
+                eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
+                self.timeStepLog.logValue("EulerAngle(rad)", eulerAngles)
+
+            except AttributeError:
+                pass # 3DoF mode
+
+        altitude = self.environment.earthModel.getAltitude(*startState.position)
+        consoleOutput = "{:<8.4f} {:>6.5f}".format(startTime, altitude)
+        print(consoleOutput)
 
     def timeStep(self, dt: float):
         '''
@@ -555,19 +686,14 @@ class Rocket(CompositeObject):
                 print("Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}".format(dt, newDt, estimatedOccurenceTime))
                 dt = newDt
                 
-        # Logs line to mainSimLog
         self._runControlSystemAndLogStartingState(dt)
 
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
-        if "Adapt" in self.rigidBody.integrate.method:
-            # Add estimated error for the time step to the end of the simulation log line
-            try:
-                self.simRunner.mainSimulationLog[-2] += " {:<8.6f}".format(integrationResult.errorMagEstimate)
-            except AttributeError:
-                pass # No logging set up
-
+        if "Adapt" in self.rigidBody.integrate.method and self.timeStepLog is not None:
+            self.timeStepLog.logValue("EstimatedIntegrationError", integrationResult.errorMagEstimate)
+            
         return integrationResult
     
     def _switchTo3DoF(self):
@@ -597,3 +723,22 @@ class Rocket(CompositeObject):
                 integrationMethod=originalTimeDiscretization, 
                 simDefinition=self.simDefinition
             )
+
+    #### After Simulation ####
+    def writeLogsToFile(self, directory="."):
+        logfilePaths = []
+
+        if self.timeStepLog is not None:
+            rocketName = self.components[0].name # Rocket is named after its top stage
+            path = os.path.join(directory, "{}_timeStepLog.csv".format(rocketName))
+            
+            if self.timeStepLog.writeToCSV(path):
+                logfilePaths.append(path)
+
+            if self.derivativeEvaluationLog is not None:
+                path = os.path.join(directory, "{}_derivativeEvaluationLog.csv".format(rocketName))  
+                
+                if self.derivativeEvaluationLog.writeToCSV(path):
+                    logfilePaths.append(path)
+
+        return logfilePaths

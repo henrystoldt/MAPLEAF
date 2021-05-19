@@ -44,12 +44,12 @@ ExampleWindTunnelCase{
   }
 }
 
-ExampleFlightCase{
+lpExampleFlightCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
 	ExpectedFinalValues{
 		Mach	    	0.3514
-		PositionX		-0.332
+		PositionX		-0.33166
 		Time(s)	    	1.001
 	}
 

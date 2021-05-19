@@ -1,20 +1,23 @@
 import importlib
+import re
+from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
-import re
-
-from MAPLEAF.IO import SubDictReader, SimDefinition, subDictReader
-from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
+import numpy as np
+from MAPLEAF.IO import Logging, SimDefinition, SubDictReader, subDictReader
 from MAPLEAF.Utilities import evalExpression
+from scipy.optimize import minimize
 
+from .SingleSimulations import Simulation, loadSimDefinition, runSimulation
 
-__all__ = [ "OptimizingSimRunner" ]
+__all__ = [ "optimizationRunnerFactory" ]
 
 
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
     # Run the simulation
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
+    Logging.removeLogger()
 
     # Evaluate the cost function
     if ":" in costFunctionDefinition:
@@ -41,46 +44,26 @@ def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: s
         return evalExpression(costFunctionDefinition, varVals)
 
 
-class OptimizingSimRunner():
+class OptimizingSimRunner(ABC):
     '''
         Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
         Configurable using the top-level 'Optimization' dictionary in .mapleaf files
     '''
     #### Initialization ####
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, subDictReader = None, silent=False, parallel=False):
+    def __init__(self, optimizationReader, silent=False, parallel=False):
         ''' 
             Pass in nProcesses > 1 to run Optimization in parallel using [ray](https://github.com/ray-project/ray).
             At the time of this writing, Ray is not yet fully supported on Windows, so this option is intended primarily for Linux and Mac computers.
         '''
         self.silent = silent
         self.parallel = parallel
-        
-        if simDefinition != None or simDefinitionFilePath != None:
-            # If we are receiving a complete simulation definition, assure we are the top level optimizer
-            self.isTopLevelOptimizer = True
-            
-            simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
-            self.optimizationReader = SubDictReader('Optimization', simDefinition)
-
-            if not silent:
-                print("Particle Swarm Optimization")
-
-            # Ensure no output is produced during each simulation (cost function evaluation)
-            simDefinition.setValue("SimControl.plot", "None")
-            simDefinition.setValue("SimControl.RocketPlot", "Off")
-        else:
-            # If we are receiving a sub dictionary reader, assume runner represents an inner optimization
-            if subDictReader == None:
-                raise ValueError('subDictReader not initialized for a nested optimization')
-            
-            self.isTopLevelOptimizer = False
-            self.optimizationReader = subDictReader
+        self.optimizationReader = optimizationReader
 
         # Parse the simulation definition's Optimization dictionary, but don't run it yet
-        self.costFunctionDefinition = self.optimizationReader.getString("costFunction")        
+        self.costFunctionDefinition = optimizationReader.getString("costFunction")
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
-        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
+        self.bestPosition, self.bestCost = self._loadBestPosition()
 
     def _loadIndependentVariables(self):
         ''' 
@@ -99,7 +82,7 @@ class OptimizingSimRunner():
         minVals = []
         maxVals = []
 
-        for key in self.optimizationReader.getSubKeys("IndependentVariables"):
+        for key in self.optimizationReader.getImmediateSubKeys("IndependentVariables"):
             # Value expected to be 'min < key.Path < max'
             # Split into three parts using the '<' characters
             strings = self.optimizationReader.getString(key).split('<')
@@ -123,7 +106,7 @@ class OptimizingSimRunner():
             # Output setup to console
             print("Independent Variables: ")
             for i in range(len(varNames)):
-                print("{} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
+                print("    {} < {} < {}".format(minVals[i], varNames[i], maxVals[i]))
             print("")
 
         return varKeys, varNames, minVals, maxVals
@@ -151,49 +134,36 @@ class OptimizingSimRunner():
             # Output results to console
             print("Dependent variables:")
             for i in range(len(depVarNames)):
-                print("{} = {}".format(depVarNames[i], depVarDefinitions[i]))
+                print("    {} = {}".format(depVarNames[i], depVarDefinitions[i]))
             print("")
 
         return depVarNames, depVarDefinitions
 
-    def _createOptimizer(self):
-        ''' 
-            Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
-            Returns the Optimizer, the user's desired number of iterations, and showConvergence (bool)
-        '''
-        pathToParticleSwarmDict = self.optimizationReader.simDefDictPathToReadFrom + '.ParticleSwarm'
-        pSwarmReader = SubDictReader(pathToParticleSwarmDict, self.optimizationReader.simDefinition)
+    def _loadBestPosition(self):
+        bestPosition = self.optimizationReader.tryGetString('IndependentVariables.InitialParticlePositions.bestPosition', defaultValue=None)
+        bestCost = self.optimizationReader.tryGetFloat('IndependentVariables.InitialParticlePositions.bestCost', defaultValue=None)
 
-        nParticles = pSwarmReader.tryGetInt("nParticles", defaultValue=20)
-        nIterations = pSwarmReader.tryGetInt("nIterations", defaultValue=50)
-        
-        c1 = pSwarmReader.tryGetFloat("cognitiveParam", defaultValue=0.5)
-        c2 = pSwarmReader.tryGetFloat("socialParam", defaultValue=0.6)
-        w = pSwarmReader.tryGetFloat("inertiaParam", defaultValue=0.9)
-        pySwarmOptions = { 'c1':c1, 'c2':c2, 'w':w }
+        if bestPosition != None and bestCost != None:
+            bestPosition = [ float(x) for x in bestPosition.split(' ')]
+            bestPosition = np.array(bestPosition, np.float64)
+            bestCost = np.float64(bestCost)
 
-        nVars = len(self.varNames)
-        varBounds = (self.minVals, self.maxVals)
+            if not self.silent:
+                print("Loaded previous best position: {}".format(bestPosition))
+                print("Loaded previous best cost: {}\n".format(bestCost))
 
-        from pyswarms.single import GlobalBestPSO # Import here because for most sims it's not required
-        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds)
-
-        showConvergence = self.optimizationReader.tryGetBool("showConvergencePlot", defaultValue=False)
-
-        if not self.silent:
-            print("Optimization Parameters:")
-            print("{} Particles".format(nParticles))
-            print("{} Iterations".format(nIterations))
-            print("c1 = {}, c2 = {}, w = {}\n".format(c1, c2, w))
-            
-            costFunctionDefinition = self.optimizationReader.getString("costFunction")
-            print("Cost Function:")
-            print(costFunctionDefinition + "\n")
-
-        return optimizer, nIterations, showConvergence
+            return bestPosition, bestCost
+        elif bestPosition == None and bestCost == None:
+            return None, None
+        else:
+            raise ValueError('Please specify bestPosition and bestCost or neither, current values: {} and {}, respectively'.format(bestPosition, bestCost))
 
     #### Running the optimization ####
-    def _computeCostFunctionValues_Parallel(self, trialSolutions, verbose=None) -> float:
+    def _createNestedOptimization(self, simDef):
+        innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
+        return optimizationRunnerFactory(optimizationReader=innerOptimizationReader, silent=self.silent, parallel=self.parallel)
+
+    def _computeCostFunctionValues_Parallel(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         import ray
         _computeCostFunctionRemotely = ray.remote(_computeCostFunction)
@@ -211,12 +181,6 @@ class OptimizingSimRunner():
             varDict = self._updateIndependentVariableValues(simDef, indVarValues)
             self._updateDependentVariableValues(simDef, varDict)
 
-            if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
-                innerOptimizer = self._createNestedOptimization(simDef)
-                cost, pos = innerOptimizer.runOptimization()
-                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
-                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
-
             # Start the simulation and save the future returned
             costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
 
@@ -225,7 +189,7 @@ class OptimizingSimRunner():
 
         return costFunctionValues
 
-    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions, verbose=None) -> float:
+    def _computeCostFunctionValues_SingleThreaded(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         costFunctionValues = []
         for indVarValues in trialSolutions:
@@ -246,11 +210,7 @@ class OptimizingSimRunner():
             costFunctionValues.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
 
         return costFunctionValues
-
-    def _createNestedOptimization(self, simDef):
-        innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
-        return OptimizingSimRunner(subDictReader=innerOptimizationReader, silent=True, parallel=self.parallel)
-
+    
     def _updateIndependentVariableValues(self, simDefinition, indVarValues):
         ''' 
             Updates simDefinition with the independent variable values
@@ -282,23 +242,189 @@ class OptimizingSimRunner():
             depValue = "".join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
+
+def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, optimizationReader=None, silent=False, parallel=False) -> OptimizingSimRunner:
+    ''' Provide a subdictionary reader pointed at an optimization dictionary. Will read the dictionary, initialize an optimizing simulation runner and return it. '''
+    if simDefinition != None or simDefinitionFilePath != None:
+        simDefinition = loadSimDefinition(simDefinitionFilePath, simDefinition, silent)
+        optimizationReader = SubDictReader('Optimization', simDefinition)
+
+        # Ensure no output is produced during each simulation (cost function evaluation)
+        simDefinition.setValue("SimControl.plot", "None")
+        simDefinition.setValue("SimControl.RocketPlot", "Off")
+    else:
+        if optimizationReader == None:
+            raise ValueError('subDictReader not initialized for a nested optimization')
+
+    method = optimizationReader.tryGetString('method', defaultValue='PSO')
+
+    if method == 'PSO':
+        return PSORunner(optimizationReader, silent=silent, parallel=parallel)
+    elif 'scipy.optimize.minimize' in method:
+        return ScipyMinimizeRunner(optimizationReader, silent=silent, parallel=parallel)
+    else:
+        raise ValueError('Optimization method: {} not implemented, try PSO'.format(method))
+
+class PSORunner(OptimizingSimRunner):
+    def __init__(self, optimizationReader, silent=False, parallel=False):
+        if not silent:
+            print("Particle Swarm Optimization")
+
+        super().__init__(optimizationReader, silent, parallel)
+        
+        self.initPositions = self._loadInitialPositions()
+
+        # Actually create the optimizer
+        self.optimizer, self.nIterations, self.showConvergence = self._createOptimizer()
+
+    def _loadInitialPositions(self):
+        nParticles = self.optimizationReader.getInt("ParticleSwarm.nParticles")
+        nVars = len(self.varNames)
+
+        particlePositionDicts = self.optimizationReader.getImmediateSubDicts("IndependentVariables.InitialParticlePositions")
+
+        if len(particlePositionDicts) > nParticles:
+            raise ValueError("Number of initial particle positions: {}({}) cannot exceed the total number of particles: {}".format(len(particlePositionDicts), particlePositionDicts, nParticles))
+
+        initialParticlePositions = np.empty((nParticles, nVars), dtype=np.float64)
+        
+        for i in range(nParticles):
+            if i < len(particlePositionDicts):
+                # Some initialization data provided
+                particleDictionary = particlePositionDicts[i]
+
+                if i == 0 and not self.silent:
+                    print("Loading specified initial particle positions")
+
+                if not self.silent:
+                    print('    ' + particleDictionary + ':')
+
+                specifiedVariablePaths = self.optimizationReader.getImmediateSubKeys(particleDictionary)
+                specifiedVariableNames = []
+
+                # Populate name vector and Check that all provided variables exist
+                for v in specifiedVariablePaths:
+                    vName = v.split('.')[-1]
+                    specifiedVariableNames.append(vName)
+
+                    if vName not in self.varNames:
+                        raise ValueError("Variable {} not expected in {}. Only expecting independent variables: {}".format(v, particleDictionary, self.varNames))
+            else:
+                # All available initialization data already used
+                specifiedVariablePaths = []
+                specifiedVariableNames = []
+
+            # Read or generate value for each variable
+            for j in range(nVars):
+                independentVariable = self.varNames[j]
+
+                # Read provided data if available
+                if independentVariable in specifiedVariableNames:
+                    index = specifiedVariableNames.index(independentVariable)
+                    value = self.optimizationReader.getFloat(specifiedVariablePaths[index])
+
+                    if not self.silent:
+                        print('        {} = {}'.format(independentVariable, value))
+
+                    # Check the value is within the expected bounds
+                    if value < self.minVals[j] or value > self.maxVals[j]:
+                        raise ValueError("{} value in initial particle position: {} ({}) outside of expected range ({}-{}".format(independentVariable, particleDictionary, value, self.minVals[j], self.maxVals[j]))
+
+                # Otherwise, choose a random value
+                else:
+                    value = np.random.uniform(self.minVals[j], self.maxVals[j])
+
+                initialParticlePositions[i,j] = value
+        
+        return initialParticlePositions
+
+    def _createOptimizer(self):
+        ''' 
+            Reads the Optimization.ParticleSwarm dictionary and creates a pyswarms.GlobalBestPSO object 
+            Returns the Optimizer, the user's desired number of iterations, and showConvergence (bool)
+        '''
+        pathToParticleSwarmDict = self.optimizationReader.simDefDictPathToReadFrom + '.ParticleSwarm'
+        pSwarmReader = SubDictReader(pathToParticleSwarmDict, self.optimizationReader.simDefinition)
+
+        nParticles = pSwarmReader.tryGetInt("nParticles", defaultValue=20)
+        nIterations = pSwarmReader.tryGetInt("nIterations", defaultValue=50)
+        
+        c1 = pSwarmReader.tryGetFloat("cognitiveParam", defaultValue=0.5)
+        c2 = pSwarmReader.tryGetFloat("socialParam", defaultValue=0.6)
+        w = pSwarmReader.tryGetFloat("inertiaParam", defaultValue=0.9)
+        pySwarmOptions = { 'c1':c1, 'c2':c2, 'w':w }
+
+        nVars = len(self.varNames)
+        varBounds = (self.minVals, self.maxVals)
+
+        from pyswarms.single import \
+            GlobalBestPSO  # Import here because for most sims it's not required
+        optimizer = GlobalBestPSO(nParticles, nVars, pySwarmOptions, bounds=varBounds, init_pos=self.initPositions)
+        
+        if self.bestPosition != None and self.bestCost != None:
+            optimizer.swarm.best_pos = self.bestPosition
+            optimizer.swarm.best_cost = self.bestCost
+
+        showConvergence = self.optimizationReader.tryGetBool("showConvergencePlot", defaultValue=False)
+
+        if not self.silent:
+            print("Optimization Parameters:")
+            print("{} Particles".format(nParticles))
+            print("{} Iterations".format(nIterations))
+            print("c1 = {}, c2 = {}, w = {}\n".format(c1, c2, w))
+            
+            costFunctionDefinition = self.optimizationReader.getString("costFunction")
+            print("Cost Function:")
+            print(costFunctionDefinition + "\n")
+
+        return optimizer, nIterations, showConvergence
+
+    def _createContinuationFile(self, particlePositions, bestPosition, bestCost):
+        # Create new simulation definition
+        restartDefinition = deepcopy(self.optimizationReader.simDefinition)
+
+        # Remove any existing initial particle positions
+        oldPositionEntries = self.optimizationReader.getSubKeys('IndependentVariables.InitialParticlePositions')
+        for p in oldPositionEntries:
+            restartDefinition.removeKey(p)
+
+        # Save best position and cost from present run
+        path = self.optimizationReader.simDefDictPathToReadFrom
+        positionString = ' '.join([ str(x) for x in bestPosition ])
+        restartDefinition.setValue(path + '.IndependentVariables.InitialParticlePositions.bestPosition', positionString)
+        restartDefinition.setValue(path + '.IndependentVariables.InitialParticlePositions.bestCost', str(bestCost))
+
+        # Add the last particle positions
+        for i in range(len(particlePositions)):
+            position = particlePositions[i]
+            
+            for j in range(len(position)):
+                varName = self.varNames[j]
+                value = position[j]
+                path = self.optimizationReader.simDefDictPathToReadFrom + '.IndependentVariables.InitialParticlePositions.p{}.{}'.format(i, varName)
+                
+                restartDefinition.setValue(path, str(value))
+
+        # Save the result to file
+        newFileName = restartDefinition.fileName.replace('.mapleaf', '_continue.mapleaf')
+        if not self.silent:
+            print('Creating continuation file: {}'.format(newFileName))
+        restartDefinition.writeToFile(newFileName)
+
     #### Main Function ####
     def runOptimization(self):
         ''' Run the Optimization and show convergence history '''
         if self.parallel:
-            if self.isTopLevelOptimizer:
-                # Outermost optimizer is in charge of managing ray
-                import ray
-                ray.init()
-                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, self.nIterations, verbose=self.isTopLevelOptimizer) 
-                ray.shutdown()
-            else:
-                # If this is an inner optimizaer, ray.init() will have already been called by the outer one(s)
-                cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, self.nIterations, verbose=self.isTopLevelOptimizer)
-
-        else:                
-            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, self.nIterations, verbose=self.isTopLevelOptimizer) 
+            import ray
+            ray.init()
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_Parallel, iters=self.nIterations)
+            ray.shutdown()
         
+        else:                
+            cost, pos = self.optimizer.optimize(self._computeCostFunctionValues_SingleThreaded, iters=self.nIterations)
+
+        self._createContinuationFile(self.optimizer.swarm.position, pos, cost)
+
         if self.showConvergence:
             print("Showing optimization convergence plot")
 
@@ -308,3 +434,104 @@ class OptimizingSimRunner():
             plt.show()
 
         return cost, pos
+
+class ScipyMinimizeRunner(OptimizingSimRunner):
+    def __init__(self, optimizationReader, silent=False, parallel=False):
+        method = optimizationReader.getString("method")
+        splitMethod = method.split(' ')
+        if len(splitMethod) > 2:
+            raise ValueError('Unexpected format for optimization method. Expected scipy.optimize.minimize [method], got: {}'.format(method))
+
+        self.minimizeMethod = splitMethod[1]
+
+        if not silent:
+            print("Optimization using scipy.optimize.minimize, method={}".format(self.minimizeMethod))
+
+        ### Run parent initialization function ###
+        super().__init__(optimizationReader, silent, parallel)
+
+        self.showConvergence = optimizationReader.tryGetBool("showConvergencePlot", defaultValue=True)
+        self.costHistory = []
+
+    def _evaluateCostFunction(self, independentVariableValues):
+        try:
+            # Scipy optimizers might not respect bounds, therefore things will crash every so often
+            resultInList = self._computeCostFunctionValues_SingleThreaded([independentVariableValues])
+            result = resultInList[0]
+        except:
+            # When this is the case, return a high cost
+            if not self.silent:
+                print("Simulation crash, assigning high cost: ", end="")
+
+            if len(self.costHistory) > 5:
+                result = max(self.costHistory)
+            elif len(self.costHistory) > 0:
+                result = max(self.costHistory)*1.1
+            else:
+                # Crash on first iteration, should be within bounds -> crash
+                raise
+
+        self.costHistory.append(result)
+
+        if not self.silent:
+            print(result)
+
+        return result
+
+    def _createContinuationFile(self, currentSolution):
+        # Create new simulation definition
+        restartDefinition = deepcopy(self.optimizationReader.simDefinition)
+
+        # To set the starting positions, constrain the bounds
+        for i in range(len(self.varNames)):
+            path = self.optimizationReader.simDefDictPathToReadFrom + '.IndependentVariables.' + self.varNames[i]
+            eps = 1e-12
+            value = "{} < {} < {}".format(currentSolution[i]-eps, self.varKeys[i], currentSolution[i]+eps)
+            restartDefinition.setValue(path, value)
+
+        # Save the result to file
+        newFileName = restartDefinition.fileName.replace('.mapleaf', '_continue.mapleaf')
+        if not self.silent:
+            print('Creating continuation file: {}'.format(newFileName))
+        restartDefinition.writeToFile(newFileName)
+
+    def runOptimization(self):
+        # Read options
+        tolerance = self.optimizationReader.tryGetFloat('ScipyMinimize.tolerance', defaultValue=0.01)
+        maxIterations = self.optimizationReader.tryGetInt('ScipyMinimize.maxIterations', defaultValue=50)
+        printConvergence = self.optimizationReader.tryGetBool('ScipyMinimize.printStatus', defaultValue=True)
+        if self.silent:
+            printConvergence = False
+
+        if not self.silent:
+            print("Options:")
+            print("    Tolerance: {}".format(tolerance))
+            print("    Max Iterations: {}\n".format(maxIterations))
+            print("Running optimization:")
+
+        options = {
+            "maxiter": maxIterations,
+            "disp": printConvergence,
+        }
+
+        # Get initial position (centre of bounds)
+        variableCount = len(self.varNames)
+        initialPosition = np.array([0.0] * variableCount)
+        for i in range(variableCount):
+            initialPosition[i] = (self.minVals[i] + self.maxVals[i])/2
+
+        # Perform the minimization
+        result = minimize(self._evaluateCostFunction, initialPosition, method=self.minimizeMethod, options=options, tol=tolerance)
+
+        self._createContinuationFile(result.x)
+
+        if self.showConvergence:
+            plt.plot(self.costHistory)
+            plt.ylabel('Cost')
+            plt.xlabel('Cost evaluation number')
+            plt.show()
+
+        if not self.silent:
+            print("\nBest position: {}\nBest cost: {}\n".format(result.x, result.fun))
+
+        return result.fun, result.x

@@ -30,6 +30,7 @@ class TestRocket(unittest.TestCase):
         cls.rocket2 = simRunner2.createRocket()
 
         canardRunner = Simulation("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
+        canardRunner.simDefinition.setValue("SimControl.loggingLevel", "0")        
         cls.canardRocket = canardRunner.createRocket()
         cls.originalCanardRocketState = cls.canardRocket.rigidBody.state
 

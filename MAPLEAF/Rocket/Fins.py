@@ -82,12 +82,7 @@ class FinSet(FixedMass, ActuatedSystem):
             self.trailingEdgeThickness = componentDictReader.getFloat("TrailingEdge.thickness")
         elif self.trailingEdgeShape != "Tapered":
             raise ValueError("ERROR: Trailing edge shape: {} not implemented. Use 'Round', 'Blunt', or 'Tapered'".format(self.trailingEdgeShape))
-
-        # Common fin properties for all child fins
-        self._precomputeGeometry()
         
-        # Initialize all the child fins in the self.finList list
-        self._initChildFins(componentDictReader, rocket, stage)
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
@@ -95,7 +90,7 @@ class FinSet(FixedMass, ActuatedSystem):
         # Initialize an actuator model for each fin
         ActuatedSystem.__init__(self, self.numFins)
 
-    def _precomputeGeometry(self):
+    def precomputeProperties(self):
         self._calculateSweepAngles()
 
         ### Compute Other Simple Properties ####
@@ -115,6 +110,9 @@ class FinSet(FixedMass, ActuatedSystem):
 
         self._precomputeSubsonicFinThicknessDrag()
         self._precomputeCPInterpolationPolynomial()
+
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(self.componentDictReader, self.rocket, self.stage)
     
     def _calculateSweepAngles(self):
         ''' Compute Trailing Edge (TE) and Mid Chord sweep angles '''
@@ -250,6 +248,8 @@ class FinSet(FixedMass, ActuatedSystem):
             #Initialize each fin separately and keep in a list
             self.finList.append(Fin(componentDictReader, self, spanWiseDirection, rocket, stage))
 
+    # TODO: Replace this with control system log
+    # TODO: Remove all getLogHeader functions
     def getLogHeader(self):
         header = " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
         
@@ -260,7 +260,7 @@ class FinSet(FixedMass, ActuatedSystem):
         return header
 
     ### Functions used during simulation ###
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         #### If control system exists, use actuator deflections 1:1 to set fin angles ####
         if self.controlSystem != None:
             # Update fin angles
@@ -273,7 +273,7 @@ class FinSet(FixedMass, ActuatedSystem):
         #### Add up forces from all child Fins ####
         aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
         for fin in self.finList:
-            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+            aeroForce += fin.getAppliedForce(rocketState, time, environment, CG, precomputedData)
 
         # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
         
@@ -282,14 +282,7 @@ class FinSet(FixedMass, ActuatedSystem):
         aeroForce.force.X *= totalInterferenceFactor
         aeroForce.force.Y *= totalInterferenceFactor
         aeroForce.moment.X *= totalInterferenceFactor
-        aeroForce.moment.Y *= totalInterferenceFactor          
-
-        #### Log results ####
-        forceLogLine = " {:>10.4f} {:>10.4f}".format(aeroForce.force, aeroForce.moment)
-        if self.controlSystem != None:
-            for i in range(len(self.actuatorList)):
-                forceLogLine += " {:>6.4}".format(self.finList[i].finAngle)
-        self.rocket.appendToForceLogLine(forceLogLine)
+        aeroForce.moment.Y *= totalInterferenceFactor
 
         return aeroForce
 
@@ -557,6 +550,6 @@ class Fin(FixedMass):
         totalForce = normalForce + axialForce
         return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
 
-    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+    def getAppliedForce(self, rocketState, time, environment, CG, precomputedData):
         [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
         return aeroForce

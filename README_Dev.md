@@ -40,7 +40,8 @@ https://docs.python.org/3/library/unittest.html
   
 To run all tests: `python3 -m unittest -v`   
 To run a single test module: `python3 -m unittest -v test.test_Vector`  
-To easily run restricted sets of tests: `python3 test/runTests.py -h`
+To run tests by module use this script (-h is to see the help message): `python3 test/runTests.py -h`  
+All unit tests are run automatically whenever the master branch is updated, see [UnitTests.yml](https://github.com/henrystoldt/MAPLEAF/blob/master/.github/workflows/UnitTests.yml) to see how this works.
 
 ## Running Regression Testing / V & V Suite
 All regression and V&V tests are defined in batch file [MAPLEAF/Examples/BatchSims/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/V&V/testDefinitions.mapleaf)  
@@ -50,6 +51,8 @@ To run them:
 For more info: `mapleaf-batch -h`
 
 Shows results in console, generates plots in `./test/V&V/`  
+Results of these simulations are automatically displayed on the [verification and validation section of the documentation website](https://henrystoldt.github.io/MAPLEAF/V&V/index.html)  
+To see how this works, have a look at [generateDocs.yml](https://github.com/henrystoldt/MAPLEAF/blob/master/.github/workflows/generateDocs.yml)
 
 ## Debugging a Simulation (Visual Studio Code)
 1. Place a breakpoint (red dot on the left)
@@ -88,13 +91,35 @@ More commands here: https://virtualenvwrapper.readthedocs.io/en/latest/command_r
 ## Profiling Performance with pyInstrument
 `pyinstrument -r html ./MAPLEAF/Main.py ./MAPLEAF/Examples/Simulations/Wind.mapleaf`
 
+## Benchmarking with airspeed velocity (asv)
+Benchmarks are defined in ./benchmarks/benchmarks.py  
+Benchmarking settings defined in ./asv.conf.json  
+
+#### Running benchmarks:
+Run benchmarks on latest commit in the master branch: `$ asv run`  
+Run benchmarks on new commits: `$ asv run NEW`  
+Run benchmarks on commits in a branch: `$ asv run master..myBranch`  
+To avoid running benchmarks for every single commit in a range of commits, use the `--steps NSTEPS` argument to specify how many times you would like to run the benchmark suite  
+To see error messages produced while trying to run benchmarks: `$ asv dev`  
+
+#### Viewing results:
+To view the web interface (performance vs time/commits):  
+1. `$ asv publish`  
+2. `$ asv preview`  
+3. Navigate to the IP address it provides you in your browser (often 127.0.0.1:8080)
+
+To view available sets of results in the command line: `$ asv show`  
+To view a single set of results: `$ asv show CommitHashHere`  
+
+More information: https://asv.readthedocs.io/en/stable/using.html
+
 ## Recompiling Cython code
 Some of the files in MAPLEAF are .pyx/.pxd instead of .py.  
 These are [Cython](https://cython.org/) code files.  
 Cython is a superset of Python, meaning all Python code is valid Cython.  
 
 **Note:** Changes to the Cython code will not take effect without [re-compiling the Cython code](https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html). 
-To re-compile: `$ python3 setup.py build_ext --inplace`
+To re-compile: `$ python3 setup.py build_ext --inplace` or simply reinstall: `$ pip install -e .`
 
 ## Uploading to PyPI
 (Must be done on Linux/Mac to preserve file cases)

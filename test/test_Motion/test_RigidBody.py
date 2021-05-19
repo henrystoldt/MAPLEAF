@@ -1,11 +1,6 @@
 #Created by: Henry Stoldt
 #May 2019
 
-#To run tests:
-#In this file: [test_rigidBody.py]
-#In all files in the current directory: [python -m unittest discover]
-#Add [-v] for verbose output (displays names of all test functions)
-
 import math
 import unittest
 from math import cos, pi, sin
@@ -15,20 +10,28 @@ from test.testUtilities import (assertAngVelAlmostEqual,
 
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Motion import (AngularVelocity, ForceMomentSystem, Inertia,
-                            Quaternion, RigidBody, RigidBodyState, Vector)
+                            Quaternion, RigidBody, RigidBodyState, Vector, StatefulRigidBody)
 
+# https://lpsa.swarthmore.edu/NumInt/NumIntSecond.html
+def sampleDerivative(time, state):
+    val = state[1]
+    return -2 * val
 
 class TestRigidBody(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+
     def setUp(self):
         self.zeroVec = Vector(0,0,0)
         self.zeroQuat = Quaternion(axisOfRotation=Vector(1,0,0), angle=0)
         self.zeroAngVel = AngularVelocity(axisOfRotation=Vector(1,0,0), angularVel=0)
         self.zeroForce = ForceMomentSystem(self.zeroVec)
         self.oneVec = Vector(1,1,1)
-        self.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+        
         self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", "1")
-        #TODO: Get some tests for the higher order adaptive methods in here
-        self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive" ]
+
+        self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive", "RK23Adaptive", "RK78Adaptive" ]
         self.constInertia = Inertia(self.oneVec, self.zeroVec, 1)
 
     ############################ TESTS RUN FOR EACH INTEGRATION METHOD #######################
@@ -128,6 +131,8 @@ class TestRigidBody(unittest.TestCase):
         # Create rigid body and apply moments for one time step each
         self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", str(math.sqrt(math.pi)))
         complexRotatingBody = RigidBody(complexRotatingState, step1MomentFunc, constInertiaFunc, integrationMethod = integrationMethod, simDefinition=self.simDefinition)
+        complexRotatingBody.integrate.firstSameAsLast = False # First same as last causes problems here - perhaps with the constantly changing integration function
+
         complexRotatingBody.timeStep(math.sqrt(math.pi)) #Apply each moment and do the timestep
         complexRotatingBody.forceFunc = step2MomentFunc
         complexRotatingBody.timeStep(math.sqrt(math.pi))
@@ -204,6 +209,64 @@ class TestRigidBody(unittest.TestCase):
         expectedAngVel = AngularVelocity(rotationVector=Vector(cos(omega*totalTime), sin(omega*totalTime) ,1))
 
         assertAngVelAlmostEqual(self, finalAngVel, expectedAngVel)
+
+class TestStatefulRigidBody(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.simDefinition = SimDefinition("MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf", silent=True)
+
+    def setUp(self):
+        self.zeroVec = Vector(0,0,0)
+        self.zeroQuat = Quaternion(axisOfRotation=Vector(1,0,0), angle=0)
+        self.zeroAngVel = AngularVelocity(axisOfRotation=Vector(1,0,0), angularVel=0)
+        self.zeroForce = ForceMomentSystem(self.zeroVec)
+        self.oneVec = Vector(1,1,1)
+
+        self.simDefinition.setValue("SimControl.TimeStepAdaptation.minTimeStep", "1")
+        
+        #TODO: Get some tests for the higher order adaptive methods in here
+        self.integrationMethods = [ "Euler", "RK2Heun", "RK2Midpoint", "RK4", "RK12Adaptive" ]
+        self.constInertia = Inertia(self.oneVec, self.zeroVec, 1)
+
+    def test_dualUniformXMotion(self):
+        movingXState = RigidBodyState(self.zeroVec, Vector(1,0,0), self.zeroQuat, self.zeroAngVel)
+        constInertia = Inertia(self.oneVec, self.zeroVec, 1)
+        def constInertiaFunc(*allArgs):
+            return constInertia
+        def zeroForceFunc(*allArgs):
+            return self.zeroForce
+        movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, simDefinition=self.simDefinition)
+        # Add the same rigid body state and state derivative function as a second state variable to be integrated
+        movingXBody.addStateVariable("secondRigidBodyState", movingXState, movingXBody.getRigidBodyStateDerivative)
+        
+        movingXBody.timeStep(1)
+
+        # Check that both rigid body states have been integrated correctly
+        newPos = movingXBody.state[0].position
+        newPos2 = movingXBody.state[1].position
+        assertVectorsAlmostEqual(self, newPos, Vector(1,0,0))
+        assertVectorsAlmostEqual(self, newPos2, Vector(1,0,0))
+
+    def test_UniformXMotionAndScalarIntegration(self):
+        movingXState = RigidBodyState(self.zeroVec, Vector(1,0,0), self.zeroQuat, self.zeroAngVel)
+        constInertia = Inertia(self.oneVec, self.zeroVec, 1)
+        
+        def constInertiaFunc(*allArgs):
+            return constInertia
+        def zeroForceFunc(*allArgs):
+            return self.zeroForce
+
+        movingXBody = StatefulRigidBody(movingXState, zeroForceFunc, constInertiaFunc, integrationMethod="RK4", simDefinition=self.simDefinition)
+        movingXBody.addStateVariable("scalarVar", 3, sampleDerivative)
+        movingXBody.timeStep(0.2)
+
+        # Check that the rigid body state has been integrated correctly
+        newPos = movingXBody.state[0].position
+        assertVectorsAlmostEqual(self, newPos, Vector(0.2,0,0))
+
+        # Check that the scalar function has been integrated correctly
+        finalVal = movingXBody.state[1]
+        self.assertAlmostEqual(finalVal, 2.0112)
 
 #If the file is run by itself, run the tests above
 if __name__ == '__main__':

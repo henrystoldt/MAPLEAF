@@ -48,6 +48,7 @@ class BatchRun():
             include=None, 
             exclude=None,
             percentErrorTolerance=0.1,
+            absoluteErrorTolerance=1e-10,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
@@ -62,6 +63,7 @@ class BatchRun():
 
         self.warningCount = 0
         self.percentErrorTolerance = percentErrorTolerance
+        self.absoluteErrorTolerance = absoluteErrorTolerance
 
         self.validationErrors = []
         self.validationDataUsed = []
@@ -497,15 +499,15 @@ def _checkResult(batchRun: BatchRun, caseResult: CaseResult, caseName: str, colu
         caseResult.testsFailed += 1
     
     else:
-        # Compute error %
-        if expectedResult != 0:
-            error = abs(expectedResult - observedResult)
+        # Compute error and error percentage
+        error = abs(expectedResult - observedResult)
+        if expectedResult != 0:            
             errorPercent = abs(error * 100 / expectedResult)
         else:
             errorPercent = 0 if (expectedResult == observedResult) else 100
 
         # Print + Save Result
-        if errorPercent > batchRun.percentErrorTolerance or isnan(errorPercent):
+        if (errorPercent > batchRun.percentErrorTolerance and error > batchRun.absoluteErrorTolerance) or isnan(errorPercent):
             print("  {:<25} FAIL     {:>15.7}, Expected: {:>15.7}, Disagreement: {:>10.2f} %".format(columnName + ":", observedResult, expectedResult, errorPercent))
             caseResult.testsFailed += 1
 

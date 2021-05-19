@@ -17,7 +17,7 @@ SimControl{
         targetError         0.0005
     }
 
-    plot                    TimeStep FlightAnimation Velocity
+    plot                    TimeStep FlightAnimation Velocity FlightPaths
 }
 
 Environment{

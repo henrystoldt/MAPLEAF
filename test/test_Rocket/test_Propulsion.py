@@ -38,7 +38,7 @@ class TestMotor(unittest.TestCase):
         motor = self.motorRocket.stages[0].getComponentsOfType(TabulatedMotor)[0]
 
         def getThrust(time):
-            return motor.getAeroForce('fakeState', time, 'fakeEnv', 'fakeCG').force.Z
+            return motor.getAppliedForce('fakeState', time, 'fakeEnv', 'fakeCG').force.Z
 
         self.assertEqual(getThrust(0), 0)
         self.assertEqual(getThrust(0.005), 2000)
@@ -207,7 +207,7 @@ class TestMotor(unittest.TestCase):
 
         motor = motorRocket.stages[0].motor
         # Try getting thrust, if it works with 0 oxidizer flow rate, then we're good
-        t = motor.getAeroForce('fakeState', 0.12, 'fakeEnv', 'fakeCG').force.Z
+        t = motor.getAppliedForce('fakeState', 0.12, 'fakeEnv', 'fakeCG').force.Z
 
 #If this file is run by itself, run the tests above
 if __name__ == '__main__':

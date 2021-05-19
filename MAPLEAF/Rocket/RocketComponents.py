@@ -14,7 +14,6 @@ from scipy.interpolate import LinearNDInterpolator
 from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Inertia,
                             RigidBodyState, Vector, linInterp)
 from . import AeroFunctions
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
 
@@ -29,8 +28,21 @@ class RocketComponent(ABC):
         return
 
     @abstractmethod
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG) -> ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG) -> ForceMomentSystem:
         return
+
+    #### Other optional functions ####
+    # def getExtraParametersToIntegrate(self):
+    '''
+        Override this method to make MAPLEAF integrate additional parameters (in addition to rigid body motion)
+        Should return three lists
+            - A list of (string) parameter names
+                - The parameter will then be accessible under state.parameterName whenever the rocket state is available
+            - A list of intial parameter values
+                - Values can be scalars or vectors, or any other parameter that implements addition, subtraction and multiplication/division by scalars
+            - A list of parameter derivative functions
+                - Derivative functions should accept two parameters, the current time and the current state object and return the corresponding derivative of the value of that parameter
+    '''
 
 class BodyComponent(ABC):
     ''' 
@@ -56,9 +68,6 @@ class BodyComponent(ABC):
             return Vector(self.position.X, self.position.Y, baseZCoord)
         else:
             return None
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
 
     def _getCenterOfPressure(self, *args) -> Vector:
         return self.CPLocation
@@ -119,7 +128,7 @@ class PlanarInterface():
         return componentInterfaces
 
     @classmethod
-    def sortByZLocation(cls, components) -> List[RocketComponent]:
+    def sortByZLocation(cls, components, state) -> List[RocketComponent]:
         ''' 
             Sort the components in order from top to bottom, component.position.Z
             This function could be relocated somewhere more suitable, at the time of writing, it is only being used to order components before creating interfaces b/w them
@@ -128,8 +137,7 @@ class PlanarInterface():
             try:
                 return component.position.Z
             except AttributeError:
-                zeroState = RigidBodyState()
-                return component.getInertia(0, zeroState).CG.Z
+                return component.getInertia(0, state).CG.Z
 
         components.sort(key=getZPosition, reverse=True)
         return components
@@ -163,7 +171,13 @@ class FixedMass(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getMass(self, time):
+        return self.inertia.mass
+
+    def getCG(self, time):
+        return self.inertia.CG
+
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
 class FixedForce(RocketComponent):
@@ -186,12 +200,8 @@ class FixedForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
-    def getAeroForce(self, rocketState, time, environment, rocketCG):
+    def getAppliedForce(self, rocketState, time, environment, rocketCG):
         return self.force
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
 
 class AeroForce(RocketComponent):
     ''' A zero-Inertia component with constant aerodynamic coefficients '''
@@ -217,12 +227,8 @@ class AeroForce(RocketComponent):
     def getInertia(self, time, state):
         return self.inertia
 
-    @logForceResult
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         return AeroFunctions.forceFromCoefficients(state, environment, *self.aeroCoeffs, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
 
 class AeroDamping(AeroForce):
     ''' A zero-inertia component with constant aerodynamic damping coefficients '''
@@ -242,8 +248,7 @@ class AeroDamping(AeroForce):
         self.yDampingCoeffs = componentDictReader.getVector("yDampingCoeffs")
         self.xDampingCoeffs = componentDictReader.getVector("xDampingCoeffs")
     
-    @logForceResult
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         airspeed = max(AeroParameters.getLocalFrameAirVel(state, environment).length(), 0.0000001)
         redimConst = self.Lref / (2*airspeed)
         # Calculate moment coefficients from damping coefficients
@@ -335,13 +340,9 @@ class TabulatedAeroForce(AeroForce):
 
         return aeroCoefficients
 
-    @logForceResult
-    def getAeroForce(self, state, time, environment, rocketCG):
+    def getAppliedForce(self, state, time, environment, rocketCG):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
 
 class TabulatedInertia(RocketComponent):
     ''' A zero-force component with time-varying tabulated inertia '''
@@ -371,7 +372,7 @@ class TabulatedInertia(RocketComponent):
         # MOI is last three columns, CG is the three before that, and mass is column 0
         return Inertia(Vector(*inertiaData[-3:]), Vector(*inertiaData[1:4]), inertiaData[0])
     
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         return self.zeroForce
 
 class FractionalJetDamping(RocketComponent):
@@ -388,8 +389,7 @@ class FractionalJetDamping(RocketComponent):
         
         self.dampingFraction = componentDictReader.getFloat("fraction")
 
-    @logForceResult
-    def getAeroForce(self, rocketState, time, environmentalConditions, rocketCG):
+    def getAppliedForce(self, rocketState, time, environmentalConditions, rocketCG):
         # Only apply damping force if current stage's engine is firing
             # (Other stage's motors will have different exit planes)
         if time > self.stage.motor.ignitionTime and time < self.stage.engineShutOffTime:
@@ -411,6 +411,3 @@ class FractionalJetDamping(RocketComponent):
 
     def getInertia(self, time, state):
         return self.inertia
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
