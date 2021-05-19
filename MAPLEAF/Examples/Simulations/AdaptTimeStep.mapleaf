@@ -6,7 +6,7 @@ SimControl{
     EndConditionValue 0
     plot None # FlightAnimation VelocityZ&NoseconeFZ TimeStep IntegrationError
     
-    # None, 1, 2
+    # 0, 1, 2
     loggingLevel 2
 
     # Euler, RK2Midpoint, RK2Heun, RK4, RK12Adaptive, RK23Adaptive, RK45Adaptive - Implemented in Integrator class in rigidBody.py
