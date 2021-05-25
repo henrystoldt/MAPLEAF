@@ -15,6 +15,11 @@ __all__ = [ "optimizationRunnerFactory" ]
 
 
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
+    """
+        For a single simulation definition and cost function (defined by a string), returns the result of the cost function (typically a number)
+        The version here is single threaded, remote versions are created in OptimizingSimRunner._computeCostFunctionValues_Parallel using ray.remote
+            if running a parallel optimization
+    """
     # Run the simulation
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
     Logging.removeLogger()
@@ -46,8 +51,9 @@ def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: s
 
 class OptimizingSimRunner(ABC):
     '''
-        Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
-        Configurable using the top-level 'Optimization' dictionary in .mapleaf files
+        Abstract base class for optimizers in mapleaf
+        Reads the top-level 'Optimization' dictionary in .mapleaf files
+        Child classes implement actual optimization algorithms (ex. particle swarm, scipy optimizers)
     '''
     #### Initialization ####
     def __init__(self, optimizationReader, silent=False, parallel=False):
@@ -266,6 +272,9 @@ def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, op
         raise ValueError('Optimization method: {} not implemented, try PSO'.format(method))
 
 class PSORunner(OptimizingSimRunner):
+    '''
+        Implements particle swarm optimization using pyswarms
+    '''
     def __init__(self, optimizationReader, silent=False, parallel=False):
         if not silent:
             print("Particle Swarm Optimization")
@@ -436,6 +445,9 @@ class PSORunner(OptimizingSimRunner):
         return cost, pos
 
 class ScipyMinimizeRunner(OptimizingSimRunner):
+    '''
+        Implements optimization using scipy.minimize's optimization methods
+    '''
     def __init__(self, optimizationReader, silent=False, parallel=False):
         method = optimizationReader.getString("method")
         splitMethod = method.split(' ')
