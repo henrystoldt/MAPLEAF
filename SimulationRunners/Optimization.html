@@ -47,6 +47,11 @@ __all__ = [ &#34;optimizationRunnerFactory&#34; ]
 
 
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
+    &#34;&#34;&#34;
+        For a single simulation definition and cost function (defined by a string), returns the result of the cost function (typically a number)
+        The version here is single threaded, remote versions are created in OptimizingSimRunner._computeCostFunctionValues_Parallel using ray.remote
+            if running a parallel optimization
+    &#34;&#34;&#34;
     # Run the simulation
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
     Logging.removeLogger()
@@ -78,8 +83,9 @@ def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: s
 
 class OptimizingSimRunner(ABC):
     &#39;&#39;&#39;
-        Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
-        Configurable using the top-level &#39;Optimization&#39; dictionary in .mapleaf files
+        Abstract base class for optimizers in mapleaf
+        Reads the top-level &#39;Optimization&#39; dictionary in .mapleaf files
+        Child classes implement actual optimization algorithms (ex. particle swarm, scipy optimizers)
     &#39;&#39;&#39;
     #### Initialization ####
     def __init__(self, optimizationReader, silent=False, parallel=False):
@@ -298,6 +304,9 @@ def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, op
         raise ValueError(&#39;Optimization method: {} not implemented, try PSO&#39;.format(method))
 
 class PSORunner(OptimizingSimRunner):
+    &#39;&#39;&#39;
+        Implements particle swarm optimization using pyswarms
+    &#39;&#39;&#39;
     def __init__(self, optimizationReader, silent=False, parallel=False):
         if not silent:
             print(&#34;Particle Swarm Optimization&#34;)
@@ -468,6 +477,9 @@ class PSORunner(OptimizingSimRunner):
         return cost, pos
 
 class ScipyMinimizeRunner(OptimizingSimRunner):
+    &#39;&#39;&#39;
+        Implements optimization using scipy.minimize&#39;s optimization methods
+    &#39;&#39;&#39;
     def __init__(self, optimizationReader, silent=False, parallel=False):
         method = optimizationReader.getString(&#34;method&#34;)
         splitMethod = method.split(&#39; &#39;)
