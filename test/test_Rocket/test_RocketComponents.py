@@ -39,16 +39,6 @@ class TestRocketComponents(unittest.TestCase):
         self.currentConditions = self.environment.getAirProperties(Vector(0,0,200)) # m
 
     #### FixedMass ####
-    def test_getMass(self):
-        self.assertEqual(self.nosecone.getMass(0), 5)
-        self.assertEqual(self.bodytube.getMass(0), 50)
-        self.assertEqual(self.fixedMass.getMass(0), 100)
-
-    def test_getCG(self):
-        self.almostEqualVectors(self.nosecone.getCG(0), Vector(0, 0, -0.2))
-        self.almostEqualVectors(self.bodytube.getCG(0), Vector(0, 0, -1))
-        self.almostEqualVectors(self.fixedMass.getCG(0), Vector(0, 0, 0))
-
     def test_getInertia(self):
         noseconeInertia = Inertia(Vector(0.001,0.001,0.001), Vector(0,0,-0.2), mass=5)
         bodytubeInertia = Inertia(Vector(0.001,0.001,0.001), Vector(0,0,-1), mass=50)
@@ -92,7 +82,7 @@ class TestRocketComponents(unittest.TestCase):
 
         fixedForce = rocket.stages[0].getComponentsOfType(FixedForce)[0]
 
-        force = fixedForce.getAeroForce("fakeState", 0, "fakeEnv", Vector(0,0,0))
+        force = fixedForce.getAppliedForce("fakeState", 0, "fakeEnv", Vector(0,0,0))
         expectedForce = ForceMomentSystem(Vector(0,0,0), moment=Vector(0,1,0))
         self.assertEqual(force.force, expectedForce.force)
         self.assertEqual(force.moment, expectedForce.moment)
@@ -123,27 +113,6 @@ class TestRocketComponents(unittest.TestCase):
         expectedAero = [ 0, 0, 0, 0, 0 ]
         calculatedAero = tabMoment._getAeroCoefficients(zeroAOAState, self.currentConditions)
         assertIterablesAlmostEqual(self, expectedAero, calculatedAero)
-
-    #### Test Number of headers match number of entries for Force Logging ####
-    def test_Logging(self):
-        simRunner = Simulation("MAPLEAF/Examples/Simulations/test9.mapleaf", silent=True)
-        rocket = simRunner.createRocket()
-
-        state = rocket.rigidBody.state
-        time = 1
-
-        # Check that each component logs an equal number of columns to what it has in its header
-        for stage in rocket.stages:
-            for component in stage.components:
-                rocket.forceEvaluationLog = ["",]
-
-                try:
-                    headerItemsCount = len(component.getLogHeader().split())
-                    component.getAeroForce(state, time, self.currentConditions, Vector(0,0,0))
-                    loggedItemsCount = len(simRunner.forceEvaluationLog[0].split())
-                    self.assertEqual(headerItemsCount, loggedItemsCount)
-                except AttributeError:
-                    pass
 
     #### Utilities ####
     def almostEqualVectors(self, Vector1, Vector2, n=7):

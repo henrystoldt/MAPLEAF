@@ -1,6 +1,5 @@
 from MAPLEAF.Motion import AeroParameters, ForceMomentSystem, Vector
 from MAPLEAF.Rocket import EventTypes, FixedMass
-from MAPLEAF.Utilities import logForceResult
 
 __pdoc__ = {
     'RecoverySystem._deployNextStage': True
@@ -48,8 +47,7 @@ class RecoverySystem(FixedMass):
         self._deployNextStage()
 
     #### Operational Functions ####
-    @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         '''
             Calculates force/moment applied by the recovery system using a simple drag coefficient + area model
         '''
@@ -63,9 +61,6 @@ class RecoverySystem(FixedMass):
             dragForceMagnitude = self.chuteCds[self.currentStage] * self.chuteAreas[self.currentStage] * AeroParameters.getDynamicPressure(rocketState, environment)
             totalForce = airVel.normalize() * dragForceMagnitude
             return ForceMomentSystem(totalForce)
-
-    def getLogHeader(self):
-        return " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*["Recovery"]*6)
 
     def _deployNextStage(self):
         ''' 

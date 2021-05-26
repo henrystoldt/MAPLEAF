@@ -13,7 +13,7 @@ from test.testUtilities import (assertQuaternionsAlmostEqual,
                                 assertVectorsAlmostEqual)
 
 from MAPLEAF.Motion import (AngularVelocity, Quaternion, RigidBodyState,
-                            RigidBodyState_3DoF, Vector)
+                            RigidBodyState_3DoF, StateList, Vector)
 
 
 class TestRigidBodyState(unittest.TestCase):
@@ -122,11 +122,6 @@ class TestRigidBodyState(unittest.TestCase):
     #     result3 = (state2 + state3) - state3
     #     assertRigidBodyStatesalmostEqual(self, result3, state2)
 
-    def test_Logging(self):
-        headerItemCount = len(self.iRBS1.getLogHeader().split())
-        logItemCount = len(self.iRBS1.__str__().split())
-        self.assertEqual(headerItemCount, logItemCount)
-
 class TestRigidBodyState_3DoF(unittest.TestCase):
     def setUp(self):
         pos1 = Vector(0,1,2)
@@ -152,7 +147,84 @@ class TestRigidBodyState_3DoF(unittest.TestCase):
     #     assertVectorsAlmostEqual(self, expectedPos, subtracted.position)
     #     assertVectorsAlmostEqual(self, expectedVel, subtracted.velocity)
 
-    def test_Logging(self):
-        headerItemCount = len(self.iRBS1.getLogHeader().split())
-        logItemCount = len(self.iRBS1.__str__().split())
-        self.assertEqual(headerItemCount, logItemCount)
+class TestStateList(unittest.TestCase):
+
+    def test_arithmeticOperators(self):
+        state1 = StateList([1, 2])
+        state2 = StateList([2, 4])
+
+        additionResult = state1 + state2
+        self.assertEqual(additionResult, StateList([3, 6]))
+
+        subtractionResult = state2 - state1
+        self.assertEqual(subtractionResult, StateList([1, 2]))
+
+        multiplicationResult = state1 * 3
+        self.assertEqual(multiplicationResult, StateList([3, 6]))
+
+        divisionResult = state1 / 2
+        self.assertEqual(divisionResult, StateList([ 0.5, 1]))
+
+        negateResult = -state1
+        self.assertEqual(negateResult, StateList([-1, -2]))
+
+        absVal = abs(state2)
+        absVal2 = abs(negateResult)
+        self.assertEqual(absVal, 6)
+        self.assertEqual(absVal2, 3)
+
+    def test_variableNames(self):
+        state1 = StateList([1, 2], ["var1", "var2"])
+
+        self.assertEqual(state1.nameToIndexMap, {"var1":0, "var2":1})
+
+        self.assertEqual(state1.var1, 1)
+        self.assertEqual(state1.var2, 2)
+
+        with self.assertRaises(ValueError):
+            forbiddenNameState = StateList([1, 2], ["position", "var2"])
+        
+        with self.assertRaises(ValueError):
+            duplicateNameState = StateList([1, 2], ["var", "var"])
+
+        with self.assertRaises(ValueError):
+            tooManyVarNamesState = StateList([1, 2], ["var1", "var2", "var3"])
+
+        with self.assertRaises(AttributeError):
+            invalidAttribute = state1.var3
+
+        # Test assigning to a variable
+        state1.var1 = 3
+        self.assertEqual(state1.var1, 3)
+
+        # Test assigning to non-existent attribute
+        with self.assertRaises(AttributeError):
+            state1.var3 = "invalidValue"
+
+        # Shouldn't work because item 0 isn't a rigidbodystate
+        with self.assertRaises(AttributeError):
+            state1.position = Vector(0,0,1)
+
+        # Make item 0 one and try again
+        state1[0] = RigidBodyState()
+        state1.position = Vector(0,0,1)
+        self.assertEqual(state1.position, Vector(0,0,1))
+
+    def test_addStateVariables(self):
+        state1 = StateList([1, 2], ["var1", "var2"])
+        state1.addStateVariable("var3", 3)
+        self.assertEqual(state1.var3, 3)
+
+    def test_getLogHeader(self):
+        state1 = StateList([1, 2], ["var1", "var2"])
+        header = state1.getLogHeader()
+        self.assertEqual(header, " var1 var2")
+
+        state2 = StateList([1, 2])
+        header = state2.getLogHeader()
+        self.assertEqual(header, " StateVariable0 StateVariable1")
+
+    def test_str(self):
+        state1 = StateList([1, 2], ["var1", "var2"])
+        string = str(state1)
+        self.assertEqual(string, "1 2")

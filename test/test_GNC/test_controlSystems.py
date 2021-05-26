@@ -5,7 +5,7 @@ import numpy as np
 from MAPLEAF.IO import SimDefinition
 from MAPLEAF.Main import Simulation
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
-from MAPLEAF.Motion.Integration import AdaptiveIntegrator, Integrator
+from MAPLEAF.Motion.Integration import AdaptiveIntegrator, ClassicalIntegrator
 
 
 class TestRocketControlSystem(unittest.TestCase):
@@ -15,8 +15,6 @@ class TestRocketControlSystem(unittest.TestCase):
         simDef.setValue("SimControl.loggingLevel", "0")
         simDef.setValue("Rocket.ControlSystem.MomentController.gainTableFilePath", "MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt")
         simDef.setValue("Rocket.Sustainer.Canards.Actuators.deflectionTablePath","MAPLEAF/Examples/TabulatedData/testFinDeflectionLaw.txt")
-        simDef.setValue("Rocket.ControlSystem.FlightPlan.constTargetLocation", "(0, 0, 10000)")
-        simDef.setValue("Rocket.ControlSystem.FlightPlan.constTargetSpin", "0")
         
         simDef.removeKey("Rocket.ControlSystem.FlightPlan.filePath")
         
@@ -89,22 +87,22 @@ class TestRocketControlSystem(unittest.TestCase):
         rocket = simRunner.createRocket()
 
         # Check that the time step has been changed to be fixed, and is 0.01 seconds
-        self.assertTrue(isinstance(rocket.rigidBody.integrate, Integrator)) # As oppopsed to AdaptiveIntegrator
+        self.assertTrue(isinstance(rocket.rigidBody.integrate, ClassicalIntegrator)) # As oppopsed to AdaptiveIntegrator
         self.assertEqual(rocket.rigidBody.integrate.method, "RK4") # Check it's been switched from RK45Adaptive
 
-        dtAdjustmentFactor, dt = rocket.timeStep(0.01) # Recovery system should deploy during this time step
+        integrationResult = rocket.timeStep(0.01) # Recovery system should deploy during this time step        
         rocket.simEventDetector.triggerEvents()
             # Time stepping should revert to the original method
-        self.assertAlmostEqual(dtAdjustmentFactor, 1.0)
-        self.assertAlmostEqual(dt, 0.01)
+        self.assertAlmostEqual(integrationResult.timeStepAdaptationFactor, 1.0)
+        self.assertAlmostEqual(integrationResult.dt, 0.01)
 
         # Check that original time stepping method is back
         self.assertTrue(isinstance(rocket.rigidBody.integrate, AdaptiveIntegrator))
         self.assertEqual(rocket.rigidBody.integrate.method, "RK45Adaptive")
 
-        dtAdjustmentFactor2, dt2 = rocket.timeStep(0.01)        
-        self.assertTrue(abs(dtAdjustmentFactor2 - 1.0) > 0.00000000000000001)
-        self.assertEqual(dt2, 0.01)
+        integrationResult2 = rocket.timeStep(0.01)        
+        self.assertTrue(abs(integrationResult2.timeStepAdaptationFactor - 1.0) > 0.00000000000000001)
+        self.assertEqual(integrationResult2.dt, 0.01)
 
         # Time step not currently adjusted back
 

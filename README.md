@@ -19,11 +19,25 @@
 Prerequisites:
 
 - [Python 3.6+](https://www.python.org/downloads/) (**[64-bit](https://stackoverflow.com/questions/1842544/how-do-i-detect-if-python-is-running-as-a-64-bit-application)**)
+  - Linux/WSL: install python3.X-dev package (includes python header files for Cython)
 - C/C++ compilers OR an existing installation of [Cython](https://cython.readthedocs.io/en/latest/src/quickstart/install.html)
+  - Windows: install visual studio build tools or MinGW
 - (Recommended) A Python [virtual environment](https://towardsdatascience.com/virtual-environments-104c62d48c54). See [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md#create-python-virtual-environment-with-virtualenvwrapper)
 
 `$ pip install MAPLEAF`
-    
+
+### Test your installation
+Unit tests:  
+`$ python -m unittest -v`  
+Regression tests:  
+`$ mapleaf-batch`  
+
+See [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md) for more information, or the [verification and validation section](https://henrystoldt.github.io/MAPLEAF/V&V/index.html) of the code documentation for the expected results of the regression tests.
+
+## Developers
+Contributions are welcome.
+To learn about the code, have a look at [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md), and the [code documentation website](https://henrystoldt.github.io/MAPLEAF/)
+
 ## Running a Simulation
 `$ mapleaf path/to/SimDefinitionFile.mapleaf`  
 
@@ -130,10 +144,6 @@ To run the regression/verification/validation test suite, check out [README_Dev.
 
 ## Parallelization
 To run **Monte Carlo** or **Optimization** simulations in parallel:
-`mapleaf --nCores 8 MonteCarlo.mapleaf`
+`mapleaf --parallel MonteCarlo.mapleaf`
 
 MAPLEAF's parallelization is implemented using [ray](https://github.com/ray-project/ray).
-
-## Developers
-Contributions are welcome.
-To learn about the code, have a look at [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_Dev.md), and the [code/api documentation website](https://henrystoldt.github.io/MAPLEAF/)

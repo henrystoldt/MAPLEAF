@@ -27,7 +27,7 @@ ExampleFlightCase{
         SamplePlot{
             # Generate a plot of MAPLEAF's results + comparison data            
             columnsToPlot               PositionZ ^VelocityZ # Full/partial log column names and/or regex
-            saveLocation                ./test/regressionTesting/SamplePlot.pdf # Always saves .pdf plots
+            saveLocation                ./test/V&V/SamplePlot.pdf # Always saves .pdf plots
 
             xColumnName                 Time(s)             # (Optional) specify which column will be plotted on the x-axis (default is Time(s))
             lineFormat					:b :k               # (Optional) matplotlib-style line format
@@ -35,21 +35,26 @@ ExampleFlightCase{
             yLabel						Altitude (m)        # (Optional)
             xLimits						0 1                 # (Optional)
             yLimits						0 100               # (Optional)
+            xScale                      linear              # (Optional) linear or log
+            yScale                      linear              # (Optional) linear or log
 			scalingFactor				1                   # (Optional) Use to invert data or convert units - scales MAPLEAF's results by a constant factor
             offset                      0                   # (Optional) Add scalar to MAPLEAF's results
-            legendLabel					Altitude Sim, Velocity Sim # (Optional) Label of MAPLEAF line
+            legendLabel					Altitude Sim, Velocity Sim # (Optional) Label of MAPLEAF line - enter None for no label
             overwrite                   True                # (Optional)
 
             # Each subdictionary is assumed to contain comparison data. Can have any number of these
             flightComparisonData{ # (Optional)
                 # Comparison data file should be a simple .csv table
                     # First row should have headers, each subsequent row should have scalar numeric entries
-                file                    ./test/regressionTesting/sampleComparisonData.csv         
+                file                    ./test/V&V/sampleComparisonData.csv         
                 
                 columnsToPlot           posZ velZ               # Full/partial .csv column names and/or regex
 
                 xColumnName             Time(s)                 # (Optional) - supply if not 'Time(s)'       
                 lineFormat              --b --k                 # (Optional) matplotlib-style line format
+                lineColors              \#003f5c red            # Provide a matplotlib-compatible colour argument ex. red or, 
+                                                                    # if hexadecimal, make sure to escape the hash symbol to avoid it being treated as a comment
+                                                                    # Color options: https://matplotlib.org/3.1.0/gallery/color/named_colors.html
                 legendLabel             Altitude Comparion, Velocity Comparison # (Optional), otherwise uses column headers
                 validationData          True                    # (optional) Can use to exclude certain sets of comparison data from validation metrics
             }
@@ -77,6 +82,7 @@ ExampleWindTunnelCase{
             
             # COMMA-separated list of scalar expected result values OR 'Record'
                 # Number of expectedValues must match number (and order) of parameterValues
+                # If the result is supposed to remain constant, can also just provide a single value
 			expectedValues	            0.2955, 0.5886, 0.8822
         }
 

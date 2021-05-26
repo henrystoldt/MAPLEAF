@@ -12,12 +12,11 @@ from copy import deepcopy
 from test.testUtilities import assertVectorsAlmostEqual
 
 import numpy as np
-from MAPLEAF.ENV import Environment
 from MAPLEAF.IO import SimDefinition, SubDictReader
 from MAPLEAF.IO.Logging import removeLogger
 from MAPLEAF.Main import Simulation
-from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
-from MAPLEAF.Motion.Integration import Integrator
+from MAPLEAF.Motion import AngularVelocity, Quaternion, Vector
+from MAPLEAF.Motion.Integration import ClassicalIntegrator
 from MAPLEAF.Rocket import RecoverySystem, Rocket
 
 
@@ -31,6 +30,7 @@ class TestRocket(unittest.TestCase):
         cls.rocket2 = simRunner2.createRocket()
 
         canardRunner = Simulation("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)
+        canardRunner.simDefinition.setValue("SimControl.loggingLevel", "0")        
         cls.canardRocket = canardRunner.createRocket()
         cls.originalCanardRocketState = cls.canardRocket.rigidBody.state
 
@@ -51,6 +51,11 @@ class TestRocket(unittest.TestCase):
         result = self.rocket2._getMaxBodyTubeDiameter()
         expectedResult = 0.1524
         self.assertAlmostEqual(result, expectedResult)
+
+    def test_Aref(self):
+        Aref = self.rocket2.Aref
+        ExpectedResult = 0.1524**2 * math.pi / 4
+        self.assertAlmostEqual(Aref, ExpectedResult)
 
     def test_finControlIndependentOfForceEvaluations(self):
         env = self.canardRocket._getEnvironmentalConditions(0, self.canardRocket.rigidBody.state)
@@ -108,7 +113,7 @@ class TestRocket(unittest.TestCase):
         simDef.setValue("Rocket.ControlSystem.updateRate", "100")
         controlledCanardRocket = Rocket(rocketDictReader, silent=True)
         self.assertEqual(controlledCanardRocket.rigidBody.integrate.method, "RK4")
-        self.assertEqual(type(controlledCanardRocket.rigidBody.integrate), Integrator)
+        self.assertEqual(type(controlledCanardRocket.rigidBody.integrate), ClassicalIntegrator)
         self.assertEqual(controlledCanardRocket.controlSystem.controlTimeStep, 1/100)
 
     def test_forcesSymmetricForSymmetricRocket(self):

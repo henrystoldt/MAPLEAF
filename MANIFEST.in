@@ -4,7 +4,14 @@ exclude test/test_Interpolation.py
 exclude test/test_SimulationRunners.py
 
 include requirements.txt
+include requirements_Dev.txt
+
+include README.md
+include README_Dev.md
+include LICENSE
+
 include SimDefinitionTemplate.mapleaf
+include batchRunTemplate.mapleaf
 
 include MAPLEAF/Motion/*.pxd*
 include MAPLEAF/Motion/*.pyx*

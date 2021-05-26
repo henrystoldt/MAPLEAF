@@ -4,7 +4,6 @@ import numpy as np
 
 from MAPLEAF.Motion import AeroParameters, Interpolation
 from MAPLEAF.Rocket import AeroFunctions, BodyComponent, FixedMass
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "NoseCone" ]
 
@@ -171,8 +170,7 @@ class NoseCone(FixedMass, BodyComponent):
             raise TypeError("The nosecone shape {} is not recognized".format(self.shape))
 
     #### Operation Functions ####
-    @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         Aref = self.rocket.Aref
         Mach = AeroParameters.getMachNumber(rocketState, environment)
 

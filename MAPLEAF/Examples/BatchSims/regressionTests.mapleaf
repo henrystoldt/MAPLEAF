@@ -39,17 +39,17 @@ ExampleWindTunnelCase{
 			scalingFactor				-1
       plotTitle					Example Wind Tunnel
       legendLabel					Total
-      saveLocation                ./test/regressionTesting/SampleWindTunnelPlot.pdf
+      saveLocation                ./test/V&V/SampleWindTunnelPlot.pdf
     }
   }
 }
 
-ExampleFlightCase{
+lpExampleFlightCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
 	ExpectedFinalValues{
 		Mach	    	0.3514
-		PositionX		-0.332
+		PositionX		-0.33166
 		Time(s)	    	1.001
 	}
 
@@ -72,116 +72,84 @@ ExampleFlightCase{
 			yLimits					0 100	
 			plotTitle				Example Plot
 			legendLabel			Altitude Sim, Velocity Sim
-			saveLocation	./test/regressionTesting/SamplePlot.pdf
+			saveLocation	./test/V&V/SamplePlot.pdf
 
 			comparisonData{
 				columnsToPlot	posZ velZ
 				lineFormat		 --b --k
 				legendLabel		Altitude Comparison, Velocity Comparison
-				file	        ./test/regressionTesting/sampleComparisonData.csv
+				file	        ./test/V&V/sampleComparisonData.csv
 			}
 		}
 	}
 }
 
-ConventionalRocketCase{
-	simDefinitionFile				./MAPLEAF/Examples/Simulations/Conventional.mapleaf
+TimeStepAdaptationDemo{
+	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
-	ParameterSweep{
-		smoothLine		True
-		velocitySweep{
-			sweptParameter			Rocket.velocity
-			parameterValues			(538.58 0 0),(536.5305 46.94 0),(530.3977 93.523 0),(520.228 139.395 0),(506.09965 184.205 0)
+	ExpectedFinalValues{
+		Mach	    	0.0
+		PositionX		-141.033
+		Time(s)	    	45.0
+	}
+
+	ParameterOverrides{
+		SimControl.EndCondition	    				Time
+		SimControl.EndConditionValue   				45
+		SimControl.TimeStepAdaptation{
+			targetError 							0.002
+			minFactor								0.1
+			maxFactor								10
+			PID.coefficients						-0.016 -0.004 -0.0012
 		}
-		MachResults{
-			expectedValues			2,2,2,2,2
-			column							Mach
-		}
-		AOAResults{
-			expectedValues			0,5,10,15,20
-			column							AOA(deg)
+		SimControl.timeStep							0.1
+		Environment.MeanWindModel					Constant
+		Environment.ConstantMeanWind.velocity		(1 0 0)
+		Environment.PinkNoiseModel.turbulenceIntensity					2
+		Environment.LaunchSite.railLength			20
+		Rocket.Sustainer.Motor{
+			impulseAdjustFactor						2
+			burnTimeAdjustFactor					2
 		}
 	}
 
 	PlotsToGenerate{
-		CmPlot{
-			columnsToPlot			AeroCMX
-			xColumnName				AOA(deg)
-			lineFormat				*r
-			xLabel						$\alpha$
-			yLabel						$C_m$
-			legendLabel				MAPLEAF
-			overwrite		True
-			saveLocation			./test/regressionTesting/Conventional/ConventionalCm.pdf
-			
-			ComparisonDataAP98{
-				columnsToPlot			Cm
-				xColumnName				AOA
-				lineFormat				-c
-				legendLabel				Aeroprediction98
-				file							./test/regressionTesting/Conventional/ConventionalAP98Cm.csv
-			}
-			ComparisonDataDC97{
-				columnsToPlot			Cm
-				xColumnName				AOA
-				lineFormat				--m
-				legendLabel				Datcom97
-				file							./test/regressionTesting/Conventional/ConventionalDC97Cm.csv
-			}
-			ComparisonDataWT{
-				columnsToPlot			Cm
-				xColumnName				AOA
-				lineFormat				.k
-				legendLabel				Wind Tunnel
-				file							./test/regressionTesting/Conventional/ConventionalWTCm.csv
-			}
-		}	
-
-		CNPlot{
-			columnsToPlot				AeroCFY
-			xColumnName					AOA(deg)
-			lineFormat					*r
-			xLabel							$\alpha$
-			yLabel							$C_N$
-			legendLabel					MAPLEAF
-			scalingFactor			-1
-			overwrite			True
-			saveLocation				./test/regressionTesting/Conventional/ConventionalCN.pdf
-
-			ComparisonDataAP98{
-				columnsToPlot			CN
-				xColumnName				AOA
-				lineFormat				-c
-				legendLabel				Aeroprediction98
-				file							./test/regressionTesting/Conventional/ConventionalAP98CN.csv
-			}
-			ComparisonDataDC97{
-				columnsToPlot			CN
-				xColumnName				AOA
-				lineFormat				--m
-				legendLabel				Datcom97
-				file							./test/regressionTesting/Conventional/ConventionalDC97CN.csv
-			}
-			ComparisonDataWT{
-				columnsToPlot			CN
-				xColumnName				AOA
-				lineFormmat				DC97
-				lineFormat				.k
-				legendLabel				Wind Tunnel
-				file							./test/regressionTesting/Conventional/ConventionalWTCN.csv
-			}
+		TimeStep{
+			columnsToPlot			TimeStep
+			lineFormat				.
+			lineColors				\#003f5c
+			xLabel					Time after Ignition (s)
+			yLabel					Time Step (s)
+			xLimits					0 45
+			yLimits					0 0.5
+			legendLabel				None
+			saveLocation			./test/V&V/AdaptiveIntegration/TimeStepPlot.pdf
 		}
 
-		!create CPPlot from ConventionalRocketCase.PlotsToGenerate.CNPlot{
-			!replace 'CN' with 'CP'
+		Error{
+			columnsToPlot			IntegrationError
+			lineFormat				.
+			lineColors				\#003f5c
+			xLabel					Time after Ignition (s)
+			yLabel					Estimated Integration Error
+			yScale					log
+			xLimits					0 45
+			yLimits					1e-5 1e-1
+			legendLabel				Estimated Error
+			saveLocation			./test/V&V/AdaptiveIntegration/IntegrationError.pdf
 
-			columnsToPlot				CPZ
-			yLabel							$X_{CP}$
-			offset							-8 # Make CP location relative to moment reference instead of nose cone
-			saveLocation				./test/regressionTesting/Conventional/ConventionalCP.pdf
+			errorTarget{
+				file 				./test/V&V/AdaptiveIntegration/expectedValues.csv
+				columnsToPlot		Target Max
+				xColumnName			Time
+				lineFormat			-. -.
+				validationData		False
+			}
 		}
 	}
 }
+
+!include SooyAP98DC97Cases.mapleaf
 
 !include OpenRocketCases.mapleaf
 

@@ -12,10 +12,9 @@ from typing import List
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, isBatchOptimization,
-                                       OptimizingSimRunner, ParallelBatchOptimizingSimRunner,
-                                       ParallelOptimizingSimRunner, Simulation,
-                                       runMonteCarloSimulation, BatchOptimizingSimRunner)
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, Simulation,
+                                       optimizationRunnerFactory,
+                                       runMonteCarloSimulation)
 from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
 
@@ -52,10 +51,8 @@ def buildParser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--nCores",
-        type=int,
-        nargs=1,
-        default=[1],
+        "--parallel",
+        action='store_true',
         help="Use to run Monte Carlo or Optimization studies in parallel using ray. Check whether ray's Windows support has exited alpha, or use only on Linux/Mac."
     )
     parser.add_argument(
@@ -78,7 +75,7 @@ def findSimDefinitionFile(providedPath):
 
     # Check if it's a relative path that needs to be made absolute
     possibleRelPath = providedPath
-    absPath = getAbsoluteFilePath(possibleRelPath)
+    absPath = getAbsoluteFilePath(possibleRelPath, silent=True)
     if os.path.isfile(absPath):
         return absPath
     
@@ -146,28 +143,31 @@ def main(argv=None) -> int:
     simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
+    if args.parallel:
+        try:
+            import ray
+        except:
+            print("""
+            Error importing ray. 
+            Ensure ray is installed (`pip install -U ray`) and importable (`import ray` should not throw an error). 
+            If on windows, consider trying Linux or running in WSL, at the time this was written, ray on windows was still in beta and unreliable.
+            Alternatively, run without parallelization.
+            """)
+
     if isOptimizationProblem(simDef):
-        if isBatchOptimization(simDef):
-            if args.nCores[0] > 1:
-                runner = ParallelBatchOptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
-                runner.runOptimization()
-            else:
-                # Run an optimization based on a batch file of simulation definitions
-                runner = BatchOptimizingSimRunner(simDefinition=simDef, silent=args.silent)
-                runner.runOptimization()
+        optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=args.silent, parallel=args.parallel)
+        optSimRunner.runOptimization()
+
+    elif isMonteCarloSimulation(simDef):        
+        if not args.parallel:
+            nCores = 1
         else:
-            #  run an optimization based on a single simulation definition
-            if args.nCores[0] > 1:
-                optSimRunner = ParallelOptimizingSimRunner(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
-                optSimRunner.runOptimization()
-            else:
-                optSimRunner = OptimizingSimRunner(simDefinition=simDef, silent=args.silent)
-                optSimRunner.runOptimization()
+            import multiprocessing
+            nCores = multiprocessing.cpu_count()
 
-    elif isMonteCarloSimulation(simDef):
-        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=args.nCores[0])
+        runMonteCarloSimulation(simDefinition=simDef, silent=args.silent, nCores=nCores)
 
-    elif args.nCores[0] > 1:
+    elif args.parallel:
         raise ValueError("ERROR: Can only run Monte Carlo of Optimization-type simulations in multi-threaded mode. Support for multi-threaded batch simulations coming soon.")
 
     elif isBatchSim(simDef):
@@ -185,8 +185,8 @@ def main(argv=None) -> int:
     
     else: 
         # Run a regular, single simulation  
-        simRunner = Simulation(simDefinition=simDef, silent=args.silent)
-        simRunner.run()
+        sim = Simulation(simDefinition=simDef, silent=args.silent)
+        sim.run()
 
     Logging.removeLogger()
 

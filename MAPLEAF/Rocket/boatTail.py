@@ -6,7 +6,6 @@ from MAPLEAF.Rocket import BodyComponent, FixedMass
 from MAPLEAF.Rocket.noseCone import (computeSubsonicPolyCoeffs,
                                      computeTransonicPolyCoeffs,
                                      getSupersonicPressureDragCoeff_Hoerner)
-from MAPLEAF.Utilities import logForceResult
 
 __all__ = [ "Transition", "BoatTail" ]
 
@@ -42,7 +41,7 @@ class Transition(FixedMass, BodyComponent):
         # Calculate basic areas
         self.topArea = self.startDiameter**2 * math.pi/4
         self.bottomArea = self.endDiameter**2 * math.pi/4
-        self.frontalArea = self.topArea - self.bottomArea
+        self.frontalArea = abs(self.topArea - self.bottomArea)
 
         # Calculate surface area, volume, CP
         if self.length == 0:
@@ -94,6 +93,8 @@ class Transition(FixedMass, BodyComponent):
                 coneHalfAngle = math.pi/2
             else:
                 coneHalfAngle = math.atan(abs(self.startDiameter - self.endDiameter)/2 / self.length)
+
+            self.coneHalfAngle = coneHalfAngle
             self.SubsonicCdPolyCoeffs = computeSubsonicPolyCoeffs(coneHalfAngle)
             self.TransonicCdPolyCoeffs = computeTransonicPolyCoeffs(coneHalfAngle)
 
@@ -123,8 +124,7 @@ class Transition(FixedMass, BodyComponent):
         Yvals.append(foreRadius) # close in the shape
         plt.plot(Xvals, Yvals, color = 'k')
 
-    @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         
@@ -184,8 +184,7 @@ class BoatTail(Transition):
     canConnectToComponentBelow = False 
     ''' Overrides attribute inherited from BodyComponent (through Transition), to indicate that this component must exist at the very bottom of a rocket '''
 
-    @logForceResult
-    def getAeroForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
+    def getAppliedForce(self, rocketState, time, environment, CG) -> ForceMomentSystem:
         Mach = AeroParameters.getMachNumber(rocketState, environment)
         Aref = self.rocket.Aref
         

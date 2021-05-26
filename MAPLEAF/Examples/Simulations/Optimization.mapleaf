@@ -2,6 +2,7 @@
 # See SimDefinitionTemplate.mapleaf for file format info & description of all options
 
 Optimization{
+    method              PSO
     costFunction        1/apogee if (apogee > 1) else max(1, -1*apogee)
 
     IndependentVariables{

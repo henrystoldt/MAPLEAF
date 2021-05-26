@@ -330,7 +330,7 @@ class TestFinSet(unittest.TestCase):
     #     #rocket state 12 has a negative AoA about the y-axis
 
     #     finSet = self.finSet2
-    #     setUpAeroFunc = finSet.getAeroForce
+    #     setUpAeroFunc = finSet.getAppliedForce
     #     aeroFunc1 = finSet.finList[0]._barrowmanAeroFunc
     #     aeroFunc3 = finSet.finList[1]._barrowmanAeroFunc
     #     time = 10
@@ -391,7 +391,7 @@ class TestFinSet(unittest.TestCase):
     #     #Compares to Spyder script pretty well
     #     finSet2 = self.finSet1
     #     aeroFunc2 = finSet2.finList[0]._barrowmanAeroFunc
-    #     setUpAeroFunc2 = finSet2.getAeroForce
+    #     setUpAeroFunc2 = finSet2.getAppliedForce
     #     aeroFunc1 = finSet.finList[0]._barrowmanAeroFunc
     #     setUpAeroFunc(self.rocketState3, time, self.currentConditions, self.rocket.getCG(0, self.rocketState3))
     #     preComp = finSet._getPreComputedFinAeroData(self.rocketState3, self.currentConditions, self.rocket.getCG(0, self.rocketState3))

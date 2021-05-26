@@ -4,53 +4,57 @@ OpenRocketWindTunnelCase{
 
 	ParameterSweep{
 
-    smoothLine              False
+    	smoothLine              False
 
 		velocitySweep{
 			sweptParameter			Rocket.velocity
-			parameterValues			(0 0 1):100:(0 0 1500) # Provide COMMA-separated list of values - can also just be a single value
+			parameterValues			(0 0 16.1414):99:(0 0 1500) # Provide COMMA-separated list of values - can also just be a single value
 		}
 
 		MachResults{
 			column	Mach
-			expectedValues	0.0029,0.0474,0.0919,0.1364,0.1809,0.2254,0.2699,0.3144,0.3589,0.4034,0.4479,0.4924,0.5369,0.5814,0.6259,0.6704,0.7149,0.7594,0.8039,0.8484,0.8929,0.9374,0.9819,1.0264,1.0709,1.1154,1.1599,1.2044,1.2489,1.2934,1.3379,1.3824,1.4269,1.4714,1.5159,1.5604,1.6049,1.6494,1.6939,1.7384,1.7829,1.8274,1.8719,1.9164,1.9609,2.0054,2.0499,2.0944,2.1389,2.1834,2.2279,2.2724,2.3169,2.3614,2.4059,2.4504,2.4949,2.5394,2.5839,2.6284,2.6729,2.7174,2.7619,2.8064,2.8509,2.8954,2.9399,2.9844,3.0289,3.0734,3.1179,3.1624,3.2069,3.2514,3.2959,3.3404,3.3849,3.4294,3.4739,3.5184,3.5629,3.6074,3.6519,3.6964,3.7409,3.7854,3.8299,3.8744,3.9189,3.9634,4.0079,4.0524,4.0969,4.1414,4.1859,4.2304,4.2749,4.3194,4.3639,4.4084
+			expectedValues	0.0474,0.0919,0.1364,0.1809,0.2254,0.2699,0.3144,0.3589,0.4034,0.4479,0.4924,0.5369,0.5814,0.6259,0.6704,0.7149,0.7594,0.8039,0.8484,0.8929,0.9374,0.9819,1.0264,1.0709,1.1154,1.1599,1.2044,1.2489,1.2934,1.3379,1.3824,1.4269,1.4714,1.5159,1.5604,1.6049,1.6494,1.6939,1.7384,1.7829,1.8274,1.8719,1.9164,1.9609,2.0054,2.0499,2.0944,2.1389,2.1834,2.2279,2.2724,2.3169,2.3614,2.4059,2.4504,2.4949,2.5394,2.5839,2.6284,2.6729,2.7174,2.7619,2.8064,2.8509,2.8954,2.9399,2.9844,3.0289,3.0734,3.1179,3.1624,3.2069,3.2514,3.2959,3.3404,3.3849,3.4294,3.4739,3.5184,3.5629,3.6074,3.6519,3.6964,3.7409,3.7854,3.8299,3.8744,3.9189,3.9634,4.0079,4.0524,4.0969,4.1414,4.1859,4.2304,4.2749,4.3194,4.3639,4.4084
 		}
 	}
+
 	PlotsToGenerate{
 		DragCoefficientPlot{
 			columnsToPlot			AeroCFZ
 			xColumnName				Mach
-			lineFormat				--b
+			lineFormat				--
+			lineColors				\#003f5c
 			yLabel					$C_d$
 			xLimits				    0 4.0
 			yLimits				    0 1.0
-      scalingFactor           -1
-			legendLabel				Simulator
-			overwrite			True
-			saveLocation			./test/regressionTesting/WindTunnel/OpenRocketWindTunnelPlot.pdf
+      		scalingFactor           -1
+			legendLabel				MAPLEAF
+			overwrite				True
+			saveLocation			./test/V&V/WindTunnel/OpenRocketWindTunnelPlot.pdf
 		 
 			ComparisonDataExp{
-			columnsToPlot			Cd_Experimental
-			xColumnName				Mach
-			lineFormat		.y
-			legendLabel		Flight Data			
-			file							./test/regressionTesting/WindTunnel/WindTunnelExpCd.csv
+				columnsToPlot		Cd_Experimental
+				xColumnName			Mach
+				lineFormat			.y
+				legendLabel			Flight Data			
+				file				./test/V&V/WindTunnel/WindTunnelExpCd.csv
 			}		 
 
 			ComparisonDataOR1{
-			columnsToPlot			Cd_OR_Replicated
-			xColumnName				Mach
-			lineFormat		-.c
-			legendLabel		OR Replicated
-			file			./test/regressionTesting/WindTunnel/OpenRocketCdNotBT.csv
+				columnsToPlot		Cd_OR_Replicated
+				xColumnName			Mach
+				lineFormat			-.c
+				legendLabel			OR Replicated
+				file				./test/V&V/WindTunnel/OpenRocketCdNotBT.csv
+				validationData		False
 			}
 
 			ComparisonDataOR2{
-			columnsToPlot			Cd_OR_Original
-			xColumnName				Mach
-			lineFormat		:k
-			legendLabel				OR Original			
-			file			./test/regressionTesting/WindTunnel/WindTunnelOpenRocket.csv
+				columnsToPlot		Cd_OR_Original
+				xColumnName			Mach
+				lineFormat			:k
+				legendLabel			OR Original			
+				file				./test/V&V/WindTunnel/WindTunnelOpenRocket.csv
+				validationData		False
 			}
 
 		}	
@@ -74,43 +78,50 @@ B4-4SimpleRocketCase{
 		PositionZ(m)	67.818
 		VelocityX(m/s)	-0.0714
 		VelocityY(m/s)	0.0
-		VelocityZ(m/s)	-0.0007
+		VelocityZ(m/s)	-0.0007425
 	}
 
 	PlotsToGenerate{
 
-		SamplePlot{
-			columnsToPlot	PositionZ
-			saveLocation	./test/regressionTesting/B4-4SimpleRocket/B4-4SimpleRocketPlot.pdf
+		Altitude{
+			columnsToPlot		PositionZ
+			saveLocation		./test/V&V/B4-4SimpleRocket/B4-4SimpleRocketPlot.pdf
 			lineFormat			--r
-			xLabel					Time (s)
-			yLabel					Altitude (m)
-			# xLimits					0 4.5
-			# yLimits					0 80
+			lineColors			\#003f5c
+			xLabel				Time (s)
+			yLabel				Altitude (m)
+			xLimits				0 4
+			yLimits				0 80
 			legendLabel			MAPLEAF
 
 			comparisonData_OR1{
 				columnsToPlot 	Altitude_OR_Orig(m)
 				xColumnName 	t(s)
-				lineFormat		:c
-				legendLabel				OpenRocket v0.9.0
-				file	        	./test/regressionTesting/B4-4SimpleRocket/B4-4OriginalOR.csv
+				lineFormat		:
+				lineColors		\#ff6361
+				legendLabel		OpenRocket v0.9
+				file	        ./test/V&V/B4-4SimpleRocket/B4-4OriginalOR.csv
+				validationData	False
 			}
 
 			comparisonData_OR2{
 				columnsToPlot 	Altitude_OR_Replicated(m)
 				xColumnName 	t(s)
-				lineFormat		-.y
+				lineFormat		-.
+				lineColors		\#bc5090
 				legendLabel		OpenRocket v15.03
-				file	        	./test/regressionTesting/B4-4SimpleRocket/B4-4ReplicatedOR.csv
+				file	        ./test/V&V/B4-4SimpleRocket/B4-4ReplicatedOR.csv
+				validationData	False
 			}
 
 			comparisonData_RockSim{
 				columnsToPlot 	Altitude_RockSim(m)
 				xColumnName 	t(s)
-				lineFormat		--g
+				lineFormat		--
+				lineColors		\#ffa600
 				legendLabel		RockSim v8
-				file	        	./test/regressionTesting/B4-4SimpleRocket/B4-4RockSim.csv
+				file	        ./test/V&V/B4-4SimpleRocket/B4-4RockSim.csv
+				validationData	False
 			}
 
 			comparisonData_Flight{
@@ -118,7 +129,7 @@ B4-4SimpleRocketCase{
 				xColumnName 	t(s)
 				lineFormat		.k
 				legendLabel		Flight Data
-				file	        	./test/regressionTesting/B4-4SimpleRocket/B4-4ExpData.csv
+				file	        ./test/V&V/B4-4SimpleRocket/B4-4ExpData.csv
 			}
 		}
 	}
@@ -128,12 +139,12 @@ C6-3SimpleRocketCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/Jake1.mapleaf
 
 	ParameterOverrides{
-		Rocket.Sustainer.GeneralMass.mass		0.00952
-		Rocket.Sustainer.Motor.path			MAPLEAF/Examples/Motors/C6-3.txt
-		Rocket.Sustainer.Motor.cg			(4.08e-06 4.08e-06 3.86e-07)
+		Rocket.Sustainer.GeneralMass.mass			0.00952
+		Rocket.Sustainer.Motor.path					MAPLEAF/Examples/Motors/C6-3.txt
+		Rocket.Sustainer.Motor.cg					(4.08e-06 4.08e-06 3.86e-07)
 		Rocket.Sustainer.Motor.burnTimeAdjustFactor 1.16
 		Rocket.Sustainer.TailFins.finCantAngle		0
-		SimControl.EndCondition		Apogee
+		SimControl.EndCondition						Apogee
 	}
 
 	ExpectedFinalValues{
@@ -145,49 +156,12 @@ C6-3SimpleRocketCase{
 		VelocityZ(m/s)	-0.0465
 	}
 
-	PlotsToGenerate{
+	!create PlotsToGenerate from B4-4SimpleRocketCase.PlotsToGenerate{
+		!replace 'B4-4' with 'C6-3'
 
 		Altitude{
-			columnsToPlot	PositionZ
-			lineFormat			--r
-			xLabel					Time (s)
-			yLabel					Altitude (m)
-			xLimits					0 7
-			yLimits					0 200
-			legendLabel			MAPLEAF
-			saveLocation	./test/regressionTesting/C6-3SimpleRocket/C6-3SimpleRocketPlot.pdf
-
-			comparisonData_OR1{
-				columnsToPlot 	Altitude_OR_Orig(m)
-				xColumnName 	t(s)
-				lineFormat		:c
-				legendLabel		OpenRocket v0.9.0
-				file	        	./test/regressionTesting/C6-3SimpleRocket/C6-3OriginalOR.csv
-			}
-
-			comparisonData_OR2{
-				columnsToPlot 	Altitude_OR_Replicated(m)
-				xColumnName 	t(s)
-				lineFormat		-.y
-				legendLabel		OpenRocket v15.03
-				file	        	./test/regressionTesting/C6-3SimpleRocket/C6-3ReplicatedOR.csv
-			}
-
-			comparisonData_RockSim{
-				columnsToPlot 	Altitude_RockSim(m)
-				xColumnName 	t(s)
-				lineFormat		--g
-				legendLabel		RockSim v8				
-				file	        	./test/regressionTesting/C6-3SimpleRocket/C6-3RockSim.csv
-			}
-
-			comparisonData_Flight{
-				columnsToPlot 	Altitude_Experimental(m)
-				xColumnName 	t(s)
-				lineFormat		.k
-				legendLabel		Flight Data
-				file	        	./test/regressionTesting/C6-3SimpleRocket/C6-3ExpData.csv
-			}
+			xLimits     0 6
+			yLimits  	0 200
 		}
 	}
 }
@@ -201,53 +175,16 @@ HaisunaataCase{
 		PositionZ(m)	859.154
 		VelocityX(m/s)	-9.1115
 		VelocityY(m/s)	0.0
-		VelocityZ(m/s)	-0.0152
+		VelocityZ(m/s)	-0.015156
 	}
 
-	PlotsToGenerate{
+	!create PlotsToGenerate from B4-4SimpleRocketCase.PlotsToGenerate{
+		!replace 'B4-4SimpleRocket' with 'HaisunaataRocket'
+		!replace 'B4-4' with 'Haisunaata'
 
-		SamplePlot{
-			columnsToPlot	PositionZ
-			lineFormat			--r
-			xLabel					Time (s)
-			yLabel					Altitude (m)
-			xLimits					0 15
-			yLimits					0 1000
-			legendLabel			MAPLEAF
-			saveLocation	./test/regressionTesting/HaisunaataRocket/HaisunaataRocketPlot.pdf
-
-			comparisonData_OR1{
-				columnsToPlot 	Altitude_OR_Orig(m)
-				xColumnName 	t(s)
-				lineFormat		:c
-				legendLabel		OpenRocket v0.9.0
-				file	        	./test/regressionTesting/HaisunaataRocket/HaisunaataOriginalOR.csv
-			}
-
-			comparisonData_OR2{
-				columnsToPlot 	Altitude_OR_Replicated(m)
-				xColumnName 	t(s)
-				lineFormat		-.y
-				legendLabel		OpenRocket v15.03
-				file	        	./test/regressionTesting/HaisunaataRocket/HaisunaataReplicatedOR.csv
-			}
-
-			comparisonData_RockSim{
-				columnsToPlot 	Altitude_RockSim(m)
-				xColumnName 	t(s)
-				lineFormat		--g
-				legendLabel		RockSim v8
-				file	        ./test/regressionTesting/HaisunaataRocket/HaisunaataRockSim.csv
-			}
-
-			comparisonData_Flight{
-				columnsToPlot 	Altitude_Experimental(m)
-				xColumnName 	t(s)
-				lineFormat		.k
-				legendLabel		Flight Data
-				file	        ./test/regressionTesting/HaisunaataRocket/HaisunaataExpData.csv
-			}
-
+		Altitude{
+			xLimits		0 14
+			yLimits		0 1000
 		}
 	}
 }
@@ -261,7 +198,7 @@ RollingRocketCase{
 		Rocket.Sustainer.Motor.cg					(4.08e-06 4.08e-06 3.86e-07)
 		Rocket.Sustainer.Motor.burnTimeAdjustFactor 1.15
 		Rocket.Sustainer.TailFins.finCantAngle		5
-		Rocket.Sustainer.AltimeterMass.mass				0.03
+		Rocket.Sustainer.AltimeterMass.mass			0.03
 		SimControl.EndCondition						Time
 		SimControl.EndConditionValue				6
 		SimControl.timeStep							0.005
@@ -276,44 +213,27 @@ RollingRocketCase{
 		VelocityZ(m/s)	-0.3942
 	}
 
-	PlotsToGenerate{
+	!create PlotsToGenerate from B4-4SimpleRocketCase.PlotsToGenerate{
+		!replace 'B4-4SimpleRocket' with 'RollingRocket'
+		!replace 'B4-4' with 'Rolling'
+		!replace 'Altitude_' with 'AngVelZ_'
+		!replace '(m)' with '(rad/s)'
+		!removeKeysContaining 'RockSim'
 
-		SamplePlot{
-			columnsToPlot			AngularVelocityZ(rad/s)
-			lineFormat				--r
-			xLabel					Time (s)
-			yLabel					Angular Velocity (rad/s)
-			xLimits					0 6
-			yLimits					-200 0
-			legendLabel				MAPLEAF
-			saveLocation			./test/regressionTesting/RollingRocket/RollingRocketPlot.pdf
+		Altitude{
+			columnsToPlot	AngularVelocityZ(rad/s)
+			xLimits			0 6
+			yLimits			0 200
+			scalingFactor   -1
+			yLabel			Angular Velocity (rad/s)
 
 			comparisonData_OR1{
-				columnsToPlot 	AngVelZ_OR_Orig(rad/s)
-				xColumnName 	t(s)
-				lineFormat		:c
-				legendLabel		OpenRocket v0.9.0
-				file	        	./test/regressionTesting/RollingRocket/RollingOriginalOR.csv
-			}
-
-			comparisonData_OR2{
-				columnsToPlot 	AngVelZ_OR_Replicated(rad/s)
-				xColumnName 	t(s)
-				lineFormat		-.y
-				legendLabel		OpenRocket v15.03
-				file	        	./test/regressionTesting/RollingRocket/RollingReplicatedOR.csv
+				scalingFactor   -1
 			}
 
 			comparisonData_Flight{
-                #TODO: Flight data seems like the max is at around t=2.2 seconds. In OpenRocket docs, seems like max is at around t=2 seconds
-                    # Please double check
-				columnsToPlot 	AngVelZ_Experimental(rad/s)
-				xColumnName 	t(s)
-				lineFormat		.k
-				legendLabel		Flight Data
-				file	        	./test/regressionTesting/RollingRocket/RollingExpData.csv
+				scalingFactor   -1
 			}
-
 		}
 	}
 }

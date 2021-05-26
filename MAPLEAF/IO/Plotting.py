@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from MAPLEAF.Motion import interpolateRigidBodyStates, linInterpWeights
-from MAPLEAF.IO import RocketFlight
+from MAPLEAF.IO import RocketFlight, getAbsoluteFilePath
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
 
@@ -123,20 +123,25 @@ def getLoggedColumns(logPath, columnSpecs, columnsToExclude=[], sep="\s+", enabl
     if logPath in logFileCache and enableCache:
         df = logFileCache[logPath]
     else:
-        with open(logPath, 'r') as file:
-            lines = file.readlines()
-
-        #### Figure out which lines are not part of the data table ####
-        if "simulationLog" in logPath:
-            skipRows, skipFooter = _getSkipRowsAndFooters_mainSimLog(lines)
-        elif "forceEvaluationLog" in logPath:
-            skipRows, skipFooter = _getSkipRowsAndFooters_forceEvalLog(lines)
+        if ".csv" in logPath:
+            df = pd.read_csv(logPath, dtype=np.float64)
+        
         else:
-            skipRows, skipFooter = (0, 0)
+            # LEGACY TODO: Remove
+            with open(logPath, 'r') as file:
+                lines = file.readlines()
 
-        #### Read file, grab desired columns ####
-        # Read file, skipping any lines found in the previous section
-        df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine='python')
+            #### Figure out which lines are not part of the data table ####
+            if "simulationLog" in logPath:
+                skipRows, skipFooter = _getSkipRowsAndFooters_mainSimLog(lines)
+            elif "forceEvaluationLog" in logPath:
+                skipRows, skipFooter = _getSkipRowsAndFooters_forceEvalLog(lines)
+            else:
+                skipRows, skipFooter = (0, 0)
+
+            #### Read file, grab desired columns ####
+            # Read file, skipping any lines found in the previous section
+            df = pd.read_csv(logPath, sep=sep, skiprows=skipRows, dtype=np.float64, skipfooter=skipFooter, engine='python')
             
         logFileCache[logPath] = df
         if len(logFileCache) > maxLogFileCacheSize:
@@ -267,7 +272,7 @@ def plot_Earth_Mayavi(earthTexture='MAPLEAF/IO/blue_marble_spherical_splitFlippe
 
     # load and map the texture
     img = tvtk.JPEGReader()
-    img.file_name = earthTexture
+    img.file_name = getAbsoluteFilePath(earthTexture)
     texture = tvtk.Texture(input_connection=img.output_port, interpolate=1)
     # (interpolate for a less raster appearance when zoomed in)
 
@@ -744,3 +749,22 @@ def plotAndSummarizeScalarResult(scalarList, name="Apogee", monteCarloLogger=Non
 
     if showPlot:
         plt.show()
+
+### Colors ###
+def getColorPalette(nColors=4):
+    ''' Returns a list of nColors colors '''
+    if nColors > 8:
+        raise ValueError("Too many colors requested: {} (Max 8)".format(nColors))
+    if nColors < 3:
+        raise ValueError("Too few colors requested: {} (Min 3)".format(nColors))
+
+    colorPaletteDict = {        
+        3: [ '#003f5c', '#bc5090', '#ffa600'],
+        4: [ '#003f5c', '#7a5195', '#ef5675', '#ffa600'],
+        5: [ '#003f5c', '#58508d', '#bc5090', '#ff6361','#ffa600'],
+        6: [ '#003f5c', '#444e86', '#955196', '#dd5182', '#ff6e54', '#ffa600'],
+        7: [ '#003f5c', '#374c80', '#7a5195', '#bc5090', '#ef5675', '#ff764a', '#ffa600'],
+        8: [ '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600' ]
+    }
+
+    return colorPaletteDict[nColors]

@@ -61,11 +61,13 @@ class Stage(CompositeObject, BodyComponent):
         # Initialize each component, add to componets
         for componentDict in subDicts:
             newComponent = rocketComponentFactory(componentDict, self.rocket, self)
-            self.components.append(newComponent)     
+            self.components.append(newComponent)
 
-        # Create Planar Interfaces b/w components
-        self.components = PlanarInterface.sortByZLocation(self.components)
-        self.componentInterfaces = PlanarInterface.createPlanarComponentInterfaces(self.components)      
+            try:
+                if newComponent.name not in self.__dict__: # Avoid clobbering existing info
+                    setattr(self, newComponent.name, newComponent) # Make component available as stage.componentName
+            except AttributeError:
+                pass # Expect to arrive here if the component doesn't define a "name" attribute   
 
     def getComponentsOfType(self, type):
         matchingComponents = []

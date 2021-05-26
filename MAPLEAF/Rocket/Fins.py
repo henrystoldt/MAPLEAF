@@ -1,7 +1,7 @@
 import copy
 import math
 from collections import namedtuple
-from math import cos, radians, sqrt
+from math import cos, radians, sqrt, asin, tan
 
 import numpy as np
 
@@ -37,8 +37,10 @@ def getFinCnAlpha_Subsonic_Barrowman(span, planformArea, beta, midChordSweep):
 def getBusemannCoefficients(Mach, beta, gamma=1.4):
     K1 = 2/beta #Supersonic correlations, Niskanen Eq. 3.41-3.44, Barrowman Appendix A (2a-2c)
     K2 = ((gamma + 1)*Mach**4 - 4*beta**2) / (4*beta**4)
-    K3 = ((gamma + 1)*Mach**8 + (2*gamma**2 - 7*gamma -5)*Mach**6 + 10*(gamma+1)*Mach**4 + 8) / (6 * beta**7)
-    return K1, K2, K3
+    K3 = ((gamma + 1)*Mach**8 + (2*gamma**2 - 7*gamma -5)*Mach**6 + 10*(gamma+1)*Mach**4 - 12*Mach**2 + 8) / (6 * beta**7)
+    # Kstar = ((gamma+1)*Mach**4 * ( (5-3*gamma)*Mach**4 + 4*(gamma-3)*Mach**2 + 8)) / 48
+    Kstar = 0 # TODO: Fix Kstar implementation - See CythonFinFunctions.pyx:getFinSliceForce_Supersonic
+    return K1, K2, K3, Kstar
 
 class FinSet(FixedMass, ActuatedSystem):
     ''' Class represents a set of n identical fins, all at the same longitudinal location, arranged axisymmetrically. Fin orientations can be controlled by a `MAPLEAF.GNC.ControlSystems.ControlSystem` '''
@@ -80,12 +82,7 @@ class FinSet(FixedMass, ActuatedSystem):
             self.trailingEdgeThickness = componentDictReader.getFloat("TrailingEdge.thickness")
         elif self.trailingEdgeShape != "Tapered":
             raise ValueError("ERROR: Trailing edge shape: {} not implemented. Use 'Round', 'Blunt', or 'Tapered'".format(self.trailingEdgeShape))
-
-        # Common fin properties for all child fins
-        self._precomputeGeometry()
         
-        # Initialize all the child fins in the self.finList list
-        self._initChildFins(componentDictReader, rocket, stage)
 
     def initializeActuators(self, controlSystem):
         self.controlSystem = controlSystem
@@ -93,7 +90,7 @@ class FinSet(FixedMass, ActuatedSystem):
         # Initialize an actuator model for each fin
         ActuatedSystem.__init__(self, self.numFins)
 
-    def _precomputeGeometry(self):
+    def precomputeProperties(self):
         self._calculateSweepAngles()
 
         ### Compute Other Simple Properties ####
@@ -113,6 +110,9 @@ class FinSet(FixedMass, ActuatedSystem):
 
         self._precomputeSubsonicFinThicknessDrag()
         self._precomputeCPInterpolationPolynomial()
+
+        # Initialize all the child fins in the self.finList list
+        self._initChildFins(self.componentDictReader, self.rocket, self.stage)
     
     def _calculateSweepAngles(self):
         ''' Compute Trailing Edge (TE) and Mid Chord sweep angles '''
@@ -182,12 +182,18 @@ class FinSet(FixedMass, ActuatedSystem):
         stepSize = self.span / self.numFinSpanSteps
         bodyRadius = self.bodyRadius
         
-        self.spanSliceAreas = []
-        self.spanSliceRadii = []
+        self.spanSliceAreas = [] # Area of each slice, m^2
+        self.spanSliceRadii = [] # Radius of the center of each slice, from the rocket centerline, m
+        self.sliceLEPositions = [] # Z - Position of the LE at the center of the slice, from the tip of root chord
+        self.sliceLengths = []
+
         for i in range(self.numFinSpanSteps):
             y = i*stepSize + stepSize*0.5
+
             self.spanSliceRadii.append(y + bodyRadius)
             self.spanSliceAreas.append(stepSize*self.getChord(y))
+            self.sliceLEPositions.append(y * self.dZ_dSpan_LE_neg)
+            self.sliceLengths.append(self.getChord(y))
 
     def _precomputeSubsonicFinThicknessDrag(self):
         ''' Precompute the subsonic thickness drag coefficient (Barrowman Eqn 4-36) '''
@@ -242,6 +248,8 @@ class FinSet(FixedMass, ActuatedSystem):
             #Initialize each fin separately and keep in a list
             self.finList.append(Fin(componentDictReader, self, spanWiseDirection, rocket, stage))
 
+    # TODO: Replace this with control system log
+    # TODO: Remove all getLogHeader functions
     def getLogHeader(self):
         header = " {}FX(N) {}FY(N) {}FZ(N) {}MX(Nm) {}MY(Nm) {}MZ(Nm)".format(*[self.name]*6)
         
@@ -252,7 +260,7 @@ class FinSet(FixedMass, ActuatedSystem):
         return header
 
     ### Functions used during simulation ###
-    def getAeroForce(self, rocketState, time, environment, CG):
+    def getAppliedForce(self, rocketState, time, environment, CG):
         #### If control system exists, use actuator deflections 1:1 to set fin angles ####
         if self.controlSystem != None:
             # Update fin angles
@@ -265,7 +273,7 @@ class FinSet(FixedMass, ActuatedSystem):
         #### Add up forces from all child Fins ####
         aeroForce = ForceMomentSystem(Vector(0,0,0), self.position)
         for fin in self.finList:
-            aeroForce += fin.getAeroForce(rocketState, time, environment, CG, precomputedData)
+            aeroForce += fin.getAppliedForce(rocketState, time, environment, CG, precomputedData)
 
         # TODO: Correct for sub/transonic rolling moment fin-fin interference from a high number of fins
         
@@ -274,14 +282,7 @@ class FinSet(FixedMass, ActuatedSystem):
         aeroForce.force.X *= totalInterferenceFactor
         aeroForce.force.Y *= totalInterferenceFactor
         aeroForce.moment.X *= totalInterferenceFactor
-        aeroForce.moment.Y *= totalInterferenceFactor          
-
-        #### Log results ####
-        forceLogLine = " {:>10.4f} {:>10.4f}".format(aeroForce.force, aeroForce.moment)
-        if self.controlSystem != None:
-            for i in range(len(self.actuatorList)):
-                forceLogLine += " {:>6.4}".format(self.finList[i].finAngle)
-        self.rocket.appendToForceLogLine(forceLogLine)
+        aeroForce.moment.Y *= totalInterferenceFactor
 
         return aeroForce
 
@@ -438,6 +439,8 @@ class Fin(FixedMass):
 
         self.spanSliceAreas = self.finSet.spanSliceAreas
         self.spanSliceRadii = self.finSet.spanSliceRadii
+        self.sliceLEPositions = self.finSet.sliceLEPositions
+        self.sliceLengths = self.finSet.sliceLengths
 
         self.finAngle = self.finSet.finAngle
         self.stallAngle = self.finSet.stallAngle
@@ -452,6 +455,8 @@ class Fin(FixedMass):
         # Vector normal to the fin surface, in the X/Y Plane, when self.finAngle == 0
         self.undeflectedFinNormal = Vector(self.spanwiseDirection[1], -self.spanwiseDirection[0], 0)
 
+        self.tipPosition = self.finSet.dZ_dSpan_LE_neg * self.span
+        
         # Spanwise component of Center of Pressure (CP) location
         self.CPSpanWisePosition = self.spanwiseDirection*(self.finSet.MACYPos + self.finSet.bodyRadius)
 
@@ -487,16 +492,26 @@ class Fin(FixedMass):
         def supersonicNormalForce(Mach): # Supersonic Busemann method
             gamma = AeroFunctions.getGamma()
             tempBeta = AeroParameters.getBeta(Mach)
-            K1, K2, K3 = getBusemannCoefficients(Mach, tempBeta, gamma)
-            return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, self)
+            K1, K2, K3, Kstar = getBusemannCoefficients(Mach, tempBeta, gamma)
+
+            # Mach Cone coords
+            machAngle = asin(1/Mach)
+            machCone_negZPerRadius = 1 / tan(machAngle)
+            machConeEdgeZPos = []
+            outerRadius = self.spanSliceRadii[-1]
+            for i in range(len(self.spanSliceRadii)):
+                machConeAtCurrentRadius = (outerRadius - self.spanSliceRadii[i])*machCone_negZPerRadius + self.tipPosition
+                machConeEdgeZPos.append(machConeAtCurrentRadius)
+
+            return getSupersonicFinNormalForce(airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, machConeEdgeZPos, self.spanwiseDirection, self.CPSpanWisePosition.length(), K1, K2, K3, Kstar, self)
 
         if Mach <= 0.8:
             normalForceMagnitude, finMoment = subsonicNormalForce(Mach)
 
-        elif Mach < 1.5:
+        elif Mach < 1.4:
             # Interpolate in transonic region
             # TODO: Do this with less function evaluations? Perhaps precompute AOA and Mach combinations and simply interpolate? Lazy precompute? Cython?
-            x1, x2 = 0.8, 1.5 # Start, end pts of interpolated region
+            x1, x2 = 0.8, 1.4 # Start, end pts of interpolated region
             dx = 0.001
 
             # Find normal force and derivative at start of interpolation interval
@@ -535,6 +550,6 @@ class Fin(FixedMass):
         totalForce = normalForce + axialForce
         return ForceMomentSystem(totalForce, globalCP, moment=Vector(0, 0, finMoment)), globalCP
 
-    def getAeroForce(self, rocketState, time, environment, CG, precomputedData):
+    def getAppliedForce(self, rocketState, time, environment, CG, precomputedData):
         [ aeroForce, CP ] = self._barrowmanAeroFunc(rocketState, time, environment, precomputedData, CG)
         return aeroForce

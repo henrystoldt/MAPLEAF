@@ -1,12 +1,11 @@
 import re
 
-from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import ForceMomentSystem, Inertia, Vector, linInterp
 from MAPLEAF.Rocket import RocketComponent
 
-__all__ = [ "TabulatedMotor" ]
+__all__ = [ "TabulatedMotor", "SampleStatefulComponent" ]
 
-class TabulatedMotor(RocketComponent, SubDictReader):
+class TabulatedMotor(RocketComponent):
     '''
     Interface:
         Initialization:
@@ -136,7 +135,7 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         
         return oxInertia + fuelInertia
 
-    def getAeroForce(self, state, time, environment, CG):
+    def getAppliedForce(self, state, time, environment, CG):
         #TODO: Model "thrust damping" - where gases moving quickly in the engine act to damp out rotation about the x and y axes
         #TODO: Thrust vs altitude compensation
         timeSinceIgnition = max(0, time - self.ignitionTime)
@@ -149,9 +148,6 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         
         # Create Vector
         thrust = Vector(0,0, thrustMagnitude)
-
-        # Log and return
-        self.rocket.appendToForceLogLine(" {:>10.4f}".format(thrust.Z))
         return ForceMomentSystem(thrust)
 
     def updateIgnitionTime(self, ignitionTime, fakeValue=False):
@@ -159,9 +155,6 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         if not fakeValue:
             self.rocket.engineShutOffTime = max(self.rocket.engineShutOffTime, self.ignitionTime + self.times[-1])
             self.stage.engineShutOffTime = self.ignitionTime + self.times[-1]
-
-    def getLogHeader(self):
-        return " {}Thrust(N)".format(self.name)
 
     def getTotalImpulse(self):
         # Integrate the thrust - assume linear interpolations between points given -> midpoint rule integrates this perfectly
@@ -209,3 +202,37 @@ class TabulatedMotor(RocketComponent, SubDictReader):
         fuelMOI = linInterp(self.times, self.fuelMOIs, timeSinceIgnition)
 
         return Inertia(fuelMOI, fuelCG, fuelWeight)
+
+class SampleStatefulComponent(RocketComponent):
+    def __init__(self, componentDictReader, rocket, stage):
+        self.rocket = rocket
+        self.stage = stage
+        self.name = componentDictReader.getDictName()
+
+    def getExtraParametersToIntegrate(self):
+        # Examples below for a single parameter to be integrated, can put as many as required in these lists
+        paramNames = [ "tankLevel" ]
+        initValues = [ 1.0 ]
+        derivativeFunctions = [ self.getTankLevelDerivative ]
+        
+        return paramNames, initValues, derivativeFunctions
+
+    def getTankLevelDerivative(self, time, rocketState):
+        return -2*rocketState.tankLevel # tankLevel will asymptotically approach 0
+
+    def getAppliedForce(self, rocketState, time, envConditions, rocketCG):
+        mag = -2000*self.getTankLevelDerivative(time, rocketState) # Force magnitude proportional to flow rate out of the tank
+        forceVector = Vector(0, 0, mag)
+
+        self.rocket.appendToForceLogLine(" {:>6.4f}".format(mag)) # This will end up in the log file, in the SampleZForce column
+        
+        return ForceMomentSystem(forceVector)
+
+    def getInertia(self, time, rocketState):
+        mass = 5 + rocketState.tankLevel*4.56 # Fixed Mass + fluid mass
+        MOI = Vector(mass, mass, mass*0.05) # Related to current mass
+
+        CGz = -3 + rocketState.tankLevel # Moves depending on current tank level
+        CG = Vector(0, 0, CGz)
+        
+        return Inertia(MOI, CG, mass)
