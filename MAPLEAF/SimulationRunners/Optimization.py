@@ -30,23 +30,6 @@ def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: s
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
     Logging.removeLogger()
 
-def isBatchOptimization(simDefinition) -> bool:
-    ''' Checks whether a simulation is a batch optimization '''
-    if "Optimization.batchDefinition" in simDefinition:
-        return True
-    else:
-        return False
-
-
-#### UTILITY FUNCTIONS - used by the classes below to evaluate cost functions by running simulations ####
-def _evaluateCostFunction_SingleSimulation(costFunctionDefinition, stageFlights, logFilePaths):
-    if ":" in costFunctionDefinition:
-        # Cost function is expected to be a custom function defined in an importable module
-        modulePath, funcName = costFunctionDefinition.split(':') 
-
-        customModule = importlib.import_module(modulePath)
-        customCostFunction = getattr(customModule, funcName)
-
     # Evaluate the cost function
     if ":" in costFunctionDefinition:
         # Cost function is expected to be a custom function defined in an importable module
@@ -68,31 +51,8 @@ def _evaluateCostFunction_SingleSimulation(costFunctionDefinition, stageFlights,
             "maxSpeed":     topStageFlight.getMaxSpeed(),
             "maxHorizontalVel": topStageFlight.getMaxHorizontalVel(),
         }
+
         return evalExpression(costFunctionDefinition, varVals)
-
-def computeCostFunctionValue_SingleSimulation(simDefinition, costFunctionDefinition):
-    runner = Simulation(simDefinition=simDefinition, silent=True)
-    stageFlights, logFilePaths = runner.run()
-    return _evaluateCostFunction_SingleSimulation(costFunctionDefinition, stageFlights, logFilePaths)
-
-@ray.remote
-def computeCostFunctionValue_SingleSimulation_Remote(simDefinition, costFunctionDefinition):
-    return computeCostFunctionValue_SingleSimulation(simDefinition, costFunctionDefinition)
-
-def computeCostFunctionValue_BatchSimulation(caseDefinitions, costFunctionDefinition):
-    ''' Returns the average cost function value over all of the cases in the list caseDefinitions. Each case definition should be of type SimDefinition '''
-    batchResults = []
-    for caseDefinition in caseDefinitions:
-        batchResults.append(computeCostFunctionValue_SingleSimulation(caseDefinition, costFunctionDefinition))
-
-    # Returns the average of the results for all of the cases in the batch file
-    return mean(batchResults)
-
-@ray.remote
-def computeCostFunctionValue_BatchSimulation_Remote(caseDefinitions, costFunctionDefinition):
-    ''' Simple wrapper function around the non remote version of this function '''
-    return computeCostFunctionValue_BatchSimulation(caseDefinitions, costFunctionDefinition)
-
 
 #### CLASSES THAT RUN OPTIMIZATIONS ####
 class OptimizingSimRunner(ABC):
@@ -117,7 +77,13 @@ class OptimizingSimRunner(ABC):
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.bestPosition, self.bestCost = self._loadBestPosition()
 
-        self.costFunctionDefinition = self.simDefinition.getValue("Optimization.costFunction")      
+        self.costFunctionDefinition = optimizationReader.getString("Optimization.costFunction")
+        self.simDefinitions = [ optimizationReader.simDefinition ]
+
+        # Check if this is a batch optimization by looking for the batch file entry in the sim definition file
+        result = optimizationReader.tryGetString("batchDefinition", defaultValue="notPresent.fakeFile")
+        if result != "notPresent.fakeFile":
+            self._loadBatchOptimization()            
 
     def _loadIndependentVariables(self):
         ''' 
@@ -212,6 +178,40 @@ class OptimizingSimRunner(ABC):
         else:
             raise ValueError('Please specify bestPosition and bestCost or neither, current values: {} and {}, respectively'.format(bestPosition, bestCost))
 
+    def _loadBatchOptimization(self):
+        if not self.silent:
+            print("Batch Optimization")
+
+        # Optimization dictionary now requires an entry called batchDefinition
+            # In this case the 'simDefinition' might only contain an Optimization dictionary
+                # Could also contain the Rocket definition, if the same 'simDefinition' file is referenced in the Batch Definition
+        batchDefinitionPath = self.optimizationReader.getString("Optimization.batchDefinition")
+        batchDefinitionPath = getAbsoluteFilePath(batchDefinitionPath) # Make sure path points to a real file, turn it into an absolute path
+        
+        # Load batch definition file
+        batchDefinition = SimDefinition(batchDefinitionPath)
+
+        # Prep and store the cases it references
+        self.simDefinitions = []
+
+        caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
+        print("Found the following cases:")
+        for case in caseDictNames:
+            print(case, file=sys.__stdout__)
+
+            # Get sim definition file path
+            simDefPath = batchDefinition.getValue("{}.simDefinitionFile".format(case))
+            simDefPath = getAbsoluteFilePath(simDefPath)
+
+            # Load it, implement overrides defined in the batch file
+            caseDefinition = SimDefinition(simDefPath, silent=True)
+            _implementParameterOverrides(case, batchDefinition, caseDefinition)
+
+            # Save
+            self.simDefinitions.append(caseDefinition)       
+
+        print("") # Add some white space
+
     #### Running the optimization ####
     def _createNestedOptimization(self, simDef):
         innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
@@ -224,48 +224,61 @@ class OptimizingSimRunner(ABC):
 
         costFunctionValues = []
         
-        nSims = len(trialSolutions)
-        for i in range(nSims):
-            indVarValues = trialSolutions[i]
-
-            # Create new sim definition
-            simDef = deepcopy(self.optimizationReader.simDefinition)
+        
+        for independentVariableValues in trialSolutions:
+            caseResults = []
+            for case in self.simDefinitions:
+                # Create new sim definition
+                simDef = deepcopy(case)
             
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-            self._updateDependentVariableValues(simDef, varDict)
+                # Update variable values
+                varDict = self._updateIndependentVariableValues(simDef, independentVariableValues)
+                self._updateDependentVariableValues(simDef, varDict)
 
-            # Start the simulation and save the future returned
-            costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
+                # Start the simulation and save the future returned
+                caseResults.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
+            
+            costFunctionValues.append(caseResults)
 
         # All simulation now started, wait for and retrieve the results
-        costFunctionValues = [ ray.get(value) for value in costFunctionValues ]
+        if len(self.simDefinitions) > 1:
+            costFunctionValues = [ mean([ ray.get(value) for value in caseResults ]) for caseResults in costFunctionValues ]
+        else:
+            costFunctionValues = [ [ ray.get(value) for value in caseResults ][0] for caseResults in costFunctionValues ]
 
         return costFunctionValues
 
     def _computeCostFunctionValues_SingleThreaded(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         costFunctionValues = []
-        for indVarValues in trialSolutions:
-            # Create new sim definition
-            simDef = deepcopy(self.optimizationReader.simDefinition)
+        for independentVariableValues in trialSolutions:
+            caseResults = []
             
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-            self._updateDependentVariableValues(simDef, varDict)
+            for case in self.simDefinitions:
+                # Create new sim definition
+                simDef = deepcopy(case)
+                
+                # Update variable values
+                varDict = self._updateIndependentVariableValues(simDef, independentVariableValues)
+                self._updateDependentVariableValues(simDef, varDict)
 
-            if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
-                innerOptimizer = self._createNestedOptimization(simDef)
-                cost, pos = innerOptimizer.runOptimization()
-                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
-                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
+                if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
+                    innerOptimizer = self._createNestedOptimization(simDef)
+                    cost, pos = innerOptimizer.runOptimization()
+                    varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
+                    innerOptimizer._updateDependentVariableValues(simDef, varDict)   
 
-            # Run the simulation and compute the cost function value, save the result
-            costFunctionValues.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
+                # Run the simulation and compute the cost function value, save the result
+                caseResults.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
+
+            if len(caseResults) > 1:
+                costFunctionValues.append(mean(caseResults))
+            else:
+                costFunctionValues.append(caseResults[0])
 
         return costFunctionValues
     
-    def _updateIndependentVariableValues(self, simDefinition, indVarValues):
+    def _updateIndependentVariableValues(self, simDefinition, trialSolution):
         ''' 
             Updates simDefinition with the independent variable values
             Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
@@ -490,104 +503,6 @@ class PSORunner(OptimizingSimRunner):
             plot_cost_history(self.optimizer.cost_history)
             plt.show()
 
-class BatchOptimizingSimRunner(OptimizingSimRunner):
-
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False):
-        super().__init__(simDefinitionFilePath, simDefinition, silent)
-
-        if not self.silent:
-            print("Batch Optimization")
-
-        # Optimization dictionary now requires an entry called batchDefinition
-            # TODO: Rename/re-locate this to wherever you want, and put it in the SimDefinitionTemplate
-            # In this case the 'simDefinition' might only contain an Optimization dictionary?
-                # Could also contain the Rocket definition, if the same 'simDefinition' file is referenced in the Batch Definition
-        batchDefinitionPath = self.simDefinition.getValue("Optimization.batchDefinition")
-        batchDefinitionPath = getAbsoluteFilePath(batchDefinitionPath) # Make sure path points to a real file, turn it into an absolute path
-        
-        # Load batch definition file
-        batchDefinition = SimDefinition(batchDefinitionPath)
-
-        # Prep and store the cases it references
-        self.batchCaseDefinitions = []
-
-        caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
-        print("Found the following cases:")
-        for case in caseDictNames:
-            print(case, file=sys.__stdout__)
-
-            # Get sim definition file path
-            simDefPath = batchDefinition.getValue("{}.simDefinitionFile".format(case))
-            simDefPath = getAbsoluteFilePath(simDefPath)
-
-            # Load it, implement overrides defined in the batch file
-            caseDefinition = SimDefinition(simDefPath, silent=True)
-            _implementParameterOverrides(case, batchDefinition, caseDefinition)
-
-            # Save
-            self.batchCaseDefinitions.append(caseDefinition)       
-
-        print("") # Add some white space
-
-    def _evaluateTrialSolution(self, _, trialSolution):
-        ''' Computes a cost function value for a single trial solution '''
-        simulationDefinitions = []
-        for caseDefinition in self.batchCaseDefinitions:                
-            simDef = deepcopy(caseDefinition)
-        
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, trialSolution)
-            self._updateDependentVariableValues(simDef, varDict)
-            simulationDefinitions.append(simDef)
-
-        return computeCostFunctionValue_BatchSimulation(simulationDefinitions, self.costFunctionDefinition)
-
-class ParallelBatchOptimizingSimRunner(BatchOptimizingSimRunner, ParallelOptimizingSimRunner):
-    ''' 
-        Parallelizes optimization by running one batch evaluation per core 
-        Inherits the parallel run optimization function from the parallel simulation runner
-    '''
-    def __init__(self, simDefinitionFilePath=None, simDefinition=None, silent=False, nCores=1):
-        BatchOptimizingSimRunner.__init__(self, simDefinitionFilePath, simDefinition, silent) # Load the batch definition file
-        self.nCores = nCores # Save the number of cores for the parallel run
-
-    def _evaluateTrialSolution(self, _, trialSolution):
-        ''' Computes a cost function value for a single trial solution '''
-        simulationDefinitions = []
-        for caseDefinition in self.batchCaseDefinitions:                
-            simDef = deepcopy(caseDefinition)
-        
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, trialSolution)
-            self._updateDependentVariableValues(simDef, varDict)
-            simulationDefinitions.append(simDef)
-
-        return computeCostFunctionValue_BatchSimulation_Remote.remote(simulationDefinitions, self.costFunctionDefinition)
-
-    def _evaluateTrialSolutions(self, trialSolutions):
-        results = []
-        resultFutures = []
-        
-        nSims = len(trialSolutions)
-        for i in range(nSims):
-            # Don't start more sims than we have cores
-            if i >= self.nCores:
-                # Post-process sims in order to ensure order of results matches order of inputs
-                index = i-self.nCores
-                results.append(ray.get(resultFutures[index]))
-
-            # Start a new simulation, save the future
-            resultFutureID = self._evaluateTrialSolution(self, trialSolutions[i])
-            resultFutures.append(resultFutureID)
-
-        # Post process remaining sims
-        nRemaining = min(nSims, self.nCores)
-        if nRemaining > 0:
-            for i in range(nRemaining):
-                index = i - nRemaining
-                results.append(ray.get(resultFutures[index]))
-
-        return results
         return cost, pos
 
 class ScipyMinimizeRunner(OptimizingSimRunner):

@@ -82,13 +82,6 @@ class TestSimRunners(unittest.TestCase):
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
 
-    def test_isBatchOptimization(self):
-        simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
-        self.assertTrue(isBatchOptimization(simDef))
-
-        simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf")
-        self.assertFalse(isBatchOptimization(simDef))
-
     # def test_BatchOptimization(self):
     #     simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
     #     simRunner = BatchOptimizingSimRunner(simDefinition=simDef, silent=True)   
