@@ -372,18 +372,20 @@ class Simulation():
                 forceLogFilePath = logFilePaths[-1]
                 expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
                 logFilePaths.append(expandedLogPath)
-
-            consoleOutputPath = os.path.join(resultsFolderName, "consoleOutput.txt")
-            print("Writing log file: {}".format(consoleOutputPath))
-            with open(consoleOutputPath, 'w+') as file:
-                file.writelines(self.consoleOutputLog)
-
+                
+                # TODO: Switch to new logging method
                 if self.loggingLevel >= 4:
                     controlSystemLogFilePath = mainLogFilePath.replace("simulationLog", "controlSystemEvaluationLog")
                     print("Writing control system evaluation log to: {}".format(controlSystemLogFilePath))
                     logFilePaths.append(controlSystemLogFilePath)
                     with open(controlSystemLogFilePath, 'w+') as file:
                         file.writelines(self.controlSystemEvaluationLog)
+
+            # Output console output
+            consoleOutputPath = os.path.join(resultsFolderName, "consoleOutput.txt")
+            print("Writing log file: {}".format(consoleOutputPath))
+            with open(consoleOutputPath, 'w+') as file:
+                file.writelines(self.consoleOutputLog)
 
         return logFilePaths
 

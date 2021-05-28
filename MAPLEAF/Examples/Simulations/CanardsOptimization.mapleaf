@@ -32,7 +32,7 @@ Optimization{
 
     ParticleSwarm{
         nParticles      10
-        nIterations     50
+        nIterations     1
     }
 }
 

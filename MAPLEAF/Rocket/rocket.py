@@ -214,7 +214,8 @@ class Rocket(CompositeObject):
         if ( rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None or rocketDictReader.tryGetString("ControlSystem.MomentController.Type") == "IdealMomentController") and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
-            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self, silent=silent)
+            controlSystemLogging = loggingLevel > 3
+            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self, log=controlSystemLogging, silent=silent)
 
     def _getMaxBodyTubeDiameter(self):
         ''' Gets max body tube diameter directly from config file '''

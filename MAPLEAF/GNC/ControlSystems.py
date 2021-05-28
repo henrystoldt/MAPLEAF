@@ -4,10 +4,12 @@ Control systems run a simulated control loops between simulation time steps, and
 '''
 
 import abc
-import numpy as np
 
-from MAPLEAF.GNC import ConstantGainPIDRocketMomentController, ScheduledGainPIDRocketMomentController, Stabilizer, IdealMomentController
-from MAPLEAF.IO import SubDictReader
+import numpy as np
+from MAPLEAF.GNC import (ConstantGainPIDRocketMomentController,
+                         IdealMomentController,
+                         ScheduledGainPIDRocketMomentController, Stabilizer)
+from MAPLEAF.IO import Log, SubDictReader
 from MAPLEAF.Motion import integratorFactory
 
 __all__ = [ "RocketControlSystem", "ControlSystem" ]
@@ -46,7 +48,7 @@ class ControlSystem(abc.ABC):
 class RocketControlSystem(ControlSystem, SubDictReader):
     ''' Simplest possible control system for a rocket '''
 
-    def __init__(self, controlSystemDictReader, rocket, initTime=0, silent=False):
+    def __init__(self, controlSystemDictReader, rocket, initTime=0, log=False, silent=False):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader
         self.lastControlLoopRunTime = initTime
@@ -101,6 +103,17 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             self.controlledSystem.initializeActuators(self)
 
         self._checkSimTimeStepping()
+
+        ### Set up logging if requested ###
+        if log:
+            self.log = Log()
+            self.log.addColumns("PitchError", "YawError", "RollError")
+            
+            columnNames = [ "Actuator_{}_TargetDeflection".format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
+            self.log.addColumns(columnNames)
+        else:
+            self.log = None
+
 
     def _checkSimTimeStepping(self):
         # If the update rate is zero, control system is simply run once per time step
@@ -174,21 +187,21 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 
             pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
 
-            if self.rocket.simRunner.loggingLevel >= 4:
-                self.rocket.simRunner.newControlSystemLogLine("{:<7.3f} ".format(currentTime))      # Start a new line in the control system evaluation log 
-                self.appendToControlSystemLogLine(" {:>10.4f} {:>10.8f} {:>10.8f}".format(pitchError, yawError, rollError))
+            if self.log is not None:
+                self.log.newLogRow(currentTime)
+                self.log.logValue("PitchError", pitchError)
+                self.log.logValue("YawError", yawError)
+                self.log.logValue("RollError", rollError)
+
+                for i in range(len(newActuatorPositionTargets)):
+                    columnName = "Actuator_{}_TargetDeflection".format(i)
+                    self.log.logValue(columnName, newActuatorPositionTargets[i])
 
             return newActuatorPositionTargets
         else:
             return False
 
-    def getLogHeader(self):
-        if self.controlledSystem != None:
-            headerStrings = [ " Actuator_{}_TargetDeflection".format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
-            return "".join(headerStrings)
-        else:
-            return ""
-
+    
     def appendToControlSystemLogLine(self, txt: str):
         ''' Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`'s controlSystemEvaluationLog '''
         try:
