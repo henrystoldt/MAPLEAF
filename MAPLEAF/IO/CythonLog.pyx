@@ -200,10 +200,12 @@ cdef class TimeStepLog(Log):
         times = self.logColumns["Time(s)"]
 
         nRows = len(times)
-        for i in range(nRows-1):
-            timeStepSizes.append(times[i+1] - times[i])
+        if nRows > 1:
+            for i in range(nRows-1):
+                # Calculate the time step sizes
+                timeStepSizes.append(times[i+1] - times[i])
 
-        if nRows > 0:
+            # Make the time step column as long as the others by adding a fake last value (repeat the second last value)
             timeStepSizes.append(timeStepSizes[-1])
 
         self.logColumns["TimeStep(s)"] = timeStepSizes
