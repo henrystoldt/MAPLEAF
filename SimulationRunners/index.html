@@ -1559,14 +1559,7 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
             for rocket in self.rocketStages:
                 logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
 
-            # Calculate aerodynamic coefficients if desired
-            if self.loggingLevel &gt;= 3:
-                bodyDiameter = self.rocketStages[0].maxDiameter
-                crossSectionalArea = self.rocketStages[0].Aref
-                forceLogFilePath = logFilePaths[-1]
-                expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
-                logFilePaths.append(expandedLogPath)
-
+            # Output console output
             consoleOutputPath = os.path.join(resultsFolderName, &#34;consoleOutput.txt&#34;)
             print(&#34;Writing log file: {}&#34;.format(consoleOutputPath))
             with open(consoleOutputPath, &#39;w+&#39;) as file:

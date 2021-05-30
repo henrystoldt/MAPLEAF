@@ -300,7 +300,11 @@ def _implementParameterOverrides(caseName: str, batchDefinition: SimDefinition, 
     #### Load and enact parameter overrides ####
     # Always disable plotting and enable logging
     caseSimDefinition.setValue(&#34;SimControl.plot&#34;, &#34;None&#34;)
-    caseSimDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+    
+    if int(caseSimDefinition.getValue(&#34;SimControl.loggingLevel&#34;)) &lt; 3:
+        # Never lower the logging level
+        caseSimDefinition.setValue(&#34;SimControl.loggingLevel&#34;, &#34;3&#34;)
+
     caseSimDefinition.setValue(&#34;SimControl.RocketPlot&#34;, &#34;Off&#34;)
 
     # Look for other overrides in the definition file

@@ -43,7 +43,15 @@ def OptimizationFunction(logFilesList):
     #print(&#34;HEEEEEYYYYYY!!!!!!&#34;, file=sys.__stdout__)
     #print(logFilesList, file=sys.__stdout__)
 
-    filePath = logFilesList[2]
+    filePath = None
+    for logFile in logFilesList:
+        if (&#34;ControlSystem_Log.csv&#34; in logFile):
+            filePath = logFile
+            break
+
+    if filePath == None:
+        raise ValueError(&#34;ERROR: could not find controlSystemEvaluationLog. Make sure logging level is at least 4. Available log files: {}&#34;.format(logFilesList))
+
     columnSpecs = [&#34;Time&#34;,&#34;Error&#34;]
 
     columns, columnNames = Plotting.getLoggedColumns(filePath, columnSpecs, enableCache=False)
@@ -51,6 +59,9 @@ def OptimizationFunction(logFilesList):
     pitchErrorIntegral = 0
     yawErrorIntegral = 0
     rollErrorIntegral = 0
+
+    #print(columnNames,file=sys.__stdout__)
+    #print(columns,file=sys.__stdout__)
 
     for i in range(len(columns[0])):
 
@@ -101,7 +112,15 @@ def OptimizationFunction(logFilesList):
     #print(&#34;HEEEEEYYYYYY!!!!!!&#34;, file=sys.__stdout__)
     #print(logFilesList, file=sys.__stdout__)
 
-    filePath = logFilesList[2]
+    filePath = None
+    for logFile in logFilesList:
+        if (&#34;ControlSystem_Log.csv&#34; in logFile):
+            filePath = logFile
+            break
+
+    if filePath == None:
+        raise ValueError(&#34;ERROR: could not find controlSystemEvaluationLog. Make sure logging level is at least 4. Available log files: {}&#34;.format(logFilesList))
+
     columnSpecs = [&#34;Time&#34;,&#34;Error&#34;]
 
     columns, columnNames = Plotting.getLoggedColumns(filePath, columnSpecs, enableCache=False)
@@ -109,6 +128,9 @@ def OptimizationFunction(logFilesList):
     pitchErrorIntegral = 0
     yawErrorIntegral = 0
     rollErrorIntegral = 0
+
+    #print(columnNames,file=sys.__stdout__)
+    #print(columns,file=sys.__stdout__)
 
     for i in range(len(columns[0])):
 

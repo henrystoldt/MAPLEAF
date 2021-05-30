@@ -37,7 +37,7 @@ from copy import deepcopy
 from distutils.util import strtobool
 
 from MAPLEAF.ENV import Environment
-from MAPLEAF.IO import (Log, Logging, Plotting, RocketFlight, SimDefinition,
+from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
                         SubDictReader)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
@@ -397,14 +397,7 @@ class Simulation():
             for rocket in self.rocketStages:
                 logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
 
-            # Calculate aerodynamic coefficients if desired
-            if self.loggingLevel &gt;= 3:
-                bodyDiameter = self.rocketStages[0].maxDiameter
-                crossSectionalArea = self.rocketStages[0].Aref
-                forceLogFilePath = logFilePaths[-1]
-                expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
-                logFilePaths.append(expandedLogPath)
-
+            # Output console output
             consoleOutputPath = os.path.join(resultsFolderName, &#34;consoleOutput.txt&#34;)
             print(&#34;Writing log file: {}&#34;.format(consoleOutputPath))
             with open(consoleOutputPath, &#39;w+&#39;) as file:
@@ -950,14 +943,7 @@ class WindTunnelSimulation(Simulation):
             for rocket in self.rocketStages:
                 logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
 
-            # Calculate aerodynamic coefficients if desired
-            if self.loggingLevel &gt;= 3:
-                bodyDiameter = self.rocketStages[0].maxDiameter
-                crossSectionalArea = self.rocketStages[0].Aref
-                forceLogFilePath = logFilePaths[-1]
-                expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
-                logFilePaths.append(expandedLogPath)
-
+            # Output console output
             consoleOutputPath = os.path.join(resultsFolderName, &#34;consoleOutput.txt&#34;)
             print(&#34;Writing log file: {}&#34;.format(consoleOutputPath))
             with open(consoleOutputPath, &#39;w+&#39;) as file:

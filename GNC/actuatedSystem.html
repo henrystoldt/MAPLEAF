@@ -101,7 +101,7 @@ class ActuatedSystem(abc.ABC):
 
     @abc.abstractmethod
     def initializeActuators(self, controlSystem):
-        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
+        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - implementations of this function only need to determine and pass in nActuators  &#39;&#39;&#39;        
         pass</code></pre>
 </details>
 </section>
@@ -190,7 +190,7 @@ Inherit from this class to add its functionality to a class
 
     @abc.abstractmethod
     def initializeActuators(self, controlSystem):
-        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
+        &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - implementations of this function only need to determine and pass in nActuators  &#39;&#39;&#39;        
         pass</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -207,14 +207,14 @@ Inherit from this class to add its functionality to a class
 <span>def <span class="ident">initializeActuators</span></span>(<span>self, controlSystem)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Concrete implementations of this function should call ActuatedSystem.__init__(self, nActuators) - function needs to determine and pass in nActuators</p></div>
+<div class="desc"><p>Concrete implementations of this function should call ActuatedSystem.__init__(self, nActuators) - implementations of this function only need to determine and pass in nActuators</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@abc.abstractmethod
 def initializeActuators(self, controlSystem):
-    &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  &#39;&#39;&#39;        
+    &#39;&#39;&#39; Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - implementations of this function only need to determine and pass in nActuators  &#39;&#39;&#39;        
     pass</code></pre>
 </details>
 </dd>

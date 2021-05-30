@@ -38,10 +38,13 @@ Control systems run a simulated control loops between simulation time steps, and
 &#39;&#39;&#39;
 
 import abc
-import numpy as np
+import os
 
-from MAPLEAF.GNC import ConstantGainPIDRocketMomentController, ScheduledGainPIDRocketMomentController, Stabilizer, IdealMomentController
-from MAPLEAF.IO import SubDictReader
+import numpy as np
+from MAPLEAF.GNC import (ConstantGainPIDRocketMomentController,
+                         IdealMomentController,
+                         ScheduledGainPIDRocketMomentController, Stabilizer)
+from MAPLEAF.IO import Log, SubDictReader
 from MAPLEAF.Motion import integratorFactory
 
 __all__ = [ &#34;RocketControlSystem&#34;, &#34;ControlSystem&#34; ]
@@ -64,10 +67,6 @@ class ControlSystem(abc.ABC):
                 Should return False
         &#39;&#39;&#39;
 
-    @abc.abstractmethod
-    def getLogHeader(self):
-        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;
-
     def calculateAngularError(self, currentOrientation, targetOrientation):
 
         errors = np.array((targetOrientation / currentOrientation).toRotationVector())
@@ -80,11 +79,12 @@ class ControlSystem(abc.ABC):
 class RocketControlSystem(ControlSystem, SubDictReader):
     &#39;&#39;&#39; Simplest possible control system for a rocket &#39;&#39;&#39;
 
-    def __init__(self, controlSystemDictReader, rocket, initTime=0):
+    def __init__(self, controlSystemDictReader, rocket, initTime=0, log=False, silent=False):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader
         self.lastControlLoopRunTime = initTime
         self.timeSteppingModified = False # set to True if the sim&#39;s time stepping has been constrained by the control system update rate (in self._checkSimTimeStepping)
+        self.silent = silent
 
         ### Create Navigator ###
         desiredFlightDirection = controlSystemDictReader.getVector(&#34;desiredFlightDirection&#34;)
@@ -135,6 +135,22 @@ class RocketControlSystem(ControlSystem, SubDictReader):
 
         self._checkSimTimeStepping()
 
+        ### Set up logging if requested ###
+        if log:
+            self.log = Log()
+            self.log.addColumns([&#34;PitchError&#34;, &#34;YawError&#34;, &#34;RollError&#34;])
+            
+            if self.controlledSystem != None:
+                nActuators = len(self.controlledSystem.actuatorList)
+                targetDeflectionColumnNames = [ &#34;Actuator_{}_TargetDeflection&#34;.format(i) for i in range(nActuators) ]
+                self.log.addColumns(targetDeflectionColumnNames)
+
+                deflectionColumnNames = [ &#34;Actuator_{}_Deflection&#34;.format(i) for i in range(nActuators) ]
+                self.log.addColumns(deflectionColumnNames)
+
+        else:
+            self.log = None
+
     def _checkSimTimeStepping(self):
         # If the update rate is zero, control system is simply run once per time step
         if self.updateRate &gt; 0:
@@ -143,9 +159,10 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             # Disable adaptive time stepping during the ascent portion of the flight (if it&#39;s enabled)
             timeDiscretization = self.controlSystemDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
             if &#34;Adaptive&#34; in timeDiscretization:
-                print(&#34;Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate&#34;)
-                print(&#34;Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.&#34;)
-                print(&#34;Switching to RK4 time stepping&#34;)
+                if not self.silent:
+                    print(&#34;WARNING: Time stepping conflict between adaptive-time-stepping Runge-Kutta method and fixed control system update rate&#34;)
+                    print(&#34;Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.&#34;)
+                    print(&#34;Switching to RK4 time stepping&#34;)
                 self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=&#39;RK4&#39;)
                 self.timeSteppingModified = True
 
@@ -155,11 +172,12 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             originalSimTimeStep = self.controlSystemDictReader.getFloat(&#34;SimControl.timeStep&#34;)
             self.originalSimTimeStep = originalSimTimeStep
             if controlTimeStep / originalSimTimeStep != round(controlTimeStep / originalSimTimeStep):
-                print(&#34;WARNING: Selected time step: {} does not divide the control system time step: {} Into an integer number of time steps.&#34;.format(originalSimTimeStep, controlTimeStep))
                 recommendedSimTimeStep = controlTimeStep / max(1, round(controlTimeStep / originalSimTimeStep))
-                
-                print(&#34;Adjusting time step to: {}&#34;.format(recommendedSimTimeStep))
-                print(&#34;&#34;)
+                if not self.silent:
+                    print(&#34;WARNING: Selected time step ({}) does not divide the control system time step ({}) Into an integer number of time steps.&#34;.format(originalSimTimeStep, controlTimeStep))
+                    print(&#34;Adjusting time step to: {}&#34;.format(recommendedSimTimeStep))
+                    print(&#34;&#34;)
+                    
                 # This relies on the SimRunner reading the time step size from the sim definition after intializing the rocket
                     # To make this more robust, have the rocket perform a timestep size check every single time step
                 self.controlSystemDictReader.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(recommendedSimTimeStep))
@@ -199,33 +217,39 @@ class RocketControlSystem(ControlSystem, SubDictReader):
                 # Apply it by actuating the controlled system
                 newActuatorPositionTargets = self.controlledSystem.actuatorController.setTargetActuatorDeflections(desiredMoments, rocketState, environment, currentTime)
             else:
+                # End up here if using the ideal moment controller, no actuators to control
+                    # Desired moments will be applied instantly without modeling the dynamics of the system that applies them
                 newActuatorPositionTargets = [0]
 
             self.lastControlLoopRunTime = currentTime
 
             pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
 
-            if self.rocket.simRunner.loggingLevel &gt;= 4:
-                self.rocket.simRunner.newControlSystemLogLine(&#34;{:&lt;7.3f} &#34;.format(currentTime))      # Start a new line in the control system evaluation log 
-                self.appendToControlSystemLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(pitchError, yawError, rollError))
+            if self.log is not None:
+                self.log.newLogRow(currentTime)
+                self.log.logValue(&#34;PitchError&#34;, pitchError)
+                self.log.logValue(&#34;YawError&#34;, yawError)
+                self.log.logValue(&#34;RollError&#34;, rollError)
+
+                if self.controlledSystem != None:
+                    for i in range(len(newActuatorPositionTargets)):
+                        targetDeflectionColumnName = &#34;Actuator_{}_TargetDeflection&#34;.format(i)
+                        self.log.logValue(targetDeflectionColumnName, newActuatorPositionTargets[i])
+
+                        deflectionColumnName = &#34;Actuator_{}_Deflection&#34;.format(i)
+                        currentDeflection = self.controlledSystem.actuatorController.actuatorList[i].getDeflection(currentTime)
+                        self.log.logValue(deflectionColumnName, currentDeflection)
 
             return newActuatorPositionTargets
         else:
             return False
 
-    def getLogHeader(self):
-        if self.controlledSystem != None:
-            headerStrings = [ &#34; Actuator_{}_TargetDeflection&#34;.format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
-            return &#34;&#34;.join(headerStrings)
-        else:
-            return &#34;&#34;
+    def writeLogsToFile(self, directory=&#34;.&#34;):
+        controlSystemPath = self.controlSystemDictReader.simDefDictPathToReadFrom.replace(&#34;.&#34;, &#34;_&#34;)
+        path = os.path.join(directory, &#34;{}_Log.csv&#34;.format(controlSystemPath))
+        self.log.writeToCSV(path)
 
-    def appendToControlSystemLogLine(self, txt: str):
-        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s controlSystemEvaluationLog &#39;&#39;&#39;
-        try:
-            self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim</code></pre>
+        return path</code></pre>
 </details>
 </section>
 <section>
@@ -263,10 +287,6 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             If the control system didn&#39;t run:
                 Should return False
         &#39;&#39;&#39;
-
-    @abc.abstractmethod
-    def getLogHeader(self):
-        &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;
 
     def calculateAngularError(self, currentOrientation, targetOrientation):
 
@@ -306,20 +326,6 @@ class RocketControlSystem(ControlSystem, SubDictReader):
     return pitchError, yawError, rollError</code></pre>
 </details>
 </dd>
-<dt id="MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader"><code class="name flex">
-<span>def <span class="ident">getLogHeader</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@abc.abstractmethod
-def getLogHeader(self):
-    &#39;&#39;&#39; Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired &#39;&#39;&#39;</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired"><code class="name flex">
 <span>def <span class="ident">runControlLoopIfRequired</span></span>(<span>self, currentTime, rocketState, environment)</span>
 </code></dt>
@@ -356,7 +362,7 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 </dd>
 <dt id="MAPLEAF.GNC.ControlSystems.RocketControlSystem"><code class="flex name class">
 <span>class <span class="ident">RocketControlSystem</span></span>
-<span>(</span><span>controlSystemDictReader, rocket, initTime=0)</span>
+<span>(</span><span>controlSystemDictReader, rocket, initTime=0, log=False, silent=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Simplest possible control system for a rocket</p></div>
@@ -367,11 +373,12 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 <pre><code class="python">class RocketControlSystem(ControlSystem, SubDictReader):
     &#39;&#39;&#39; Simplest possible control system for a rocket &#39;&#39;&#39;
 
-    def __init__(self, controlSystemDictReader, rocket, initTime=0):
+    def __init__(self, controlSystemDictReader, rocket, initTime=0, log=False, silent=False):
         self.rocket = rocket
         self.controlSystemDictReader = controlSystemDictReader
         self.lastControlLoopRunTime = initTime
         self.timeSteppingModified = False # set to True if the sim&#39;s time stepping has been constrained by the control system update rate (in self._checkSimTimeStepping)
+        self.silent = silent
 
         ### Create Navigator ###
         desiredFlightDirection = controlSystemDictReader.getVector(&#34;desiredFlightDirection&#34;)
@@ -422,6 +429,22 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 
         self._checkSimTimeStepping()
 
+        ### Set up logging if requested ###
+        if log:
+            self.log = Log()
+            self.log.addColumns([&#34;PitchError&#34;, &#34;YawError&#34;, &#34;RollError&#34;])
+            
+            if self.controlledSystem != None:
+                nActuators = len(self.controlledSystem.actuatorList)
+                targetDeflectionColumnNames = [ &#34;Actuator_{}_TargetDeflection&#34;.format(i) for i in range(nActuators) ]
+                self.log.addColumns(targetDeflectionColumnNames)
+
+                deflectionColumnNames = [ &#34;Actuator_{}_Deflection&#34;.format(i) for i in range(nActuators) ]
+                self.log.addColumns(deflectionColumnNames)
+
+        else:
+            self.log = None
+
     def _checkSimTimeStepping(self):
         # If the update rate is zero, control system is simply run once per time step
         if self.updateRate &gt; 0:
@@ -430,9 +453,10 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
             # Disable adaptive time stepping during the ascent portion of the flight (if it&#39;s enabled)
             timeDiscretization = self.controlSystemDictReader.getString(&#34;SimControl.timeDiscretization&#34;)
             if &#34;Adaptive&#34; in timeDiscretization:
-                print(&#34;Time stepping conflict between adaptive-time-stepping runge-kutta method and fixed control system update rate&#34;)
-                print(&#34;Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.&#34;)
-                print(&#34;Switching to RK4 time stepping&#34;)
+                if not self.silent:
+                    print(&#34;WARNING: Time stepping conflict between adaptive-time-stepping Runge-Kutta method and fixed control system update rate&#34;)
+                    print(&#34;Disabling adaptive time stepping for ascent portion of flight. Will re-enable if/when recovery system deploys.&#34;)
+                    print(&#34;Switching to RK4 time stepping&#34;)
                 self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=&#39;RK4&#39;)
                 self.timeSteppingModified = True
 
@@ -442,11 +466,12 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
             originalSimTimeStep = self.controlSystemDictReader.getFloat(&#34;SimControl.timeStep&#34;)
             self.originalSimTimeStep = originalSimTimeStep
             if controlTimeStep / originalSimTimeStep != round(controlTimeStep / originalSimTimeStep):
-                print(&#34;WARNING: Selected time step: {} does not divide the control system time step: {} Into an integer number of time steps.&#34;.format(originalSimTimeStep, controlTimeStep))
                 recommendedSimTimeStep = controlTimeStep / max(1, round(controlTimeStep / originalSimTimeStep))
-                
-                print(&#34;Adjusting time step to: {}&#34;.format(recommendedSimTimeStep))
-                print(&#34;&#34;)
+                if not self.silent:
+                    print(&#34;WARNING: Selected time step ({}) does not divide the control system time step ({}) Into an integer number of time steps.&#34;.format(originalSimTimeStep, controlTimeStep))
+                    print(&#34;Adjusting time step to: {}&#34;.format(recommendedSimTimeStep))
+                    print(&#34;&#34;)
+                    
                 # This relies on the SimRunner reading the time step size from the sim definition after intializing the rocket
                     # To make this more robust, have the rocket perform a timestep size check every single time step
                 self.controlSystemDictReader.simDefinition.setValue(&#34;SimControl.timeStep&#34;, str(recommendedSimTimeStep))
@@ -486,33 +511,39 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
                 # Apply it by actuating the controlled system
                 newActuatorPositionTargets = self.controlledSystem.actuatorController.setTargetActuatorDeflections(desiredMoments, rocketState, environment, currentTime)
             else:
+                # End up here if using the ideal moment controller, no actuators to control
+                    # Desired moments will be applied instantly without modeling the dynamics of the system that applies them
                 newActuatorPositionTargets = [0]
 
             self.lastControlLoopRunTime = currentTime
 
             pitchError, yawError, rollError = self.calculateAngularError(rocketState.orientation,targetOrientation)
 
-            if self.rocket.simRunner.loggingLevel &gt;= 4:
-                self.rocket.simRunner.newControlSystemLogLine(&#34;{:&lt;7.3f} &#34;.format(currentTime))      # Start a new line in the control system evaluation log 
-                self.appendToControlSystemLogLine(&#34; {:&gt;10.4f} {:&gt;10.8f} {:&gt;10.8f}&#34;.format(pitchError, yawError, rollError))
+            if self.log is not None:
+                self.log.newLogRow(currentTime)
+                self.log.logValue(&#34;PitchError&#34;, pitchError)
+                self.log.logValue(&#34;YawError&#34;, yawError)
+                self.log.logValue(&#34;RollError&#34;, rollError)
+
+                if self.controlledSystem != None:
+                    for i in range(len(newActuatorPositionTargets)):
+                        targetDeflectionColumnName = &#34;Actuator_{}_TargetDeflection&#34;.format(i)
+                        self.log.logValue(targetDeflectionColumnName, newActuatorPositionTargets[i])
+
+                        deflectionColumnName = &#34;Actuator_{}_Deflection&#34;.format(i)
+                        currentDeflection = self.controlledSystem.actuatorController.actuatorList[i].getDeflection(currentTime)
+                        self.log.logValue(deflectionColumnName, currentDeflection)
 
             return newActuatorPositionTargets
         else:
             return False
 
-    def getLogHeader(self):
-        if self.controlledSystem != None:
-            headerStrings = [ &#34; Actuator_{}_TargetDeflection&#34;.format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
-            return &#34;&#34;.join(headerStrings)
-        else:
-            return &#34;&#34;
+    def writeLogsToFile(self, directory=&#34;.&#34;):
+        controlSystemPath = self.controlSystemDictReader.simDefDictPathToReadFrom.replace(&#34;.&#34;, &#34;_&#34;)
+        path = os.path.join(directory, &#34;{}_Log.csv&#34;.format(controlSystemPath))
+        self.log.writeToCSV(path)
 
-    def appendToControlSystemLogLine(self, txt: str):
-        &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s controlSystemEvaluationLog &#39;&#39;&#39;
-        try:
-            self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim</code></pre>
+        return path</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -522,23 +553,6 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="MAPLEAF.GNC.ControlSystems.RocketControlSystem.appendToControlSystemLogLine"><code class="name flex">
-<span>def <span class="ident">appendToControlSystemLogLine</span></span>(<span>self, txt: str)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Appends txt to the current line of the parent <code>MAPLEAF.SimulationRunners.SingleSimRunner</code>'s controlSystemEvaluationLog</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def appendToControlSystemLogLine(self, txt: str):
-    &#39;&#39;&#39; Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`&#39;s controlSystemEvaluationLog &#39;&#39;&#39;
-    try:
-        self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
-    except AttributeError:
-        pass # Force logging not set up for this sim</code></pre>
-</details>
-</dd>
 <dt id="MAPLEAF.GNC.ControlSystems.RocketControlSystem.restoreOriginalTimeStepping"><code class="name flex">
 <span>def <span class="ident">restoreOriginalTimeStepping</span></span>(<span>self)</span>
 </code></dt>
@@ -566,12 +580,28 @@ def runControlLoopIfRequired(self, currentTime, rocketState, environment):
         self.rocket.rigidBody.integrate = integratorFactory(integrationMethod=originalTimeIntegrationMethod, simDefinition=self.controlDctReaders.simDefinition)</code></pre>
 </details>
 </dd>
+<dt id="MAPLEAF.GNC.ControlSystems.RocketControlSystem.writeLogsToFile"><code class="name flex">
+<span>def <span class="ident">writeLogsToFile</span></span>(<span>self, directory='.')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def writeLogsToFile(self, directory=&#34;.&#34;):
+    controlSystemPath = self.controlSystemDictReader.simDefDictPathToReadFrom.replace(&#34;.&#34;, &#34;_&#34;)
+    path = os.path.join(directory, &#34;{}_Log.csv&#34;.format(controlSystemPath))
+    self.log.writeToCSV(path)
+
+    return path</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></b></code>:
 <ul class="hlist">
-<li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader" href="#MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired" href="#MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired">runControlLoopIfRequired</a></code></li>
 </ul>
 </li>
@@ -608,15 +638,14 @@ MAPLEAF
 <h4><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem" href="#MAPLEAF.GNC.ControlSystems.ControlSystem">ControlSystem</a></code></h4>
 <ul class="">
 <li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.calculateAngularError" href="#MAPLEAF.GNC.ControlSystems.ControlSystem.calculateAngularError">calculateAngularError</a></code></li>
-<li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader" href="#MAPLEAF.GNC.ControlSystems.ControlSystem.getLogHeader">getLogHeader</a></code></li>
 <li><code><a title="MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired" href="#MAPLEAF.GNC.ControlSystems.ControlSystem.runControlLoopIfRequired">runControlLoopIfRequired</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem" href="#MAPLEAF.GNC.ControlSystems.RocketControlSystem">RocketControlSystem</a></code></h4>
 <ul class="">
-<li><code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem.appendToControlSystemLogLine" href="#MAPLEAF.GNC.ControlSystems.RocketControlSystem.appendToControlSystemLogLine">appendToControlSystemLogLine</a></code></li>
 <li><code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem.restoreOriginalTimeStepping" href="#MAPLEAF.GNC.ControlSystems.RocketControlSystem.restoreOriginalTimeStepping">restoreOriginalTimeStepping</a></code></li>
+<li><code><a title="MAPLEAF.GNC.ControlSystems.RocketControlSystem.writeLogsToFile" href="#MAPLEAF.GNC.ControlSystems.RocketControlSystem.writeLogsToFile">writeLogsToFile</a></code></li>
 </ul>
 </li>
 </ul>

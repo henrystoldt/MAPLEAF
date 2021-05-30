@@ -49,7 +49,7 @@ import os
 import matplotlib.pyplot as plt
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import Log, SubDictReader, TimeStepLog
+from MAPLEAF.IO import Log, Logging, SubDictReader, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
@@ -190,6 +190,7 @@ class Rocket(CompositeObject):
         &#39;&#39;&#39; Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2 &#39;&#39;&#39;
 
         loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+        self.loggingLevel = loggingLevel
 
         if loggingLevel &gt; 0:
             # Create the time step log and add columns to track the rocket state between each time step
@@ -251,7 +252,8 @@ class Rocket(CompositeObject):
         if ( rocketDictReader.tryGetString(&#34;ControlSystem.controlledSystem&#34;) != None or rocketDictReader.tryGetString(&#34;ControlSystem.MomentController.Type&#34;) == &#34;IdealMomentController&#34;) and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader(&#34;Rocket.ControlSystem&#34;, simDefinition=self.simDefinition)
-            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
+            controlSystemLogging = loggingLevel &gt; 3
+            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self, log=controlSystemLogging, silent=silent)
 
     def _getMaxBodyTubeDiameter(self):
         &#39;&#39;&#39; Gets max body tube diameter directly from config file &#39;&#39;&#39;
@@ -769,14 +771,27 @@ class Rocket(CompositeObject):
             rocketName = self.components[0].name # Rocket is named after its top stage
             path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
             
+            # Time step log
             if self.timeStepLog.writeToCSV(path):
                 logfilePaths.append(path)
 
+            # Derivative evaluation log
             if self.derivativeEvaluationLog is not None:
                 path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
                 
                 if self.derivativeEvaluationLog.writeToCSV(path):
                     logfilePaths.append(path)
+
+                    # Calculate aerodynamic coefficients if desired
+                    if self.loggingLevel &gt; 2:
+                        expandedLogPath = Logging.postProcessForceEvalLog(path, refArea=self.Aref, refLength=self.maxDiameter)
+                        logfilePaths.append(expandedLogPath)
+
+            # Control system log
+            if self.controlSystem != None:
+                if self.controlSystem.log != None:
+                    controlSystemLogPath = self.controlSystem.writeLogsToFile(directory)
+                    logfilePaths.append(controlSystemLogPath)
 
         return logfilePaths</code></pre>
 </details>
@@ -949,6 +964,7 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         &#39;&#39;&#39; Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level &lt; 2 &#39;&#39;&#39;
 
         loggingLevel = int(self.simDefinition.getValue(&#34;SimControl.loggingLevel&#34;))
+        self.loggingLevel = loggingLevel
 
         if loggingLevel &gt; 0:
             # Create the time step log and add columns to track the rocket state between each time step
@@ -1010,7 +1026,8 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
         if ( rocketDictReader.tryGetString(&#34;ControlSystem.controlledSystem&#34;) != None or rocketDictReader.tryGetString(&#34;ControlSystem.MomentController.Type&#34;) == &#34;IdealMomentController&#34;) and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader(&#34;Rocket.ControlSystem&#34;, simDefinition=self.simDefinition)
-            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
+            controlSystemLogging = loggingLevel &gt; 3
+            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self, log=controlSystemLogging, silent=silent)
 
     def _getMaxBodyTubeDiameter(self):
         &#39;&#39;&#39; Gets max body tube diameter directly from config file &#39;&#39;&#39;
@@ -1528,14 +1545,27 @@ This will return a Rocket initialized on the pad with all its stages, ready for 
             rocketName = self.components[0].name # Rocket is named after its top stage
             path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
             
+            # Time step log
             if self.timeStepLog.writeToCSV(path):
                 logfilePaths.append(path)
 
+            # Derivative evaluation log
             if self.derivativeEvaluationLog is not None:
                 path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
                 
                 if self.derivativeEvaluationLog.writeToCSV(path):
                     logfilePaths.append(path)
+
+                    # Calculate aerodynamic coefficients if desired
+                    if self.loggingLevel &gt; 2:
+                        expandedLogPath = Logging.postProcessForceEvalLog(path, refArea=self.Aref, refLength=self.maxDiameter)
+                        logfilePaths.append(expandedLogPath)
+
+            # Control system log
+            if self.controlSystem != None:
+                if self.controlSystem.log != None:
+                    controlSystemLogPath = self.controlSystem.writeLogsToFile(directory)
+                    logfilePaths.append(controlSystemLogPath)
 
         return logfilePaths</code></pre>
 </details>
@@ -1775,14 +1805,27 @@ Populated by <code>_initializeStages</code>.</p></div>
         rocketName = self.components[0].name # Rocket is named after its top stage
         path = os.path.join(directory, &#34;{}_timeStepLog.csv&#34;.format(rocketName))
         
+        # Time step log
         if self.timeStepLog.writeToCSV(path):
             logfilePaths.append(path)
 
+        # Derivative evaluation log
         if self.derivativeEvaluationLog is not None:
             path = os.path.join(directory, &#34;{}_derivativeEvaluationLog.csv&#34;.format(rocketName))  
             
             if self.derivativeEvaluationLog.writeToCSV(path):
                 logfilePaths.append(path)
+
+                # Calculate aerodynamic coefficients if desired
+                if self.loggingLevel &gt; 2:
+                    expandedLogPath = Logging.postProcessForceEvalLog(path, refArea=self.Aref, refLength=self.maxDiameter)
+                    logfilePaths.append(expandedLogPath)
+
+        # Control system log
+        if self.controlSystem != None:
+            if self.controlSystem.log != None:
+                controlSystemLogPath = self.controlSystem.writeLogsToFile(directory)
+                logfilePaths.append(controlSystemLogPath)
 
     return logfilePaths</code></pre>
 </details>
