@@ -33,11 +33,11 @@ def createNumpyArray(length):
     pyList = createPythonList(length)
     return np.array(pyList, dtype=np.float64)
 
-def createNumbaTypedList(length):
-    pyList = createPythonList(length)
-    typedList = List()
-    [ typedList.append(x) for x in pyList ]
-    return typedList
+# def createNumbaTypedList(length):
+#     pyList = createPythonList(length)
+#     typedList = List()
+#     [ typedList.append(x) for x in pyList ]
+#     return typedList
 
 def addFive_Python(array):
     return [ x+5.0 for x in array ]
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         import example
         #Functions to test are:
         example.addToList_Cpp # - (converts to std::vector and back)
-        example.addFive(nV1) # - (no conversion, loops in C++)
+        # example.addFive(nV1) # - (no conversion, loops in C++)
         example.vectorizedAddFive #- (C++ function wrapped with py::vectorize to work on an array)
 
     if testJuliaFunctions:
