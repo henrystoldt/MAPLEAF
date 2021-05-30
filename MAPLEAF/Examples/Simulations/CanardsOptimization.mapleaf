@@ -31,8 +31,8 @@ Optimization{
     }
 
     ParticleSwarm{
-        nParticles      10
-        nIterations     1
+        nParticles      4
+        nIterations     2
     }
 }
 

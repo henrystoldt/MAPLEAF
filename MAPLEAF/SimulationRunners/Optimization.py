@@ -196,7 +196,7 @@ class OptimizingSimRunner(ABC):
 
         caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
         print("Found the following cases:")
-        for case in caseDictNames:
+        for case in sorted(caseDictNames):
             print(case, file=sys.__stdout__)
 
             # Get sim definition file path
