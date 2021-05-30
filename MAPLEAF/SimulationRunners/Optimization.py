@@ -309,6 +309,10 @@ class OptimizingSimRunner(ABC):
             depValue = "".join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
+    @abstractmethod
+    def runOptimization(self):
+        ''' Child classes must implement this method, will vary depending on the optimizer used (ex. pyswarms, scipy.minimize) '''
+        pass
 
 def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, optimizationReader=None, silent=False, parallel=False) -> OptimizingSimRunner:
     ''' Provide a subdictionary reader pointed at an optimization dictionary. Will read the dictionary, initialize an optimizing simulation runner and return it. '''
