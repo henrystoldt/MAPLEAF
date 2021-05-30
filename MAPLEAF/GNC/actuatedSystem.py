@@ -66,5 +66,5 @@ class ActuatedSystem(abc.ABC):
 
     @abc.abstractmethod
     def initializeActuators(self, controlSystem):
-        ''' Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - function needs to determine and pass in nActuators  '''        
+        ''' Concrete implementations of this function should call ActuatedSystem.\_\_init\_\_(self, nActuators) - implementations of this function only need to determine and pass in nActuators  '''        
         pass

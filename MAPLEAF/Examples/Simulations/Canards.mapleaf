@@ -5,7 +5,7 @@ SimControl{
     timeDiscretization RK45Adaptive
     timeStep 0.02 #sec, CanardDeflections
     plot Position Velocity AngularVelocity Deflection&canardsFin FlightAnimation
-    loggingLevel 2
+    loggingLevel 4
 
     EndCondition Apogee
     EndConditionValue 0

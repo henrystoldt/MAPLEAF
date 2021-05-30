@@ -4,6 +4,7 @@ Control systems run a simulated control loops between simulation time steps, and
 '''
 
 import abc
+import os
 
 import numpy as np
 from MAPLEAF.GNC import (ConstantGainPIDRocketMomentController,
@@ -31,10 +32,6 @@ class ControlSystem(abc.ABC):
             If the control system didn't run:
                 Should return False
         '''
-
-    @abc.abstractmethod
-    def getLogHeader(self):
-        ''' Should return the headers (in order) for each of the actuator deflections in the list returned by self.runControlLoopIfRequired '''
 
     def calculateAngularError(self, currentOrientation, targetOrientation):
 
@@ -107,13 +104,18 @@ class RocketControlSystem(ControlSystem, SubDictReader):
         ### Set up logging if requested ###
         if log:
             self.log = Log()
-            self.log.addColumns("PitchError", "YawError", "RollError")
+            self.log.addColumns(["PitchError", "YawError", "RollError"])
             
-            columnNames = [ "Actuator_{}_TargetDeflection".format(i) for i in range(len(self.controlledSystem.actuatorList)) ]
-            self.log.addColumns(columnNames)
+            if self.controlledSystem != None:
+                nActuators = len(self.controlledSystem.actuatorList)
+                targetDeflectionColumnNames = [ "Actuator_{}_TargetDeflection".format(i) for i in range(nActuators) ]
+                self.log.addColumns(targetDeflectionColumnNames)
+
+                deflectionColumnNames = [ "Actuator_{}_Deflection".format(i) for i in range(nActuators) ]
+                self.log.addColumns(deflectionColumnNames)
+
         else:
             self.log = None
-
 
     def _checkSimTimeStepping(self):
         # If the update rate is zero, control system is simply run once per time step
@@ -181,6 +183,8 @@ class RocketControlSystem(ControlSystem, SubDictReader):
                 # Apply it by actuating the controlled system
                 newActuatorPositionTargets = self.controlledSystem.actuatorController.setTargetActuatorDeflections(desiredMoments, rocketState, environment, currentTime)
             else:
+                # End up here if using the ideal moment controller, no actuators to control
+                    # Desired moments will be applied instantly without modeling the dynamics of the system that applies them
                 newActuatorPositionTargets = [0]
 
             self.lastControlLoopRunTime = currentTime
@@ -193,18 +197,22 @@ class RocketControlSystem(ControlSystem, SubDictReader):
                 self.log.logValue("YawError", yawError)
                 self.log.logValue("RollError", rollError)
 
-                for i in range(len(newActuatorPositionTargets)):
-                    columnName = "Actuator_{}_TargetDeflection".format(i)
-                    self.log.logValue(columnName, newActuatorPositionTargets[i])
+                if self.controlledSystem != None:
+                    for i in range(len(newActuatorPositionTargets)):
+                        targetDeflectionColumnName = "Actuator_{}_TargetDeflection".format(i)
+                        self.log.logValue(targetDeflectionColumnName, newActuatorPositionTargets[i])
+
+                        deflectionColumnName = "Actuator_{}_Deflection".format(i)
+                        currentDeflection = self.controlledSystem.actuatorController.actuatorList[i].getDeflection(currentTime)
+                        self.log.logValue(deflectionColumnName, currentDeflection)
 
             return newActuatorPositionTargets
         else:
             return False
 
-    
-    def appendToControlSystemLogLine(self, txt: str):
-        ''' Appends txt to the current line of the parent `MAPLEAF.SimulationRunners.SingleSimRunner`'s controlSystemEvaluationLog '''
-        try:
-            self.rocket.simRunner.controlSystemEvaluationLog[-1] += txt
-        except AttributeError:
-            pass # Force logging not set up for this sim
+    def writeLogsToFile(self, directory="."):
+        controlSystemPath = self.controlSystemDictReader.simDefDictPathToReadFrom.replace(".", "_")
+        path = os.path.join(directory, "{}_Log.csv".format(controlSystemPath))
+        self.log.writeToCSV(path)
+
+        return path

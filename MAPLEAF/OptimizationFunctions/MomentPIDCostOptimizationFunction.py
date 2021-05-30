@@ -13,7 +13,7 @@ def OptimizationFunction(logFilesList):
 
     filePath = None
     for logFile in logFilesList:
-        if("controlSystemEvaluationLog" in logFile):
+        if ("ControlSystem_Log.csv" in logFile):
             filePath = logFile
             break
 

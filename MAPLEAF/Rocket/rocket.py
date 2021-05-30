@@ -12,7 +12,7 @@ import os
 import matplotlib.pyplot as plt
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import Log, SubDictReader, TimeStepLog
+from MAPLEAF.IO import Log, Logging, SubDictReader, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
@@ -153,6 +153,7 @@ class Rocket(CompositeObject):
         ''' Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level < 2 '''
 
         loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
+        self.loggingLevel = loggingLevel
 
         if loggingLevel > 0:
             # Create the time step log and add columns to track the rocket state between each time step
@@ -733,13 +734,26 @@ class Rocket(CompositeObject):
             rocketName = self.components[0].name # Rocket is named after its top stage
             path = os.path.join(directory, "{}_timeStepLog.csv".format(rocketName))
             
+            # Time step log
             if self.timeStepLog.writeToCSV(path):
                 logfilePaths.append(path)
 
+            # Derivative evaluation log
             if self.derivativeEvaluationLog is not None:
                 path = os.path.join(directory, "{}_derivativeEvaluationLog.csv".format(rocketName))  
                 
                 if self.derivativeEvaluationLog.writeToCSV(path):
                     logfilePaths.append(path)
+
+                    # Calculate aerodynamic coefficients if desired
+                    if self.loggingLevel > 2:
+                        expandedLogPath = Logging.postProcessForceEvalLog(path, refArea=self.Aref, refLength=self.maxDiameter)
+                        logfilePaths.append(expandedLogPath)
+
+            # Control system log
+            if self.controlSystem != None:
+                if self.controlSystem.log != None:
+                    controlSystemLogPath = self.controlSystem.writeLogsToFile(directory)
+                    logfilePaths.append(controlSystemLogPath)
 
         return logfilePaths
