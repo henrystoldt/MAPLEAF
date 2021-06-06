@@ -32,13 +32,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#39;&#39;&#39;
-Classes and functions for creating simulation logs for regular simulations (Logger) and Monte Carlo simulations (MonteCarloLogger)
+    Classes and functions for creating simulation logs for regular simulations (Logger) and Monte Carlo simulations (MonteCarloLogger)
 &#39;&#39;&#39;
 
 import os
 import sys
-import csv
-from bisect import bisect_left
+
+from functools import lru_cache
+import MAPLEAF
 
 # TODO: When logging, keep track of messages containing &#39;error&#39; or &#39;warning&#39; -&gt; reprint those at the end of the simulation?
 
@@ -138,24 +139,39 @@ def findNextAvailableNumberedFileName(fileBaseName=&#34;monteCarloLog&#34;, exte
 
     return filePath
 
+@lru_cache(maxsize=1)
+def inRepository():
+    currentDirectory = os.path.dirname(__file__)
+    if &#34;.git&#34; in os.listdir(currentDirectory):
+        return True
+    
+    return False
+
+@lru_cache(maxsize=1)
 def getSystemInfo(printToConsole=False):
     &#39;&#39;&#39; Returns string array containing info about github status, machine type, date, etc... &#39;&#39;&#39;
     
     from datetime import datetime
-    from subprocess import check_output
+    from subprocess import check_output, CalledProcessError
     from platform import platform
     from os import getlogin
     
     result = []
 
-    try:
-        # Add current git status
-        currentDirectory = os.path.dirname(__file__)
-        currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
-        currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
-        result.append(&#34;# MAPLEAF, branch: {}, latest commit: {}&#34;.format(currentBranch, currentCommit))
-    except:
-        result.append(&#34;# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads&#34;)
+    # Add version number
+    result.append(&#34;# MAPLEAF v{}&#34;.format(MAPLEAF.__version__))
+    
+    # Check whether running in a repository (installed from source) or not (installed from pypi)
+    if inRepository():
+        try:
+            # Add current git status
+            currentDirectory = os.path.dirname(__file__)
+            currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
+            currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
+            result.append(&#34;# MAPLEAF, branch: {}, latest commit: {}&#34;.format(currentBranch, currentCommit))
+
+        except CalledProcessError:
+            result.append(&#34;# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads&#34;)
     
     # Add date/time
     now = datetime.now().strftime(&#34;%d/%m/%Y %H:%M:%S&#34;)
@@ -374,24 +390,31 @@ Returns a string of the form fileBaseName + Number + extension</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getSystemInfo(printToConsole=False):
+<pre><code class="python">@lru_cache(maxsize=1)
+def getSystemInfo(printToConsole=False):
     &#39;&#39;&#39; Returns string array containing info about github status, machine type, date, etc... &#39;&#39;&#39;
     
     from datetime import datetime
-    from subprocess import check_output
+    from subprocess import check_output, CalledProcessError
     from platform import platform
     from os import getlogin
     
     result = []
 
-    try:
-        # Add current git status
-        currentDirectory = os.path.dirname(__file__)
-        currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
-        currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
-        result.append(&#34;# MAPLEAF, branch: {}, latest commit: {}&#34;.format(currentBranch, currentCommit))
-    except:
-        result.append(&#34;# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads&#34;)
+    # Add version number
+    result.append(&#34;# MAPLEAF v{}&#34;.format(MAPLEAF.__version__))
+    
+    # Check whether running in a repository (installed from source) or not (installed from pypi)
+    if inRepository():
+        try:
+            # Add current git status
+            currentDirectory = os.path.dirname(__file__)
+            currentCommit = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
+            currentBranch = check_output([&#39;git&#39;, &#39;rev-parse&#39;, &#39;--abbrev-ref&#39;, &#39;HEAD&#39;], cwd=currentDirectory).decode()[:-1]
+            result.append(&#34;# MAPLEAF, branch: {}, latest commit: {}&#34;.format(currentBranch, currentCommit))
+
+        except CalledProcessError:
+            result.append(&#34;# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads&#34;)
     
     # Add date/time
     now = datetime.now().strftime(&#34;%d/%m/%Y %H:%M:%S&#34;)
@@ -412,6 +435,24 @@ Returns a string of the form fileBaseName + Number + extension</p></div>
             print(line)
 
     return result</code></pre>
+</details>
+</dd>
+<dt id="MAPLEAF.IO.Logging.inRepository"><code class="name flex">
+<span>def <span class="ident">inRepository</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@lru_cache(maxsize=1)
+def inRepository():
+    currentDirectory = os.path.dirname(__file__)
+    if &#34;.git&#34; in os.listdir(currentDirectory):
+        return True
+    
+    return False</code></pre>
 </details>
 </dd>
 <dt id="MAPLEAF.IO.Logging.postProcessForceEvalLog"><code class="name flex">
@@ -820,6 +861,7 @@ MAPLEAF
 <li><code><a title="MAPLEAF.IO.Logging.findNextAvailableNumberedFileName" href="#MAPLEAF.IO.Logging.findNextAvailableNumberedFileName">findNextAvailableNumberedFileName</a></code></li>
 <li><code><a title="MAPLEAF.IO.Logging.getSimDefinitionAndDefaultValueDictsForOutput" href="#MAPLEAF.IO.Logging.getSimDefinitionAndDefaultValueDictsForOutput">getSimDefinitionAndDefaultValueDictsForOutput</a></code></li>
 <li><code><a title="MAPLEAF.IO.Logging.getSystemInfo" href="#MAPLEAF.IO.Logging.getSystemInfo">getSystemInfo</a></code></li>
+<li><code><a title="MAPLEAF.IO.Logging.inRepository" href="#MAPLEAF.IO.Logging.inRepository">inRepository</a></code></li>
 <li><code><a title="MAPLEAF.IO.Logging.postProcessForceEvalLog" href="#MAPLEAF.IO.Logging.postProcessForceEvalLog">postProcessForceEvalLog</a></code></li>
 <li><code><a title="MAPLEAF.IO.Logging.removeLogger" href="#MAPLEAF.IO.Logging.removeLogger">removeLogger</a></code></li>
 </ul>

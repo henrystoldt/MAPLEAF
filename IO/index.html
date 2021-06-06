@@ -147,9 +147,9 @@ Returns original relativePath if an absolute path is not found</p></div>
                 return str(absolutePath)
                 
     if not silent:
-        print(&#34;WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}&#34;.format(relativePath))
+        print(&#34;WARNING: Unable to compute absolute path replacement for: {}, try providing an absolute path&#34;.format(relativePath))
         
-    return relativePath</code></pre>
+    return str(relativePath)</code></pre>
 </details>
 </dd>
 </dl>

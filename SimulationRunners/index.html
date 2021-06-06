@@ -1334,7 +1334,7 @@ matplotlib Axes, Wall Time (Y) axis (2nd Y-axis)</p></div>
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+            rocket._logState()
 
             # Move on to next (dropped) stage
             stageIndex += 1
@@ -1832,7 +1832,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
             endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
         
         # Log last state (would be the starting state of the next time step)
-        rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+        rocket._logState()
 
         # Move on to next (dropped) stage
         stageIndex += 1

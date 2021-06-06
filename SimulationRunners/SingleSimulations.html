@@ -30,8 +30,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import math
-import os
+<pre><code class="python">import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
@@ -172,7 +171,7 @@ class Simulation():
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+            rocket._logState()
 
             # Move on to next (dropped) stage
             stageIndex += 1
@@ -718,7 +717,7 @@ class WindTunnelSimulation(Simulation):
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+            rocket._logState()
 
             # Move on to next (dropped) stage
             stageIndex += 1
@@ -1216,7 +1215,7 @@ Returns an instance of Rocket with it's Environment/Logs initialized. Can be cal
             endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
         
         # Log last state (would be the starting state of the next time step)
-        rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+        rocket._logState()
 
         # Move on to next (dropped) stage
         stageIndex += 1
