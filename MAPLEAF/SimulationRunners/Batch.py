@@ -8,13 +8,14 @@ import sys
 import time
 from distutils.util import strtobool
 from math import isnan
+from pathlib import Path
 from statistics import mean
-from typing import Union, List
+from typing import List, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 from MAPLEAF.IO import (Logging, Plotting, SimDefinition, SubDictReader,
-                        gridConvergenceFunctions)
+                        getAbsoluteFilePath, gridConvergenceFunctions)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Motion.Interpolation import linInterp
 from MAPLEAF.SimulationRunners import Simulation, WindTunnelSimulation
@@ -609,6 +610,21 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
     saveFileName = os.path.basename(saveFilePath)
     overwrite = plotDictReader.tryGetBool("overwrite", defaultValue=True)
 
+    if not os.path.exists(saveDirectory):
+        # Check if path is relative to maple leaf installation
+            # Occurs with default batch simulation files
+        installationPath = Path(__file__).parent.parent.parent
+        absolutePath = installationPath / Path(saveDirectory)
+        if absolutePath.exists():
+            saveDirectory = str(absolutePath)
+
+        # Otherwise create the desired directory
+        else:
+            try:
+                os.mkdir(saveDirectory)
+            except FileNotFoundError:
+                os.mkdir("./" + saveDirectory)
+
     # Save plot
     savedFiles = gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=True, printStatementPrefix="  ")
     plt.close(fig) # Close figure to avoid keeping them all in memory (Matplotlib gives warning about this - thank you Matplotlib developers!)
@@ -690,7 +706,15 @@ def _plotComparisonData(batchRun: BatchRun, ax, compDataDictReader):
 
     # If comparison data entries found in the plot dictionary, load and plot the comparison data
     if compDataPath != None and len(compColumnSpecs) > 0:
-        # Plot comparison data columns
+        ## Try to locate the file if it's not found immediately ##
+        if not os.path.exists(compDataPath):
+            compDataPath2 = getAbsoluteFilePath(compDataPath)
+            
+            # If file has been found, replace the original path
+            if os.path.exists(compDataPath2):
+                compDataPath = compDataPath2
+
+        ## Plot comparison data columns ##
         if xColumnName not in compColumnSpecs:
             compColumnSpecs.append(xColumnName)
 
