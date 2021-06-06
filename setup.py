@@ -6,7 +6,9 @@ from Cython.Build import cythonize
 from pkg_resources import parse_requirements
 from setuptools import Extension, setup
 
-MAPLEAFVersion = "0.8.14"
+import MAPLEAF
+
+MAPLEAFVersion = MAPLEAF.__version__
 
 def tryInstallingPackage(packageName: str, errorMessage: str, install_reqs):
     ''' Function used to handle 'nice-to-have', but not required packages '''
