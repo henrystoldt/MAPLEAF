@@ -22,6 +22,9 @@ include MAPLEAF/Rocket/*.pyx*
 include MAPLEAF/Examples/Wind/*
 include MAPLEAF/Examples/Simulations/*.mapleaf*
 include MAPLEAF/Examples/BatchSims/*.mapleaf*
+include MAPLEAF/Examples/V&V/*.csv
+include MAPLEAF/Examples/V&V/*/*.csv
+include MAPLEAF/Examples/V&V/*/*/*.csv
 include MAPLEAF/Examples/Motors/*
 include MAPLEAF/Examples/TabulatedData/*
 include MAPLEAF/ENV/*.txt*

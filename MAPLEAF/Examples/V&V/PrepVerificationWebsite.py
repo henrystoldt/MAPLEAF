@@ -1,6 +1,6 @@
 """
     This file generates python modules in ./MAPLEAF/V&V which will be turned into verification and validation website by pdoc3 every time the documentation is built
-    One module/webpage is generated per folder in ./test/V&V/. All .pdf files in the folders are displayed on the page.
+    One module/webpage is generated per folder in ./MAPLEAF/Examples/V&V/. All .pdf files in the folders are displayed on the page.
 """
 import os
 from pathlib import Path
@@ -28,11 +28,12 @@ sys.stdout = Logger(resultSummary)
 batchRun.printResult()
 removeLogger()
 
-# Create the verification and validation folder, make it a python module
+# Create the verification and validation folder, make it a python module (so it gets included in the code documentation)
 MAPLEAFPath = Path(__file__).parent.parent.parent.absolute()
 fakeModuleDirectory = MAPLEAFPath / 'MAPLEAF' / 'V&V'
-regressionTestingDirectory = MAPLEAFPath / 'test' / 'V&V'
+regressionTestingDirectory = MAPLEAFPath / 'MAPLEAF' / 'Examples' / 'V&V'
 
+# Create __init__.py from template
 os.mkdir(fakeModuleDirectory)
 with open(regressionTestingDirectory / '__init__.py', "r") as f:
     templateText = f.read()
@@ -42,8 +43,7 @@ with open(fakeModuleDirectory / "__init__.py", "w+") as f:
     text = templateText.replace('{INSERT RESULTS HERE}', '\n\n## Console Output:  ' + indentedSummary)
     f.write(text)
 
-
-# Create all of the submodules, one for each case
+# Create submodules, one for each case
 for caseResult in batchRun.casesRun:    
     newFolderPath = fakeModuleDirectory / caseResult.name
     os.mkdir(newFolderPath)

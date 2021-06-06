@@ -620,10 +620,7 @@ def _generatePlot(batchRun: BatchRun, plotDictReader: SubDictReader, logFilePath
 
         # Otherwise create the desired directory
         else:
-            try:
-                os.mkdir(saveDirectory)
-            except FileNotFoundError:
-                os.mkdir("./" + saveDirectory)
+            Path(saveDirectory).mkdir(parents=True, exist_ok=True)
 
     # Save plot
     savedFiles = gridConvergenceFunctions.saveFigureAndPrintNotification(saveFileName, fig, saveDirectory, overwrite=overwrite, epsVersion=False, pngVersion=True, printStatementPrefix="  ")

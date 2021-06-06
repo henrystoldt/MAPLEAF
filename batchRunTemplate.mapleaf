@@ -27,7 +27,7 @@ ExampleFlightCase{
         SamplePlot{
             # Generate a plot of MAPLEAF's results + comparison data            
             columnsToPlot               PositionZ ^VelocityZ # Full/partial log column names and/or regex
-            saveLocation                ./test/V&V/SamplePlot.pdf # Always saves .pdf plots
+            saveLocation                ./MAPLEAF/Examples/V&V/SamplePlot.pdf # Always saves .pdf plots
 
             xColumnName                 Time(s)             # (Optional) specify which column will be plotted on the x-axis (default is Time(s))
             lineFormat					:b :k               # (Optional) matplotlib-style line format
@@ -46,7 +46,7 @@ ExampleFlightCase{
             flightComparisonData{ # (Optional)
                 # Comparison data file should be a simple .csv table
                     # First row should have headers, each subsequent row should have scalar numeric entries
-                file                    ./test/V&V/sampleComparisonData.csv         
+                file                    ./MAPLEAF/Examples/V&V/sampleComparisonData.csv         
                 
                 columnsToPlot           posZ velZ               # Full/partial .csv column names and/or regex
 
