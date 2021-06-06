@@ -5,7 +5,7 @@
 import os
 import sys
 
-from MAPLEAF.Utilities import cacheLastResult
+from functools import lru_cache
 import MAPLEAF
 
 # TODO: When logging, keep track of messages containing 'error' or 'warning' -> reprint those at the end of the simulation?
@@ -106,7 +106,7 @@ def findNextAvailableNumberedFileName(fileBaseName="monteCarloLog", extension=".
 
     return filePath
 
-@cacheLastResult
+@lru_cache(maxsize=1)
 def inRepository():
     currentDirectory = os.path.dirname(__file__)
     if ".git" in os.listdir(currentDirectory):
@@ -114,7 +114,7 @@ def inRepository():
     
     return False
 
-@cacheLastResult
+@lru_cache(maxsize=1)
 def getSystemInfo(printToConsole=False):
     ''' Returns string array containing info about github status, machine type, date, etc... '''
     
