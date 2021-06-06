@@ -1,0 +1,42 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+SimControl{
+    timeDiscretization RK45Adaptive
+    timeStep 0.001133 #sec
+
+    TimeStepAdaptation{
+        controller PID
+        targetError         0.005
+    }
+
+    EndCondition Time
+    EndConditionValue 10
+
+    plot FlightAnimation AngularVelocity Orientation
+    loggingLevel 2
+}
+
+Environment{
+    LaunchSite.elevation 755 #m, ASL
+
+    EarthModel          None
+}
+
+Rocket{
+    position            (0 0 0) # m
+    angularVelocity     (1 0 1) #rad/s
+
+    Stage1{
+        class           Stage  
+
+        Mass{
+            class           Mass
+            mass            1
+            position        (0 0 0)
+            cg              (0 0 0)
+            MOI             (2 2 8)
+        }
+    }
+}

@@ -1,0 +1,90 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+SimControl{
+    timeDiscretization Euler
+    timeStep 0.01 # sec
+    
+    plot FlightAnimation
+    loggingLevel 0
+
+    EndCondition Apogee
+}
+
+Rocket{
+    
+    # Initial state
+    position            (0 0 10) # m
+    velocity            (0 0 40) #m/s
+    angularVelocity     (0 0 1) #rad/s
+
+    Sustainer{
+        class           Stage
+
+        Nosecone{
+            class           Nosecone
+            mass            20.0
+            position        (0 0 0)
+            cg              (0 0 -0.2)
+            baseDiameter    0.1524
+            aspectRatio     5
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            5 
+            position        (0 0 -0.762)
+            cg              (0 0 -1)
+            outerDiameter   0.1524
+            length          3.81
+
+            surfaceRoughness    0.000050
+        }
+
+        Canards{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -0.8636)
+            cg              (0 0 -0.8636)
+            numFins         4
+            sweepAngle      30 # deg
+            rootChord       0.1524 # m
+            tipChord        0.0762 # m
+            span            0.0635 # m
+ 
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            5
+            position        (0 0 -2.762)
+            cg              (0 0 -2.762)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test2.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -4.2672)
+            cg              (0 0 -4.2762)
+            
+            numFins         4
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+    }
+}

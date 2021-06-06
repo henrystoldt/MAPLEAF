@@ -1,0 +1,8 @@
+BurnedOxidizerInitialCG   0
+BurnedOxidizerLastCG      0
+BurnedFuelInitialCG       0
+BurnedFuelLastCG          0
+
+#Time(s)   Thrust(N)   OxidizerFlowRate(kg/s)  FuelBurnRate(kg/s)
+0       0       0       0 (0 0 0) (0 0 0)
+1       0       0       0 (0 0 0) (0 0 0)

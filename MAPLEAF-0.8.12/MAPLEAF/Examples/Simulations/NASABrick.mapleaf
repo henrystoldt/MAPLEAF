@@ -1,0 +1,54 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+SimControl{
+    timeDiscretization      RK4
+    timeStep                0.1
+
+    EndCondition Time
+    EndConditionValue 30 # sec
+
+    loggingLevel 2
+
+    plot FlightAnimation AeroM
+}
+
+Environment{
+    LaunchSite{
+        elevation       9144 # m (30 000 ft)
+        latitude        0
+        longitude       0
+    }
+
+    EarthModel          WGS84
+}
+
+Rocket{
+    position            (0 0 0) # meters
+    rotationAxis        (1 1 0)
+    rotationAngle       180
+    angularVelocity     (0.17446007885 0.349066 0.523599) # (10, 20, 30) deg/s in inertial frame
+
+    Stage{
+        class               Stage
+
+        Mass{
+            class           Mass
+            mass            2.2679619056149 # kg (= 0.155404754 slug)
+            position        (0 0 0)
+            MOI             (0.00256821747 0.00842101104 0.00975465594) # kg*m^2 (0.00189422, 0.006211019, 0.007194665) slug*ft^2)
+        }
+
+        AeroDamping{
+            class           AeroDamping
+            
+            Aref            0.02064491355 # m^2 = 0.22222ft^2 Reference area for all coefficients
+            Lref            0.101598984 # m = 0.66667 ft
+
+            # Apply damping proportional to speed in each rotation axis
+            xDampingCoeffs      (-1  0  0)
+            yDampingCoeffs      ( 0 -4  0) # Adjusted from 1.0 to 4.0 because the y damping coefficient uses twice the reference length (0.6666 ft vs 0.3333 ft) as the others
+            zDampingCoeffs      ( 0  0 -1)
+        }
+    }
+}

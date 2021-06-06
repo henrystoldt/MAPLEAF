@@ -1,0 +1,89 @@
+# MAPLEAF
+
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.01 #sec
+
+    EndCondition Apogee
+    EndConditionValue 0
+
+    loggingLevel    2
+    RocketPlot      On
+
+    plot Position Velocity AngularVelocity FlightAnimation TailFinsM TailFinsF
+}
+
+Environment{
+    LaunchSite.elevation 0 #m, ASL
+
+    AtmosphericPropertiesModel          USStandardAtmosphere
+
+    MeanWindModel                       Constant
+
+    ConstantMeanWind{
+        velocity                    ( 2 0 0 ) #m/s
+    }
+
+    TurbulenceModel None
+}
+
+Rocket{         
+
+    position            (0 0 0) # m
+
+    Sustainer{
+        class               Stage
+
+        Nosecone{            
+            class           Nosecone
+            mass            0.218
+            position        (0 0 0)
+            cg              (0 0 -0.269)
+            baseDiameter    0.102
+            aspectRatio     3.3333
+            shape           tangentOgive
+
+            surfaceRoughness    0.000060
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            2.225 
+            position        (0 0 -0.34)
+            cg              (0 0 -0.775)
+            
+            outerDiameter   0.102
+            length          1.55
+
+            surfaceRoughness    0.000060
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            0.871
+            position        (0 0 -1.583)
+            cg              (0 0 0)
+            MOI             (0.027522 0.027522 0.00031747)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/J115.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            0.107 # kg
+            position        (0 0 -1.605)
+            cg              (0 0 -0.165)
+
+            numFins         3
+            sweepAngle      58.5704 # deg
+            rootChord       0.285 # m
+            tipChord        0.055 # m
+            span            0.11 # m
+            thickness       0.003 # m
+            surfaceRoughness    0.000060
+        }
+    }
+}

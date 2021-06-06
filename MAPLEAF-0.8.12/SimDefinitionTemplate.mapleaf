@@ -1,0 +1,706 @@
+# MAPLEAF
+#### .mapleaf File Format ####
+    # All dictionary defining names (i.e Sustainer, Nosecone) must be unique in their parent dictionary. 
+        # Dictionaries are delimited by braces {
+    # keys must not contain spaces
+        # Everything after the first whitespace in a key-value line becomes the value
+
+  #### Working with sim definition files ####
+  # Recommend viewing/editing these dictionary files programmatically (using the MAPLEAF.IO.SimDefinition class) or in VS Code with the MAPLEAF extension installed
+    # Use "code-folding" to maintain an overview of the files: (https://code.visualstudio.com/docs/editor/codebasics#_folding
+    # To edit programmatically, use the SimDefinition class to parse the file, edit the values (SimDefinition.setValue(key, value)), and write the result to file (SimDefinition.writeToFile())
+
+  #### Default Values ####
+  # If a value is omitted from the simulation definition file, the simulator will attempt to retrieve it from the
+      # "defaultConfigValues" dictionary in SimDefinition.py
+      # In the large majority of cases, default settings (when present) match those in this file
+
+  #### Derived Dictionaries ####
+  # In .mapleaf files, new dictionaries can be defined as modifications of previously-defined ones, 
+    # using the syntax defined in ./test/test_IO/testDerivedDicts.mapleaf
+    # Meaning of ./test/test_IO/testDerivedDicts.mapleaf is equivalent to that of ./test/test_IO/testDerivedDictsFinal.mapleaf
+
+#### Coordinate Systems: #### 
+    # Depending on the value of Environment.EarthModel, motion integration can happen in different global (always inertial) frames.
+        # In the code, whichever frame is the one in which motion is integrated is referred to as the 'global inertial frame'
+    # Global Inertial Frame by Earth Model:
+        # No Earth:     Launch Tower
+        # Flat Earth:   Launch Tower
+        # Round Earth:  Earth-Centered Inertial
+        # WGS84 Earth:  Earth-Centered Inertial
+
+    # Earth-Centered Inertial:
+        # For Round Earth / WGS84 simulations, motion integration happens in this frame
+            # Coordinates given in lat/lon/elevation and/or in the launch tower frame are converted to this frame before starting a simulation
+            # Frame does not rotate with the earth
+        # (0 0 0) is earth's center of mass
+        # Z: Earth's rotational axis, goes through north pole
+        # X: At time=0, aligned with the prime meridian, on the equator.
+            # Because the earth rotates in the WGS84 model, after time=0, the prime meridian will no longer x-axis
+        # Y: Remains 90 degrees separated from X and Z axes in such a way as to create a right-handed coordinate system, also on equator
+
+    # East North Up (ENU):
+        # Similar to the launch tower frame, but translates with the vehicle, origin is at sea level, axes are North, East, Up.
+            # Wind calculations performed in this frame
+        # (0 0 0) is at sea level, coincident with the line normal to the ground that passes through the vehicle's CG
+        # Z: Up
+        # X: East
+        # Y: North
+
+    # Launch Tower ENU:
+        # Rocket's initial position/direction are always defined in this frame, fixed to the launch tower
+            # For flat-earth simulations, motion integration is conducted in this frame
+        # (0 0 0) is ground level, at launch tower location (if Rocket.position parameter below is set to (0 0 X) m )
+        # Z: Up
+        # X: East
+        # Y: North
+
+    # Local (Rocket):
+        # Rocket Component forces calculated in this frame, rotates with the rocket
+        # (0 0 0) is the nosecone tip (assuming Rocket.TopStage.Nosecone.position == (0,0,0) )
+        # Z: Longitudinal axis, +'ve goes ahead of rocket, -'ve goes through rocket body, out the rear
+        # X: Radial axis 1
+        # Y: Radial axis 2
+
+#### Units ####
+    # Unless stated otherwise, all units are SI:
+        # Position/length:      m
+        # Time:                 s
+        # Velocity:             m/s
+        # Acceleration:         m/s^2
+        # Angle:                deg (user-facing), rad (in code)
+        # Angular Velocity:     rad/s
+        # Mass:                 kg
+        # Moment of Inertia     kg*m^2
+        # Pressure:             Pa
+        # Viscosity:            Pa*s
+        # Density:              kg/m^3
+
+#### All possible options to define simulations ####
+
+Optimization{
+    ### Specify Optimization runs ###
+        # The 'MonteCarlo' dictionary is disregarded when this one is present (no batch runs to calculate cost function)
+        # However, if any parameters with _stdDev entries are present, their values are still sampled probabilistically each time the Optimizer runs a simulation
+    
+    # Either:
+        # PSO: (default) Uses Particle Swarm Optimization (https://github.com/ljvmiranda921/pyswarms)
+            # Global optimization suitable for arbitrary cost functions in search spaces of arbitrary dimensionality
+                # Makes no guarantee of finding optimal solutions
+                # Does not compute the gradient of the cost function
+                # Alternative to genetic algorithms
+                # More information about particle swarm optimization: https://en.wikipedia.org/wiki/Particle_swarm_optimization
+        # OR Scipy's minimize function: scipy.optimize.minimize [method name] 
+            # Many of these methods are gradient-based, suitable for local optimization or global optimization with unipolar cost functions
+            # Ex: scipy.optimize.minimize BFGS          would use: https://docs.scipy.org/doc/scipy/reference/optimize.minimize-bfgs.html
+            # More options here: https://docs.scipy.org/doc/scipy/reference/optimize.html
+                # Can't use the methods that require analytical jacobians (ex. Newton-CG, trust-ncg, dogleg, trust-exact, trust-krylov)
+            # These methods do not respect bounds and simply seek to minimize the cost function
+            # Initial position/guess will be at the center of the search space defined by the independent variable bounds
+    method PSO        
+    
+    # Either:
+        # A Python function, of these variables:
+                # flightTime, apogee, maxSpeed, maxHorizontalVel #TODO: dryWeight, takeoffWeight
+                # can also use any math function
+            # costFunction                      0.5*(apogee-1e5) + 0.5*math.sqrt(dryWeight)
+        # OR a custom function, which gets passed a list of log file paths (str)
+            # Number and type of log file paths received depends on SimControl.loggingLevel
+            # costFunction                      [PathToModule]:[FunctionName]
+                # Function must be importable by running: from [PathToModule] import [FunctionName] in a Python console
+    costFunction                                MAPLEAF.MyCustomCodeFile:MyCustomCostFunction
+    
+    IndependentVariables{
+        # Define all the variables that the Optimizer is free to change (Must be scalar parameters in this Sim Definition file)
+        # paramName                             Min Value   <       Path.To.Parameter             < Max Value
+        bodyLength                              0           < Rocket.SecondStage.BodyTube.length  < 10
+        
+        InitialParticlePositions{ 
+            ### ONLY FOR METHOD==PSO ###
+            # (Optional) - initial positions randomly generated if not present
+            # Specify <= Optimization.ParticleSwarm.nParticles initial particle positions
+            # Each subdictionary created here represents one particle
+            # If < nParticles initial positions are specified, the remaining ones will be randomly generated
+
+            Init1{
+                # Dictionary names are arbitrary
+                # Order of variables within dictionaries also does not matter
+                # Omitted values will be randomly generated
+                bodyLength                      2
+            }
+
+            # Mainly for restart/continue files: Can specify the best position + cost found so far
+                # Particles will be attracted to this location
+                # Must define both bestPosition and bestCost or neither
+            bestPosition                        0.1330823 # Value should be space-separated when there are multiple independent variables (x1 x2 x3...)
+            bestCost                            0.1301609 # Should be a single scalar value, expected to match result from bestPosition
+        }
+    }
+    
+    DependentVariables{ # (Optional)
+        # Define values of variables that are functions of the independent variables
+        # Delimit computations with exclamation marks
+        # Can use any math function, and the names of independent variables
+        Rocket.SecondStage.BoatTail.length      !sqrt(bodyLength*0.01)! # For bodyLength = 1, this = '0.1'
+        Rocket.SecondStage.BoatTail.position    (0 0 !-2.75 + bodyLength - 3.5538!) # For bodyLength = 3.5538, this = '(0 0 -2.75)'
+    }
+
+    ParticleSwarm{
+        # Only used when method = PSO
+        # More info:  https://pyswarms.readthedocs.io/en/latest/api/pyswarms.single.html#module-pyswarms.single.global_best
+        nParticles                              20
+        nIterations                             50
+
+        cognitiveParam                          0.5 # aka c1        
+        socialParam                             0.6 # aka c2        
+        inertiaParam                            0.9 # aka w
+    }
+
+    ScipyMinimize{
+        # Only used when method = scipy.optimize.minimize [method name]
+        # Provides arguments to the minimization function, more details here: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize
+        tolerance                               0.01 # Ends optimization
+        maxIterations                           50 # Also ends optimization
+        printStatus                             True # Print convergence messages
+    }
+
+    showConvergencePlot                         True
+
+    InnerOptimization{
+        # Same structure as main Optimization. Defines inner optimization which will run inside every cost function evaluation of the outer optimization.
+        # Can nest further inner optimizations inside this one, arbitrarily deeply
+    }
+}
+
+MonteCarlo{
+    ### Make MAPLEAF run a probabilistic simulation several times in a row, and output a summary of results ###
+    randomSeed      458623 # (optional) for repeatability
+    numberRuns      10
+    
+    # None, landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flightPaths - specify one or more
+    # Summary of these result(s) will be plotted and outputted to the console after the run.
+        # Flight paths will only be plotted. Retrieve these from individual simulation logs if desired.
+    output          landingLocations apogees maxSpeeds
+
+    # Normal distribution sampling works for any scalar or vector values present in simulation definition files
+    # If there's a 'parameter' you'd like to make normally distributed, specify 'parameter_stdDev' and it will be sampled from a normal distribution
+        # where the value of 'parameter' is the mean, and the value of  'parameter_stdDev' is the standard deviation
+        # for a vector value, specify a corresponding vector standard deviations
+}
+
+SimControl{
+    ### Controls termination conditions, outputs, and time discretization ###
+
+    # Control simulation termination condition for main rocket (top stage)
+    EndCondition            Altitude # Altitude, Time, Apogee
+    EndConditionValue       0 # m ASL or sec (not required if EndCondition = Apogee)
+
+    StageDropPaths{
+        # Control whether drop paths are computed for dropped stages
+        compute             true
+        
+        # Control termination conditions for stage drop path simulation(s)
+        endCondition        Altitude # Altitude, Time
+        endConditionValue   0 # m ASL or sec
+    }
+
+    # FlightAnimation, FlightPaths, None
+		# Any column of data LOGGED during the simulation is plottable
+        # Each string in the space-separated list defines a plot. Each string can be either: 
+            # 1) a partial/full log column name -> any column whose name contains the string will be plotted
+            # 2) a regex expression -> any column whose name matches is plotted
+            # 3) A combination of and arbitrary number of 1) and 2), joined using & (ex: BodyTubeF&NoseconeF)
+            # 4) 'Special' strings: 'FlightAnimation' or 'FlightsPaths' or 'None'
+		# Ex: Add "NoseconeF" for a plot of the Nosecone's X,Y,Z forces, "NoseconeM" for the X,Y,Z moments, or "Nosecone" for a plot of both.
+        # Look in your simulation log files for more column names
+    plot                    FlightAnimation FlightPaths Position Velocity NoseconeF
+    
+    # 0, 1, 2, 3
+        # 0:    No logging
+        # 1:    Logs the rocket's kinematic state at the beginning of each time step, in a file called [simDefinitionFileName]_mainSimulationLog_runX.txt, where X increments each time the sim is run
+        # 2:    Level 1 + logs a breakdown of rocket state and forces applied to the rocket at each force evaluation (which can happen several times in a time step), 
+                    # in an additional file called [simDefinitionFileName]_forceEvaluationLog_runX.txt
+        # 3:    Level 2 + the force evaluation log is post-processed to include force/moment coefficients - result stored in [simDefinitionFileName]_forceEvaluationLog_runX_expanded.txt
+    loggingLevel            2
+    RocketPlot              Off
+
+    # Euler, RK2Midpoint, RK2Heun, RK4, RK12Adaptive, RK23Adaptive, RK45Adaptive, RK78Adaptive
+    timeDiscretization      RK45Adaptive
+    timeStep                0.01 # sec - only an initial value for adaptive schemes
+
+    TimeStepAdaptation{
+        controller                  PID # elementary, PID, constant
+                
+        PID.coefficients            -0.01 -0.001 0 # P I D controller coefficients
+
+        Elementary.safetyFactor     0.9 # Safety factor applied to time step adaptation factor when using the elementary controller
+
+        # If estimated error is > 100*targetError, timestep is aborted and recomputed with a smaller time step
+        targetError                 0.01 # Controls adaptive time step methods - Metric of estimated position + velocity error (3DoF) + 100 * angular orientation error (6DoF)
+
+        # Bounds on time step sizes and rate of time step change
+        minFactor                   0.3 # Min time step adaptation factor
+        maxFactor                   1.5 # Max time step adaptation factor
+        minTimeStep                 0.0001 # sec
+        maxTimeStep                 60 # sec
+
+        # Rocket will override adaptive time stepping near events in SimEventDetector (like rocket or recovery system staging)
+            # For time-non-deterministic events (ex: which happen at an altitude criteria), the time step approaches this value before reaching the event time
+            # Because these events happen b/w time steps, their time-accuracy is dependent on the time step size
+                # For time-deterministic events (which happen at a set time), this parameter is not required, those will always be resolved perfectly
+            # Can't be smaller than minTimeStep
+        eventTimingAccuracy         0.001 # sec 
+    }
+}
+
+Environment{
+    ### Define models of the physical environment ###
+
+    LaunchSite{
+        elevation               0 #m, Relative to sea level - Impacts the acceleration of gravity at launch        
+
+        # Lat / Lon only influence simulations using the 'Round' or 'WGS84' earth models
+        latitude                0 # Degrees, 90 = North Pole, -90 = South Pole, 0 = Equator
+        longitude               0 # Degrees, 0 = Prime Meridian (Greenwich, England), +'ve is East, -'ve is West
+
+        # A launch rail will prevent the rocket from deviating from the direction specified by Rocket.initialDirection
+            # Until it has travelled the length of the launch rail from its starting location
+            # The launch rail will also prevent downwards motion
+            # A length of 0 = no launch rail
+        railLength              5 #m
+    }
+
+    # Defines how the earth is modelled
+        # See the Coordinate System section at the top of this document
+        # None:                 No gravity
+        # Flat:                 Flat earth, gravity according to inverse square law - minimal errors for short / low-altitude flights -
+        # Round:                Spherical earth, rotating, uniformly-distributed inverse square gravity - appropriate for conceptual-level orbital calculations
+        # WGS84:                Ellipsoidal earth, rotating, J2 gravity model - appropriate for rough/preliminary orbital calculations
+                                    # Earth is assumed to rotate about a fixed axis. Wobble is neglected
+                                    # Gravitational forces from other celestial bodies neglected
+                                    # Tides neglected
+                                    # Earth is treated as an inertial frame, accelerations due to rotation about the sun/galaxy/etc... are neglected
+                                    # Solar radiation pressure neglected
+    EarthModel                  Flat
+
+    #### Atmospheric Properties ####
+    # USStandardAtmosphere or Constant or TabulatedAtmosphere
+        # USStandardAtmosphere computes the exact US Standard Atmosphere
+    AtmosphericPropertiesModel  USStandardAtmosphere
+
+    TabulatedAtmosphere{
+        # Tabulated atmospheres are expected to match the format of ./MAPLEAF/ENV/US_Standard_Atmosphere.txt
+            # Should have the following columns h(m ASL) T(K) P(Pa) rho(kg/m^3) mu(10^-5 Pa*s)
+        filePath                MAPLEAF/ENV/US_Standard_Atmosphere.txt
+    }
+
+    ConstantAtmosphere{
+        temp                    15 #Celsius
+        pressure                101325 #Pa
+        density                 1.225 #kg/m3
+        viscosity               1.789e-5 #Pa*s
+    }
+
+    #### Mean Wind Modelling ####
+    # Constant, SampledGroundWindData, SampledRadioSondeData,  Hellman, CustomWindProfile
+    MeanWindModel               Constant
+
+    ConstantMeanWind{
+        velocity                ( 0 0 0 ) # m/s
+    }
+
+    SampledGroundWindData{
+        launchMonth             Mar # Three letter month code - uses yearly avg data if absent
+        # Place1 name, weighting coefficient1, Place2 name, weighting coefficient2, ... - Corresponding wind rose data files must be in MAPLEAF/Examples/Wind
+        locationsToSample       Suffield 0.52 MedecineHat 0.30 Schuler 0.18
+        #TODO: randomSeed
+    }
+
+    SampledRadioSondeData{
+        launchMonth             Mar # Three letter month code - uses yearly avg data if absent
+        # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in MAPLEAF/Examples/Wind
+        locationsToSample       Edmonton 0.48 Glasgow 0.52 
+        locationASLAltitudes    710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
+        randomSeed              228010 # Set to remove randomization from sampling, have a repeatable simulation
+    }
+
+    Hellman{
+        # Constant, or SampledGroundWindData - will retrieve ground wind info from those dictionaries above
+        groundWindModel         Constant
+
+        alphaCoeff              0.1429
+        altitudeLimit           1000 # m, wind velocity stops changing above this altitude
+    }
+
+    CustomWindProfile{
+        filePath                MAPLEAF/Examples/Wind/testWindProfile.txt # Example file here
+    }
+
+    #### Turbulence / Gust Modelling ####
+    # None, PinkNoise1D (Amplitude modulation only), PinkNoise2D (gusts parallel to x-y plane in ENU frame), PinkNoise3D, customSineGust
+    TurbulenceModel             None
+    turbulenceOffWhenUnderChute True # Increases time step we can take while descending
+
+    PinkNoiseModel{
+        # To set the strength of pink noise fluctuations, provide the turbulenceIntensity OR the velocityStdDeviation
+            # If both are provided, the turbulenceIntensity is used
+        turbulenceIntensity     5 # % velocity standard deviation / mean wind velocity
+        velocityStdDeviation    1 # m/s standard deviation of pink noise model
+
+        # Set the random seeds for each pink noise generator for repeatable simulations
+            # PinkNoise1D only uses 1, 2D uses 2, 3D uses all 3
+        randomSeed1             63583 # Integer
+        randomSeed2             63583 # Integer
+        randomSeed3             63583 # Integer
+    }
+
+    CustomSineGust{
+        startAltitude           2000 # m Altitude AGL of base of gust layer
+        magnitude               9 # m/s - 6m/s for < 300m, 9m/s for > 1000m AGL, as per NASA HDBK-1001
+        sineBlendDistance       30 # m - gust velocity blended into velocity profile by sine curve over this vertical distance (start and end)
+        thickness               200 # m - Vertical size of gust (~0-200m)
+        direction               (0 1 0 ) # Gust will align with current wind velocity if not given
+    }
+}
+
+#### For Rocket Components: Approximate Surface Roughnesses from (Barrowman, 1967, Table 4-1), all in micrometers ####
+    # Mirror:                               0
+    # Glass:                                0.1
+    # Finished/Polished surface:            0.5
+    # Aircraft-type sheet-metal surface:    2
+    # Optimum paint-sprayed surfaces:       5
+    # Planed wooden boards:                 15
+    # Paint in aircraft mass production:    20
+    # Steel plating: bare:                  50
+    # Smooth cement:                        50
+    # Surface with asphalt-type coating:    100
+    # Dip-galvanized metal surface:         150
+    # Incorrectly sprayed paint:            200
+    # Natural cast-iron surface:            250
+    # Raw wooden boards:                    500
+    # Average concrete:                     1000
+
+Rocket{   
+    ### Define the air vehicle here ###
+    name                VeryComplicatedRocket_UsingEveryPossibleOption      
+
+    ## Initial kinematic state ##
+    position            (0 0 10) # m - initial position above ground level (AGL) of the rocket's CG. Set launch site elevation using Environment.LaunchSite.elevation
+    velocity            (0 0 0) # m/s - initial velocity
+    angularVelocity     (0 0 0) # rad/s - initial angular velocity - defined in the rocket's LOCAL frame
+    
+    ## Initial Orientation ##   
+    # Specify EITHER an initial direction (in which local Z-axis will point, relative to the Launch Tower Frame
+    initialDirection    (0 0 1) # (non-dimensional) - rocket/launch tower will initially point in this direction, where Z is up, X is east, and Y is North
+    # OR an rotationAxis and a rotationAngle, which will rotate the vehicle relative to the Launch Tower Frame
+    rotationAxis        (1 1 0) # Any Vector, defined in launch tower ENU frame
+    rotationAngle       180 # degrees
+    
+    Aero{
+        # To turn off base drag (for comparisons to wind tunnel data), make sure the rocket doesn't include a Boat tail and set this to false
+        addZeroLengthBoatTailsToAccountForBaseDrag      true
+      
+        # Calculates skin friction based on laminar + transitional flow if not fully turbulent
+        fullyTurbulentBL                                true
+
+        # Default for all rocket components (Will be overriden by roughnesses specified at the component level)
+        surfaceRoughness                                0.000050 # m
+    }
+
+    # HIL is on if this dictionary is present
+    HIL{
+        quatUpdateRate  100
+        posUpdateRate   20
+        velUpdateRate   20
+        teensyComPort   COM20
+        imuComPort      COM15
+        teensyBaudrate  9600
+        imuBaudrate     57600
+    }
+
+    ControlSystem{
+        desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
+        
+        MomentController{
+            Type                    ScheduledGainPIDRocket # ScheduledGainPIDRocket or ConstantGainPIDRocket
+                                                            # expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
+            #Used when Moment Controller type is ConstantGainPIDRocket
+            Pxy                     100
+            Ixy                     5
+            Dxy                     20
+            Pz                      200
+            Iz                      10
+            Dz                      40
+            #Used when Moment Controller type is ScheduledGainPIDRocket
+            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
+            scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
+        }
+
+        # Simulation will not take time steps larger than 1/updateRate
+            # If a fixed update rate is specified and adaptive time stepping is selected, adaptive time stepping will only be used during the descent/recovery portion of the flight
+                # Constant RK4 time stepping will be substituted for the ascent portion
+                    # Specified initial time step will be rounded to the nearest integer divisor of the control system time step
+            # With an updateRate of 0 (default), the control system will simply run once per time step
+                # Note that because control system updates happen between Runge-Kutta time steps,
+                    # errors predicted/estimated by the adaptive time stepping methods will not include errors due to low control system update rates.
+        updateRate                  100 # Hz
+
+        controlledSystem            Rocket.Sustainer.Canards # Enter path to the controlled component in the Rocket
+    }
+
+    SecondStage{
+        class           Stage
+        stageNumber     2
+
+        position            (0 0 0) #m - Position of stage tip, relative to tip of rocket
+
+        # No stage separation conditions for top stage (see firstStage below for those options)
+
+        # Constant mass overrides for the stage - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.65) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
+
+        # For all fixed-mass rocket components (everything except propulsion system):
+        # position:         position RELATIVE to stage tip - definition for each component given below
+                                # The 'position' usually defines the location at the TOP (local maxZ), CENTER (local X/Y Axes) of the component
+        # cg:               cg location RELATIVE to the 'position' of the component
+        # MOI:              MOI about the component's cg location
+
+        #### Rocket Components which define combinations of aerodynamic & inertia / shape models ####
+        Nosecone{
+            class           Nosecone
+            mass            1.0
+            position        (0 0 0) # Position of nosecone tip
+            cg              (0 0 -0.35)
+            baseDiameter    0.1524
+            aspectRatio     5 # Nose cone length / base diameter
+            shape           tangentOgive # tangentOgive
+
+            surfaceRoughness    0.000050 # m
+        }
+
+        RecoverySystem{
+            # Stages can have a maximum of one recovery system
+            class           RecoverySystem
+            mass            5
+            position        (0 0 -1) # Position mostly meaningless - convenient to put it at the CG location
+            cg              (0 0 0)
+            numStages       2 # Can have arbitrary number of stages
+
+            stage1Trigger       Apogee # Apogee, Time, Altitude
+            stage1TriggerValue  30 # sec from launch (Time), m ASL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude # Apogee, Time, Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+
+        BodyTube{
+            class           Bodytube
+            mass            1 
+            position        (0 0 -0.762) # Position of top of tube
+            cg              (0 0 -1.5)
+            
+            outerDiameter   0.1524
+            length          3.5538
+
+            surfaceRoughness    0.000050
+        }
+
+        Canards{
+            class             FinSet 
+            mass              2 # kg
+            position          (0 0 -0.8636) # X-component of the Position of the tip of the FinSet's root chord(s) (on the rocket's centerline)
+            cg                (0 0 0)
+
+            # Fin Placement / Distribution
+            numFins           4
+            finCantAngle      0 # Positive values will induce moments in (local frame) negZ direction. Negative values will induce moments in the (local frame) posZ direction
+            firstFinAngle     0 # deg (Must be between 0 and 90) -  controls circumferential location of fins. 0 will have the first fin spanwise direction aligned with the local X-axis
+                                  # Rest of the fins will be spaced evenly around the rocket
+                                    
+            # Planform
+            sweepAngle        30 # deg - leading edge sweep angle. 0 = leading edge normal to rocket surface, 90 = no fin at all.
+            rootChord         0.1524 # m
+            tipChord          0.0762 # m - it is assumed that the tip chord is parallel to the root chord
+            span              0.0635 # m - radial (from the perspective of the rocket) distance between fin root and fin tip
+
+            # Other
+            thickness         0.0047625 # m - Maximum fin thickness
+            surfaceRoughness  0.000050 # m
+
+            numFinSpanSlicesForIntegration  10 # Use this to override the number of fin span slices used to integrate normal forces produced by the fin
+            
+            LeadingEdge{
+                shape         Round # Blunt or Round (Even sharp edges always have a small radius)
+                thickness     0.001 # Used for 'Blunt' edge
+                radius        0.001 # Used for 'Round' edge
+            }
+
+            TrailingEdge{
+                shape         Tapered # Tapered (0 base drag), Round (1/2 base drag), Blunt (full base drag)
+                thickness     0.001 # Used for 'Blunt' edge
+                radius        0.001 # Used for 'Round' edge
+            }
+
+            Actuators{ # Only required if the FinSet is the system controlled by the control system
+                controller              TableInterpolating
+                
+                deflectionTablePath     MAPLEAF/Examples/TabulatedData/linearCanardDefls.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                    # Desired moments must come last
+                deflectionKeyColumns    Mach Altitude DesiredMx DesiredMy DesiredMz
+
+                # Limit actuator deflections
+                minDeflection           -15 # For a finset, actuator deflections translate directly into fin rotations
+                maxDeflection           15 # So these actuator limits translate into limiting fin deflection to +/- 15 degrees
+
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # sec
+            }
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test.txt
+
+            # To add uncertainty to the Motor's total impulse and burn time in Monte Carlo simulations
+            # For both of the adjustment factors below: 1.0 = no effect, 1.10 = +10%, etc. 
+            impulseAdjustFactor           1.0 # Thrust curve multiplied by given factor. Does not affect burn time.
+            impulseAdjustFactor_stdDev    0.02331 # Sample value for Estes B4: http://nar.org/SandT/pdf/Estes/B4.pdf
+            
+            burnTimeAdjustFactor          1.0 # Burn time multiplied by given factor, thrust produced at each time divided by it. Does not affect total impulse.
+            burnTimeAdjustFactor_stdDev   0.10679 # Sample value for Estes B4: http://nar.org/SandT/pdf/Estes/B4.pdf
+        }
+
+        DiameterChange{
+            class           Transition
+            mass            0.1
+            position        (0 0 -2.6) # Position of top, center of diameter change
+            cg              (0 0 0)
+            MOI             (0.01 0.01 0.0001)
+
+            length          0.15 # m
+            startDiameter   0.1524 # m, Diameter at top
+            endDiameter     0.16 # m, Diameter at bottom
+            surfaceRoughness 0.000060 # m
+        }
+
+        BoatTail{
+            # Only difference wrt DiameterChange object is that the BoatTail accounts for base drag (when the engine is off)
+            class           BoatTail
+            mass            0.1
+            position        (0 0 -2.75)
+            cg              (0 0 0)
+            MOI             (0.01 0.01 0.0001)
+
+            length          0.15 # m
+            startDiameter   0.16 # m
+            endDiameter     0.1 # m
+            surfaceRoughness 0.000060 # m
+        }
+        
+
+
+        #### Manually define separate inertia and aerodynamic/force properties ####
+        Mass{
+            class           Mass
+            mass            50
+            position        (0 0 -2.6) # m - relative to stage tip
+            cg              (0 0 0) # m - relative to position
+            MOI             (66.6 66.6 0.21) # kg*m^2
+        }
+
+        Force{
+            class           Force
+
+            position        (0 0 0) # m, Force application location
+            force           (0 0 0) # N
+            moment          (0 1 0) # Nm
+        }
+
+        AeroForce{
+            class           AeroForce
+            
+            position        (0 0 0) # m, Force application location
+            Aref            0.25 # m^2, Reference area for all coefficients
+            Lref            0.25 # m, Reference length for all moment coefficients
+
+            Cd              0 # Applied parallel to wind direction
+            Cl              0 # Applied normal to wind direction
+            
+            # (Local) X-, Y-, and Z-Axis Moment coefficients
+            momentCoeffs    (0 0 0)
+        }
+
+        AeroDamping{
+            class AeroDamping
+            # No position - only applies moments
+
+            Aref                0.25 # m^2 - used to redimensionalize coefficients
+            Lref                0.25 # m - used to redimensionalize coefficients
+
+            # Each damping coefficient is named:
+            # For each axis below (x/y/z), damping coefficients are in order: ( x, y, z )
+            #   Example xDampingCoeffs[0] == d{xMomentCoefficient}/d{AngularRate_x * Lref / (2 * Airspeed)}
+            #   Example xDampingCoeffs[1] == d{xMomentCoefficient}/d{AngularRate_y * Lref / (2 * Airspeed)}
+            #   etc...
+            xDampingCoeffs      (0 0 0)
+            yDampingCoeffs      (0 0 0)
+            zDampingCoeffs      (0 0 0)
+        }
+
+        TabulatedAeroForce{
+            # Acts like an AeroForce object, but all coefficients are interpolated from a table instead of constants
+            class           TabulatedAeroForce
+            position        (0 0 0)
+            Aref            0.25
+            Lref            0.25
+
+            # File should be a .csv file containing columns of 'key' data followed by columns of 'value' data (Key columns must be named: 
+                # Mach, Altitude, UnitReynolds, AOA, or RollAngle - defined in MAPLEAF/Rocket/AeroFunctions.stringToAeroFunctionMap)
+                # (Value data columns must be named: CD, CL, CMx, CMy, or CMz    
+            # Files can have as many of those 'key' and 'value' columns as desired, 
+                    # but interpolation will slow down as dimensionality (number of key columns) increases
+            # First row of the file needs to be a header listing each column name - each column name has to match one of the above 'key' or 'value' columns
+                # Example header for interpolating Cd based on Mach number: 'Mach,Cd'
+            filePath        ./MAPLEAF/Examples/Simulations/twoStageRocketAeroTable.csv
+        }
+
+        CalculatedAeroForce{
+            # TODO: Still needs to be implemented
+            # Acts like an AeroForce object, but coefficients are calculated by equations instead of constants
+            class           TabulatedAeroForce
+            position        (0 0 0)
+            Aref            0.25
+            Lref            0.25
+
+            # Intent is to allow specification of an aero model like those in 
+                # 'Generic Global Aerodynamic Model for Aircraft' (Grauer & Morelli 2015)
+
+            # Define aerodynamic coefficients as Python expressions of:
+                # Mach, Altitude, UnitRe, AOA, RollAngle, angVelX, angVelY, angVelZ
+                # Can also make use of Python's math library (math.pi, math.cos, etc...)
+                  
+        }
+    }
+
+    FirstStage{
+        class           Stage
+        stageNumber     1
+
+        # Stage Separation Conditions - only required for multi-stage rockets
+        separationTriggerType       timeReached # "apogee", "ascendingThroughAltitude", "descendingThroughAltitude", "motorBurnout", "timeReached"
+        separationTriggerValue      100 # seconds or meters AGL, depending on separationTriggerType
+        separationDelay             2 # seconds - mostly useful if the triggerType is not "timeReached"
+        
+        ##### First stage components dictionaries here, same options as second stage above #####
+    }
+}

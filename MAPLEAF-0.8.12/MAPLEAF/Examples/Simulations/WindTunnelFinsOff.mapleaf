@@ -1,0 +1,73 @@
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.01 #sec
+
+    EndCondition Time
+    EndConditionValue 0.05
+
+    RocketPlot      On
+
+    plot FlightAnimation
+}
+
+Environment{
+    LaunchSite.elevation 10 #m, ASL
+
+    AtmosphericPropertiesModel          Constant
+}
+
+Rocket{
+    position            (0 0 1) # m
+    velocity            (0 0 408.24) #m/s
+
+    Aero{
+        surfaceRoughness 0.0000005
+    }
+
+    Sustainer{
+        class           Stage
+
+        constCG             (0 0 -0.90170)         
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.063527)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            baseDiameter    0.0572
+            aspectRatio     4.72027  #length over diameter
+            shape           tangentOgive
+        }
+
+        UpperBodyTube{ 
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -0.269412)
+            cg              (0 0 -0.3885)
+            MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.0572
+            length          0.7242
+        }
+
+        Motor{            
+            class           Motor
+            path            MAPLEAF/Examples/Motors/Empty.txt
+        }
+        
+        BoatTail{
+            class           BoatTail
+            mass            0.1
+            position        (0 0 -0.99344)
+            cg              (0 0 0)
+            MOI             (0.01 0.01 0.0001)
+
+            length          0.04576 # m
+            startDiameter   0.0572 # m
+            endDiameter     0.0372 # m
+        }
+    }
+}

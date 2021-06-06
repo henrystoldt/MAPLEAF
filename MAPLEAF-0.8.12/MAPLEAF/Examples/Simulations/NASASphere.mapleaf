@@ -1,0 +1,43 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+SimControl{
+    timeDiscretization  RK4
+    timeStep            0.05
+
+    EndCondition        Time
+    EndConditionValue   30 # sec
+}
+
+Environment{
+    LaunchSite{
+        elevation       9144 # m (30 000 ft)
+        latitude        0
+        longitude       0
+    }
+
+    EarthModel          WGS84
+}
+
+Rocket{
+    position            (0 0 0) # meters
+    angularVelocity     (0.0 -7.292115e-5 0.0) # Zero angular velocity in inertial frame
+
+    Stage{
+        class           Stage
+
+        Mass{
+            class       Mass
+            mass        14.5938809 # kg (= 32.174 lbm)
+            position    (0 0 0)
+            MOI         (4.8809446628 4.8809446628 4.8809446628) # kg*m^2 (3.6 slug*ft^2)
+        }
+
+        AeroForce{
+            class       AeroForce            
+            position    (0 0 0) # Force application location
+            Aref        0.0182414654525 # m^2 Reference area for all coefficients
+            Cd          0.1 # Applied parallel to wind direction
+        }
+    }
+}

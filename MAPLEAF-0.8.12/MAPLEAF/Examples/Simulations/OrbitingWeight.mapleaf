@@ -1,0 +1,41 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+SimControl{
+    timeDiscretization      RK78Adaptive
+
+    TimeStepAdaptation{
+        maxTimeStep         60
+    }
+
+    EndCondition            Time
+    EndConditionValue       30000 # sec
+
+    plot                    FlightAnimation
+}
+
+Environment{
+    LaunchSite{
+        elevation           409e3 # m - roughly the ISS orbit
+    }
+
+    EarthModel              WGS84
+}
+
+Rocket{
+    position                (0 0 0) # meters
+    initialDirection        (1 0 0) # Orbit around equator
+    velocity                (7701 0 0) # m/s Orbit around equator (heading east)
+
+    Stage1{         
+        class               Stage  
+
+        Mass{
+            class           Mass
+            mass            1
+            position        (0 0 0)
+            cg              (0 0 0)
+            MOI             (2 2 8)
+        }
+    }
+}

@@ -75,11 +75,12 @@ cdef class Log():
     cpdef deleteLastRow(self):
         nVals = len(self.logColumns["Time(s)"])
 
-        for col in self.logColumns:
-            # If column has as many items in it as expected, remove the last one
-            # Don't do complete error checking here, assume that will be done in self.newLogRow()
-            if len(self.logColumns[col]) == nVals:
-                self.logColumns[col].pop()
+        if nVals > 0:
+            for col in self.logColumns:
+                # If column has as many items in it as expected, remove the last one
+                # Don't do complete error checking here, assume that will be done in self.newLogRow()
+                if len(self.logColumns[col]) == nVals:
+                    self.logColumns[col].pop()
 
     cpdef addColumn(self, colName, fillValue=None):
         ''' Returns reference to the log column (list) '''

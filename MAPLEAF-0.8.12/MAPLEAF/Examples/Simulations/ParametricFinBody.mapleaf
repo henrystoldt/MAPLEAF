@@ -1,0 +1,80 @@
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.01 #sec
+
+    EndCondition Apogee
+    EndConditionValue 6
+
+    loggingLevel    2
+    RocketPlot      On
+
+    plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
+}
+
+Environment{
+    AtmosphericPropertiesModel          Constant    
+    ConstantAtmosphere{
+        temp                            -92.7 #Celsius
+        pressure                        7673.6 #Pa
+        density                         0.1486 #kg/m3
+        viscosity                       1.22e-05 #Pa*s
+    }
+}
+
+Rocket{
+    position            (0 0 0) # m
+    initialDirection    (1 0 0)
+    
+    Aero{
+      addZeroLengthBoatTailsToAccountForBaseDrag false
+      surfaceRoughness      2e-6
+    }
+
+    Sustainer{         
+        class               Stage
+
+        constCG             (0 0 -0.5334) #m
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.063527)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            baseDiameter    0.0762
+            aspectRatio     3  #length over diameter
+            shape           tangentOgive
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -0.2286)
+            cg              (0 0 -0.28)
+            MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.0762
+            length          0.6858
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/Empty.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            0.00245 # kg
+            position        (0 0 -0.59436) # Root chord ending, closest to nose cone
+            cg              (0 0 -0.024579) #
+            MOI             (4.1639e-07 4.1639e-07 2.151e-06)
+
+            numFins         2
+            firstFinAngle   90 # deg (defines the angle from the x-axis of the first fin in the set)
+            sweepAngle      33.69 # measured from the normal line of the body tube
+            rootChord       0.1524 # m --> contact length between fin and body tube
+            tipChord        0.0762 # m
+            span            0.11 # m --> root chord to tip chord
+            thickness       0.002546 # m --> maximum thickness
+        }
+    }
+}

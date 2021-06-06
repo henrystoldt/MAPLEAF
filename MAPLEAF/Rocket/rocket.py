@@ -612,41 +612,25 @@ class Rocket(CompositeObject):
         return totalForce
     
     #### Driving / Controlling Simulation ####
-    def _runControlSystemAndLogStartingState(self, dt):
+    def _logState(self):
         '''
-            Attempts to run the rocket control system (only runs if it's time to run again, based on its updated rate) (updating target positions for actuators)
-            Logs the state of the rocket to the main simulation log
+            Logs the initial state of the rocket to the time step log
         '''
-        startState = self.rigidBody.state
-        startTime = self.rigidBody.time       
-
-        # Control loop (if applicable)
-        if self.controlSystem != None and not self.isUnderChute:
-            environment = self._getEnvironmentalConditions(startTime, startState)
-
-            ### Run Control Loop ###
-            newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
-            
-            # if newTargetActuatorDeflections != False:
-                # runControlLoopIfRequired returns False if the control doesn't run
-                # Add target deflections to the main log string
-                # TODO: Control system should get its own log, this code is no longer functional
-                # deflStrings = [ " {:>7.3f}".format(defl) for defl in newTargetActuatorDeflections ]
-                # controlLogString = "".join(deflStrings)
+        state = self.rigidBody.state
+        time = self.rigidBody.time
 
         if self.timeStepLog is not None:
-            # Log the rocket state
-            self.timeStepLog.newLogRow(startTime)
-            self.timeStepLog.logValue("Position(m)", startState.position)
-            self.timeStepLog.logValue("Velocity(m/s)", startState.velocity)
+            self.timeStepLog.newLogRow(time)
+            self.timeStepLog.logValue("Position(m)", state.position)
+            self.timeStepLog.logValue("Velocity(m/s)", state.velocity)
 
             try: # 6DoF Mode
-                self.timeStepLog.logValue("OrientationQuaternion", startState.orientation)
-                self.timeStepLog.logValue("AngularVelocity(rad/s)", startState.angularVelocity)
+                self.timeStepLog.logValue("OrientationQuaternion", state.orientation)
+                self.timeStepLog.logValue("AngularVelocity(rad/s)", state.angularVelocity)
 
                 # Also log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
-                globalOrientation = startState.orientation
-                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+                globalOrientation = state.orientation
+                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*state.position)
                 orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
                 eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
                 self.timeStepLog.logValue("EulerAngle(rad)", eulerAngles)
@@ -654,9 +638,22 @@ class Rocket(CompositeObject):
             except AttributeError:
                 pass # 3DoF mode
 
-        altitude = self.environment.earthModel.getAltitude(*startState.position)
-        consoleOutput = "{:<8.4f} {:>6.5f}".format(startTime, altitude)
+        # Print the current time and altitude to the console
+        altitude = self.environment.earthModel.getAltitude(*state.position)
+        consoleOutput = "{:<8.4f} {:>6.5f}".format(time, altitude)
         print(consoleOutput)
+
+    def _runControlSystem(self):
+        '''
+            Attempts to run the rocket control system (only runs if it's time to run again, based on its updated rate) (updating target positions for actuators) 
+        '''
+        if self.controlSystem != None and not self.isUnderChute:
+            state = self.rigidBody.state
+            time = self.rigidBody.time
+            environment = self._getEnvironmentalConditions(time, state)
+
+            ### Run Control Loop ###
+            self.controlSystem.runControlLoopIfRequired(time, state, environment)        
 
     def timeStep(self, dt: float):
         '''
@@ -674,8 +671,8 @@ class Rocket(CompositeObject):
         # Trigger any events that occurred during the last time step
         estimatedTimeToNextEvent, accuratePrediction = self.simEventDetector.triggerEvents()
 
+        # If required, override time step to accurately resolve upcoming discrete events
         if "Adapt" in self.rigidBody.integrate.method and estimatedTimeToNextEvent < dt:
-            # Override time step to accurately resolve discrete events
             if accuratePrediction:
                 # For time-deterministic events, just set the time step to ever so slightly past the event
                 newDt = estimatedTimeToNextEvent + 1e-5
@@ -688,11 +685,13 @@ class Rocket(CompositeObject):
                 print("Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}".format(dt, newDt, estimatedOccurenceTime))
                 dt = newDt
                 
-        self._runControlSystemAndLogStartingState(dt)
+        self._runControlSystem()
+        self._logState()
 
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
+        # If required, log estimated integration error
         if "Adapt" in self.rigidBody.integrate.method and self.timeStepLog is not None:
             self.timeStepLog.logValue("EstimatedIntegrationError", integrationResult.errorMagEstimate)
             

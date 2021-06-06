@@ -1,0 +1,155 @@
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.01 #sec
+
+    EndCondition Time
+    EndConditionValue 0.05
+
+    RocketPlot      On
+
+    plot None
+}
+
+Environment{
+    LaunchSite.elevation 10 #m, ASL
+
+    AtmosphericPropertiesModel          Constant
+
+    MeanWindModel                       Constant
+
+    ConstantMeanWind{
+        velocity                    (0 0 0) #m/s
+    }
+
+    TurbulenceModel None
+}
+
+Rocket{             
+    position            (0 0 1) # m
+    velocity            (0 0 408.24) #m/s
+
+    Aero{
+        surfaceRoughness 0.0000005
+    }
+
+    Sustainer{
+        class           Stage
+
+        position            (0 0 0) #m
+        constCG             (0 0 -0.5940298)         
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.063527)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            baseDiameter    0.0684276
+            aspectRatio     2.3359  #length over diameter
+            shape           tangentOgive
+        }
+
+        UpperBodyTube{ 
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -0.1598422)
+            cg              (0 0 -0.3885)
+            MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.0684276
+            length          0.188214
+        }
+
+        Transition{
+            class           Transition
+            mass            0.1
+            position        (0 0 -0.3480562)
+            cg              (0 0 0)
+            MOI             (0.01 0.01 0.0001)
+
+            length          0.098425 # m
+            startDiameter   0.0684276 # m
+            endDiameter     0.08001 # m            
+        }
+
+        LowerBodyTube{
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -0.4464812)
+            cg              (0 0 -0.3885)
+            MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.08001
+            length          0.5989066
+        }
+
+        Motor{            
+            class           Motor
+            path            MAPLEAF/Examples/Motors/Empty.txt
+        }
+
+        StrakeLong{
+            class           FinSet 
+            mass            0.00245 # kg
+            position        (0 0 -0.994791) # Root chord ending, closest to nose cone
+            cg              (0 0 -0.024579) #
+            numFins         4
+            MOI             (4.1639e-07 4.1639e-07 2.151e-06)
+            
+            sweepAngle      21.745748 # measured from the normal line of the body tube
+            rootChord       0.0505968 # m --> contact length between fin and body tube
+            tipChord        0.0308102 # m --> outer edge NOT in contact with body tube
+            span            0.0496062 # m --> root chord to tip chord
+            thickness       0.002794 # m --> maximum thickness
+
+            # LeadingEdge{
+            #     shape         Round # Blunt or Round (Even sharp edges always have a small radius)
+            #     thickness     0.001 # Used for 'Blunt' edge
+            #     radius        0.001 # Used for 'Round' edge
+            # }
+
+            # TrailingEdge{
+            #     shape         Tapered # Tapered (0 base drag), Round (1/2 base drag), Blunt (full base drag)
+            #     thickness     0.001 # Used for 'Blunt' edge
+            #     radius        0.001 # Used for 'Round' edge
+            # }
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            0.00245 # kg
+            position        (0 0 -0.483616) # Root chord ending, closest to nose cone
+            cg              (0 0 -0.024579) #
+            numFins         4
+            MOI             (4.1639e-07 4.1639e-07 2.151e-06)
+            
+            sweepAngle      62.7344 # measured from the normal line of the body tube
+            rootChord       0.4436618 # m --> contact length between fin and body tube
+            tipChord        0.3858514 # m --> outer edge NOT in contact with body tube
+            span            0.0297942 # m --> root chord to tip chord
+            thickness       0.00635 # m --> maximum thickness
+
+            # LeadingEdge{
+            #     shape         Round # Blunt or Round (Even sharp edges always have a small radius)
+            #     thickness     0.001 # Used for 'Blunt' edge
+            #     radius        0.001 # Used for 'Round' edge
+            # }
+
+            # TrailingEdge{
+            #     shape         Tapered # Tapered (0 base drag), Round (1/2 base drag), Blunt (full base drag)
+            #     thickness     0.001 # Used for 'Blunt' edge
+            #     radius        0.001 # Used for 'Round' edge
+            # }
+        }
+        
+        BoatTail{
+            class           BoatTail
+            mass            0.1
+            position        (0 0 -1.0453878)
+            cg              (0 0 0)
+            MOI             (0.01 0.01 0.0001)
+
+            length          0.0348234 # m
+            startDiameter   0.08001 # m
+            endDiameter     0.077216 # m
+        }
+    }
+}

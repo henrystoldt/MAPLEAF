@@ -1,0 +1,25 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+Rocket{
+    position            (0 0 4) # m
+    velocity            (10 0 50) #m/s
+    angularVelocity     (0 0 1) #rad/s
+
+    Sustainer{
+        class           Stage
+
+        UpperBodyTubeMass{
+            class           Mass
+            mass            50 
+            position        (0 0 0)
+            cg              (0 0 0)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test.txt
+        }
+    }
+}

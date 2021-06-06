@@ -1,0 +1,42 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+Rocket{
+    position            (0 0 4) # m
+    velocity            (1 0 200) #m/s
+    angularVelocity     (0 0 1) #rad/s
+
+    Sustainer{
+        class           Stage
+
+        Nosecone{
+            class           Nosecone
+            mass            5
+            position        (0 0 0)
+            cg              (0 0 -0.2)
+            baseDiameter    0.1524
+            aspectRatio     5
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            50 
+            position        (0 0 -0.762)
+            cg              (0 0 -0.238)
+            outerDiameter   0.1524
+            length          2
+
+            surfaceRoughness    0.000050
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            100
+            position        (0 0 -2.762)
+            cg              (0 0 2.762)
+        }
+    }
+}

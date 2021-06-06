@@ -1,0 +1,4 @@
+[console_scripts]
+mapleaf = MAPLEAF.Main:main
+mapleaf-batch = MAPLEAF.SimulationRunners.Batch:main
+

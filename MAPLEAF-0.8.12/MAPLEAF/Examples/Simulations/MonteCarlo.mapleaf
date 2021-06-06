@@ -1,0 +1,117 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+MonteCarlo{
+    # randomSeed  2394781
+    numberRuns       10
+    
+    # landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flightPaths - specify one or more
+    # output      landingLocations apogees flightPaths
+}
+
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.01 #sec
+
+    EndCondition Apogee
+
+    loggingLevel    2
+    RocketPlot      On
+
+    plot    FlightAnimation Thrust AngularVelocityZ
+}
+
+Environment{
+    ConstantMeanWind{
+        velocity                    ( 2 0 0 ) # m/s
+        velocity_stdDev             ( 5 5 5 ) # m/s
+    }
+}
+
+Rocket{
+    position            (0 0 15) # m
+    velocity            (0 0 50) #m/s
+
+    Sustainer{
+        class           Stage
+        
+        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.65) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
+
+        Nosecone{
+            class           Nosecone
+            mass            1.0
+            position        (0 0 0)
+            cg              (0 0 0)
+            baseDiameter    0.1524
+            aspectRatio     5
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+
+        # Rocket can only have a single recovery system
+        RecoverySystem{
+            class           RecoverySystem
+            mass            5
+            position        (0 0 -1)
+            cg              (0 0 -1)
+            numStages       2
+
+            # Apogee, Time, Altitude
+            stage1Trigger       Apogee
+            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            1 
+            position        (0 0 -0.762)
+            cg              (0 0 0)
+            outerDiameter   0.1524
+            length          3.5538
+
+            surfaceRoughness    0.000050
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            50
+            position        (0 0 -2.6)
+            cg              (0 0 0)
+            MOI             (66.6 66.6 0.21)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            1 # kg
+            position        (0 0 -4.011)
+            cg              (0 0 0)
+            numFins         4
+            firstFinAngle   0 # deg (defines the angle from the x-axis of the first fin in the set)
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+    }
+}

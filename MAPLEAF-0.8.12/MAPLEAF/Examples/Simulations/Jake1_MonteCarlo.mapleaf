@@ -1,0 +1,117 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+MonteCarlo{
+    # randomSeed      458623
+    numberRuns      5
+    
+    # landingLocations, apogees, maxSpeeds, flightTimes, maxHorizontalVels, flightPaths - specify one or more
+    # Summary of these result(s) will be plotted and outputted to the console after the run.
+        # Flight paths will only be plotted. Retrieve these from individual simulation logs if desired.
+    output          flightPaths apogees
+
+    # Normal distribution sampling works for any scalar or vector values present in simulation definition files
+    # If there's a 'parameter' you'd like to make normally distributed, specify 'parameter_stdDev' and it will be sampled from a normal distribution
+        # where the value of 'parameter' is the mean, and the value of  'parameter_stdDev' is the standard deviation
+        # for a vector value, specify a corresponding vector standard deviations
+}
+
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.01 #sec
+
+    EndCondition Apogee
+
+    loggingLevel    2
+    RocketPlot      On
+
+    plot    FlightAnimation Thrust AngularVelocityZ
+}
+
+Environment{
+    ConstantMeanWind{
+        velocity                    ( 2 0 0 ) #m/s
+    }
+}
+
+Rocket{
+    position            (0 0 0) # m
+
+    Sustainer{
+        class           Stage
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.063527)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            baseDiameter    0.029
+            aspectRatio     3.448  #length over diameter
+            shape           tangentOgive
+
+            surfaceRoughness    0.000060
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            0.00952 # 0.0129 for B4-4 and 0.00952 for C6-3
+            position        (0 0 -0.59)
+            cg              (0 0 -0.035)  
+            
+            # MOI: B4-4: (5.53E-06 5.53E-06 5.22E-07) C6-3: (4.08e-06 4.08e-06 3.86e-07)
+            MOI             (4.08e-06 4.08e-06 3.86e-07)            
+        }
+
+        AltimeterMass{
+            class           Mass
+            mass            0.015
+            position        (0 0 -0.31)
+            cg              (0 0 0)
+            MOI             (0 0 0)
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            0.0531 
+            position        (0 0 -0.1)
+            cg              (0 0 -0.28)
+            MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.029
+            length          0.46
+
+            surfaceRoughness    0.000060
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/B4-4.txt
+
+            # To add uncertainty to the Motor's total impulse and burn time in Monte Carlo simulations
+            # For both of the adjustment factors below: 1.0 = no effect, 1.10 = +10%, etc. 
+            impulseAdjustFactor           1.0 # Thrust curve multiplied by given factor. Does not affect burn time.
+            impulseAdjustFactor_stdDev    0.02331 # Sample value for Estes B4: http://nar.org/SandT/pdf/Estes/B4.pdf
+            
+            burnTimeAdjustFactor          1.0 # Burn time multiplied by given factor, thrust produced at each time divided by it. Does not affect total impulse.
+            burnTimeAdjustFactor_stdDev   0.10679 # Sample value for Estes B4: http://nar.org/SandT/pdf/Estes/B4.pdf
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            0.00245 # kg
+            position        (0 0 -0.51) # Root chord ending, closest to nose cone
+            cg              (0 0 -0.024579) #
+            MOI             (4.1639e-07 4.1639e-07 2.151e-06)
+
+            numFins         3
+            finCantAngle    5
+            sweepAngle      14.7127 # measured from the normal line of the body tube
+            rootChord       0.05 # m --> contact length between fin and body tube
+            tipChord        0.02967 # m --> outer edge NOT in contact with body tube
+            span            0.0302 # m --> root chord to tip chord
+            thickness       0.0001 # m --> maximum thickness
+            surfaceRoughness    0.000060
+        }
+    }
+}

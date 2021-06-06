@@ -1,0 +1,114 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+SimControl{
+    timeDiscretization      RK45Adaptive
+    timeStep                0.1
+
+    EndCondition            Time
+    EndConditionValue       200 # sec
+
+    StageDropPaths{
+        endCondition        Time
+        endConditionValue   200
+    }
+
+    TimeStepAdaptation{
+        targetError         0.0005
+    }
+
+    plot                    TimeStep FlightAnimation Velocity FlightPaths
+}
+
+Environment{
+    EarthModel          WGS84 # Rotating ellipsoidal earth, J2 Gravity model
+}
+
+Rocket{
+    position            (0 0 13.89622) # m - CG positioned at sea level
+    rotationAxis        (0 1 0) # Rotate to the east
+    rotationAngle       34.78   # deg Rotate to the east - 55.22 degrees from horizontal
+    velocity            (0 0 0.1) # m/s Initial velocity in launch tower frame
+    angularVelocity     (0 0 0) # Zero angular rate relative to launch tower frame
+
+    Aero{
+        addZeroLengthBoatTailsToAccountForBaseDrag      false
+    }
+
+    UpperStage{
+        class               Stage
+        stageNumber         1
+
+        TabulatedInertia{
+            class TabulatedInertia
+
+            # Provide file path to a .csv file containing the following columns, in order (1 header row):
+                # Time(s), Mass(kg), CGx, CGy, CGz, MOIx, MOIy, MOIz
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedInertia.csv
+        }
+
+        TabulatedAeroForces{
+            class           TabulatedAeroForce
+            position        (0 0 -16.918790)
+            Aref            7.0
+
+            # Force coefficients are tabulated as a function of AOA
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedAeroForces.csv
+        }
+
+        TabulatedPitchMoment{
+            class           TabulatedAeroForce
+            position        (0 0 -16.918790)
+            Aref            7.0
+            Lref            3.0
+
+            # Pitch Moment coefficient is a function of AOA
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedAeroMoments.csv
+        }
+
+        TabulatedYawMoment{
+            class           TabulatedAeroForce
+            position        (0 0 -16.918790)
+            Aref            7.0
+            Lref            3.0
+
+            # Yaw moment coefficient is a function of AOSS
+            filePath        ./MAPLEAF/Examples/TabulatedData/NASARocketTabulatedAeroMoments2.csv
+        }
+
+        secondStageEngineJetDamping{
+            class           FractionalJetDamping
+            fraction        -0.5
+        }
+        
+        SecondStageMotor{
+            class   Motor
+            path    MAPLEAF/Examples/Motors/NASAStage2Motor.txt
+        }
+    }
+
+    LowerStage{
+        class               Stage
+        stageNumber         0
+        position            (0 0 -0.000001)
+        
+        separationTriggerType     motorBurnout
+        separationDelay           96.79 # sec
+
+        TokenMass{
+            class       Mass
+            mass        0.001
+            position    (0 0 -16)
+        }
+
+        firstStageEngineJetDamping{
+            class           FractionalJetDamping
+            fraction        -0.5
+        }
+
+        FirstStageMotor{
+            class       Motor
+            path        MAPLEAF/Examples/Motors/NASAStage1Motor.txt
+        }
+    }
+}

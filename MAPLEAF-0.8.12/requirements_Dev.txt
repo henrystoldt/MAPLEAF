@@ -1,0 +1,7 @@
+-r requirements.txt
+snakeviz>=2.1.0
+coverage>=5.0
+pylint>=2.5
+pdoc3
+pyinstrument
+asv

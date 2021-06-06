@@ -1,0 +1,81 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+Rocket{
+    position            (0 0 10) # m
+    initialDirection    (0 0.25 1)
+    velocity            (0 0 0) #m/s
+    angularVelocity     (0 0 0.25) #rad/s
+
+    Sustainer{
+        class           Stage
+        stageNumber     0 #First and only stage
+
+        Nosecone{
+            class           Nosecone
+            mass            15.0
+            position        (0 0 0)
+            cg              (0 0 -0.55)
+            baseDiameter    0.1524
+            aspectRatio     5
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            20 
+            position        (0 0 -0.762)
+            cg              (0 0 -1.15024)
+            outerDiameter   0.1524
+            length          2.3048
+
+            surfaceRoughness    0.000050
+        }
+
+        Canards{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -0.762)
+            cg              (0 0 -0.05)
+            numFins         4
+            sweepAngle      30 # deg
+            rootChord       0.1 # m
+            tipChord        0.05 # m
+            span            0.075 # m
+ 
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            10
+            position        (0 0 -2.762)
+            cg              (0 0 0)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test2.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            2 # kg
+            position        (0 0 -2.762)
+            cg              (0 0 -0.1524)
+            numFins         4
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+ 
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+
+        }
+    }
+}

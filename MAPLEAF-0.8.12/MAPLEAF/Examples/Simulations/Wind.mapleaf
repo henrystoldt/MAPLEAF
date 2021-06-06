@@ -1,0 +1,168 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+
+SimControl{
+    timeDiscretization RK4
+    timeStep 0.05 #sec
+
+    EndCondition Altitude
+    EndConditionValue 0
+
+    plot FlightAnimation FlightPaths Position Velocity NoseconeF AeroF AeroM GravityF TotalF
+    loggingLevel 2
+}
+
+Environment{
+    LaunchSite.elevation 755 #m, ASL
+
+    AtmosphericPropertiesModel          USStandardAtmosphere
+
+    #### Mean Wind Modelling ####
+    # Constant, SampledGroundWindData, SampledRadioSondeData,  Hellman, CustomWindProfile
+    MeanWindModel                       SampledRadioSondeData
+
+    ConstantMeanWind{
+        velocity                    ( -10 0 0 ) #m/s
+    }
+
+    SampledGroundWindData{
+        launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
+        # Place1 name, weighting coefficient1, Place2 name, weighting coefficient2, ... - Corresponding wind rose data files must be in MAPLEAF/Examples/Wind
+        locationsToSample               Suffield 0.52 MedecineHat 0.30 Schuler 0.18
+    }
+
+    SampledRadioSondeData{
+        launchMonth                     Mar # Three letter month code - uses yearly avg data if absent
+        # Place1 name, weighting coefficient 1, Place2 name, weighting coefficient 2, ... - Corresponding radio sonde data files must be in MAPLEAF/Examples/Wind
+        locationsToSample               Edmonton 0.48 Glasgow 0.52 
+        locationASLAltitudes            710 638 # m ASL - Used to convert ASL altitude data provided in radio sonde files to AGL altitudes
+        randomSeed                      228010 # Set to remove randomization from sampling, have a repeatable simulation
+    }
+
+    Hellman{
+        # Constant, or SampledGroundWindData - will retrieve ground wind info from those dictionaries
+        groundWindModel                 Constant
+
+        alphaCoeff                      0.1429
+        altitudeLimit                   1000 #m, constant wind velocity above this altitude
+    }
+
+    CustomWindProfile{
+        filePath                        MAPLEAF/Examples/Wind/testWindProfile.txt # Example file here
+    }
+
+
+    #### Turbulence / Gust Modelling ####
+    # None, PinkNoise1D (Amplitude modulation only), PinkNoise2D (x-y plane), PinkNoise3D, customSineGust
+    TurbulenceModel PinkNoise2D
+    turbulenceOffWhenUnderChute True # Increases time step we can take while descending
+
+    PinkNoiseModel{
+        # To set the strength of pink noise fluctuations, provide the turbulenceIntensity OR the velocityStdDeviation
+            # If both are provided, the turbulenceIntensity is used
+        turbulenceIntensity     5 #% velocity standard deviation / mean wind velocity - specify this or velocityStdDeviation
+        velocityStdDeviation    1 #m/s standard deviation of pink noise model - specify this or turbulenceIntensity
+
+        # Set the random seeds for each pink noise generator for repeatable simulations
+            # PinkNoise1D only uses 1, 2D uses 2, 3D uses 3
+        randomSeed1             63583 # Integer
+        randomSeed2             63583 # Integer
+        randomSeed3             63583 # Integer
+    }
+
+    CustomSineGust{
+        startAltitude           2000 # m Altitude AGL of base of gust layer
+        magnitude               9 # m/s - 6m/s for < 300m, 9m/s for > 1000m, as per NASA handbook
+        sineBlendDistance       30 # m - gust velocity blended into velocity profile by sine curve over this vertical distance (start and end)
+        thickness               200 # m - Vertical size of gust (~0-200m)
+        direction               (0 1 0 ) # Gust will align with current wind velocity if not given
+    }
+}
+
+Rocket{
+    position            (0 0 15) # m
+    velocity            (0 0 50) #m/s
+
+    Sustainer{
+        class           Stage
+
+        # Constant mass properties - remove to use component-buildup mass/cg/MOI
+        constCG             (0 0 -2.65) #m
+        constMass           50 # kg
+        constMOI            (85 85 0.5) # kg*m^2
+
+        Nosecone{
+            class           Nosecone
+            mass            1.0
+            position        (0 0 0)
+            cg              (0 0 0)
+            baseDiameter    0.1524
+            aspectRatio     5
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+
+        # Rocket can only have a single recovery system
+        RecoverySystem{
+            class           RecoverySystem
+            mass            5
+            position        (0 0 -1)
+            cg              (0 0 -1)
+            numStages       2
+
+            # Apogee, Time, Altitude
+            stage1Trigger       Apogee
+            stage1TriggerValue  30 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage1ChuteArea     2 # m^2
+            stage1Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage1DelayTime     2 #s
+
+            stage2Trigger       Altitude
+            stage2TriggerValue  300 # sec from launch (Time), m AGL, reached while descending (Altitude), unneeded for Apogee
+            stage2ChuteArea     9 # m^2
+            stage2Cd            1.5 # Drag Coefficient (~0.75-0.8 for flat sheet, 1.5-1.75 for domed chute)
+            stage2DelayTime     0 #s
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            1 
+            position        (0 0 -0.762)
+            cg              (0 0 0)
+            outerDiameter   0.1524
+            length          3.5538
+
+            surfaceRoughness    0.000050
+        }
+
+        GeneralMass{
+            class           Mass
+            mass            50
+            position        (0 0 -2.6)
+            cg              (0 0 0)
+            MOI     (66.6 66.6 0.21)
+        }
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/test.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            1 # kg
+            position        (0 0 -4.011)
+            cg              (0 0 0)
+
+            numFins         4
+            sweepAngle      28.61 # deg
+            rootChord       0.3048 # m
+            tipChord        0.1524 # m
+            span            0.1397 # m
+            thickness       0.0047625 # m
+            surfaceRoughness    0.000050
+        }
+    }
+}

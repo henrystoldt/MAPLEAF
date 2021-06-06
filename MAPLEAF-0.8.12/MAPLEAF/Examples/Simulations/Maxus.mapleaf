@@ -1,0 +1,125 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+#TODO: Complete this case
+
+SimControl{
+    timeDiscretization  RK4
+    timeStep            0.01 #sec
+
+    EndCondition        Apogee
+    EndConditionValue   6
+
+    loggingLevel    2
+    RocketPlot      On
+
+    plot Position Velocity AngularVelocity FlightAnimation FinSet1M FinSet1F
+}
+
+Environment{
+    LaunchSite.elevation 1 #m, ASL
+
+    ConstantMeanWind{
+        velocity                    ( 2 0 0 ) #m/s
+    }
+}
+
+Rocket{
+    position                (0 0 0) # m
+
+    Sustainer{
+        class               Stage
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.063527)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            baseDiameter    0.1968
+            aspectRatio     4.53506098  #length over diameter
+            shape           tangentOgive
+
+            surfaceRoughness    0.000060
+        }
+
+        # UpperTransition{
+        #     mass        
+        #     position        (0 0 -0.8925)
+        #     length          0.8094
+        #     diameterFore    0.3936
+        #     diameterAft     0.62991
+        #     cg              
+        #     MOI       
+        #     surfaceRoughness       
+        # }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -1.7019)
+            cg              (0 0 -0.28)
+            MOI     (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.62991
+            length          4.1091
+
+            surfaceRoughness    0.000060
+        }
+
+        # LowerTransition{
+        #     mass        
+        #     position        (0 0 -5.811)
+        #     length          0.6948
+        #     diameterFore    0.62991
+        #     diameterAft     1.0023
+        #     cg              
+        #     MOI       
+        #     surfaceRoughness       
+        # }        
+
+        LowerBodyTube{
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -6.5058)
+            cg              (0 0 -0.28)
+            MOI     (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   1.0023
+            length          8.0814
+
+            surfaceRoughness    0.000060
+        }
+
+        # BaseTransition{
+        #     mass        
+        #     position        (0 0 -14.5872)
+        #     length          0.6366
+        #     diameterFore    1.0023
+        #     diameterAft     1.22637
+        #     cg              
+        #     MOI      
+        #     surfaceRoughness       
+        # }        
+
+        Motor{
+            class           Motor
+            path            MAPLEAF/Examples/Motors/Empty.txt
+        }
+
+        TailFins{
+            class           FinSet 
+            mass            0.00245 # kg
+            position        (0 0 -14.1279) # Root chord ending, closest to nose cone
+            cg              (0 0 -0.024579) #
+            numFins         4
+            MOI     (4.1639e-07 4.1639e-07 2.151e-06)
+            firstFinAngle   0 # deg (defines the angle from the x-axis of the first fin in the set)
+            finCantAngle    0 
+            sweepAngle      34.98175 # measured from the normal line of the body tube
+            rootChord       0.8907 # m --> contact length between fin and body tube
+            tipChord        0.4086 # m --> outer edge NOT in contact with body tube
+            span            0.688977 # m --> root chord to tip chord
+            thickness       0.0001 # m --> maximum thickness
+            surfaceRoughness    0.000060
+        }
+    }
+}

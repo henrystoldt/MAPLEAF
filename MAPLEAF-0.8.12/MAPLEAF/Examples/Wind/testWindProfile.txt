@@ -1,0 +1,4 @@
+Altitude WindX WindY WindZ
+2000 10 0 0
+6000 25 0 0
+7000 -5 -4 -2

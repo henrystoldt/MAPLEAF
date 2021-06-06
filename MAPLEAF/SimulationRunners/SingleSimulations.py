@@ -1,4 +1,3 @@
-import math
 import os
 import sys
 from copy import deepcopy
@@ -140,7 +139,7 @@ class Simulation():
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+            rocket._logState()
 
             # Move on to next (dropped) stage
             stageIndex += 1

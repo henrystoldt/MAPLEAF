@@ -1,0 +1,63 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+# WIND TUNNEL CASE
+# Replicates Case 3 from Aerodynamic Predictions, Comparisons, and Validations using Missile Datcom 97 and Aeroprediction 98
+# There is some suspicion that base drag was not properly corrected for in the Sooy sims
+# CA results may not be very trustworthy
+# Thomas Sooy, Rebecca Schmidt
+# Journal of Spacecraft and Rockets 2005
+
+SimControl{
+    EndCondition Apogee
+
+    loggingLevel    2
+    RocketPlot      On
+}
+
+Environment{
+    AtmosphericPropertiesModel          Constant    
+    ConstantAtmosphere{
+        temp                            -101.15 #Celsius
+        pressure                        7139.646 #Pa
+        density                         0.144612 #kg/m3
+        viscosity                       1.1646e-05 #Pa*s
+    }
+}
+
+Rocket{
+    position            (0 0 0) # m
+    initialDirection    (1 0 0)
+
+    Aero{
+        addZeroLengthBoatTailsToAccountForBaseDrag      false
+        surfaceRoughness                                0.000002
+    }
+
+    Sustainer{
+        class               Stage
+
+        constCG             (0 0 -0.381) #m
+
+        Nosecone{
+            class           Nosecone
+            mass            0.007506
+            position        (0 0 0)
+            cg              (0 0 -0.033527)
+            MOI             (4.662340917465653e-06 4.662340917465653e-06 9.44342735230976e-07)
+            baseDiameter    0.0762
+            aspectRatio     5  #length over diameter
+            shape           tangentOgive
+        }
+
+        UpperBodyTube{
+            class           Bodytube
+            mass            0.0646 
+            position        (0 0 -0.381)
+            cg              (0 0 -0.15)
+            MOI             (0.0017118892333333338 0.0017118892333333338 1.1837950000000002e-05)
+            outerDiameter   0.0762
+            length          0.381
+        }
+    }
+}

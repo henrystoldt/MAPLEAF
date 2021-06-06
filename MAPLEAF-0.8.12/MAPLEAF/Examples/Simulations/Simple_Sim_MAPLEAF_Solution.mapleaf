@@ -1,0 +1,56 @@
+# MAPLEAF
+# See SimDefinitionTemplate.mapleaf for file format info & description of all options
+
+#Capstone Group
+#Paul Harris - Practice Simulation
+#Gravity
+
+SimControl{
+# Time Stepping:
+    timeDiscretization      RK4
+    timeStep                0.05
+
+#Plot Parameters
+    plot Position Velocity FlightAnimation
+
+#End Condition Criteria (ie. Throw the ball up and stop when it hits ground)
+    EndCondition Altitude
+    EndConditionValue -0.01 # m 
+}
+
+# Initializing Enviroment Parameters
+Environment{
+# Flat Earth Model - Relies on launch tower frame. [E, N, UP]
+
+    LaunchSite{
+        elevation       0 # m (sea level)
+        latitude        0 # Not affected in Flat model
+        longitude       0 # Not affected in Flat model
+    }
+
+# Flat earth, gravity according to inverse square law - minimal errors for short / low-altitude flights
+    EarthModel          Flat
+}
+
+# Initializing Rocket Parameters
+Rocket{
+    position            (0 0 0) # m
+    velocity            (0 0 50) # m/s
+
+    Stage{
+        class               Stage
+        Mass{
+            class           Mass
+            mass            454 # kg (= 1000 lbm)
+            position        (0 0 0.5)
+            MOI             (4.8809446628 4.8809446628 4.8809446628) # kg*m^2 (3.6 slug*ft^2)
+        }
+
+        AeroForce{
+            class           AeroForce            
+            position        (0 0 0) # Force application location
+            Aref            0.0182414654525 # m^2 Reference area for all coefficients
+            Cd              0 # Applied parallel to wind direction
+        }
+    }
+}
