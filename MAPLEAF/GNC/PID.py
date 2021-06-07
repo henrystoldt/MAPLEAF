@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator
 from itertools import combinations_with_replacement as cwithr
 
-__all__ = [ "PIDController", "ConstantGainPIDController", "ScheduledGainPIDController" ]
+__all__ = [ "PIDController", "ConstantGainPIDController", "TableScheduledGainPIDController", "EquationScheduledGainPIDController"]
 
 class PIDController():
 
@@ -108,84 +108,79 @@ class TableScheduledGainPIDController(PIDController):
         self.updateCoefficients(P, I, D)
 
 class EquationScheduledGainPIDController(PIDController):
-    def __init__(self, coefficientList, scheduledParameterList, equationOrder, initialError=0, maxIntegral=None):
+    def __init__(self, coefficientMatrix, parameterList, equationOrder, initialError=0, maxIntegral=None):
         '''
             Inputs:
-                gainTableFilePath:  (string) Path to gain table text file ex: './MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt'
-                nKeyColumns:        (int) Number of 'key' columns (independent variables). Key columns are assumed to be the nKeyColumns leftmost ones
-                PCol:               (int) zero-indexed column number of P Coefficient
-                DCol:               (int) zero-indexed column number of D Coefficient
-
-                Note:
-                    It is assumed that PCol, ICol, and DCol exist one after another in the table
+                coefficientList     (int) List of coefficients to be used in the gain scheduling equation
+                parameterList:      (string) List of names of the parameters used in the gain scheduling, must be in the standardParameters dictionary
+                equationOrder:       (int) Max order of the gain schedule equation
                 
-                Inputs passed through to parent class (PICController):
+                Inputs passed through to parent class (PIDController):
                     initialError, maxIntegral
         '''
         PIDController.__init__(self, 0,0,0, initialError=initialError, maxIntegral=maxIntegral)
 
-        #Check that there are enough coefficients in the coefficients list
-        self.numScheduledParameters = len(scheduledParameterList)
-        for i in range(self.numScheduledParameters):
-            self.scheduledParametersPositionList(i) = (i)
-
+        #Move inputs into internal variables
         self.equationOrder = equationOrder
-        self.coefficientList = coefficientList
-        self.variableValues = []
+        self.PcoefficientList = coefficientMatrix[0]
+        self.IcoefficientList = coefficientMatrix[1]
+        self.DcoefficientList = coefficientMatrix[2]
+        self.numberedVariableList = []
+        numVariables = 0
 
-        desiredNumberOfCoefficients = 0
-        for i in range(self.equationOrder):
-            possibleCombinations = cwithr(self.scheduledParametersPositionList,1)
-            numberOfCombinations = len(possibleCombinations)
-            desiredNumberOfCoefficients = desiredNumberOfCoefficients + numberOfCombinations
+        #Create a list that represents the parameters as numbers
+        self.numberedParameterList = []
+        for i in range(len(parameterList)):
+          self.numberedParameterList.append(i)
+
+        #variablesList is a list containing every variable combination using the equation order and the parameter list
+        #numVariables is used to check that correct number of coefficients was provided
+        for i in range(self.equationOrder+1):
+          parameterCombinationsList = list(cwithr(self.numberedParameterList, i))
+          numVariables = numVariables + len(parameterCombinationsList)
+          self.numberedVariableList.append(parameterCombinationsList)
+
+        #Store the number of coefficients
+        self.numPCoefficients = len(self.PcoefficientList)
+        self.numICoefficients = len(self.IcoefficientList)
+        self.numDCoefficients = len(self.DcoefficientList)
         
-        if len(coefficientList) != desiredNumberOfCoefficients:
-            raise ValueError("Number of given coefficients: {} not suitable for equation of order {} with {} scheduled parameters".format(len(self.coefficientList),\
-            self.equationOrder,self.numScheduledParameters))
+        if self.numPCoefficients != numVariables:
+            raise ValueError("Number of given P coefficients: {}, not suitable for equation of order {} with {} scheduled parameters".format(len(self.PcoefficientList),\
+            self.equationOrder,len(parameterList)))
 
-        self.variableValues = np.zeros(len(coefficientList))
+        if self.numICoefficients != numVariables:
+            raise ValueError("Number of given I coefficients: {}, not suitable for equation of order {} with {} scheduled parameters".format(len(self.IcoefficientList),\
+            self.equationOrder,len(parameterList)))
 
-    def _updateVariablesFromParameters(self,parameterValues):
+        if self.numDCoefficients != numVariables:
+            raise ValueError("Number of given D coefficients: {}, not suitable for equation of order {} with {} scheduled parameters".format(len(self.DcoefficientList),\
+            self.equationOrder,len(parameterList)))
+
+        self.variableValuesList = np.zeros(numVariables)
+
+    def _updateVariableValuesFromParameters(self,parameterValueList):
         
-        variableList = []
-        for order in range(self.equationOrder):
-            variableCombinations = cwithr(self.scheduledParametersPositionList,order)
-            variableList.append(variableCombinations)
+        variableIndex = 0
+        for i in range(len(self.numberedVariableList)):
+          for j in range(len(self.numberedVariableList[i])):
+            variableValue = 1
+            if i != 0: #Skipping the empty "constant"entry for now"
+                for k in range(len(self.numberedVariableList[i][j])):
+                  temp = parameterValueList[self.numberedVariableList[i][j][k]]
+                  variableValue = variableValue*temp
+            self.variableValuesList[variableIndex] = variableValue
+            variableIndex = variableIndex + 1
+        
+    def updateCoefficientsFromEquation(self,parameterValueList):
 
-        for variable in range(len(self.coefficientList)):
-            total = 1
-            for parameter in variableList(variable):
-                total = total*parameterValues(parameter)
-            self.variableValue(variable) = total
+      self._updateVariableValuesFromParameters(parameterValueList)
+      P = 0
+      I = 0
+      D = 0
+      for i in range(len(self.variableValuesList)):
+        P = P + self.variableValuesList[i]*self.PcoefficientList[i]
+        I = I + self.variableValuesList[i]*self.IcoefficientList[i]
+        D = D + self.variableValuesList[i]*self.DcoefficientList[i]
 
-    def _getPIDCoeffs(parameterValues):
-
-        for 
-
-
-
-
-        #Create interpolation function for PID coefficients
-        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
-
-    def updateCoefficientsFromGainEquation(self, parameterValues):
-        P, I, D = self._getPIDCoeffs(keyList)
-        self.updateCoefficients(P, I, D)
-
-class ConstantGainPIDController(PIDController):
-
-    def __init__(self, P=0, I=0, D=0, initialError=0, maxIntegral=None):
-        '''
-            Inputs:
-                P:                  (int) Proportional Gain
-                I:                  (int) Integral Gain
-                D:                  (int) Derivative Gain
-                DCol:               (int) zero-indexed column number of D Coefficient
-
-                Note:
-                    It is assumed that PCol, ICol, and DCol exist one after another in the table
-                
-                Inputs passed through to parent class (PICController):
-                    initialError, maxIntegral
-        '''
-        PIDController.__init__(self, P,I,D, initialError=initialError, maxIntegral=maxIntegral)
+      self.updateCoefficients(P,I,D)

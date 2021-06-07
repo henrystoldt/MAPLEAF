@@ -27,9 +27,11 @@ Rocket{
         desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
     
         MomentController{
-            Type                    TableScheduledGainPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
-            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
-            scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
+            Type                            EquationScheduledGainPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
+            lateralGainCoeffFilePath        MAPLEAF/Examples/TabulatedData/lateralPIDEquationCoeffs.txt
+            longitudinalGainCoeffFilePath   MAPLEAF/Examples/TabulatedData/longitudinalPIDEquationCoeffs.txt
+            scheduledBy                     Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - must match Aeroparameters
+            equationOrder                   2
         }
 
         # Simulation will not take time steps larger than 1/updateRate

@@ -4,7 +4,7 @@ from math import pi
 import numpy as np
 
 from MAPLEAF.GNC import \
-    ScheduledGainPIDRocketMomentController
+    TableScheduledGainPIDRocketMomentController, EquationScheduledGainPIDRocketMomentController
 from MAPLEAF.GNC import Stabilizer
 from MAPLEAF.Motion import AngularVelocity, Quaternion, RigidBodyState, Vector
 from MAPLEAF.IO import SimDefinition
@@ -13,7 +13,7 @@ from test.testUtilities import assertVectorsAlmostEqual
 
 class TestScheduledGainPIDRocketMomentController(unittest.TestCase):
     def setUp(self):
-        self.momentController = ScheduledGainPIDRocketMomentController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", ["Mach", "Altitude"])
+        self.momentController = TableScheduledGainPIDRocketMomentController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", ["Mach", "Altitude"])
         self.stabilizer = Stabilizer(Vector(0,0,1))
 
     def test_getOrientationErrorAndGetTargetOrientation(self):
@@ -128,6 +128,63 @@ class TestScheduledGainPIDRocketMomentController(unittest.TestCase):
             # print(ExpectedM[i])
             self.assertAlmostEqual(calculatedMoments[i], ExpectedM[i])
 
+class TestEquationScheduledGainPIDROcketMomentController(unittest.TestCase):
+    
+    def setUp(self):
+      parameterList = ["Mach", "Altitude"]
+      equationOrder = 2
+      self.momentController = EquationScheduledGainPIDRocketMomentController("MAPLEAF/Examples/TabulatedData/lateralPIDEquationCoeffs.txt",\
+        "MAPLEAF/Examples/TabulatedData/lateralPIDEquationCoeffs.txt", parameterList, equationOrder)
+
+      self.stabilizer = Stabilizer(Vector(0,0,1))
+
+    def test_getEquationCoefficientsFromTextFile(self):
+      result = self.momentController.pitchController.PcoefficientList
+      expectedResult = [1,2,3,4,5,6]
+
+      for i in range(len(expectedResult)):
+        self.assertAlmostEqual(result[i],expectedResult[i])
+
+    def test_getDesiredMoments(self):
+      # Basic spin case
+        pos = Vector(0,0,0)
+        vel = Vector(0,0,0)
+        orientation = Quaternion(axisOfRotation=Vector(0,0,1), angle=0.12)
+        targetOrientation = Quaternion(axisOfRotation=Vector(0,0,1), angle=0)
+        angularVelocity = AngularVelocity(axisOfRotation=Vector(0,0,1), angularVel=0)
+        rigidBodyState = RigidBodyState(pos, vel, orientation, angularVelocity)
+        expectedAngleError = np.array([ 0, 0, -0.12 ])
+
+        dt = 1
+        ExpectedPIDCoeffs = [[ 687, 687, 687], [ 687, 687, 687], [ 687, 687, 687]]
+
+        ExpectedDer = expectedAngleError / dt
+        ExpectedIntegral = expectedAngleError * dt / 2
+
+        ExpectedM = []
+        for i in range(3):
+            moment = ExpectedPIDCoeffs[i][0]*expectedAngleError[i] + ExpectedPIDCoeffs[i][1]*ExpectedIntegral[i] + ExpectedPIDCoeffs[i][2]*ExpectedDer[i]
+            ExpectedM.append(moment)
+
+        # Replace keyFunctions with these ones that return fixed values
+        def fakeMach(*args):
+            # MachNum = 1
+            return 1
+
+        def fakeAltitude(*args):
+            # Altitude = 10
+            return 10
+
+        self.momentController.parameterFetchFunctionList = [ fakeMach, fakeAltitude ]
+
+        calculatedMoments = self.momentController.getDesiredMoments(rigidBodyState, "fakeEnvironemt", targetOrientation, 0, dt)
+        for i in range(3):
+            # print(calculatedMoments[i])
+            # print(ExpectedM[i])
+            self.assertAlmostEqual(calculatedMoments[i], ExpectedM[i])
+
+
+      
 class TestIdealMomentController(unittest.TestCase):
     def test_instantTurn(self):
         simulationDefinition = SimDefinition("MAPLEAF/Examples/Simulations/Canards.mapleaf", silent=True)

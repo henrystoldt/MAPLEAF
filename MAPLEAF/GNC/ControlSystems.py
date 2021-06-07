@@ -6,7 +6,7 @@ Control systems run a simulated control loops between simulation time steps, and
 import abc
 import numpy as np
 
-from MAPLEAF.GNC import ConstantGainPIDRocketMomentController, ScheduledGainPIDRocketMomentController, Stabilizer, IdealMomentController
+from MAPLEAF.GNC import ConstantGainPIDRocketMomentController, TableScheduledGainPIDRocketMomentController, EquationScheduledGainPIDRocketMomentController, Stabilizer, IdealMomentController
 from MAPLEAF.IO import SubDictReader
 from MAPLEAF.Motion import integratorFactory
 
@@ -66,14 +66,20 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             Iz = controlSystemDictReader.getFloat("MomentController.Iz")
             Dz = controlSystemDictReader.getFloat("MomentController.Dz")
             self.momentController = ConstantGainPIDRocketMomentController(Pxy,Ixy,Dxy,Pz,Iz,Dz)
-        elif momentControllerType == "ScheduledGainPIDRocket":
+        elif momentControllerType == "TableScheduledGainPIDRocket":
             gainTableFilePath = controlSystemDictReader.getString("MomentController.gainTableFilePath")
             keyColumnNames = controlSystemDictReader.getString("MomentController.scheduledBy").split()
-            self.momentController = ScheduledGainPIDRocketMomentController(gainTableFilePath, keyColumnNames)
+            self.momentController = TableScheduledGainPIDRocketMomentController(gainTableFilePath, keyColumnNames)
+        elif momentControllerType == "EquationScheduledGainPIDRocket":
+            lateralGainCoeffFilePath = controlSystemDictReader.getString("MomentController.lateralGainCoeffFilePath")
+            longitudinalGainCoeffFilePath = controlSystemDictReader.getString("MomentController.longitudinalGainCoeffFilePath")
+            parameterList = controlSystemDictReader.getString("MomentController.scheduledBy").split()
+            equationOrder = controlSystemDictReader.getInt("MomentController.equationOrder")
+            self.momentController = EquationScheduledGainPIDRocketMomentController(lateralGainCoeffFilePath, longitudinalGainCoeffFilePath, parameterList, equationOrder)
         elif momentControllerType == "IdealMomentController":
             self.momentController = IdealMomentController(self.rocket)
         else:
-            raise ValueError("Moment Controller Type: {} not implemented. Try ScheduledGainPIDRocket or IdealMomentController".format(momentControllerType))
+            raise ValueError("Moment Controller Type: {} not implemented. Try TableScheduledGainPIDRocket or IdealMomentController".format(momentControllerType))
 
         ### Set update rate ###
         if momentControllerType == "IdealMomentController":
