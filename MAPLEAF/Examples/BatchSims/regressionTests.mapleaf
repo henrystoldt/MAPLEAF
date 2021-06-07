@@ -39,12 +39,12 @@ ExampleWindTunnelCase{
 			scalingFactor				-1
       plotTitle					Example Wind Tunnel
       legendLabel					Total
-      saveLocation                ./test/V&V/SampleWindTunnelPlot.pdf
+      saveLocation                ./MAPLEAF/Examples/V&V/SampleWindTunnelPlot.pdf
     }
   }
 }
 
-lpExampleFlightCase{
+ExampleFlightCase{
 	simDefinitionFile	./MAPLEAF/Examples/Simulations/AdaptTimeStep.mapleaf
 
 	ExpectedFinalValues{
@@ -72,13 +72,13 @@ lpExampleFlightCase{
 			yLimits					0 100	
 			plotTitle				Example Plot
 			legendLabel			Altitude Sim, Velocity Sim
-			saveLocation	./test/V&V/SamplePlot.pdf
+			saveLocation	./MAPLEAF/Examples/V&V/SamplePlot.pdf
 
 			comparisonData{
 				columnsToPlot	posZ velZ
 				lineFormat		 --b --k
 				legendLabel		Altitude Comparison, Velocity Comparison
-				file	        ./test/V&V/sampleComparisonData.csv
+				file	        ./MAPLEAF/Examples/V&V/sampleComparisonData.csv
 			}
 		}
 	}
@@ -123,7 +123,7 @@ TimeStepAdaptationDemo{
 			xLimits					0 45
 			yLimits					0 0.5
 			legendLabel				None
-			saveLocation			./test/V&V/AdaptiveIntegration/TimeStepPlot.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/AdaptiveIntegration/TimeStepPlot.pdf
 		}
 
 		Error{
@@ -136,10 +136,10 @@ TimeStepAdaptationDemo{
 			xLimits					0 45
 			yLimits					1e-5 1e-1
 			legendLabel				Estimated Error
-			saveLocation			./test/V&V/AdaptiveIntegration/IntegrationError.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/AdaptiveIntegration/IntegrationError.pdf
 
 			errorTarget{
-				file 				./test/V&V/AdaptiveIntegration/expectedValues.csv
+				file 				./MAPLEAF/Examples/V&V/AdaptiveIntegration/expectedValues.csv
 				columnsToPlot		Target Max
 				xColumnName			Time
 				lineFormat			-. -.

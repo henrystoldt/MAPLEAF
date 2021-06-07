@@ -39,17 +39,21 @@ MAPLEAF.Rocket relies on (in order of coupling) `MAPLEAF.Motion`, `MAPLEAF.ENV`,
 # Make the classes in all submodules importable directly from MAPLEAF.Rocket
 from .RocketComponents import *
 from .simEventDetector import *
+
 from .boatTail import *
 from .bodyTube import *
 from .Fins import *
 from .Propulsion import *
+from .sampleStatefulRocketComponent import *
 from .Recovery import *
 from .noseCone import *
-from .RocketComponentFactory import *
+
+from .RocketComponentFactory import * # Must be imported after the components above, the factory relies on them
+
 from .stage import *
 from .rocket import *
 
-subModules = [ RocketComponents, simEventDetector, boatTail, bodyTube, Fins, Propulsion, Recovery, noseCone, stage, rocket, RocketComponentFactory ]
+subModules = [ RocketComponents, simEventDetector, boatTail, bodyTube, Fins, Propulsion, sampleStatefulRocketComponent, Recovery, noseCone, stage, rocket, RocketComponentFactory ]
 
 __all__ = [ ]
 

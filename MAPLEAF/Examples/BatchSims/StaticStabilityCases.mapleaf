@@ -52,14 +52,14 @@ StaticStabilityLongFinsOn{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCAFin.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCAFin.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CA
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCAFin.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCAFin.csv
 			}					 
 		}
 
@@ -73,14 +73,14 @@ StaticStabilityLongFinsOn{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCmFin.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCmFin.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cm
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCmFin.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCmFin.csv
 			}					 
 		}
 
@@ -94,14 +94,14 @@ StaticStabilityLongFinsOn{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCNFin.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCNFin.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CN
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCnFin.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCnFin.csv
 			}					 
 		}
 	}	
@@ -160,14 +160,14 @@ StaticStabilityLongFinsOff{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCAFinsOff.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCAFinsOff.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CA
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCAFinsOff.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCAFinsOff.csv
 			}		 
 		}
 
@@ -181,14 +181,14 @@ StaticStabilityLongFinsOff{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCmFinsOff.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCmFinsOff.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cm
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCmFinsOff.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCmFinsOff.csv
 			}					 
 		}
 
@@ -202,14 +202,14 @@ StaticStabilityLongFinsOff{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCNFinsOff.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCNFinsOff.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CN
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCNFinsOff.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCNFinsOff.csv
 			}					 
 		}
 	}	
@@ -271,14 +271,14 @@ StaticStabilityLongFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCACant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCACant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CA
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCACant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCACant.csv
 			}		 
 		}	
 
@@ -292,14 +292,14 @@ StaticStabilityLongFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongClCant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongClCant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cl
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongClCant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongClCant.csv
 			}			
 		}
 
@@ -313,14 +313,14 @@ StaticStabilityLongFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCmCant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCmCant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cm
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCmCant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCmCant.csv
 			}					 
 		}
 
@@ -334,14 +334,14 @@ StaticStabilityLongFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityLongCNCant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCNCant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CN
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityLongCNCant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityLongCNCant.csv
 			}					 
 		}		
 	}	
@@ -402,14 +402,14 @@ StaticStabilityShortFinsOn{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCAFin.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCAFin.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CA
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCAFin.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCAFin.csv
 			}		 
 		}	
 
@@ -423,14 +423,14 @@ StaticStabilityShortFinsOn{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCmFin.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCmFin.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cm
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCmFin.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCmFin.csv
 			}					 
 		}
 
@@ -444,14 +444,14 @@ StaticStabilityShortFinsOn{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCNFin.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCNFin.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CN
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCNFin.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCNFin.csv
 			}					 
 		}
 	}	
@@ -510,14 +510,14 @@ StaticStabilityShortFinsOff{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCAFinsOff.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCAFinsOff.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CA
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCAFinsOff.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCAFinsOff.csv
 			}		 
 		}
 
@@ -531,14 +531,14 @@ StaticStabilityShortFinsOff{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCmFinsOff.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCmFinsOff.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cm
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCmFinsOff.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCmFinsOff.csv
 			}					 
 		}
 
@@ -552,14 +552,14 @@ StaticStabilityShortFinsOff{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCNFinsOff.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCNFinsOff.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CN
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCNFinsOff.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCNFinsOff.csv
 			}					 
 		}			
 	}	
@@ -621,14 +621,14 @@ StaticStabilityShortFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCACant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCACant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CA
 			xColumnName				Mach
 			lineFormat		.k
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCACant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCACant.csv
 			}		 
 		}	
 
@@ -642,14 +642,14 @@ StaticStabilityShortFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortClCant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortClCant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cl
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortClCant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortClCant.csv
 			}			
 		}
 
@@ -663,14 +663,14 @@ StaticStabilityShortFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCmCant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCmCant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			Cm
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCmCant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCmCant.csv
 			}					 
 		}
 
@@ -684,14 +684,14 @@ StaticStabilityShortFinsCant{
       scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite			True
-			saveLocation			./test/V&V/StaticStability/StaticStabilityShortCNCant.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCNCant.pdf
 		 
 			ComparisonDataExp{
 			columnsToPlot			CN
 			xColumnName				Mach
 			lineFormat		.y
 			legendLabel		WindTunnel			
-			file							./test/V&V/StaticStability/StaticStabilityShortCNCant.csv
+			file							./MAPLEAF/Examples/V&V/StaticStability/StaticStabilityShortCNCant.csv
 			}					 
 		}
 	}	

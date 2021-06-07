@@ -59,15 +59,15 @@ classes*.dot
 classes*.pdf
 
 # Exclude regression testing plots
-test/V&V/*.pdf
-test/V&V/*.png
-test/V&V/*.eps
-test/V&V/*/*.pdf
-test/V&V/*/*.png
-test/V&V/*/*.eps
-test/V&V/*/*/*.pdf
-test/V&V/*/*/*.png
-test/V&V/*/*/*.eps
+MAPLEAF/Examples/V&V/*.pdf
+MAPLEAF/Examples/V&V/*.png
+MAPLEAF/Examples/V&V/*.eps
+MAPLEAF/Examples/V&V/*/*.pdf
+MAPLEAF/Examples/V&V/*/*.png
+MAPLEAF/Examples/V&V/*/*.eps
+MAPLEAF/Examples/V&V/*/*/*.pdf
+MAPLEAF/Examples/V&V/*/*/*.png
+MAPLEAF/Examples/V&V/*/*/*.eps
 
 # Exlude temporary files generated with regression testing results in them
 *_newExpectedResultsRecorded*

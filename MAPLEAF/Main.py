@@ -7,13 +7,14 @@ import argparse
 import os
 import sys
 import time
+from pathlib import Path
 from typing import List
 
 import MAPLEAF.IO.Logging as Logging
 import MAPLEAF.IO.Plotting as Plotting
 from MAPLEAF.IO import SimDefinition, getAbsoluteFilePath
-from MAPLEAF.SimulationRunners import (ConvergenceSimRunner,
-                                       optimizationRunnerFactory, Simulation,
+from MAPLEAF.SimulationRunners import (ConvergenceSimRunner, Simulation,
+                                       optimizationRunnerFactory,
                                        runMonteCarloSimulation)
 from MAPLEAF.SimulationRunners.Batch import main as batchMain
 
@@ -70,26 +71,32 @@ def buildParser() -> argparse.ArgumentParser:
     return parser
 
 def findSimDefinitionFile(providedPath):
+    # It is already a path, just return it
     if os.path.isfile(providedPath):
         return providedPath
 
-    # Check if it's a relative path that needs to be made absolute
-    possibleRelPath = providedPath
-    absPath = getAbsoluteFilePath(possibleRelPath, silent=True)
-    if os.path.isfile(absPath):
-        return absPath
-    
-    # Check if it's an example case
-    if possibleRelPath[-8:] != ".mapleaf":
-        # If it's just the case name (ex: 'Staging') add the file extension
-        possibleRelPath += ".mapleaf"
-    
-    possibleRelPath = "MAPLEAF/Examples/Simulations/" + possibleRelPath
-    absPath = getAbsoluteFilePath(possibleRelPath)
-    if os.path.isfile(absPath):
-        return absPath  
+    # Track if it is a relative path, relative to a different location than the current terminal (example/default cases)
+    installationLocation = Path(__file__).parent.parent
+    alternateLocations = [ 
+        installationLocation / "MAPLEAF/Examples/Simulations/", 
+        installationLocation / "MAPLEAF/Examples/BatchSims/" 
+    ]
 
-    print("ERROR: Unable to locate simulation definition file: {}!".format(providedPath))
+    possibleRelativePaths = [ providedPath ]
+    
+    if len(providedPath) < 8 or providedPath[-8:] != ".mapleaf":
+        # If it's just the case name (ex: 'Staging') try also adding the file extension
+        possibleRelativePaths = [ providedPath, providedPath + ".mapleaf" ]
+
+    for path in possibleRelativePaths:
+        for alternateLocation in alternateLocations:
+            absPath = getAbsoluteFilePath(path, alternateLocation)
+
+            if os.path.isfile(absPath):
+                # We've located the file!
+                return absPath
+
+    print("ERROR: Unable to locate simulation definition file: {}! Checked whether the path was relative to the current command line location, the MAPLEAF installation directory, or one of the example cases. To be sure that your file will be found, try using an absolute path.".format(providedPath))
     sys.exit()
 
 def isOptimizationProblem(simDefinition) -> bool:

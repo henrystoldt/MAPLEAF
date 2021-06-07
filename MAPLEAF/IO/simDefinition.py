@@ -942,6 +942,7 @@ def getAbsoluteFilePath(relativePath: str, alternateRelativeLocation: str = "", 
                 return str(absolutePath)
                 
     if not silent:
-        print("WARNING: Unable to compute absolute path replacement for a path which is suspected to be relative to the MAPLEAF installation location: {}".format(relativePath))
+        if ".pdf" not in str(relativePath): # Assume .pdf files are outputs, may not be created yet - so we wouldn't expect to find them immediately!
+            print("WARNING: Unable to compute absolute path replacement for: {}, try providing an absolute path".format(relativePath))
         
-    return relativePath
+    return str(relativePath)

@@ -56,14 +56,14 @@ ParametricFin5{
 			yLimits						0.3 1
 			legendLabel					MAPLEAF
 			overwrite			    	True
-			saveLocation				./test/V&V/Parametric/Fin5/CN.pdf
+			saveLocation				./MAPLEAF/Examples/V&V/Parametric/Fin5/CN.pdf
 
 			WindTunnel{
 				columnsToPlot			CN
 				xColumnName				Mach
 				lineFormat				Pk
 				legendLabel				Wind Tunnel
-				file					./test/V&V/Parametric/Fin5/ParametricFin5CN.csv
+				file					./MAPLEAF/Examples/V&V/Parametric/Fin5/ParametricFin5CN.csv
 			}
 
 			OpenRocket{
@@ -72,7 +72,7 @@ ParametricFin5{
 				lineFormat				d
 				lineColors				\#bc5090
 				legendLabel				OpenRocket v15.03
-				file					./test/V&V/Parametric/Fin5/ParametricFin5CNOR.csv
+				file					./MAPLEAF/Examples/V&V/Parametric/Fin5/ParametricFin5CNOR.csv
 				validationData			False
 			}			
 		}
@@ -94,7 +94,7 @@ ParametricFin5{
 			yLimits					-0.8	0.6
 
 			OpenRocket{
-				file					./test/V&V/Parametric/Fin5/ParametricFin5CNOR.csv
+				file					./MAPLEAF/Examples/V&V/Parametric/Fin5/ParametricFin5CNOR.csv
 			}
 		}
 	}

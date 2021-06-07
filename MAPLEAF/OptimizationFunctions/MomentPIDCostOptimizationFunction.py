@@ -11,7 +11,15 @@ def OptimizationFunction(logFilesList):
     #print("HEEEEEYYYYYY!!!!!!", file=sys.__stdout__)
     #print(logFilesList, file=sys.__stdout__)
 
-    filePath = logFilesList[2]
+    filePath = None
+    for logFile in logFilesList:
+        if ("ControlSystem_Log.csv" in logFile):
+            filePath = logFile
+            break
+
+    if filePath == None:
+        raise ValueError("ERROR: could not find controlSystemEvaluationLog. Make sure logging level is at least 4. Available log files: {}".format(logFilesList))
+
     columnSpecs = ["Time","Error"]
 
     columns, columnNames = Plotting.getLoggedColumns(filePath, columnSpecs, enableCache=False)
@@ -19,6 +27,9 @@ def OptimizationFunction(logFilesList):
     pitchErrorIntegral = 0
     yawErrorIntegral = 0
     rollErrorIntegral = 0
+
+    #print(columnNames,file=sys.__stdout__)
+    #print(columns,file=sys.__stdout__)
 
     for i in range(len(columns[0])):
 

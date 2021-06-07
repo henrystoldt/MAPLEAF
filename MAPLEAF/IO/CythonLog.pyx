@@ -75,11 +75,12 @@ cdef class Log():
     cpdef deleteLastRow(self):
         nVals = len(self.logColumns["Time(s)"])
 
-        for col in self.logColumns:
-            # If column has as many items in it as expected, remove the last one
-            # Don't do complete error checking here, assume that will be done in self.newLogRow()
-            if len(self.logColumns[col]) == nVals:
-                self.logColumns[col].pop()
+        if nVals > 0:
+            for col in self.logColumns:
+                # If column has as many items in it as expected, remove the last one
+                # Don't do complete error checking here, assume that will be done in self.newLogRow()
+                if len(self.logColumns[col]) == nVals:
+                    self.logColumns[col].pop()
 
     cpdef addColumn(self, colName, fillValue=None):
         ''' Returns reference to the log column (list) '''
@@ -200,10 +201,12 @@ cdef class TimeStepLog(Log):
         times = self.logColumns["Time(s)"]
 
         nRows = len(times)
-        for i in range(nRows-1):
-            timeStepSizes.append(times[i+1] - times[i])
+        if nRows > 1:
+            for i in range(nRows-1):
+                # Calculate the time step sizes
+                timeStepSizes.append(times[i+1] - times[i])
 
-        if nRows > 0:
+            # Make the time step column as long as the others by adding a fake last value (repeat the second last value)
             timeStepSizes.append(timeStepSizes[-1])
 
         self.logColumns["TimeStep(s)"] = timeStepSizes

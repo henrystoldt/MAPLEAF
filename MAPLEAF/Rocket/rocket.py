@@ -12,7 +12,7 @@ import os
 import matplotlib.pyplot as plt
 from MAPLEAF.ENV import Environment, EnvironmentalConditions
 from MAPLEAF.GNC import RocketControlSystem
-from MAPLEAF.IO import Log, SubDictReader, TimeStepLog
+from MAPLEAF.IO import Log, Logging, SubDictReader, TimeStepLog
 from MAPLEAF.IO.HIL import HILInterface
 from MAPLEAF.Motion import (AeroParameters, AngularVelocity, Inertia,
                             Quaternion, RigidBody, RigidBody_3DoF,
@@ -153,6 +153,7 @@ class Rocket(CompositeObject):
         ''' Log containing one entry per rocket motion derivative evaluation, contains component forces. None if logging level < 2 '''
 
         loggingLevel = int(self.simDefinition.getValue("SimControl.loggingLevel"))
+        self.loggingLevel = loggingLevel
 
         if loggingLevel > 0:
             # Create the time step log and add columns to track the rocket state between each time step
@@ -214,7 +215,8 @@ class Rocket(CompositeObject):
         if ( rocketDictReader.tryGetString("ControlSystem.controlledSystem") != None or rocketDictReader.tryGetString("ControlSystem.MomentController.Type") == "IdealMomentController") and stageToInitialize == None:
             # Only create a control system if this is NOT a dropped stage
             ControlSystemDictReader = SubDictReader("Rocket.ControlSystem", simDefinition=self.simDefinition)
-            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self)
+            controlSystemLogging = loggingLevel > 3
+            self.controlSystem = RocketControlSystem(ControlSystemDictReader, self, log=controlSystemLogging, silent=silent)
 
     def _getMaxBodyTubeDiameter(self):
         ''' Gets max body tube diameter directly from config file '''
@@ -610,41 +612,25 @@ class Rocket(CompositeObject):
         return totalForce
     
     #### Driving / Controlling Simulation ####
-    def _runControlSystemAndLogStartingState(self, dt):
+    def _logState(self):
         '''
-            Attempts to run the rocket control system (only runs if it's time to run again, based on its updated rate) (updating target positions for actuators)
-            Logs the state of the rocket to the main simulation log
+            Logs the initial state of the rocket to the time step log
         '''
-        startState = self.rigidBody.state
-        startTime = self.rigidBody.time       
-
-        # Control loop (if applicable)
-        if self.controlSystem != None and not self.isUnderChute:
-            environment = self._getEnvironmentalConditions(startTime, startState)
-
-            ### Run Control Loop ###
-            newTargetActuatorDeflections = self.controlSystem.runControlLoopIfRequired(startTime, startState, environment)
-            
-            # if newTargetActuatorDeflections != False:
-                # runControlLoopIfRequired returns False if the control doesn't run
-                # Add target deflections to the main log string
-                # TODO: Control system should get its own log, this code is no longer functional
-                # deflStrings = [ " {:>7.3f}".format(defl) for defl in newTargetActuatorDeflections ]
-                # controlLogString = "".join(deflStrings)
+        state = self.rigidBody.state
+        time = self.rigidBody.time
 
         if self.timeStepLog is not None:
-            # Log the rocket state
-            self.timeStepLog.newLogRow(startTime)
-            self.timeStepLog.logValue("Position(m)", startState.position)
-            self.timeStepLog.logValue("Velocity(m/s)", startState.velocity)
+            self.timeStepLog.newLogRow(time)
+            self.timeStepLog.logValue("Position(m)", state.position)
+            self.timeStepLog.logValue("Velocity(m/s)", state.velocity)
 
             try: # 6DoF Mode
-                self.timeStepLog.logValue("OrientationQuaternion", startState.orientation)
-                self.timeStepLog.logValue("AngularVelocity(rad/s)", startState.angularVelocity)
+                self.timeStepLog.logValue("OrientationQuaternion", state.orientation)
+                self.timeStepLog.logValue("AngularVelocity(rad/s)", state.angularVelocity)
 
                 # Also log NED Tait-Bryan 3-2-1 z-y-x Euler Angles if in 6DoF mode
-                globalOrientation = startState.orientation
-                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*startState.position)
+                globalOrientation = state.orientation
+                orientationOfNEDFrameInGlobalFrame = self.environment.earthModel.getInertialToNEDFrameRotation(*state.position)
                 orientationRelativeToNEDFrame = orientationOfNEDFrameInGlobalFrame.conjugate() * globalOrientation
                 eulerAngles = orientationRelativeToNEDFrame.toEulerAngles()
                 self.timeStepLog.logValue("EulerAngle(rad)", eulerAngles)
@@ -652,9 +638,22 @@ class Rocket(CompositeObject):
             except AttributeError:
                 pass # 3DoF mode
 
-        altitude = self.environment.earthModel.getAltitude(*startState.position)
-        consoleOutput = "{:<8.4f} {:>6.5f}".format(startTime, altitude)
+        # Print the current time and altitude to the console
+        altitude = self.environment.earthModel.getAltitude(*state.position)
+        consoleOutput = "{:<8.4f} {:>6.5f}".format(time, altitude)
         print(consoleOutput)
+
+    def _runControlSystem(self):
+        '''
+            Attempts to run the rocket control system (only runs if it's time to run again, based on its updated rate) (updating target positions for actuators) 
+        '''
+        if self.controlSystem != None and not self.isUnderChute:
+            state = self.rigidBody.state
+            time = self.rigidBody.time
+            environment = self._getEnvironmentalConditions(time, state)
+
+            ### Run Control Loop ###
+            self.controlSystem.runControlLoopIfRequired(time, state, environment)        
 
     def timeStep(self, dt: float):
         '''
@@ -672,8 +671,8 @@ class Rocket(CompositeObject):
         # Trigger any events that occurred during the last time step
         estimatedTimeToNextEvent, accuratePrediction = self.simEventDetector.triggerEvents()
 
+        # If required, override time step to accurately resolve upcoming discrete events
         if "Adapt" in self.rigidBody.integrate.method and estimatedTimeToNextEvent < dt:
-            # Override time step to accurately resolve discrete events
             if accuratePrediction:
                 # For time-deterministic events, just set the time step to ever so slightly past the event
                 newDt = estimatedTimeToNextEvent + 1e-5
@@ -686,11 +685,13 @@ class Rocket(CompositeObject):
                 print("Rocket + SimEventDetector overriding time step from {} to {} to accurately resolve upcoming event. Estimated occurence at: {}".format(dt, newDt, estimatedOccurenceTime))
                 dt = newDt
                 
-        self._runControlSystemAndLogStartingState(dt)
+        self._runControlSystem()
+        self._logState()
 
         # Take timestep
         integrationResult = self.rigidBody.timeStep(dt)
 
+        # If required, log estimated integration error
         if "Adapt" in self.rigidBody.integrate.method and self.timeStepLog is not None:
             self.timeStepLog.logValue("EstimatedIntegrationError", integrationResult.errorMagEstimate)
             
@@ -732,13 +733,26 @@ class Rocket(CompositeObject):
             rocketName = self.components[0].name # Rocket is named after its top stage
             path = os.path.join(directory, "{}_timeStepLog.csv".format(rocketName))
             
+            # Time step log
             if self.timeStepLog.writeToCSV(path):
                 logfilePaths.append(path)
 
+            # Derivative evaluation log
             if self.derivativeEvaluationLog is not None:
                 path = os.path.join(directory, "{}_derivativeEvaluationLog.csv".format(rocketName))  
                 
                 if self.derivativeEvaluationLog.writeToCSV(path):
                     logfilePaths.append(path)
+
+                    # Calculate aerodynamic coefficients if desired
+                    if self.loggingLevel > 2:
+                        expandedLogPath = Logging.postProcessForceEvalLog(path, refArea=self.Aref, refLength=self.maxDiameter)
+                        logfilePaths.append(expandedLogPath)
+
+            # Control system log
+            if self.controlSystem != None:
+                if self.controlSystem.log != None:
+                    controlSystemLogPath = self.controlSystem.writeLogsToFile(directory)
+                    logfilePaths.append(controlSystemLogPath)
 
         return logfilePaths
