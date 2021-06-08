@@ -147,7 +147,8 @@ Returns original relativePath if an absolute path is not found</p></div>
                 return str(absolutePath)
                 
     if not silent:
-        print(&#34;WARNING: Unable to compute absolute path replacement for: {}, try providing an absolute path&#34;.format(relativePath))
+        if &#34;.pdf&#34; not in str(relativePath): # Assume .pdf files are outputs, may not be created yet - so we wouldn&#39;t expect to find them immediately!
+            print(&#34;WARNING: Unable to compute absolute path replacement for: {}, try providing an absolute path&#34;.format(relativePath))
         
     return str(relativePath)</code></pre>
 </details>
