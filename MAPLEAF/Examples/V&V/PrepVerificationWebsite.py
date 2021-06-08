@@ -36,12 +36,16 @@ fakeModuleDirectory = MAPLEAFPath / 'MAPLEAF' / 'V&V'
 fakeModuleDirectory.mkdir(parents=True, exist_ok=True)
 regressionTestingDirectory = MAPLEAFPath / 'MAPLEAF' / 'Examples' / 'V&V'
 
+if regressionTestingDirectory.exists():
+    print("Regression testing path exists")
+
 print("Paths created")
 
 # Create __init__.py from template
-os.mkdir(fakeModuleDirectory)
 with open(regressionTestingDirectory / '__init__.py', "r") as f:
     templateText = f.read()
+
+print("Template __init__.py text obtained")
 
 with open(fakeModuleDirectory / "__init__.py", "w+") as f:
     indentedSummary = ''.join([ '    ' + x for x in resultSummary ])
