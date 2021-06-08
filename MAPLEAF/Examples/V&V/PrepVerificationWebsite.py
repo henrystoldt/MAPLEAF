@@ -31,7 +31,7 @@ removeLogger()
 print("Finished running cases")
 
 # Create the verification and validation folder, make it a python module (so it gets included in the code documentation)
-MAPLEAFPath = Path(__file__).parent.parent.parent.absolute()
+MAPLEAFPath = Path(__file__).parent.parent.parent.parent.absolute()
 fakeModuleDirectory = MAPLEAFPath / 'MAPLEAF' / 'V&V'
 fakeModuleDirectory.mkdir(parents=True, exist_ok=True)
 regressionTestingDirectory = MAPLEAFPath / 'MAPLEAF' / 'Examples' / 'V&V'
