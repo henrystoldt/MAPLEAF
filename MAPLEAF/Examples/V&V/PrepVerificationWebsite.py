@@ -28,10 +28,15 @@ sys.stdout = Logger(resultSummary)
 batchRun.printResult()
 removeLogger()
 
+print("Finished running cases")
+
 # Create the verification and validation folder, make it a python module (so it gets included in the code documentation)
 MAPLEAFPath = Path(__file__).parent.parent.parent.absolute()
 fakeModuleDirectory = MAPLEAFPath / 'MAPLEAF' / 'V&V'
+fakeModuleDirectory.mkdir(parents=True, exist_ok=True)
 regressionTestingDirectory = MAPLEAFPath / 'MAPLEAF' / 'Examples' / 'V&V'
+
+print("Paths created")
 
 # Create __init__.py from template
 os.mkdir(fakeModuleDirectory)
@@ -43,10 +48,12 @@ with open(fakeModuleDirectory / "__init__.py", "w+") as f:
     text = templateText.replace('{INSERT RESULTS HERE}', '\n\n## Console Output:  ' + indentedSummary)
     f.write(text)
 
+print("__init__.py created from template")
+
 # Create submodules, one for each case
 for caseResult in batchRun.casesRun:    
     newFolderPath = fakeModuleDirectory / caseResult.name
-    os.mkdir(newFolderPath)
+    newFolderPath.mkdir(parents=True, exist_ok=True)
 
     initPath = newFolderPath / '__init__.py'
     with open(initPath, 'w+') as f:
@@ -97,3 +104,5 @@ for caseResult in batchRun.casesRun:
         lines.append('\n"""')
 
         f.writelines(lines)
+
+    print("Created {}".format(initPath))
