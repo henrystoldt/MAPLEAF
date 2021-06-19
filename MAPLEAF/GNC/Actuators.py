@@ -6,9 +6,8 @@ import abc
 from math import e
 
 import numpy as np
-from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
-from MAPLEAF.Motion import AeroParameters
+from MAPLEAF.Motion import AeroParameters, NoNaNLinearNDInterpolator
 
 __all__ = [ "TableInterpolatingActuatorController", "FirstOrderActuator", "FirstOrderSystem", "ActuatorController", "Actuator" ]
 
@@ -62,8 +61,7 @@ class TableInterpolatingActuatorController(ActuatorController):
             raise ValueError("Number of actuators: {}, must match number of actuator deflection columns in deflection table: {}".format(nActuators, nDeflectionTableEntries))
 
         # Create interpolation function for fin deflections
-        self._getPositionTargets_Linear = LinearNDInterpolator(keys, deflData)
-        self._getPositionTargets_Nearest = NearestNDInterpolator(keys, deflData)
+        self._getPositionTargets = NoNaNLinearNDInterpolator(keys, deflData)
 
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         '''
@@ -83,21 +81,7 @@ class TableInterpolatingActuatorController(ActuatorController):
 
         return list(newActuatorPositionTargets)
 
-    def _getPositionTargets(self, *keyVector):
-        linearResult = self._getPositionTargets_Linear(*keyVector)
-        
-        if np.isnan(linearResult).any():
-            # Occurs if the requested values are outside of the bounds of the table being interpolated over
-                # In that case just return the nearest result
-            print("WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead".format(self.deflectionTablePath, keyVector))
-            return self._getPositionTargets_Nearest(*keyVector)
-        
-        else:
-            return linearResult
-
-
-
-
+    
 class Actuator(abc.ABC):
     ''' 
         Interface for actuators.
