@@ -213,6 +213,8 @@ class SimDefinition():
             self.rng = random.Random(randomSeed)
             ''' Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. '''
 
+            self.resampleProbabilisticValues()            
+
     def _loadSubSimDefinition(self, path: str):
         ''' 
             In the parsing process, may need to load other sim definition files, use this function when doing that to detect circular references 
@@ -466,7 +468,7 @@ class SimDefinition():
         return Dict
 
     #### Normal Usage ####
-    def resampleProbabilisticValues(self):
+    def resampleProbabilisticValues(self, Dict=None):
         '''
             Normal Distribution Sampling:
                 If (key + "_stdDev") exists and the value being returned is a scalar or Vector value, returns a scalar or vector sampled from a normal distribution
@@ -474,50 +476,53 @@ class SimDefinition():
                     For a vector value, a vector of standard deviations is expected
                 For repeatable sampling, set the value "MonteCarlo.randomSeed" in the file loaded by this class
         '''
+        if Dict is None:
+            Dict = self.dict
+
         if not self.disableDistributionSampling:
-            for key in self.dict:
+            keys = list(Dict.keys()) # Get a list of keys at the beginning to avoid issues from the number of keys changing during iterations
+            
+            for key in keys:
                 ### Sample any probabilistic values from normal distribution ###
                 stdDevKey = key + "_stdDev"
                 
-                if stdDevKey in self.dict:
+                if stdDevKey in Dict:
                     logLine = None
                     meanKey = key + "_mean"
 
-                    if not meanKey in self.dict:
+                    try:
+                        meanString = Dict[meanKey]
+                    except KeyError:
                         # Take the value of the variable as the mean if a _mean value is not provided
-                        meanString = self.getValue(key)
-                        self.setValue(meanString, mu)
-                    else:
-                        meanString = self.getValue(meanKey)
+                        meanString = Dict[key]
+                        Dict[meanKey] =  meanString
 
                     # Try parsing scalar values
                     try:
                         mu = float(meanString)
-                        sigma = float(self.getValue(stdDevKey))
+                        sigma = float(Dict[stdDevKey])
 
                         sampledValue = self.rng.gauss(mu, sigma)
-                        self.setValue(key, str(sampledValue))
+                        Dict[key] = str(sampledValue)
 
                         logLine = "Sampling scalar parameter: {}, value: {:1.3f}".format(key, sampledValue)
 
                     except ValueError:
-                        pass # ValueError throws if either conversion to float fails -> assume the value is a vector instead, try again below
+                        # Try parsing vector value
+                        try:
+                            muVec = Vector(meanString)
+                            sigmaVec = Vector(Dict[stdDevKey])
 
-                    # Try parsing vector value
-                    try:
-                        muVec = Vector(meanString)
-                        sigmaVec = Vector(self.getValue(stdDevKey))
+                            sampledVec = Vector(*[ self.rng.gauss(mu, sigma) for mu, sigma in zip(muVec, sigmaVec)])
+                            Dict[key] =  str(sampledVec)
 
-                        sampledVec = Vector(*[ self.rng.gauss(mu, sigma) for mu, sigma in zip(muVec, sigmaVec)])
-                        self.setValue(key, str(sampledVec))
-
-                        logLine = "Sampling vector parameter: {}, value: ({:1.3f})".format(key, sampledVec)
-                        
-                    except ValueError:
-                        # ValueError throws if either conversion to Vector fails
-                        # Note that monte carlo / probabilistic variables can only be scalars or vectors
-                        print("ERROR: Unable to parse probabilistic value: {} for key {} (or {} for key {}). Note that probabilistic values must be either scalars or vectors of length 3.".format(meanString, meanKey, self.getValue(stdDevKey), stdDevKey))
-                        raise
+                            logLine = "Sampling vector parameter: {}, value: ({:1.3f})".format(key, sampledVec)
+                            
+                        except ValueError:
+                            # ValueError throws if either conversion to Vector fails
+                            # Note that monte carlo / probabilistic variables can only be scalars or vectors
+                            print("ERROR: Unable to parse probabilistic value: {} for key {} (or {} for key {}). Note that probabilistic values must be either scalars or vectors of length 3.".format(meanString, meanKey, self.getValue(stdDevKey), stdDevKey))
+                            raise
                     
                     ### Logging ###
                     if logLine != None:
