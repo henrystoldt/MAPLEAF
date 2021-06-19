@@ -122,6 +122,13 @@ class TestSimDefinition(unittest.TestCase):
         self.simDef.resampleProbabilisticValues()
 
         self.assertAlmostEqual(10.254632116649685, float(self.simDef.getValue("scalar1")))
+        # Check does not change without resampling
+        self.assertAlmostEqual(10.254632116649685, float(self.simDef.getValue("scalar1")))
+
+        # Check different after resample
+        self.simDef.resampleProbabilisticValues()
+        self.assertNotAlmostEqual(10.254632116649685, float(self.simDef.getValue("scalar1")))
+
         self.resetSimDef()
 
     def test_sampleDistribution_vectorValue(self):
@@ -132,8 +139,17 @@ class TestSimDefinition(unittest.TestCase):
 
         resultVec = Vector(self.simDef.getValue("vector1"))
         expectedVec = Vector(10.254632116649685, 8.066448705920658 ,14.27360999981685)
-
         assertVectorsAlmostEqual(self, expectedVec, resultVec)
+        # Check does not change without resampling
+        resultVec = Vector(self.simDef.getValue("vector1"))        
+        assertVectorsAlmostEqual(self, expectedVec, resultVec)
+
+        # Check different value after resampling
+        self.simDef.resampleProbabilisticValues()        
+        resultVec = Vector(self.simDef.getValue("vector1"))        
+        for i in range(3):
+            self.assertNotAlmostEqual(expectedVec[i], resultVec[i])
+
         self.resetSimDef()
 
     def test_isSubKey(self):
