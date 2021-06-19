@@ -1,8 +1,9 @@
 ''' PID controllers control parts of the control system and adaptive simulation timestepping '''
 
-import numpy as np
-from scipy.interpolate import LinearNDInterpolator
 from itertools import combinations_with_replacement as cwithr
+
+import numpy as np
+from MAPLEAF.Motion import NoNaNLinearNDInterpolator
 
 __all__ = [ "PIDController", "ConstantGainPIDController", "TableScheduledGainPIDController", "EquationScheduledGainPIDController"]
 
@@ -101,7 +102,7 @@ class TableScheduledGainPIDController(PIDController):
         pidData = pidData[:,PCol:DCol+1]
 
         #Create interpolation function for PID coefficients
-        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
+        self._getPIDCoeffs = NoNaNLinearNDInterpolator(keys, pidData)
 
     def updateCoefficientsFromGainTable(self, keyList):
         P, I, D = self._getPIDCoeffs(keyList)

@@ -1,4 +1,5 @@
 import random
+from copy import deepcopy
 
 from MAPLEAF.IO import Logging, Plotting
 from .SingleSimulations import runSimulation, Simulation, loadSimDefinition
@@ -66,6 +67,7 @@ def _runSimulations_SingleThreaded(simDefinition, nRuns, outputLists, mCLogger, 
         mCLogger.log("\nMonte Carlo Run #{}".format(i+1))
         
         # Run sim
+        simDefinition.resampleProbabilisticValues()
         simRunner = Simulation(simDefinition=simDefinition, silent=True)
         stageFlightPaths, _ = simRunner.run()
         Logging.removeLogger() # Remove the logger created by simRunner #TODO Logging needs improvement
@@ -129,10 +131,12 @@ def _runSimulations_Parallel(simDefinition, nRuns, outputLists, silent=False, nP
 
         # Make sure each copy of simDefinition has a different, but repeatable random seed
         newRandomSeed = rng.randrange(1e7)
-        simDefinition.rng = random.Random(newRandomSeed)
+        simDef = deepcopy(simDefinition)
+        simDef.rng = random.Random(newRandomSeed)
+        simDef.resampleProbabilisticValues()
 
         # Start sim
-        flightPathsFuture = runRemoteSimulation.remote(simDefinition=simDefinition, silent=True)
+        flightPathsFuture = runRemoteSimulation.remote(simDefinition=simDef, silent=True)
         runningJobs.append(flightPathsFuture)
 
     # Wait for remaining sims to complete
