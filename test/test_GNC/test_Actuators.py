@@ -57,6 +57,20 @@ class TestTableInterpActuatorControlAndPointAtTarget(unittest.TestCase):
         actuatorTargets = [ actuator.targetDeflection for actuator in self.actuatorList ]
         expectedResults = np.array([ 7.5, 20, 32.5, 45 ])
         self.assertTrue(np.allclose(actuatorTargets, expectedResults))
+
+    def test_NoNanValuesWhenInterpolatingOutOfBounds(self):
+
+        def getFakeMach2(*args):
+            return 10
+
+        # Test that there are no NaN values when interpolating out of bounds
+        keyFnVector = [ getFakeMach2, getFakeMach2 ]
+        self.interpActuatorController.keyFunctionList = keyFnVector
+        self.interpActuatorController.setTargetActuatorDeflections(np.array([0.5, 0.5, 0.5]), "fakeState", "fakeEnv", 0)
+
+        actuatorTargets = [ actuator.targetDeflection for actuator in self.actuatorList ]
+        self.assertFalse(np.isnan(actuatorTargets).any())
+
     
 class TestFirstOrderActuator(unittest.TestCase):
     def setUp(self):

@@ -6,7 +6,7 @@ import abc
 from math import e
 
 import numpy as np
-from scipy.interpolate import LinearNDInterpolator
+from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
 from MAPLEAF.Motion import AeroParameters
 
@@ -48,6 +48,7 @@ class TableInterpolatingActuatorController(ActuatorController):
     def __init__(self, deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList):
         self.actuatorList = actuatorList
         self.keyFunctionList = keyFunctionList
+        self.deflectionTablePath = deflectionTableFilePath
 
         # Load actuator-deflection data table
         deflData = np.loadtxt(deflectionTableFilePath, skiprows=1)
@@ -61,7 +62,8 @@ class TableInterpolatingActuatorController(ActuatorController):
             raise ValueError("Number of actuators: {}, must match number of actuator deflection columns in deflection table: {}".format(nActuators, nDeflectionTableEntries))
 
         # Create interpolation function for fin deflections
-        self._getPositionTargets = LinearNDInterpolator(keys, deflData)
+        self._getPositionTargets_Linear = LinearNDInterpolator(keys, deflData)
+        self._getPositionTargets_Nearest = NearestNDInterpolator(keys, deflData)
 
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         '''
@@ -80,6 +82,18 @@ class TableInterpolatingActuatorController(ActuatorController):
             self.actuatorList[i].setTargetDeflection(newActuatorPositionTargets[i], time)
 
         return list(newActuatorPositionTargets)
+
+    def _getPositionTargets(self, *keyVector):
+        linearResult = self._getPositionTargets_Linear(*keyVector)
+        
+        if np.isnan(linearResult).any():
+            # Occurs if the requested values are outside of the bounds of the table being interpolated over
+                # In that case just return the nearest result
+            print("WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead".format(self.deflectionTablePath, keyVector))
+            return self._getPositionTargets_Nearest(*keyVector)
+        
+        else:
+            return linearResult
 
 
 
