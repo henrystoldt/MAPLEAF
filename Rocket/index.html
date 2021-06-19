@@ -4552,7 +4552,7 @@ Returns CGsubZ, CGsubY (two lists of scalars for a 2D plot)</p></div>
 
         if nKeyCols &gt; 1:
             # Create n-dimensional interpolation function for aero coefficients
-            self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
+            self._interpAeroCoefficients =  NoNaNLinearNDInterpolator(keys, aeroCoefficients, filePath)
         else:
             # Save to use with MAPLEAF.Motion.linInterp
             self.keys = [ key[0] for key in keys ]

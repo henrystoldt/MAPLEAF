@@ -828,6 +828,35 @@ Point about which summed inertias will be calculated</p>
 </dd>
 </dl>
 </dd>
+<dt id="MAPLEAF.Motion.NoNaNLinearNDInterpolator"><code class="flex name class">
+<span>class <span class="ident">NoNaNLinearNDInterpolator</span></span>
+<span>(</span><span>keys, values, tablePath=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NoNaNLinearNDInterpolator():
+    def __init__(self, keys, values, tablePath=None) -&gt; None:
+        self.linearInterpolator = LinearNDInterpolator(keys, values)
+        self.nearestInterpolator = NearestNDInterpolator(keys, values)
+        self.tablePath = tablePath
+
+    def __call__(self, *keyVector):
+        linearResult = self.linearInterpolator(*keyVector)
+        
+        if np.isnan(linearResult).any():
+            # Occurs if the requested values are outside of the bounds of the table being interpolated over
+                # In that case just return the nearest result
+            print(&#34;WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead&#34;.format(self.tablePath, keyVector))
+            return self.nearestInterpolator(*keyVector)
+        
+        else:
+            return linearResult  </code></pre>
+</details>
+</dd>
 <dt id="MAPLEAF.Motion.Quaternion"><code class="flex name class">
 <span>class <span class="ident">Quaternion</span></span>
 <span>(</span><span>...)</span>
@@ -1918,6 +1947,9 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Motion.Inertia.combineInertias" href="#MAPLEAF.Motion.Inertia.combineInertias">combineInertias</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Inertia.combineInertiasAboutPoint" href="#MAPLEAF.Motion.Inertia.combineInertiasAboutPoint">combineInertiasAboutPoint</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="MAPLEAF.Motion.NoNaNLinearNDInterpolator" href="#MAPLEAF.Motion.NoNaNLinearNDInterpolator">NoNaNLinearNDInterpolator</a></code></h4>
 </li>
 <li>
 <h4><code><a title="MAPLEAF.Motion.Quaternion" href="#MAPLEAF.Motion.Quaternion">Quaternion</a></code></h4>

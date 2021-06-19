@@ -1282,7 +1282,7 @@ initialError, maxIntegral</p></div>
         pidData = pidData[:,PCol:DCol+1]
 
         #Create interpolation function for PID coefficients
-        self._getPIDCoeffs = LinearNDInterpolator(keys, pidData)
+        self._getPIDCoeffs = NoNaNLinearNDInterpolator(keys, pidData)
 
     def updateCoefficientsFromGainTable(self, keyList):
         P, I, D = self._getPIDCoeffs(keyList)
@@ -1500,8 +1500,7 @@ inheritance.</p></div>
             raise ValueError(&#34;Number of actuators: {}, must match number of actuator deflection columns in deflection table: {}&#34;.format(nActuators, nDeflectionTableEntries))
 
         # Create interpolation function for fin deflections
-        self._getPositionTargets_Linear = LinearNDInterpolator(keys, deflData)
-        self._getPositionTargets_Nearest = NearestNDInterpolator(keys, deflData)
+        self._getPositionTargets = NoNaNLinearNDInterpolator(keys, deflData)
 
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         &#39;&#39;&#39;
@@ -1519,19 +1518,7 @@ inheritance.</p></div>
         for i in range(len(self.actuatorList)):
             self.actuatorList[i].setTargetDeflection(newActuatorPositionTargets[i], time)
 
-        return list(newActuatorPositionTargets)
-
-    def _getPositionTargets(self, *keyVector):
-        linearResult = self._getPositionTargets_Linear(*keyVector)
-        
-        if np.isnan(linearResult).any():
-            # Occurs if the requested values are outside of the bounds of the table being interpolated over
-                # In that case just return the nearest result
-            print(&#34;WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead&#34;.format(self.deflectionTablePath, keyVector))
-            return self._getPositionTargets_Nearest(*keyVector)
-        
-        else:
-            return linearResult</code></pre>
+        return list(newActuatorPositionTargets)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">

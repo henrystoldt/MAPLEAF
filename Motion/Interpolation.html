@@ -45,9 +45,9 @@ from functools import lru_cache
 
 import numpy as np
 import scipy.linalg as linalg
+from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
-
-__all__ = [ &#34;linInterp&#34;, &#34;linInterpWeights&#34;, &#34;calculateCubicInterpCoefficients&#34;, &#34;cubicInterp&#34; ]
+__all__ = [ &#34;linInterp&#34;, &#34;linInterpWeights&#34;, &#34;calculateCubicInterpCoefficients&#34;, &#34;cubicInterp&#34;, &#34;NoNaNLinearNDInterpolator&#34; ]
 
 def linInterp(X, Y, desiredX):
     &#39;&#39;&#39;
@@ -141,7 +141,25 @@ def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
     dy_dx_x2 = (Y2_plusDx - Y2) / dx
 
     interpCoeffs = calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dy_dx_x1, dy_dx_x2)
-    return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)</code></pre>
+    return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)
+
+class NoNaNLinearNDInterpolator():
+    def __init__(self, keys, values, tablePath=None) -&gt; None:
+        self.linearInterpolator = LinearNDInterpolator(keys, values)
+        self.nearestInterpolator = NearestNDInterpolator(keys, values)
+        self.tablePath = tablePath
+
+    def __call__(self, *keyVector):
+        linearResult = self.linearInterpolator(*keyVector)
+        
+        if np.isnan(linearResult).any():
+            # Occurs if the requested values are outside of the bounds of the table being interpolated over
+                # In that case just return the nearest result
+            print(&#34;WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead&#34;.format(self.tablePath, keyVector))
+            return self.nearestInterpolator(*keyVector)
+        
+        else:
+            return linearResult  </code></pre>
 </details>
 </section>
 <section>
@@ -294,6 +312,38 @@ largeYWeight = 0.75</p>
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="MAPLEAF.Motion.Interpolation.NoNaNLinearNDInterpolator"><code class="flex name class">
+<span>class <span class="ident">NoNaNLinearNDInterpolator</span></span>
+<span>(</span><span>keys, values, tablePath=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NoNaNLinearNDInterpolator():
+    def __init__(self, keys, values, tablePath=None) -&gt; None:
+        self.linearInterpolator = LinearNDInterpolator(keys, values)
+        self.nearestInterpolator = NearestNDInterpolator(keys, values)
+        self.tablePath = tablePath
+
+    def __call__(self, *keyVector):
+        linearResult = self.linearInterpolator(*keyVector)
+        
+        if np.isnan(linearResult).any():
+            # Occurs if the requested values are outside of the bounds of the table being interpolated over
+                # In that case just return the nearest result
+            print(&#34;WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead&#34;.format(self.tablePath, keyVector))
+            return self.nearestInterpolator(*keyVector)
+        
+        else:
+            return linearResult  </code></pre>
+</details>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -319,6 +369,13 @@ MAPLEAF
 <li><code><a title="MAPLEAF.Motion.Interpolation.cubicInterp" href="#MAPLEAF.Motion.Interpolation.cubicInterp">cubicInterp</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Interpolation.linInterp" href="#MAPLEAF.Motion.Interpolation.linInterp">linInterp</a></code></li>
 <li><code><a title="MAPLEAF.Motion.Interpolation.linInterpWeights" href="#MAPLEAF.Motion.Interpolation.linInterpWeights">linInterpWeights</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="MAPLEAF.Motion.Interpolation.NoNaNLinearNDInterpolator" href="#MAPLEAF.Motion.Interpolation.NoNaNLinearNDInterpolator">NoNaNLinearNDInterpolator</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>
