@@ -1,11 +1,17 @@
 import importlib
 import re
+import sys
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from statistics import mean
 
 import matplotlib.pyplot as plt
 import numpy as np
 from MAPLEAF.IO import Logging, SimDefinition, SubDictReader, subDictReader
+from MAPLEAF.IO.simDefinition import getAbsoluteFilePath
+from MAPLEAF.SimulationRunners import Simulation, loadSimDefinition
+from MAPLEAF.SimulationRunners.Batch import (BatchRun,
+                                             _implementParameterOverrides)
 from MAPLEAF.Utilities import evalExpression
 from scipy.optimize import minimize
 
@@ -15,6 +21,11 @@ __all__ = [ "optimizationRunnerFactory" ]
 
 
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
+    """
+        For a single simulation definition and cost function (defined by a string), returns the result of the cost function (typically a number)
+        The version here is single threaded, remote versions are created in OptimizingSimRunner._computeCostFunctionValues_Parallel using ray.remote
+            if running a parallel optimization
+    """
     # Run the simulation
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
     Logging.removeLogger()
@@ -43,11 +54,12 @@ def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: s
 
         return evalExpression(costFunctionDefinition, varVals)
 
-
+#### CLASSES THAT RUN OPTIMIZATIONS ####
 class OptimizingSimRunner(ABC):
     '''
-        Glue code to make MAPLEAF serve as a metric/cost function calculator for particle-swarm optimization using PySwarms.
-        Configurable using the top-level 'Optimization' dictionary in .mapleaf files
+        Abstract base class for optimizers in mapleaf
+        Reads the top-level 'Optimization' dictionary in .mapleaf files
+        Child classes implement actual optimization algorithms (ex. particle swarm, scipy optimizers)
     '''
     #### Initialization ####
     def __init__(self, optimizationReader, silent=False, parallel=False):
@@ -64,6 +76,14 @@ class OptimizingSimRunner(ABC):
         self.varKeys, self.varNames, self.minVals, self.maxVals = self._loadIndependentVariables()
         self.dependentVars, self.dependentVarDefinitions = self._loadDependentVariables()
         self.bestPosition, self.bestCost = self._loadBestPosition()
+
+        self.costFunctionDefinition = optimizationReader.getString("Optimization.costFunction")
+        self.simDefinitions = [ optimizationReader.simDefinition ]
+
+        # Check if this is a batch optimization by looking for the batch file entry in the sim definition file
+        result = optimizationReader.tryGetString("batchDefinition", defaultValue="notPresent.fakeFile")
+        if result != "notPresent.fakeFile":
+            self._loadBatchOptimization()            
 
     def _loadIndependentVariables(self):
         ''' 
@@ -130,7 +150,7 @@ class OptimizingSimRunner(ABC):
             depVarNames.append(depVarKey)
             depVarDefinitions.append(self.optimizationReader.getString(depVar))
 
-        if not self.silent:
+        if not self.silent and len(depVarNames) > 0:
             # Output results to console
             print("Dependent variables:")
             for i in range(len(depVarNames)):
@@ -158,6 +178,40 @@ class OptimizingSimRunner(ABC):
         else:
             raise ValueError('Please specify bestPosition and bestCost or neither, current values: {} and {}, respectively'.format(bestPosition, bestCost))
 
+    def _loadBatchOptimization(self):
+        if not self.silent:
+            print("Batch Optimization")
+
+        # Optimization dictionary now requires an entry called batchDefinition
+            # In this case the 'simDefinition' might only contain an Optimization dictionary
+                # Could also contain the Rocket definition, if the same 'simDefinition' file is referenced in the Batch Definition
+        batchDefinitionPath = self.optimizationReader.getString("Optimization.batchDefinition")
+        batchDefinitionPath = getAbsoluteFilePath(batchDefinitionPath) # Make sure path points to a real file, turn it into an absolute path
+        
+        # Load batch definition file
+        batchDefinition = SimDefinition(batchDefinitionPath)
+
+        # Prep and store the cases it references
+        self.simDefinitions = []
+
+        caseDictNames = batchDefinition.getImmediateSubDicts("") # Each root-level dictionary represents a case
+        print("Found the following cases:")
+        for case in sorted(caseDictNames):
+            print(case, file=sys.__stdout__)
+
+            # Get sim definition file path
+            simDefPath = batchDefinition.getValue("{}.simDefinitionFile".format(case))
+            simDefPath = getAbsoluteFilePath(simDefPath)
+
+            # Load it, implement overrides defined in the batch file
+            caseDefinition = SimDefinition(simDefPath, silent=True)
+            _implementParameterOverrides(case, batchDefinition, caseDefinition)
+
+            # Save
+            self.simDefinitions.append(caseDefinition)       
+
+        print("") # Add some white space
+
     #### Running the optimization ####
     def _createNestedOptimization(self, simDef):
         innerOptimizationReader = SubDictReader(self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization', simDef)
@@ -170,59 +224,72 @@ class OptimizingSimRunner(ABC):
 
         costFunctionValues = []
         
-        nSims = len(trialSolutions)
-        for i in range(nSims):
-            indVarValues = trialSolutions[i]
-
-            # Create new sim definition
-            simDef = deepcopy(self.optimizationReader.simDefinition)
+        
+        for independentVariableValues in trialSolutions:
+            caseResults = []
+            for case in self.simDefinitions:
+                # Create new sim definition
+                simDef = deepcopy(case)
             
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-            self._updateDependentVariableValues(simDef, varDict)
+                # Update variable values
+                varDict = self._updateIndependentVariableValues(simDef, independentVariableValues)
+                self._updateDependentVariableValues(simDef, varDict)
 
-            # Start the simulation and save the future returned
-            costFunctionValues.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
+                # Start the simulation and save the future returned
+                caseResults.append(_computeCostFunctionRemotely.remote(simDefinition=simDef, costFunctionDefinition=self.costFunctionDefinition))
+            
+            costFunctionValues.append(caseResults)
 
         # All simulation now started, wait for and retrieve the results
-        costFunctionValues = [ ray.get(value) for value in costFunctionValues ]
+        if len(self.simDefinitions) > 1:
+            costFunctionValues = [ mean([ ray.get(value) for value in caseResults ]) for caseResults in costFunctionValues ]
+        else:
+            costFunctionValues = [ [ ray.get(value) for value in caseResults ][0] for caseResults in costFunctionValues ]
 
         return costFunctionValues
 
     def _computeCostFunctionValues_SingleThreaded(self, trialSolutions) -> float:
         ''' Given a values the independent variable, returns the cost function value '''
         costFunctionValues = []
-        for indVarValues in trialSolutions:
-            # Create new sim definition
-            simDef = deepcopy(self.optimizationReader.simDefinition)
+        for independentVariableValues in trialSolutions:
+            caseResults = []
             
-            # Update variable values
-            varDict = self._updateIndependentVariableValues(simDef, indVarValues)
-            self._updateDependentVariableValues(simDef, varDict)
+            for case in self.simDefinitions:
+                # Create new sim definition
+                simDef = deepcopy(case)
+                
+                # Update variable values
+                varDict = self._updateIndependentVariableValues(simDef, independentVariableValues)
+                self._updateDependentVariableValues(simDef, varDict)
 
-            if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
-                innerOptimizer = self._createNestedOptimization(simDef)
-                cost, pos = innerOptimizer.runOptimization()
-                varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
-                innerOptimizer._updateDependentVariableValues(simDef, varDict)   
+                if self.optimizationReader.simDefDictPathToReadFrom + '.InnerOptimization' in self.optimizationReader.getImmediateSubDicts():
+                    innerOptimizer = self._createNestedOptimization(simDef)
+                    cost, pos = innerOptimizer.runOptimization()
+                    varDict = innerOptimizer._updateIndependentVariableValues(simDef, pos)
+                    innerOptimizer._updateDependentVariableValues(simDef, varDict)   
 
-            # Run the simulation and compute the cost function value, save the result
-            costFunctionValues.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
+                # Run the simulation and compute the cost function value, save the result
+                caseResults.append(_computeCostFunction(simDef, costFunctionDefinition=self.costFunctionDefinition))
+
+            if len(caseResults) > 1:
+                costFunctionValues.append(mean(caseResults))
+            else:
+                costFunctionValues.append(caseResults[0])
 
         return costFunctionValues
     
-    def _updateIndependentVariableValues(self, simDefinition, indVarValues):
+    def _updateIndependentVariableValues(self, simDefinition, trialSolution):
         ''' 
             Updates simDefinition with the independent variable values
             Returns a dictionary map of independent variable names mapped to their values, suitable for passing to eval
         '''
         # Independent variable values
         indVarValueDict = {}
-        for i in range(len(indVarValues)):
-            simDefinition.setValue(self.varKeys[i], str(indVarValues[i]))
+        for i in range(len(trialSolution)):
+            simDefinition.setValue(self.varKeys[i], str(trialSolution[i]))
             
             varName = self.varNames[i]
-            indVarValueDict[varName] = indVarValues[i]
+            indVarValueDict[varName] = trialSolution[i]
 
         return indVarValueDict
 
@@ -242,6 +309,10 @@ class OptimizingSimRunner(ABC):
             depValue = "".join(splitDepVarDef)
             simDefinition.setValue(self.dependentVars[i], depValue)
 
+    @abstractmethod
+    def runOptimization(self):
+        ''' Child classes must implement this method, will vary depending on the optimizer used (ex. pyswarms, scipy.minimize) '''
+        pass
 
 def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, optimizationReader=None, silent=False, parallel=False) -> OptimizingSimRunner:
     ''' Provide a subdictionary reader pointed at an optimization dictionary. Will read the dictionary, initialize an optimizing simulation runner and return it. '''
@@ -266,6 +337,9 @@ def optimizationRunnerFactory(simDefinitionFilePath=None, simDefinition=None, op
         raise ValueError('Optimization method: {} not implemented, try PSO'.format(method))
 
 class PSORunner(OptimizingSimRunner):
+    '''
+        Implements particle swarm optimization using pyswarms
+    '''
     def __init__(self, optimizationReader, silent=False, parallel=False):
         if not silent:
             print("Particle Swarm Optimization")
@@ -436,6 +510,9 @@ class PSORunner(OptimizingSimRunner):
         return cost, pos
 
 class ScipyMinimizeRunner(OptimizingSimRunner):
+    '''
+        Implements optimization using scipy.minimize's optimization methods
+    '''
     def __init__(self, optimizationReader, silent=False, parallel=False):
         method = optimizationReader.getString("method")
         splitMethod = method.split(' ')

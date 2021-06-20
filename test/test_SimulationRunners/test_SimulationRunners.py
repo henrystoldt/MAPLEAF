@@ -54,6 +54,16 @@ class TestSimRunners(unittest.TestCase):
         #### Run Monte Carlo Simulations ####
         runMonteCarloSimulation(simDefinition=mCSimDef, silent=True)
 
+        # Make sure monte carlo sampling is occurring
+        wind = mCSimDef.getValue("Environment.ConstantMeanWind.velocity")
+        self.assertNotEqual(wind, "( 2 0 0 )")
+        self.assertTrue("Environment.ConstantMeanWind.velocity_mean" in mCSimDef.dict)
+
+        # Run second simulation, expect new wind value
+        runMonteCarloSimulation(simDefinition=mCSimDef, silent=True)
+        wind2 = mCSimDef.getValue("Environment.ConstantMeanWind.velocity")
+        self.assertNotEqual(wind, wind2)
+
     def test_PSOOptimization(self):
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/Optimization.mapleaf", silent=True)
         optSimRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
@@ -82,6 +92,10 @@ class TestSimRunners(unittest.TestCase):
         optSimRunner._updateDependentVariableValues(simDef, indVarDict)
         self.assertAlmostEqual(float(simDef.getValue("Rocket.Sustainer.Nosecone.mass")), 0.107506)
 
+    def test_BatchOptimization(self):
+        simDef = SimDefinition("MAPLEAF/Examples/Simulations/CanardsOptimization.mapleaf")        
+        simRunner = optimizationRunnerFactory(simDefinition=simDef, silent=True)
+    
     def test_scipyMinimize(self):
         # Test regular run
         simDef = SimDefinition("MAPLEAF/Examples/Simulations/ScipyOptimization.mapleaf", silent=True)

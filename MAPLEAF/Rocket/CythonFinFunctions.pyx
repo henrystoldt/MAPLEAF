@@ -61,9 +61,12 @@ cpdef getSubsonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTange
     cdef vector[double] sliceRadii = fin.spanSliceRadii
     while i < nSlices:
         FSAOA = getFinSliceAngleOfAttack(sliceRadii[i], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, spanDirection, stallAngle)
+
         if isnan(FSAOA):
+            print("NAN Fin Slice AOA")
             for x in (sliceRadii[i], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, spanDirection, stallAngle):
                 print(x)
+
         sliceForce = CnAlpha * FSAOA * sliceAreas[i]
         normalForceMagnitude += sliceForce
 
@@ -89,6 +92,12 @@ cpdef getSupersonicFinNormalForce(Vector airVelRelativeToFin, Vector unitSpanTan
     
     while i < nSlices:       
         FSAOA = getFinSliceAngleOfAttack(sliceRadii[i], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, spanDirection, stallAngle)
+
+        if isnan(FSAOA):
+            print("NAN Fin Slice AOA")
+            for x in (sliceRadii[i], airVelRelativeToFin, unitSpanTangentialAirVelocity, finNormal, spanDirection, stallAngle):
+                print(x)
+
         sliceForce = getFinSliceForce_Supersonic(K1, K2, K3, Kstar, FSAOA, sliceAreas[i])
         
         # Apply Mach-Cone correction

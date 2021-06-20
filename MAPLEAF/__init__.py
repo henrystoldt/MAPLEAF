@@ -31,6 +31,8 @@ See [README_Dev.md](https://github.com/henrystoldt/MAPLEAF/blob/master/README_De
 * Recompiling Cython Code
 '''
 
+__version__ = "0.8.15"
+
 __pdoc__ = {
     'Examples': False
 }

@@ -29,14 +29,14 @@ OpenRocketWindTunnelCase{
       		scalingFactor           -1
 			legendLabel				MAPLEAF
 			overwrite				True
-			saveLocation			./test/V&V/WindTunnel/OpenRocketWindTunnelPlot.pdf
+			saveLocation			./MAPLEAF/Examples/V&V/WindTunnel/OpenRocketWindTunnelPlot.pdf
 		 
 			ComparisonDataExp{
 				columnsToPlot		Cd_Experimental
 				xColumnName			Mach
 				lineFormat			.y
 				legendLabel			Flight Data			
-				file				./test/V&V/WindTunnel/WindTunnelExpCd.csv
+				file				./MAPLEAF/Examples/V&V/WindTunnel/WindTunnelExpCd.csv
 			}		 
 
 			ComparisonDataOR1{
@@ -44,7 +44,7 @@ OpenRocketWindTunnelCase{
 				xColumnName			Mach
 				lineFormat			-.c
 				legendLabel			OR Replicated
-				file				./test/V&V/WindTunnel/OpenRocketCdNotBT.csv
+				file				./MAPLEAF/Examples/V&V/WindTunnel/OpenRocketCdNotBT.csv
 				validationData		False
 			}
 
@@ -53,7 +53,7 @@ OpenRocketWindTunnelCase{
 				xColumnName			Mach
 				lineFormat			:k
 				legendLabel			OR Original			
-				file				./test/V&V/WindTunnel/WindTunnelOpenRocket.csv
+				file				./MAPLEAF/Examples/V&V/WindTunnel/WindTunnelOpenRocket.csv
 				validationData		False
 			}
 
@@ -85,7 +85,7 @@ B4-4SimpleRocketCase{
 
 		Altitude{
 			columnsToPlot		PositionZ
-			saveLocation		./test/V&V/B4-4SimpleRocket/B4-4SimpleRocketPlot.pdf
+			saveLocation		./MAPLEAF/Examples/V&V/B4-4SimpleRocket/B4-4SimpleRocketPlot.pdf
 			lineFormat			--r
 			lineColors			\#003f5c
 			xLabel				Time (s)
@@ -100,7 +100,7 @@ B4-4SimpleRocketCase{
 				lineFormat		:
 				lineColors		\#ff6361
 				legendLabel		OpenRocket v0.9
-				file	        ./test/V&V/B4-4SimpleRocket/B4-4OriginalOR.csv
+				file	        ./MAPLEAF/Examples/V&V/B4-4SimpleRocket/B4-4OriginalOR.csv
 				validationData	False
 			}
 
@@ -110,7 +110,7 @@ B4-4SimpleRocketCase{
 				lineFormat		-.
 				lineColors		\#bc5090
 				legendLabel		OpenRocket v15.03
-				file	        ./test/V&V/B4-4SimpleRocket/B4-4ReplicatedOR.csv
+				file	        ./MAPLEAF/Examples/V&V/B4-4SimpleRocket/B4-4ReplicatedOR.csv
 				validationData	False
 			}
 
@@ -120,7 +120,7 @@ B4-4SimpleRocketCase{
 				lineFormat		--
 				lineColors		\#ffa600
 				legendLabel		RockSim v8
-				file	        ./test/V&V/B4-4SimpleRocket/B4-4RockSim.csv
+				file	        ./MAPLEAF/Examples/V&V/B4-4SimpleRocket/B4-4RockSim.csv
 				validationData	False
 			}
 
@@ -129,7 +129,7 @@ B4-4SimpleRocketCase{
 				xColumnName 	t(s)
 				lineFormat		.k
 				legendLabel		Flight Data
-				file	        ./test/V&V/B4-4SimpleRocket/B4-4ExpData.csv
+				file	        ./MAPLEAF/Examples/V&V/B4-4SimpleRocket/B4-4ExpData.csv
 			}
 		}
 	}

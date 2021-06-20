@@ -44,13 +44,13 @@ To run tests by module use this script (-h is to see the help message): `python3
 All unit tests are run automatically whenever the master branch is updated, see [UnitTests.yml](https://github.com/henrystoldt/MAPLEAF/blob/master/.github/workflows/UnitTests.yml) to see how this works.
 
 ## Running Regression Testing / V & V Suite
-All regression and V&V tests are defined in batch file [MAPLEAF/Examples/BatchSims/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/test/V&V/testDefinitions.mapleaf)  
+All regression and V&V tests are defined in batch file [MAPLEAF/Examples/BatchSims/regressionTests.mapleaf](https://github.com/henrystoldt/MAPLEAF/blob/master/MAPLEAF/Examples/V&V/testDefinitions.mapleaf)  
 
 To run them:
 `mapleaf-batch MAPLEAF/Examples/BatchSims/regressionTests.mapleaf`  
 For more info: `mapleaf-batch -h`
 
-Shows results in console, generates plots in `./test/V&V/`  
+Shows results in console, generates plots in `./MAPLEAF/Examples/V&V/`  
 Results of these simulations are automatically displayed on the [verification and validation section of the documentation website](https://henrystoldt.github.io/MAPLEAF/V&V/index.html)  
 To see how this works, have a look at [generateDocs.yml](https://github.com/henrystoldt/MAPLEAF/blob/master/.github/workflows/generateDocs.yml)
 

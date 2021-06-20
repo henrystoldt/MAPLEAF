@@ -1,11 +1,10 @@
-import math
 import os
 import sys
 from copy import deepcopy
 from distutils.util import strtobool
 
 from MAPLEAF.ENV import Environment
-from MAPLEAF.IO import (Log, Logging, Plotting, RocketFlight, SimDefinition,
+from MAPLEAF.IO import (Logging, Plotting, RocketFlight, SimDefinition,
                         SubDictReader)
 from MAPLEAF.Motion import Vector
 from MAPLEAF.Rocket import Rocket
@@ -140,7 +139,7 @@ class Simulation():
                 endSimulation, FinalTimeStepDt = endDetector(self.dts[stageIndex])
             
             # Log last state (would be the starting state of the next time step)
-            rocket._runControlSystemAndLogStartingState(self.dts[stageIndex])
+            rocket._logState()
 
             # Move on to next (dropped) stage
             stageIndex += 1
@@ -365,14 +364,7 @@ class Simulation():
             for rocket in self.rocketStages:
                 logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
 
-            # Calculate aerodynamic coefficients if desired
-            if self.loggingLevel >= 3:
-                bodyDiameter = self.rocketStages[0].maxDiameter
-                crossSectionalArea = self.rocketStages[0].Aref
-                forceLogFilePath = logFilePaths[-1]
-                expandedLogPath = Logging.postProcessForceEvalLog(forceLogFilePath, refArea=crossSectionalArea, refLength=bodyDiameter)
-                logFilePaths.append(expandedLogPath)
-
+            # Output console output
             consoleOutputPath = os.path.join(resultsFolderName, "consoleOutput.txt")
             print("Writing log file: {}".format(consoleOutputPath))
             with open(consoleOutputPath, 'w+') as file:
@@ -508,5 +500,3 @@ class WindTunnelSimulation(Simulation):
         # Create an empty flight path to prevent errors in the parent function)
         self.stageFlightPaths = [ RocketFlight() ]
         return Simulation._postProcess(self, self.simDefinition)
-
-

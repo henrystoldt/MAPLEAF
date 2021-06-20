@@ -19,6 +19,6 @@ for folder in folders:
             completeFilePath = completePath / file
             
             if '.png' in file:
-                # We've found a pdf that we need to move to the documentation directory
+                # We've found a figure that we need to move to the documentation directory
                 pathAfterMove = topLevelTo / folder / file
                 shutil.copy(completeFilePath, pathAfterMove)

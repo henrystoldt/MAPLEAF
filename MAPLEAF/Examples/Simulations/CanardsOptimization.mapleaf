@@ -15,21 +15,45 @@ SimControl{
     }
 }
 
+Optimization{
+    costFunction        MAPLEAF.OptimizationFunctions.MomentPIDCostOptimizationFunction:OptimizationFunction
+
+    batchDefinition     MAPLEAF/Examples/BatchSims/CanardOptimizationTest.mapleaf
+
+    IndependentVariables{
+        Pxy             0 < Rocket.ControlSystem.MomentController.Pxy    < 200
+        Ixy             0 < Rocket.ControlSystem.MomentController.Ixy    < 50
+        Dxy             0 < Rocket.ControlSystem.MomentController.Dxy    < 200
+        Pz              0 < Rocket.ControlSystem.MomentController.Pz     < 500
+        Iz              0 < Rocket.ControlSystem.MomentController.Iz     < 200
+        Dz              0 < Rocket.ControlSystem.MomentController.Dz     < 300
+
+    }
+
+    ParticleSwarm{
+        nParticles      4
+        nIterations     2
+    }
+}
+
 Rocket{             
-    
     # Initial state
     position            (0 0 10) # m
-    initialDirection    (0 0.1 1)
-    velocity            (0 0 10) #m/s
+    initialDirection    (0.4 0.4 1)
+    velocity            (5 5 10) #m/s
 
 
     ControlSystem{
         desiredFlightDirection      (0 0 1) # Define flight direction to reach/stabilize, in launch tower frame
     
         MomentController{
-            Type                    ScheduledGainPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
-            gainTableFilePath       MAPLEAF/Examples/TabulatedData/constPIDCoeffs.txt
-            scheduledBy             Mach Altitude # Mach, Altitude, UnitReynolds, AOA, RollAngle - order must match table
+            Type                    ConstantGainPIDRocket # Only option - expects one set of coefficients for longitudinal PID controller and one set for roll PID controller
+            Pxy                     100
+            Ixy                     10
+            Dxy                     50
+            Pz                      400
+            Iz                      20
+            Dz                      200
         }
 
         # Simulation will not take time steps larger than 1/updateRate

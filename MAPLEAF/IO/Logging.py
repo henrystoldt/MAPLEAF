@@ -1,11 +1,12 @@
 '''
-Classes and functions for creating simulation logs for regular simulations (Logger) and Monte Carlo simulations (MonteCarloLogger)
+    Classes and functions for creating simulation logs for regular simulations (Logger) and Monte Carlo simulations (MonteCarloLogger)
 '''
 
 import os
 import sys
-import csv
-from bisect import bisect_left
+
+from functools import lru_cache
+import MAPLEAF
 
 # TODO: When logging, keep track of messages containing 'error' or 'warning' -> reprint those at the end of the simulation?
 
@@ -105,24 +106,39 @@ def findNextAvailableNumberedFileName(fileBaseName="monteCarloLog", extension=".
 
     return filePath
 
+@lru_cache(maxsize=1)
+def inRepository():
+    currentDirectory = os.path.dirname(__file__)
+    if ".git" in os.listdir(currentDirectory):
+        return True
+    
+    return False
+
+@lru_cache(maxsize=1)
 def getSystemInfo(printToConsole=False):
     ''' Returns string array containing info about github status, machine type, date, etc... '''
     
     from datetime import datetime
-    from subprocess import check_output
+    from subprocess import check_output, CalledProcessError
     from platform import platform
     from os import getlogin
     
     result = []
 
-    try:
-        # Add current git status
-        currentDirectory = os.path.dirname(__file__)
-        currentCommit = check_output(['git', 'rev-parse', 'HEAD'], cwd=currentDirectory).decode()[:-1]
-        currentBranch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], cwd=currentDirectory).decode()[:-1]
-        result.append("# MAPLEAF, branch: {}, latest commit: {}".format(currentBranch, currentCommit))
-    except:
-        result.append("# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads")
+    # Add version number
+    result.append("# MAPLEAF v{}".format(MAPLEAF.__version__))
+    
+    # Check whether running in a repository (installed from source) or not (installed from pypi)
+    if inRepository():
+        try:
+            # Add current git status
+            currentDirectory = os.path.dirname(__file__)
+            currentCommit = check_output(['git', 'rev-parse', 'HEAD'], cwd=currentDirectory).decode()[:-1]
+            currentBranch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], cwd=currentDirectory).decode()[:-1]
+            result.append("# MAPLEAF, branch: {}, latest commit: {}".format(currentBranch, currentCommit))
+
+        except CalledProcessError:
+            result.append("# ERROR: Could not obtain current branch/commit info from git. Ensure command-line version of git is installed: https://git-scm.com/downloads")
     
     # Add date/time
     now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
