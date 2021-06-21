@@ -8,6 +8,7 @@
 
 import unittest
 from math import pi, sin, sqrt
+from copy import deepcopy
 
 from MAPLEAF.Motion import Quaternion
 from MAPLEAF.Motion import Vector
@@ -41,15 +42,26 @@ class TestQuaternion(unittest.TestCase):
 
     def test_slerp(self):
         testQ = self.q1.slerp(self.q3, 0)
-        assertQuaternionsAlmostEqual(self, (self.q1 * testQ).normalize(), self.q1.normalize())
+        assertQuaternionsAlmostEqual(self, testQ.normalize(), self.q1.normalize())
 
         testQ = self.q1.slerp(self.q3, 1)
-        testQ = (self.q1 * testQ).normalize()
         assertQuaternionsAlmostEqual(self, testQ, self.q3.normalize())
         
         testQ = self.rotQ2.slerp(self.rotQ5, 0.5)
-        testQ = (self.rotQ2 * testQ).normalize()
         assertQuaternionsAlmostEqual(self, testQ, Quaternion(axisOfRotation=Vector(0,0,1), angle=3*pi/4))
+
+    def test_slerpMethod(self):
+        q1 = deepcopy(self.q1).normalize()
+        q2 = deepcopy(self.q5).normalize()
+
+        qDelta = q2*q1.conjugate()
+
+        q2_2 = qDelta * q1
+        assertQuaternionsAlmostEqual(self, q2, q2_2)
+
+        halfDelta = qDelta.scaleRotation(0.5)
+        q2_3 = (halfDelta * halfDelta) * q1
+        assertQuaternionsAlmostEqual(self, q2, q2_3)
 
     #Test using the quaternion to rotate a vector
     #TODO: verify with matlab or other example
@@ -99,7 +111,7 @@ class TestQuaternion(unittest.TestCase):
         self.assertEqual(self.q4 * self.q5, Quaternion(components=[ 0.5,1.25,1.5,0.25 ]))
         self.assertEqual(self.q4 * self.q4, Quaternion(components=[ 0,0,2,0 ]))
 
-        # Check that order of rotations is left to right
+        # Check that order of rotations is right to left
         rot1 = Quaternion(axisOfRotation=Vector(0,0,1), angle=(pi/2))
         rot2 = Quaternion(axisOfRotation=Vector(1,0,0), angle=(pi/2))
         totalRotation = rot1*rot2

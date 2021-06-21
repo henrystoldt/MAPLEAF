@@ -352,10 +352,11 @@ class StateList(list):
         varStrings = [ x.__str__() for x in self ]
         return " ".join(varStrings)
 
-def interpolateRigidBodyStates(state1, state2, state1Weight):
+def interpolateRigidBodyStates(state1, state2, state1Weight, dt=0):
     '''
         Linearly interpolates between state 1 and state2.
         state1Weight should be a decimal value between 0 and 1.
+        dt (optional) is the amount of time passed between state 1 and the desired interpolation point, used to interpolate orientation using the angular velocity (second-order)
     '''
     state2Weight = 1 - state1Weight
     
@@ -365,10 +366,21 @@ def interpolateRigidBodyStates(state1, state2, state1Weight):
 
     try:
         # 6DoF Properties
-        orientationDelta = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
-        orientation = state1.orientation * orientationDelta
         angVel = state1.angularVelocity*state1Weight + state2.angularVelocity*state2Weight
-        return RigidBodyState(pos, vel, orientation, angVel)
+
+        if dt == 0:        
+            # SLERP actually produces jerky animations when used to make splines
+                # For now using crappy linear interpolation instead (first-order)
+                # TODO: Better options are probably available in the splines package: https://splines.readthedocs.io/en/latest/rotation/
+            # interpolatedOrientation = state1.orientation.slerp(state2.orientation, state1Weight) # Use spherical linear interpolation for quaternions
+            interpolatedOrientation = (state1.orientation*state1Weight + state2.orientation*state2Weight).normalize()
+        else:
+            # Interpolate using angular velocity - still produces jerky output (not used)
+            averageAngularVelocity = (angVel + state1.angularVelocity) / 2
+            estimatedRotation = (averageAngularVelocity*dt).toQuaternion()
+            interpolatedOrientation = estimatedRotation * state1.orientation
+
+        return RigidBodyState(pos, vel, interpolatedOrientation, angVel)
 
     except AttributeError:
         # 3DoF doesn't include orientation / angVel

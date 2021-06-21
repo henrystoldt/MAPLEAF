@@ -2,7 +2,7 @@
 #January 2019
 
 import numbers
-from libc.math cimport atan2, asin, cos, pi, sin, sqrt
+from libc.math cimport abs, acos, atan2, asin, cos, pi, sin, sqrt
 
 from MAPLEAF.Motion.CythonVector import Vector
 
@@ -101,8 +101,8 @@ cdef class Quaternion:
 
     def __mul__(q1, q2):
         """Multiplication operator *
-            Multiplying two quaternions adds up their rotations
-            Multiplications are not commutative, are applied in order from left to right
+            Multiplying two quaternions adds up their rotations (right followed by left)
+            Multiplications represent consecutive 3D rotations and thus are not commutative
         """
         if type(q2) == type(q1): # Quaternion - Quaternion case
             return Quaternion(  q1.Q0*q2.Q0 - q1.Q1*q2.Q1 - q1.Q2*q2.Q2 - q1.Q3*q2.Q3,
@@ -131,7 +131,7 @@ cdef class Quaternion:
             return self
         
         rotAxis = self.rotationAxis()
-        return Quaternion(rotAxis, scalar * rotAngle)
+        return Quaternion(axisOfRotation=rotAxis, angle=scalar * rotAngle)
 
     cpdef norm(self):
         ''' Get the norm of the quaternion '''
@@ -170,29 +170,22 @@ cdef class Quaternion:
 
     cpdef slerp(self, Quaternion quat2, double fraction):
         ''' Spherical Linear Interpolation - fraction = (0-1) where 0 is self, 1 is quat2 '''        
-        #Normalize both vectors
+        # Normalize both vectors
         q1 = self.normalize()
         q2 = quat2.normalize()
 
         #Calculate the quaternion which would rotate q1 to become q2 (q1 * q1^-1 * q2 = q2)
-        qDelta = q1.conjugate() * q2
-        
-        #If the rotation has ended up going the long way around, go the short way
-        rotAngle = qDelta.rotationAngle()
-        if rotAngle > pi:
-            rotationAngle = (2*pi - rotAngle) * fraction
-        else:
-            rotationAngle = rotAngle * fraction
+        qDelta = q2 * q1.conjugate()
 
-        if rotationAngle > 0:
-            rotationAxis = qDelta.rotationAxis()
+        if abs(qDelta.rotationAngle()) > 0:
+            return qDelta.scaleRotation(fraction) * q1
         else:
-            rotationAxis = Vector(1,0,0)
-        return Quaternion(axisOfRotation=rotationAxis, angle=rotationAngle)
+            return Quaternion(axisOfRotation=Vector(0,0,1), angle=0)
+
 
         #More efficient, less intuitive implementation below:
-        #angle = 2*acos(q1 * q2)
-        #return q1*(sin((1-fraction)*angle)/sin(angle)) + q2*(sin(fraction*angle)/sin(angle))
+        # angle = 2*acos(abs(q1.dotProduct(q2)))
+        # return q1*(sin((1-fraction)*angle)/sin(angle)) + q2*(sin(fraction*angle)/sin(angle))
 
     cpdef rotationAxis(self):
         ''' Returns the axis about which this quaternion would rotate a vector '''
