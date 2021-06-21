@@ -156,3 +156,6 @@ To generate static html docs
 2. (To generate .png files directly):`$ pyreverse -o png -p MAPLEAF ./MAPLEAF`
 3. (To generate editable .dot files): `$ pyreverse -p MAPLEAF ./MAPLEAF`
 4. (To generate .png from .dot): `$ dot -Tpng packages_MAPLEAF.dot -o packages_MAPLEAF.png`
+
+## Creating .exe using pyinstaller
+`$ pyinstaller -F ./Main.spec`

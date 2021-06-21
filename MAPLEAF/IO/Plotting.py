@@ -98,7 +98,7 @@ def tryPlottingFromLog(logPath, columnSpecs, columnsToExclude=[], ax=None, showP
         ax.legend()
 
         if showPlot:
-            plt.show()
+            plt.show(block=False)
     
     return names
 

@@ -126,6 +126,36 @@ def isBatchSim(batchDefinition) -> bool:
     
     return True
 
+def getSimulationDefinitionFile_GUI() -> str:
+    import PySimpleGUI as sg
+    sg.theme("Black")
+
+    layout = [
+        [sg.T("")],
+        [sg.Text("MAPLEAF Simulation Definition:"), sg.Input(), sg.FileBrowse(key="SimDefinition")],
+        [sg.Button("Run Simulation")],
+    ]
+
+    window = sg.Window('MAPLEAF', layout, size=(750, 125))
+    result = None
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Exit":
+            break
+        elif event == "Run Simulation":
+            result = values['SimDefinition']
+            break
+    
+    window.close()
+
+    if result is not None:
+        return result
+
+    print("No simulation definition selected")
+    print("Exiting")
+    sys.exit()
+
 def main(argv=None) -> int:
     ''' 
         Main function to run a MAPLEAF simulation. 
@@ -139,15 +169,21 @@ def main(argv=None) -> int:
     parser = buildParser()
     args = parser.parse_args(argv) 
 
+    # Load simulation definition file
+    if len(sys.argv) > 1:
+        # From command line argument
+        simDefPath = findSimDefinitionFile(args.simDefinitionFile)
+    else:
+        # From GUI
+        simDefPath = getSimulationDefinitionFile_GUI()
+
+    simDef = SimDefinition(simDefPath)
+
     if len(args.plotFromLog):
         # Just plot a column from a log file, and not run a whole simulation
         Plotting.plotFromLogFiles([args.plotFromLog[1]], args.plotFromLog[0])
         print("Exiting")
         sys.exit()
-     
-    # Load simulation definition file
-    simDefPath = findSimDefinitionFile(args.simDefinitionFile)
-    simDef = SimDefinition(simDefPath)
 
     #### Run simulation(s) ####
     if args.parallel:
@@ -201,4 +237,4 @@ def main(argv=None) -> int:
     print("Exiting")
 
 if __name__ == "__main__":
-    main(['C:\\Users\\rando\\Documents\\MAPLEAF\\MAPLEAF\\Examples\\Simulations\\AdaptTimeStep.mapleaf'])
+    main()
