@@ -7,6 +7,8 @@ import abc
 import numpy as np
 import pandas as pd
 
+from itertools import combinations_with_replacement as cwithr
+
 from MAPLEAF.Motion import AeroParameters, AngularVelocity, Vector
 from MAPLEAF.GNC import *
 
