@@ -8,9 +8,9 @@ from functools import lru_cache
 
 import numpy as np
 import scipy.linalg as linalg
+from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
 
-
-__all__ = [ "linInterp", "linInterpWeights", "calculateCubicInterpCoefficients", "cubicInterp" ]
+__all__ = [ "linInterp", "linInterpWeights", "calculateCubicInterpCoefficients", "cubicInterp", "NoNaNLinearNDInterpolator" ]
 
 def linInterp(X, Y, desiredX):
     '''
@@ -106,3 +106,20 @@ def cubicInterp(X, X1, X2, Y1, Y2, Y1_plusDx, Y2_plusDx, dx):
     interpCoeffs = calculateCubicInterpCoefficients(X1, X2, Y1, Y2, dy_dx_x1, dy_dx_x2)
     return float(interpCoeffs[0] + interpCoeffs[1]*X + interpCoeffs[2]*X**2 + interpCoeffs[3]*X**3)
 
+class NoNaNLinearNDInterpolator():
+    def __init__(self, keys, values, tablePath=None) -> None:
+        self.linearInterpolator = LinearNDInterpolator(keys, values)
+        self.nearestInterpolator = NearestNDInterpolator(keys, values)
+        self.tablePath = tablePath
+
+    def __call__(self, *keyVector):
+        linearResult = self.linearInterpolator(*keyVector)
+        
+        if np.isnan(linearResult).any():
+            # Occurs if the requested values are outside of the bounds of the table being interpolated over
+                # In that case just return the nearest result
+            print("WARNING: Interpolation requested outside of bounds in table: {}. Current key vector = {}. Extrapolation not supported, returning nearest result instead".format(self.tablePath, keyVector))
+            return self.nearestInterpolator(*keyVector)
+        
+        else:
+            return linearResult  

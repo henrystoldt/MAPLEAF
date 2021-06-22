@@ -6,9 +6,8 @@ import abc
 from math import e
 
 import numpy as np
-from scipy.interpolate import LinearNDInterpolator
 
-from MAPLEAF.Motion import AeroParameters
+from MAPLEAF.Motion import AeroParameters, NoNaNLinearNDInterpolator
 
 __all__ = [ "TableInterpolatingActuatorController", "FirstOrderActuator", "FirstOrderSystem", "ActuatorController", "Actuator" ]
 
@@ -48,6 +47,7 @@ class TableInterpolatingActuatorController(ActuatorController):
     def __init__(self, deflectionTableFilePath, nKeyColumns, keyFunctionList, actuatorList):
         self.actuatorList = actuatorList
         self.keyFunctionList = keyFunctionList
+        self.deflectionTablePath = deflectionTableFilePath
 
         # Load actuator-deflection data table
         deflData = np.loadtxt(deflectionTableFilePath, skiprows=1)
@@ -61,7 +61,7 @@ class TableInterpolatingActuatorController(ActuatorController):
             raise ValueError("Number of actuators: {}, must match number of actuator deflection columns in deflection table: {}".format(nActuators, nDeflectionTableEntries))
 
         # Create interpolation function for fin deflections
-        self._getPositionTargets = LinearNDInterpolator(keys, deflData)
+        self._getPositionTargets = NoNaNLinearNDInterpolator(keys, deflData)
 
     def setTargetActuatorDeflections(self, desiredMoments, state, environment, time):
         '''
@@ -81,9 +81,7 @@ class TableInterpolatingActuatorController(ActuatorController):
 
         return list(newActuatorPositionTargets)
 
-
-
-
+    
 class Actuator(abc.ABC):
     ''' 
         Interface for actuators.

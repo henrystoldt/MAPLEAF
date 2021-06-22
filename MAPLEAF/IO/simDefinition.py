@@ -213,6 +213,8 @@ class SimDefinition():
             self.rng = random.Random(randomSeed)
             ''' Instace of random.Random owned by this instance of SimDefinition. Random seed can be specified by the MonteCarlo.randomSeed parameter. Used for sampling all normal distributions for parameters that have std dev specified. '''
 
+            self.resampleProbabilisticValues()            
+
     def _loadSubSimDefinition(self, path: str):
         ''' 
             In the parsing process, may need to load other sim definition files, use this function when doing that to detect circular references 
@@ -466,7 +468,69 @@ class SimDefinition():
         return Dict
 
     #### Normal Usage ####
-    #TODO: Move distribution sampling for probabilistic parameters to the parsing stage (do not re-sample if a value is requested multiple times)
+    def resampleProbabilisticValues(self, Dict=None):
+        '''
+            Normal Distribution Sampling:
+                If (key + "_stdDev") exists and the value being returned is a scalar or Vector value, returns a scalar or vector sampled from a normal distribution
+                    Where the mean of the normal distribution is taken to be the (original) value of 'key' (moved to 'key_mean' when this function first runs) and the standard deviation of the distribution is the value of 'key_stdDev'
+                    For a vector value, a vector of standard deviations is expected
+                For repeatable sampling, set the value "MonteCarlo.randomSeed" in the file loaded by this class
+        '''
+        if Dict is None:
+            Dict = self.dict
+
+        if not self.disableDistributionSampling:
+            keys = list(Dict.keys()) # Get a list of keys at the beginning to avoid issues from the number of keys changing during iterations
+            
+            for key in keys:
+                ### Sample any probabilistic values from normal distribution ###
+                stdDevKey = key + "_stdDev"
+                
+                if stdDevKey in Dict:
+                    logLine = None
+                    meanKey = key + "_mean"
+
+                    try:
+                        meanString = Dict[meanKey]
+                    except KeyError:
+                        # Take the value of the variable as the mean if a _mean value is not provided
+                        meanString = Dict[key]
+                        Dict[meanKey] =  meanString
+
+                    # Try parsing scalar values
+                    try:
+                        mu = float(meanString)
+                        sigma = float(Dict[stdDevKey])
+
+                        sampledValue = self.rng.gauss(mu, sigma)
+                        Dict[key] = str(sampledValue)
+
+                        logLine = "Sampling scalar parameter: {}, value: {:1.3f}".format(key, sampledValue)
+
+                    except ValueError:
+                        # Try parsing vector value
+                        try:
+                            muVec = Vector(meanString)
+                            sigmaVec = Vector(Dict[stdDevKey])
+
+                            sampledVec = Vector(*[ self.rng.gauss(mu, sigma) for mu, sigma in zip(muVec, sigmaVec)])
+                            Dict[key] =  str(sampledVec)
+
+                            logLine = "Sampling vector parameter: {}, value: ({:1.3f})".format(key, sampledVec)
+                            
+                        except ValueError:
+                            # ValueError throws if either conversion to Vector fails
+                            # Note that monte carlo / probabilistic variables can only be scalars or vectors
+                            print("ERROR: Unable to parse probabilistic value: {} for key {} (or {} for key {}). Note that probabilistic values must be either scalars or vectors of length 3.".format(meanString, meanKey, self.getValue(stdDevKey), stdDevKey))
+                            raise
+                    
+                    ### Logging ###
+                    if logLine != None:
+                        if self.monteCarloLogger != None:
+                            self.monteCarloLogger.log(logLine)
+                        elif not self.silent:
+                            print(logLine)
+
     def getValue(self, key: str) -> str:
         """
             Input:
@@ -474,80 +538,27 @@ class SimDefinition():
             Output:
                 Always returns a string value
                 Returns value from defaultConfigValues if key not present in current SimDefinition's dictionary
-
-                Normal Distribution Sampling:
-                    If (key + "_stdDev") exists and the value being returned is a scalar or Vector value, returns a scalar or vector sampled from a normal distribution
-                        Where the mean of the normal distribution is taken to be the value of 'key' and the standard deviation of the distribution is the value of 'key_stdDev'
-                        For a vector value, a vector of standard deviations is expected
-                    For repeatable sampling, set the value "MonteCarlo.randomSeed" in the file loaded by this class
         """
         # Remove any whitespace from the key
         key = key.strip()
 
         ### Find string/mean value ###
         if self.dict.__contains__(key):
-            stringValue = self.dict[key]
-
             if key in self.unaccessedFields: # Track which keys are accessed
                 self.unaccessedFields.remove(key)
+            return self.dict[key]
+        
         elif key in self.defaultDict:
-            stringValue = self.defaultDict[key]
             self.defaultValuesUsed.add(key)
+            return self.defaultDict[key]
         else:
             # Check if there's a class-based default value to return
             classBasedDefaultValue = self._getClassBasedDefaultValue(key)
             
             if classBasedDefaultValue != None:
-                stringValue = classBasedDefaultValue
+                return classBasedDefaultValue
             else:
                 raise KeyError("Key: " + key + " not found in {} or default config values".format(self.fileName))
-
-        ### Sample from normal distribution if required ###
-        if not self.disableDistributionSampling:
-            ### Check if a standard deviation has been specified. If so, sample a gaussian distribution before returning the value ###
-            stdDevKey = key + "_stdDev"
-
-            # Scalar values
-            try:
-                mu = float(stringValue)            
-                sigma = float(self.getValue(stdDevKey))
-
-                sampledValue = self.rng.gauss(mu, sigma)
-
-                logLine = "Sampling scalar parameter: {}, value: {:1.3f}".format(key, sampledValue)
-                if self.monteCarloLogger != None:
-                    self.monteCarloLogger.log(logLine)
-                elif not self.silent:
-                    print(logLine)
-
-
-                return str(sampledValue)
-            except (KeyError, ValueError):
-                # KeyError throws if stdDevKey not present
-                # ValueError throws if either conversion to float fails
-                pass
-
-            # Vector values
-            try:
-                muVec = Vector(stringValue)
-                sigmaVec = Vector(self.getValue(stdDevKey))
-
-                sampledVec = Vector(*[ self.rng.gauss(mu, sigma) for mu, sigma in zip(muVec, sigmaVec)])
-
-                logLine = "Sampling vector parameter: {}, value: ({:1.3f})".format(key, sampledVec)
-                if self.monteCarloLogger != None:
-                    self.monteCarloLogger.log(logLine)
-                elif not self.silent:
-                    print(logLine)
-
-                return str(sampledVec)
-            except (KeyError, ValueError):
-                # KeyError throws if stdDevKey not present
-                # ValueError throws if either conversion to Vector fails
-                pass
-
-        ### Otherwise return original string value ###
-        return stringValue
 
     def setValue(self, key: str, value) -> None:
         '''

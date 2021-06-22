@@ -9,10 +9,10 @@ from abc import ABC, abstractmethod
 from typing import List, Union
 
 import numpy as np
-from scipy.interpolate import LinearNDInterpolator
-
 from MAPLEAF.Motion import (AeroParameters, ForceMomentSystem, Inertia,
-                            RigidBodyState, Vector, linInterp)
+                            NoNaNLinearNDInterpolator, RigidBodyState, Vector,
+                            linInterp)
+
 from . import AeroFunctions
 
 __all__ = [ "RocketComponent", "BodyComponent", "PlanarInterface", "FixedMass", "FixedForce", "AeroForce", "AeroDamping", "TabulatedAeroForce", "TabulatedInertia", "FractionalJetDamping" ]
@@ -317,7 +317,7 @@ class TabulatedAeroForce(AeroForce):
 
         if nKeyCols > 1:
             # Create n-dimensional interpolation function for aero coefficients
-            self._interpAeroCoefficients = LinearNDInterpolator(keys, aeroCoefficients)
+            self._interpAeroCoefficients =  NoNaNLinearNDInterpolator(keys, aeroCoefficients, filePath)
         else:
             # Save to use with MAPLEAF.Motion.linInterp
             self.keys = [ key[0] for key in keys ]
