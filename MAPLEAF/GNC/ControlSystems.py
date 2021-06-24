@@ -77,7 +77,7 @@ class RocketControlSystem(ControlSystem, SubDictReader):
             longitudinalGainCoeffFilePath = controlSystemDictReader.getString("MomentController.longitudinalGainCoeffFilePath")
             parameterList = controlSystemDictReader.getString("MomentController.scheduledBy").split()
             equationOrder = controlSystemDictReader.getInt("MomentController.equationOrder")
-            self.momentController = EquationScheduledGainPIDRocketMomentController(lateralGainCoeffFilePath, longitudinalGainCoeffFilePath, parameterList, equationOrder)
+            self.momentController = EquationScheduledGainPIDRocketMomentController(lateralGainCoeffFilePath, longitudinalGainCoeffFilePath, parameterList, equationOrder, controlSystemDictReader)
         elif momentControllerType == "IdealMomentController":
             self.momentController = IdealMomentController(self.rocket)
         else:

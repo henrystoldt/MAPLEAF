@@ -60,7 +60,7 @@ class TableScheduledGainPIDRocketMomentController(MomentController, TableSchedul
 
 class EquationScheduledGainPIDRocketMomentController(MomentController):
 
-    def __init__(self, lateralCoefficientsPath, longitudinalCoefficientsPath, parameterList, equationOrder):
+    def __init__(self, lateralCoefficientsPath, longitudinalCoefficientsPath, parameterList, equationOrder, controlSystemDictReader):
 
       def _getEquationCoefficientsFromTextFile(textFilePath):
         equationCoefficients = pd.read_csv(textFilePath)
@@ -85,6 +85,12 @@ class EquationScheduledGainPIDRocketMomentController(MomentController):
       pitchCoefficientList = _getEquationCoefficientsFromTextFile(lateralCoefficientsPath)
       yawCoefficientList = pitchCoefficientList
       rollCoefficientList = _getEquationCoefficientsFromTextFile(longitudinalCoefficientsPath)
+
+      for i in range(len(pitchCoefficientList)):
+        controlSystemDictReader.simDefinition.setValue('PitchC' + str(i),pitchCoefficientList[i])
+        controlSystemDictReader.simDefinition.setValue('YawC' + str(i),yawCoefficientList[i])
+        controlSystemDictReader.simDefinition.setValue('RollC' + str(i),rollCoefficientList[i])
+
 
       self.pitchController = EquationScheduledGainPIDController(pitchCoefficientList, parameterList, equationOrder)
       self.yawController = EquationScheduledGainPIDController(yawCoefficientList, parameterList, equationOrder)
