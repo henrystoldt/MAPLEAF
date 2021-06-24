@@ -1,8 +1,9 @@
 import unittest
 
 import numpy as np
+import sys
 
-from MAPLEAF.GNC import ScheduledGainPIDController, PIDController
+from MAPLEAF.GNC import PIDController, TableScheduledGainPIDController, EquationScheduledGainPIDController
 
 
 class TestPIDController(unittest.TestCase):
@@ -75,17 +76,69 @@ class TestPIDController(unittest.TestCase):
         self.assertTrue(np.array_equal(newSetPoint, np.array([84, 205, 366])))
 
 
-class TestGainSchedulePIDController(unittest.TestCase):
+class TestTableScheduledGainPIDController(unittest.TestCase):
     def setUp(self):
-        self.ScheduledGainPID = ScheduledGainPIDController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", 2, 2, 7)
+        self.TableScheduledGainPID = TableScheduledGainPIDController("MAPLEAF/Examples/TabulatedData/testPIDControlLaw.txt", 2, 2, 7)
 
     def test_getPIDCoeffs(self):
         MachNum, Alt = 0.15, 0
         expectedResult = np.array([ 7.5, 8.5, 9.5, 10.5, 11.5, 12.5 ])
-        result = self.ScheduledGainPID._getPIDCoeffs(MachNum, Alt)
+        result = self.TableScheduledGainPID._getPIDCoeffs(MachNum, Alt)
         self.assertTrue(np.allclose(result, expectedResult))
 
         MachNum, Alt = 0.1, 0.5
         expectedResult = np.array([ 4, 5, 6, 7.5, 8.5, 9.5 ])
-        result = self.ScheduledGainPID._getPIDCoeffs(MachNum, Alt)
+        result = self.TableScheduledGainPID._getPIDCoeffs(MachNum, Alt)
         self.assertTrue(np.allclose(result, expectedResult))
+
+class TestEquationScheduledGainPIDController(unittest.TestCase):
+  def setUp(self):
+    coefficientList = [[1, 2, 3, 4, 5, 6],
+                      [1, 2, 3, 4, 5, 6],
+                      [1, 2, 3, 4, 5, 6]]
+
+    parameterList = ["Mach Number", "Altitude"]
+
+    equationOrder = 2
+
+    self.equationScheduledGainPID = EquationScheduledGainPIDController(coefficientList, parameterList, equationOrder)
+
+  def test_updateCoefficientsFromEquation(self):
+
+    MachNum = 1
+    Altitude = 10
+
+    parameterValues = [MachNum, Altitude]
+    ExpectedResult = 1 + 2*MachNum + 3*Altitude + 4*(MachNum**2) + 5*MachNum*Altitude + 6*(Altitude**2)
+
+    self.equationScheduledGainPID.updateCoefficientsFromEquation(parameterValues)
+
+    P = self.equationScheduledGainPID.P
+    I = self.equationScheduledGainPID.I
+    D = self.equationScheduledGainPID.D
+
+    self.assertTrue(np.isclose(ExpectedResult,P))
+    self.assertTrue(np.isclose(ExpectedResult,I))
+    self.assertTrue(np.isclose(ExpectedResult,D))
+
+  def test_EquationScheduledPIDOutput(self):
+
+    Error = 1
+    dt = 1
+
+    MachNum = 1
+    Altitude = 10
+
+    parameterValues = [MachNum, Altitude]
+    Gains = 1 + 2*MachNum + 3*Altitude + 4*(MachNum**2) + 5*MachNum*Altitude + 6*(Altitude**2)
+
+    Derivative = (Error - 0)/dt
+    Integral = Error*dt/2
+
+    ExpectedResult = Gains*Error + Gains*Integral + Gains*Derivative
+
+    self.equationScheduledGainPID.updateCoefficientsFromEquation(parameterValues)
+
+    Output = self.equationScheduledGainPID.getNewSetPoint(Error,dt)
+
+    self.assertTrue(np.isclose(ExpectedResult,Output))

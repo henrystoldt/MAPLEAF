@@ -119,3 +119,4 @@ class SubDictReader():
     def getDictName(self) -> str:
         lastDotIndex = self.simDefDictPathToReadFrom.rfind('.')
         return self.simDefDictPathToReadFrom[lastDotIndex+1:]
+
