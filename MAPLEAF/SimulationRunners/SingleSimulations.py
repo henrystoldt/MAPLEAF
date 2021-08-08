@@ -389,6 +389,7 @@ class Simulation():
                 plotsToMake.remove("FlightAnimation")
 
             if "FlightPaths" in plotsToMake:
+                print("Showing flight path")
                 earthModel = self.simDefinition.getValue("Environment.EarthModel")
                 if earthModel in [ "None", "Flat" ]:
                     Plotting.plotFlightPaths_NoEarth(flights)

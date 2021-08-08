@@ -381,7 +381,11 @@ def _get3DPlotSize(flight, sizeMultiple=1.1):
         Finds max X, Y, or Z distance from the origin reached during the a flight. Used to set the 3D plot size (which will be equal in all dimensions)
     '''
     Positions = flight.Positions
-    centerOfPlot = Vector(mean(Positions[0]), mean(Positions[1]), mean(Positions[2]))
+    centerOfPlot = Vector(
+        (max(Positions[0]) + min(Positions[0]))/2, 
+        (max(Positions[1]) + min(Positions[1]))/2, 
+        (max(Positions[2]) + min(Positions[2]))/2
+    )
 
     xRange = max(Positions[0]) - min(Positions[0])
     yRange = max(Positions[1]) - min(Positions[1])
@@ -391,7 +395,7 @@ def _get3DPlotSize(flight, sizeMultiple=1.1):
         # For cases where the object does not move
         axisDimensions = 1.0
     else:
-        axisDimensions = max([xRange, yRange, zRange]) * sizeMultiple
+        axisDimensions = max(xRange, yRange, zRange) * sizeMultiple
     
     return axisDimensions, centerOfPlot
 
@@ -424,7 +428,7 @@ def _createReferenceVectors(nCanards, maxAbsCoord, rocketLengthFactor=0.25, finL
     return refAxis, perpVectors
 
 def _createAnimationFigure(axisDimensions, centerOfPlot):
-    fig = plt.figure()
+    fig = plt.figure(figsize=(7,7))
     ax = p3.Axes3D(fig)
 
     halfDim = axisDimensions/2

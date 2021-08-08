@@ -453,7 +453,7 @@ class Rocket(CompositeObject):
             CGsubY += yCGs
 
         SubCGplt = plt.plot(CGsubZ, CGsubY, color='g', marker='.', label='Subcomponent CG', linestyle='None')
-        legendHeight = self.maxDiameter
+        
         plt.legend(loc='upper center', bbox_to_anchor = (0.5,-1.05))
         plt.show()
 
