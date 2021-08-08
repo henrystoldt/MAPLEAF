@@ -48,8 +48,8 @@ class BatchRun():
             printStackTraces=False, 
             include=None, 
             exclude=None,
-            percentErrorTolerance=0.1,
-            absoluteErrorTolerance=1e-10,
+            percentErrorTolerance=0.2,
+            absoluteErrorTolerance=2e-10,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
