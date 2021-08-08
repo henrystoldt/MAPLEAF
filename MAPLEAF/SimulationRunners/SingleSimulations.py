@@ -356,16 +356,36 @@ class Simulation():
 
             # Create a new folder for the results of the current simulation
             periodIndex = simDefinition.fileName.rfind('.')
-            resultsFolderName = simDefinition.fileName[:periodIndex] + "_Run"
-            resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderName, extension="")
-            os.mkdir(resultsFolderName)
+            resultsFolderBaseName = simDefinition.fileName[:periodIndex] + "_Run"
+
+            def tryCreateResultsFolder(resultsFolderBaseName):
+                resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderBaseName, extension="")
+                
+                try:
+                    os.mkdir(resultsFolderName)
+                    return resultsFolderName
+
+                except FileExistsError:
+                    # End up here if another process created the same results folder 
+                        # (other thread runs os.mkdir b/w when this thread runs findNextAvailableNumberedFileName and os.mkdir)
+                        # Should only happen during parallel runs
+                    return ""
+
+            createdResultsFolder = tryCreateResultsFolder(resultsFolderBaseName)
+            iterations = 0
+            while createdResultsFolder == "" and iterations < 50:
+                createdResultsFolder = tryCreateResultsFolder(resultsFolderBaseName)
+                iterations += 1
+
+            if iterations == 50:
+                raise ValueError("Repeated error (50x): unable to create a results folder: {}.".format(resultsFolderBaseName))
 
             # Write logs to file
             for rocket in self.rocketStages:
-                logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
+                logFilePaths += rocket.writeLogsToFile(createdResultsFolder)            
 
             # Output console output
-            consoleOutputPath = os.path.join(resultsFolderName, "consoleOutput.txt")
+            consoleOutputPath = os.path.join(createdResultsFolder, "consoleOutput.txt")
             print("Writing log file: {}".format(consoleOutputPath))
             with open(consoleOutputPath, 'w+') as file:
                 file.writelines(self.consoleOutputLog)
