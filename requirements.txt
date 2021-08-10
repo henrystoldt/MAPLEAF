@@ -8,5 +8,5 @@ cython              # Compiling Cython code
 pyswarms            # Optimization
 pyyaml              # Secretly required by pyswarms
 ray                 # (Optional) Multithreading
-PyQt5               # (Optional) Mayavi requires this
-mayavi              # (Optional) 3D flight path renders of earth
+# PyQt5               # (Optional) Mayavi requires this
+# mayavi              # (Optional) 3D flight path renders of earth

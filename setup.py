@@ -47,7 +47,7 @@ installingMAPLEAF = "install" in sys.argv
 if installingMAPLEAF:
     # ray and mayavi often cause issues on windows
     # PyQt5 only required for mayavi
-    optionalProblematicPackages = [ "ray", "PyQt5", "mayavi" ]
+    optionalProblematicPackages = [ "ray" ] # [ "ray", "PyQt5", "mayavi" ]
     errorMessages = [
         "MAPLEAF will only run single-threaded.", 
         "", 
