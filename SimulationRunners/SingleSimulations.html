@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>MAPLEAF.SimulationRunners.SingleSimulations API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -388,16 +388,36 @@ class Simulation():
 
             # Create a new folder for the results of the current simulation
             periodIndex = simDefinition.fileName.rfind(&#39;.&#39;)
-            resultsFolderName = simDefinition.fileName[:periodIndex] + &#34;_Run&#34;
-            resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderName, extension=&#34;&#34;)
-            os.mkdir(resultsFolderName)
+            resultsFolderBaseName = simDefinition.fileName[:periodIndex] + &#34;_Run&#34;
+
+            def tryCreateResultsFolder(resultsFolderBaseName):
+                resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderBaseName, extension=&#34;&#34;)
+                
+                try:
+                    os.mkdir(resultsFolderName)
+                    return resultsFolderName
+
+                except FileExistsError:
+                    # End up here if another process created the same results folder 
+                        # (other thread runs os.mkdir b/w when this thread runs findNextAvailableNumberedFileName and os.mkdir)
+                        # Should only happen during parallel runs
+                    return &#34;&#34;
+
+            createdResultsFolder = tryCreateResultsFolder(resultsFolderBaseName)
+            iterations = 0
+            while createdResultsFolder == &#34;&#34; and iterations &lt; 50:
+                createdResultsFolder = tryCreateResultsFolder(resultsFolderBaseName)
+                iterations += 1
+
+            if iterations == 50:
+                raise ValueError(&#34;Repeated error (50x): unable to create a results folder: {}.&#34;.format(resultsFolderBaseName))
 
             # Write logs to file
             for rocket in self.rocketStages:
-                logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
+                logFilePaths += rocket.writeLogsToFile(createdResultsFolder)            
 
             # Output console output
-            consoleOutputPath = os.path.join(resultsFolderName, &#34;consoleOutput.txt&#34;)
+            consoleOutputPath = os.path.join(createdResultsFolder, &#34;consoleOutput.txt&#34;)
             print(&#34;Writing log file: {}&#34;.format(consoleOutputPath))
             with open(consoleOutputPath, &#39;w+&#39;) as file:
                 file.writelines(self.consoleOutputLog)
@@ -934,16 +954,36 @@ class WindTunnelSimulation(Simulation):
 
             # Create a new folder for the results of the current simulation
             periodIndex = simDefinition.fileName.rfind(&#39;.&#39;)
-            resultsFolderName = simDefinition.fileName[:periodIndex] + &#34;_Run&#34;
-            resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderName, extension=&#34;&#34;)
-            os.mkdir(resultsFolderName)
+            resultsFolderBaseName = simDefinition.fileName[:periodIndex] + &#34;_Run&#34;
+
+            def tryCreateResultsFolder(resultsFolderBaseName):
+                resultsFolderName = Logging.findNextAvailableNumberedFileName(fileBaseName=resultsFolderBaseName, extension=&#34;&#34;)
+                
+                try:
+                    os.mkdir(resultsFolderName)
+                    return resultsFolderName
+
+                except FileExistsError:
+                    # End up here if another process created the same results folder 
+                        # (other thread runs os.mkdir b/w when this thread runs findNextAvailableNumberedFileName and os.mkdir)
+                        # Should only happen during parallel runs
+                    return &#34;&#34;
+
+            createdResultsFolder = tryCreateResultsFolder(resultsFolderBaseName)
+            iterations = 0
+            while createdResultsFolder == &#34;&#34; and iterations &lt; 50:
+                createdResultsFolder = tryCreateResultsFolder(resultsFolderBaseName)
+                iterations += 1
+
+            if iterations == 50:
+                raise ValueError(&#34;Repeated error (50x): unable to create a results folder: {}.&#34;.format(resultsFolderBaseName))
 
             # Write logs to file
             for rocket in self.rocketStages:
-                logFilePaths += rocket.writeLogsToFile(resultsFolderName)            
+                logFilePaths += rocket.writeLogsToFile(createdResultsFolder)            
 
             # Output console output
-            consoleOutputPath = os.path.join(resultsFolderName, &#34;consoleOutput.txt&#34;)
+            consoleOutputPath = os.path.join(createdResultsFolder, &#34;consoleOutput.txt&#34;)
             print(&#34;Writing log file: {}&#34;.format(consoleOutputPath))
             with open(consoleOutputPath, &#39;w+&#39;) as file:
                 file.writelines(self.consoleOutputLog)
@@ -1494,7 +1534,7 @@ MAPLEAF
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
