@@ -64,7 +64,7 @@ def buildParser() -> argparse.ArgumentParser:
     parser.add_argument(
         "simDefinitionFile", 
         nargs='?', 
-        default="MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf",
+        default="NASATwoStageOrbitalRocket.mapleaf",
         help="Path to a simulation definition (.mapleaf) file. Not required if using --plotFromLog"
     )
 
@@ -77,7 +77,7 @@ def findSimDefinitionFile(providedPath):
 
     # Track if it is a relative path, relative to a different location than the current terminal (example/default cases)
     installationLocation = Path(__file__).parent.parent
-    alternateLocations = [ 
+    alternateLocations = [
         installationLocation / "MAPLEAF/Examples/Simulations/", 
         installationLocation / "MAPLEAF/Examples/BatchSims/" 
     ]
@@ -90,7 +90,7 @@ def findSimDefinitionFile(providedPath):
 
     for path in possibleRelativePaths:
         for alternateLocation in alternateLocations:
-            absPath = getAbsoluteFilePath(path, alternateLocation)
+            absPath = getAbsoluteFilePath(path, alternateLocation, silent=True)
 
             if os.path.isfile(absPath):
                 # We've located the file!
