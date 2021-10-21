@@ -99,7 +99,7 @@ def buildParser() -&gt; argparse.ArgumentParser:
     parser.add_argument(
         &#34;simDefinitionFile&#34;, 
         nargs=&#39;?&#39;, 
-        default=&#34;MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf&#34;,
+        default=&#34;NASATwoStageOrbitalRocket.mapleaf&#34;,
         help=&#34;Path to a simulation definition (.mapleaf) file. Not required if using --plotFromLog&#34;
     )
 
@@ -112,7 +112,7 @@ def findSimDefinitionFile(providedPath):
 
     # Track if it is a relative path, relative to a different location than the current terminal (example/default cases)
     installationLocation = Path(__file__).parent.parent
-    alternateLocations = [ 
+    alternateLocations = [
         installationLocation / &#34;MAPLEAF/Examples/Simulations/&#34;, 
         installationLocation / &#34;MAPLEAF/Examples/BatchSims/&#34; 
     ]
@@ -125,7 +125,7 @@ def findSimDefinitionFile(providedPath):
 
     for path in possibleRelativePaths:
         for alternateLocation in alternateLocations:
-            absPath = getAbsoluteFilePath(path, alternateLocation)
+            absPath = getAbsoluteFilePath(path, alternateLocation, silent=True)
 
             if os.path.isfile(absPath):
                 # We&#39;ve located the file!
@@ -300,7 +300,7 @@ if __name__ == &#34;__main__&#34;:
     parser.add_argument(
         &#34;simDefinitionFile&#34;, 
         nargs=&#39;?&#39;, 
-        default=&#34;MAPLEAF/Examples/Simulations/NASATwoStagOrbitalRocket.mapleaf&#34;,
+        default=&#34;NASATwoStageOrbitalRocket.mapleaf&#34;,
         help=&#34;Path to a simulation definition (.mapleaf) file. Not required if using --plotFromLog&#34;
     )
 
@@ -323,7 +323,7 @@ if __name__ == &#34;__main__&#34;:
 
     # Track if it is a relative path, relative to a different location than the current terminal (example/default cases)
     installationLocation = Path(__file__).parent.parent
-    alternateLocations = [ 
+    alternateLocations = [
         installationLocation / &#34;MAPLEAF/Examples/Simulations/&#34;, 
         installationLocation / &#34;MAPLEAF/Examples/BatchSims/&#34; 
     ]
@@ -336,7 +336,7 @@ if __name__ == &#34;__main__&#34;:
 
     for path in possibleRelativePaths:
         for alternateLocation in alternateLocations:
-            absPath = getAbsoluteFilePath(path, alternateLocation)
+            absPath = getAbsoluteFilePath(path, alternateLocation, silent=True)
 
             if os.path.isfile(absPath):
                 # We&#39;ve located the file!
