@@ -5,3 +5,6 @@ pylint>=2.5
 pdoc3
 pyinstrument
 asv
+ray                 # (Optional) Multithreading
+PyQt5               # (Optional) Mayavi requires this
+mayavi              # (Optional) 3D flight path renders of earth
