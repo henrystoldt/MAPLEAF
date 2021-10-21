@@ -26,6 +26,8 @@ Prerequisites:
 
 `$ pip install MAPLEAF`
 
+The (optional) dependencies used to enable 3D flight path renders (mayavi) and parallelization (ray) are not installed by default because they're often tricky to get running. Run the installOptionalPackages.py script to try installing them if you want to use those capabilities. See ray and mayavi github pages/documentation for help getting them installed.
+
 ### Test your installation
 Unit tests:  
 `$ python -m unittest -v`  
