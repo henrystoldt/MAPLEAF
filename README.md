@@ -1,5 +1,3 @@
-
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/henrystoldt/MAPLEAF/master/Resources/Draft2Logo.png" alt="Logo"
     title="MAPLEAF" height=150 style="padding-right: 10px;"/>
@@ -26,7 +24,7 @@ Prerequisites:
 
 `$ pip install MAPLEAF`
 
-The (optional) dependencies used to enable 3D flight path renders (mayavi) and parallelization (ray) are not installed by default because they're often tricky to get running. Run the installOptionalPackages.py script to try installing them if you want to use those capabilities. See ray and mayavi github pages/documentation for help getting them installed.
+The (optional) dependencies used to enable 3D flight path renders (mayavi) and parallelization (ray) are not installed by default because they're often tricky to get running. Run the [installOptionalPackages.py](https://github.com/henrystoldt/MAPLEAF/blob/master/installOptionalPackages.py) script to try installing them if you want to use those capabilities. See ray and mayavi github pages/documentation for more help getting them installed.
 
 ### Test your installation
 Unit tests:  
@@ -149,3 +147,7 @@ To run **Monte Carlo** or **Optimization** simulations in parallel:
 `mapleaf --parallel MonteCarlo.mapleaf`
 
 MAPLEAF's parallelization is implemented using [ray](https://github.com/ray-project/ray).
+
+## Cite MAPLEAF
+[Stoldt, H., Quinn, D., Kavanagh, J., Johansen, C. (2021). MAPLEAF: A Compact, Extensible, Open-Source, 6-
+Degrees-of-Freedom Rocket Flight Simulation Framework. In 2021 AIAA Propulsion & Energy Forum.](https://arc.aiaa.org/doi/abs/10.2514/6.2021-3267)
