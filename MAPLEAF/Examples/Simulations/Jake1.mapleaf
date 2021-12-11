@@ -12,7 +12,7 @@ SimControl{
     loggingLevel    2
     RocketPlot      On
 
-    plot    FlightAnimation Thrust AngularVelocityZ
+    plot    FlightAnimation Sustainer.MotorFZ(N) AngularVelocityZ
 }
 
 Environment{
