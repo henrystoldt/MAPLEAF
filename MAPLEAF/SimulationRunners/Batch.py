@@ -49,7 +49,7 @@ class BatchRun():
             include=None, 
             exclude=None,
             percentErrorTolerance=0.2,
-            absoluteErrorTolerance=2e-10,
+            absoluteErrorTolerance=1e-9,
             resultToValidate=None
         ):
         self.batchDefinition = batchDefinition
