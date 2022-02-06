@@ -86,7 +86,7 @@ class RigidBody(RigidBody_3DoF):
         self.lastStateDerivative = RigidBodyStateDerivative(rigidBodyState.velocity, Vector(0,0,0), rigidBodyState.angularVelocity, AngularVelocity(0,0,0))
 
     def getRigidBodyStateDerivative(self, time, state):
-        # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a pricipal axis
+        # Forces are expected to be calculated in a body frame, where each coordinate axis is aligned with a principal axis
         appliedForce_localFrame = self.forceFunc(time, state)
         inertia = self.inertiaFunc(time, state)
 

@@ -6,6 +6,8 @@ as well as some simple rocket component classes (`FixedForce`,`AeroForce`,`AeroD
 """
 
 from abc import ABC, abstractmethod
+from multiprocessing.sharedctypes import Value
+from os import environ
 from typing import List, Union
 
 import numpy as np
@@ -333,6 +335,7 @@ class TabulatedAeroForce(AeroForce):
             # 1D linear interpolation
             interpolatedCoefficients = linInterp(self.keys, self.values, keys[0])
 
+        # Reorder coefficients to match expected output order - #TODO: Reorder interp table at load/init time instead?
         aeroCoefficients = [0.0] * 5
         for i in range(len(interpolatedCoefficients)):
             indexInCoeffArray = self.aeroCoeffIndices[i]
@@ -344,6 +347,69 @@ class TabulatedAeroForce(AeroForce):
         aeroCoefficients = self._getAeroCoefficients(state, environment)
         return AeroFunctions.forceFromCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
 
+class TabulatedAeroModel(TabulatedAeroForce):
+    ''' A zero-inertia component with static coefficient and dynamic derivatives that are tabulated according to Mach, Re, AOA, AOSS '''
+
+    def __init__(self, componentDictReader, rocket, stage):
+        super().__init__(componentDictReader, rocket, stage)
+
+    def _loadCoefficients(self, filePath):
+        # Load first row to figure out what the columns mean
+        with open(filePath) as f:
+            columnNames = f.readline().strip().split(',')
+        
+        # Check the first four columns contain the expected key data
+        keyCols = [ "Mach", "UnitReynolds", "AOA", "AOSS" ]
+        if columnNames[:4] != keyCols:
+            raise ValueError("Error interpreting {}. Expected the following key columns: {}, got: {}".format(filePath, keyCols, columnNames[:4]))
+
+        # Check aero data columns are the expected ones
+        dataCols = "CN,CM,CA,CY,CLN,CLL,CL,CD,CL_CD,X_C_P,CNA,CMA,CYB,CLNB,CLLB,CNQ,CMQ,CAQ,CNAD,CMAD,CYR,CLNR,CLLR,CYP,CLNP,CLLP".split(",")
+        if columnNames[4:] != dataCols:
+            raise ValueError("Error interpreting {}. Expected the following data columns: {}, got: {}".format(filePath, dataCols, columnNames[4:]))
+
+        # Set functions that calculate the parameters used for interpolation
+        self.parameterFunctions = [ AeroParameters.getMachNumber, AeroParameters.getReynoldsNumber, AeroParameters.getAOA, AeroParameters.getAOSS ]
+
+        # Load the data table to be interpolated
+        dataTable = np.loadtxt(filePath, delimiter=',', skiprows=1)
+
+        # Create 4-dimensional interpolation function for aero coefficients
+        nKeyCols = len(keyCols)
+        keys = dataTable[:, 0:nKeyCols]
+        aeroCoefficients = dataTable[:, nKeyCols:]
+        # Interpolator will do linear interpolation when possible (no NAN result), nearest neighbour otherwise
+        self._interpAeroCoefficients =  NoNaNLinearNDInterpolator(keys, aeroCoefficients, filePath)
+
+    def _getAeroCoefficients(self, state, environment):
+        keys = AeroParameters.getAeroPropertiesList(self.parameterFunctions, state, environment)
+        interpolatedCoefficients = self._interpAeroCoefficients(keys)[0]
+
+        # Calculate total CFx, CFy, CFz, CMx, CMy, CMz
+        # In MAPLEAF's body axes, z is the axial component, y and x are lateral (depend on vehicle orientation at launch)
+            # When simulating non-axisymmetric craft like the space shuttle, x is taken to point downwards from the craft's perspective and y points in the remaining (side) direction
+        CFx, CMy, CFz, CFy, CMx, CMz = interpolatedCoefficients[0:6]
+        CMy *= -1 # Due to difference in axis conventions the side/y moment is negative
+        CFy *= -1 # Due to difference in axis conventions the side/y force is negative
+
+        CNQ, CMQ, CAQ, CNAD, CMAD, CYR, CLNR, CLLR, CYP, CLNP, CLLP = interpolatedCoefficients[15:]
+        r = state.angularVelocity.X # Yaw rate
+        q = state.angularVelocity.Y # Pitch rate
+        p = state.angularVelocity.Z # Roll rate
+
+        CFx += CNQ*q
+        CMy -= CMQ*q
+        CFz += CAQ*q
+        CFy -= CYR*r + CYP*p
+        CMx += CLNR*r + CLNP*p
+        CMz += CLLR*r + CLLP*p
+
+        return CFx, CFy, CFz, CMx, CMy, CMz
+
+    def getAppliedForce(self, state, time, environment, rocketCG):
+        aeroCoefficients = self._getAeroCoefficients(state, environment)
+        return AeroFunctions.forceFromBodyCoefficients(state, environment, *aeroCoefficients, self.position, self.Aref, self.Lref)
+        
 class TabulatedInertia(RocketComponent):
     ''' A zero-force component with time-varying tabulated inertia '''
     def __init__(self, componentDictReader, rocket, stage):

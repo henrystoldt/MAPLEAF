@@ -268,6 +268,21 @@ def forceFromCoefficients(rocketState, environment, Cd, Cl, CMx, CMy, CMz, CPLoc
 
     return ForceMomentSystem(totalForce, CPLocation, moments)
 
+def forceFromBodyCoefficients(rocketState, environment, CFx, CFy, CFz, CMx, CMy, CMz, CPLocation, refArea, refLength):
+    ''' Initialize ForceMomentSystem from all aerodynamic coefficients '''
+    q = AeroParameters.getDynamicPressure(rocketState, environment)
+    if q == 0.0:
+        # No force without dynamic pressure
+        return ForceMomentSystem(Vector(0,0,0))
+    nonDimConstant = q * refArea
+
+    # Combine and redimensionalize
+    totalForce = Vector(CFx, CFy, CFz) * nonDimConstant
+
+    #### Moments ####
+    moments = Vector(CMx, CMy, CMz) * nonDimConstant * refLength
+
+    return ForceMomentSystem(totalForce, CPLocation, moments)
 
 #### Barrowman ####
 def Barrowman_GetCPLocation(length, crossSectionalArea_top, crossSectionalArea_bottom, volume, topLocation=Vector(0,0,0)):
