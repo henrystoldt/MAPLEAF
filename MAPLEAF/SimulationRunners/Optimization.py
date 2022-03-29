@@ -110,7 +110,7 @@ def getEngineDiameter(motorFilePath, motorName):
 def _computeCostFunction(simDefinition: SimDefinition, costFunctionDefinition: str):
     # Run the simulation
 
-    updateSimDef(simDefinition)
+    
     
     stageFlights, logFilePaths = runSimulation(simDefinition=simDefinition, silent=True)
 
