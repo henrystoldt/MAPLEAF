@@ -1,0 +1,9 @@
+BurnedOxidizerInitialCG -22.5
+BurnedOxidizerLastCG    -22.5
+BurnedFuelInitialCG     -22.5
+BurnedFuelLastCG        -22.5
+
+#Time(s)   Thrust(N)   OxidizerFlowRate(kg/s)  FuelBurnRate(kg/s) OxMOI(kg*m^2) FuelMOI(kg*m^2)  
+0           17000000    0               0                       (0 0 0) (0 0 0)
+37.38064235 17000000    0               0                       (0 0 0) (0 0 0)
+37.38064236 0           0               0                       (0 0 0) (0 0 0)

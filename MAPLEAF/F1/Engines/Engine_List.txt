@@ -1,0 +1,5 @@
+# Engine	FuelDensity	OxydiserDensity	O:F_Ratio	ISP	Thrust	EngineMass	MotorDiameter
+Merlin1C	900	1141	2.56	300	346961.16 470 3.3
+Merlin1D_Vac   900 1141    2.56    317 30692.72 57 3
+3   810	1141	2.17	304	914000 470 0.92
+4   810 1141    2.17    342 845000 470 3.3	

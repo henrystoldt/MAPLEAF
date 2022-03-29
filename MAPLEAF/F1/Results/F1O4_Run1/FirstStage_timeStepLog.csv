@@ -1,0 +1,2 @@
+Time(s),AngularVelocityX(rad/s),AngularVelocityY(rad/s),AngularVelocityZ(rad/s),EstimatedIntegrationError,EulerAngleX(rad),EulerAngleY(rad),EulerAngleZ(rad),OrientationQuaternion0,OrientationQuaternion1,OrientationQuaternion2,PositionX(m),PositionY(m),PositionZ(m),TimeStep(s),VelocityX(m/s),VelocityY(m/s),VelocityZ(m/s)
+239.00002,0.0,0.0032204931216031378,0.0,0,-3.141592653589793,-0.6298918560556914,1.5707963267948963,0.3108790976194526,0.3108790976194526,0.6351017136359458,6608854.363131322,201551.99521842462,0.0,0,1550.2830799318062,1350.4280190378288,0.0
