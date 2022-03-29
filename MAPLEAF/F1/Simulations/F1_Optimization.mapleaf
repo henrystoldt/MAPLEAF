@@ -1,0 +1,305 @@
+Optimization{
+    # mapleaf++ MAPLE_AF/F1/F1_Optimization.mapleaf
+    costFunction                   MAPLE_AF.F1.F1Optimization:trajectoryOptimization
+
+    IndependentVariables{
+        #NAME                           #Min Value              #Path                                    #Max Value
+        PitchOverAltitude                1000     < GNC.Navigation.PitchAngleTrajectory.pitchOverAltitude  <      4000
+        MaxPitchOverAngle                5       < GNC.Navigation.PitchAngleTrajectory.maxPitchOverAngle  <      15
+        PitchOverTime                    5       < GNC.Navigation.PitchAngleTrajectory.pitchOverTime      <      15
+        BLT_Constant                      1     < GNC.Navigation.PitchAngleTrajectory.BLT_Constant  <     100
+        BLT_ShapeParameter              -1       < GNC.Navigation.PitchAngleTrajectory.BLT_ShapeParameter <      0
+        OrbitScalingFactor               1       < GNC.Navigation.PitchAngleTrajectory.orbitScalingFactor <      1.5
+    }
+   
+
+    ParticleSwarm{
+
+        nParticles                      1
+        nIterations                     1
+
+        cognitiveParam                  0.5 # aka c1        
+        socialParam                     0.6 # aka c2        
+        inertiaParam                    0.9 # aka 
+    }
+    
+    showConvergencePlot                 True
+}
+
+SimControl{
+    ### Controls termination conditions, outputs, and time discretization ###
+ # Euler, RK2Midpoint, RK2Heun, RK4, RK12Adaptive, RK23Adaptive, RK45Adaptive, RK78Adaptive
+    timeDiscretization      RK45Adaptive
+    timeStep                0.1 # sec - only an initial value for adaptive schemes
+    # Control simulation termination condition for main rocket (top stage)
+    EndCondition            Time # Altitude, Time, Apogee
+    EndConditionValue       8000 # m ASL or sec (not required if EndCondition = Apogee)
+
+    StageDropPaths{
+        endCondition        Time
+        endConditionValue   200
+    }
+    
+    TimeStepAdaptation{
+        targetError         0.0005
+    }
+
+    # FlightAnimation, FlightPaths, None
+		# Any column of data LOGGED during the simulation is plottable
+        # Each string in the space-separated list defines a plot. Each string can be either: 
+            # 1) a partial/full log column name -> any column whose name contains the string will be plotted
+            # 2) a regex expression -> any column whose name matches is plotted
+            # 3) A combination of and arbitrary number of 1) and 2), joined using & (ex: BodyTubeF&NoseconeF)
+            # 4) 'Special' strings: 'FlightAnimation' or 'FlightsPaths' or 'None'
+		# Ex: Add "NoseconeF" for a plot of the Nosecone's X,Y,Z forces, "NoseconeM" for the X,Y,Z moments, or "Nosecone" for a plot of both.
+        # Look in your simulation log files for more column names
+    plot                    FlightAnimation FlightPaths Position Velocity
+    
+    loggingLevel            2
+    RocketPlot              On
+
+   
+
+    
+}
+
+
+Environment{
+  
+    LaunchSite{
+        elevation               0 #m, Relative to sea level - Impacts the acceleration of gravity at launch        
+
+        # Lat / Lon only influence simulations using the 'Round' or 'WGS84' earth models
+        latitude                90 # Degrees, 90 = North Pole, -90 = South Pole, 0 = Equator
+        longitude               0 # Degrees, 0 = Prime Meridian (Greenwich, England), +'ve is East, -'ve is West
+
+        # A launch rail will prevent the rocket from deviating from the direction specified by Rocket.initialDirection
+            # Until it has travelled the length of the launch rail from its starting location
+            # The launch rail will also prevent downwards motion
+            # A length of 0 = no launch rail
+        railLength              10 #m
+    }
+
+
+    # Defines how the earth is modelled
+        # See the Coordinate System section at the top of this document
+        # None:                 No gravity
+        # Flat:                 Flat earth, gravity according to inverse square law - minimal errors for short / low-altitude flights -
+        # Round:                Spherical earth, rotating, uniformly-distributed inverse square gravity - appropriate for conceptual-level orbital calculations
+        # WGS84:                Ellipsoidal earth, rotating, J2 gravity model - appropriate for rough/preliminary orbital calculations
+                                    # Earth is assumed to rotate about a fixed axis. Wobble is neglected
+                                    # Gravitational forces from other celestial bodies neglected
+                                    # Tides neglected
+                                    # Earth is treated as an inertial frame, accelerations due to rotation about the sun/galaxy/etc... are neglected
+                                    # Solar radiation pressure neglected
+    EarthModel                  Round
+
+    #### Atmospheric Properties ####
+    # USStandardAtmosphere or Constant or TabulatedAtmosphere
+        # USStandardAtmosphere computes the exact US Standard Atmosphere
+
+
+}
+
+#### For Rocket Components: Approximate Surface Roughnesses from (Barrowman, 1967, Table 4-1), all in micrometers ####
+    # Mirror:                               0
+    # Glass:                                0.1
+    # Finished/Polished surface:            0.5
+    # Aircraft-type sheet-metal surface:    2
+    # Optimum paint-sprayed surfaces:       5
+    # Planed wooden boards:                 15
+    # Paint in aircraft mass production:    20
+    # Steel plating: bare:                  50
+    # Smooth cement:                        50
+    # Surface with asphalt-type coating:    100
+    # Dip-galvanized metal surface:         150
+    # Incorrectly sprayed paint:            200
+    # Natural cast-iron surface:            250
+    # Raw wooden boards:                    500
+    # Average concrete:                     1000
+
+Rocket{   
+
+    ## Initial kinematic state ##
+    rotationAxis (0 0 0)
+    rotationAngle 0
+    
+   
+  
+    ## Initial Orientation ##   
+    # Specify EITHER an initial direction (in which local Z-axis will point, relative to the Launch Tower Frame
+     # (non-dimensional) - rocket/launch tower will initially point in this direction, where Z is up, X is east, and Y is North
+    # OR an rotationAxis and a rotationAngle, which will rotate the vehicle relative to the Launch Tower Frame
+    
+   
+    Aero{
+        # To turn off base drag (for comparisons to wind tunnel data), make sure the rocket doesn't include a Boat tail and set this to false
+        addZeroLengthBoatTailsToAccountForBaseDrag      false
+      
+        # Calculates skin friction based on laminar + transitional flow if not fully turbulent
+        fullyTurbulentBL                                false
+
+        # Default for all rocket components (Will be overriden by roughnesses specified at the component level)
+        surfaceRoughness                                0.000050 # m
+    }
+ 
+    ControlSystem{
+        NavigationMode              PitchAngleTrajectory #TangentFlightPath # PointAtTarget, TangentFlightPath
+        OrbitApogee                 490000 # [m] above launch location (Defined only for TangentFlightPath and PitchAngleTrajectory)
+        OrbitPerigee                490000 # [m] above launch location (Defined only for TangentFlightPath and PitchAngleTrajectory)
+        PitchOverAltitude           3000 # [m] above launch location
+        MaxPitchOverAngle           9 # [degrees] from vertical (typically between 1 and 5)
+        PitchOverTime               5 # [seconds] defines pitch over rate (typically between 1 and 10 seconds)
+        AtmosphereAltitude          90000 # [m] above launch location. Defines transition from gravity turn to bilinear tangent (BLT) steering
+        PitchAngleBLT_final         0 # [degrees] Defines final pitch angle in bilinear tangent steering.
+        BLT_Constant                60 # [dimensionless] Defines arbitrary constant in BLT equation. See Navigation for more details.
+        BLT_ShapeParameter          0.169 # [dimensionless] Defines shape of BLT steering angle curve (typically between -1 and 1)
+        OrbitScalingFactor          1 # [dimensionless] Default = 1. Expects value >=1 Adjusts pitch angle to reach 0 before the desired orbit. Allows for rockets normal velocity to bring it to orbit and thrust to be directed tangent to the earth.
+
+        MomentController{
+            Type                    IdealMomentController
+        }
+    }
+    
+    SecondStage{
+        class           Stage
+        stageNumber     2
+
+        
+        Nosecone{
+            class           Nosecone
+            mass            20
+            position        (0 0 0) # Position of nosecone tip
+            cg              (0 0 -2)
+            baseDiameter    1.2
+            aspectRatio     0.94167 # Nose cone length / base diameter
+            shape           tangentOgive # tangentOgive
+
+            surfaceRoughness    0.000050 # m
+        }
+
+        DiameterChange1{
+            class           Transition
+            mass            10
+            position        (0 0 -1.13) # Position of top, center of diameter change
+            cg              (0 0 0)
+
+            length          0.765 # m
+            startDiameter   1.2  # m, Diameter at top
+            endDiameter     1.54 # m, Diameter at bottom
+            surfaceRoughness 0.000050
+        }
+        
+        UpperBodyTube1{
+            class                   Bodytube
+            mass                    25 # [kg]
+            position                (0 0 -1.895)
+            cg                      (0 0 0) # TODO: Account for Stability of Rocket w/out ideal controller
+            outerDiameter           1.54 
+            length                  1.54
+            surfaceRoughness        0.000050
+        }
+
+        Payload{
+            class           Mass
+            mass            50 # [kg]
+            position        (0 0 -2.5) # TODO: Account for Stability of Rocket w/out ideal controller
+            cg              (0 0 -2.5) # TODO: Account for Stability of Rocket w/out ideal controller
+        }
+
+        DiameterChange2{
+            class           Transition
+            mass            15
+            position        (0 0 -3.435)
+            cg              (0 0 0)
+            
+
+            length          0.5 # m
+            startDiameter   1.54 # m
+            endDiameter     1.67 # m    
+            surfaceRoughness    0.000050
+
+        }
+       
+        UpperBodyTube2{
+            class           Bodytube
+            mass            25
+            position        (0 0 -3.935) # Position of top of tube
+            cg              (0 0 -4)
+            
+            outerDiameter   1.67
+            length          1.935
+
+            surfaceRoughness    0.000050
+        }
+       
+        LowerBodyTube{
+            class                   Bodytube
+            mass                    40 #3100 [kg]
+            position                (0 0 -5.87)
+            cg                      (0 0 0) # TODO: Account for Stability of Rocket w/out ideal controller
+            outerDiameter           1.67 # Diameter is adjusted by optimization scheme
+            length                  4.13
+            surfaceRoughness        0.000050
+        }
+        
+        Motor2{
+            class           DefinedMotor
+            number          1
+            type            Merlin1D_Vac
+            path MAPLE_AF/F1/Engine_List.txt
+        }
+        
+        #### Manually define separate inertia and aerodynamic/force properties ####
+    
+    }
+    
+    FirstStage{
+        class           Stage
+        stageNumber     1
+        position (0 0 -10)
+
+        # Stage Separation Conditions - only required for multi-stage rockets
+        separationTriggerType       timeReached # "apogee", "ascendingThroughAltitude", "descendingThroughAltitude", "motorBurnout", "timeReached"
+        separationTriggerValue      169 # seconds or meters AGL, depending on separationTriggerType
+        separationDelay             7 # seconds - mostly useful if the triggerType is not "timeReached"
+        
+        ##### First stage components dictionaries here, same options as second stage above #####
+        
+        # mapleaf++ MAPLE_AF/F1/F1_Optimization.mapleaf
+        LowerBodyTube{
+            class           Bodytube
+            mass            1107
+            position        (0 0 0) # Position of top of tube
+            cg              (0 0 -3)
+            
+            outerDiameter   1.67
+            length          10.3
+
+            surfaceRoughness    0.000050
+        }
+
+        BodyTube{
+            class           Bodytube
+            mass            253
+            position        (0 0 -10.3) # Position of top of tube
+            cg              (0 0 -1.3)
+            
+            outerDiameter   1.67
+            length          2.35
+
+            surfaceRoughness    0.000050
+        }
+
+        Motor1{
+            class           DefinedMotor
+            number          1
+            type            Merlin1C
+            path MAPLE_AF/F1/Engine_List.txt
+        }
+
+    }
+
+        
+    
+}

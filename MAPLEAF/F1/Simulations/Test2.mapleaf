@@ -1,0 +1,217 @@
+SimControl{
+    EndCondition                Time
+    EndConditionValue           2000
+    
+    StageDropPaths{
+        # Control whether drop paths are computed for dropped stages
+        compute             false
+        
+        # Control termination conditions for stage drop path simulation(s)
+        endCondition        Altitude # Altitude, Time
+        endConditionValue   0 # m ASL or sec
+    }
+
+    timeStep                    0.04
+
+    plot                        Thrust FlightPaths Velocity Mass  #FlightAnimation FlightPaths Gravity Mass
+
+    TimeStepAdaptation{
+        controller      PID
+    }
+    
+    RocketPlot On
+}
+
+Environment{
+    LaunchSite{
+        elevation       0 # m (30 000 ft)
+        latitude        90
+        longitude       0
+        railLength      10 # In meters
+    }
+
+    EarthModel          Round
+}
+
+Rocket{
+
+    ## Initial kinematic state ##
+    position            (0 0 0) # m - initial position above ground level (AGL) of the rocket's CG. Set launch site elevation using Environment.LaunchSite.elevation
+    velocity            (0 0 0)
+
+    Aero{
+        # To turn off base drag (for comparisons to wind tunnel data), make sure the rocket doesn't include a Boat tail and set this to false
+        addZeroLengthBoatTailsToAccountForBaseDrag      false
+
+        # Calculates skin friction based on laminar + transitional flow if not fully turbulent
+        fullyTurbulentBL                                false
+
+        # Default for all rocket components (Will be overriden by roughnesses specified at the component level)
+        surfaceRoughness                                0.000050 # m
+    }
+
+    #Note: Launch tower can help rocket from falling down
+
+    ControlSystem{
+        NavigationMode              PitchAngleTrajectory #TangentFlightPath # PointAtTarget, TangentFlightPath
+        OrbitApogee                 200000 # [m] above launch location (Defined only for TangentFlightPath and PitchAngleTrajectory)
+        OrbitPerigee                200000 # [m] above launch location (Defined only for TangentFlightPath and PitchAngleTrajectory)
+        PitchOverAltitude           200 # [m] above launch location
+        MaxPitchOverAngle           5 # [degrees] from vertical (typically between 1 and 5)
+        PitchOverTime               5 # [seconds] defines pitch over rate (typically between 1 and 10 seconds)
+        AtmosphereAltitude          90000 # [m] above launch location. Defines transition from gravity turn to bilinear tangent (BLT) steering
+        PitchAngleBLT_final         0 # [degrees] Defines final pitch angle in bilinear tangent steering.
+        BLT_Constant                100 # [dimensionless] Defines arbitrary constant in BLT equation. See Navigation for more details.
+        BLT_ShapeParameter          -0.5 # [dimensionless] Defines shape of BLT steering angle curve (typically between -1 and 1)
+        OrbitScalingFactor       1.1 # [dimensionless] Default = 1, Value >=1 Adjusts pitch angle to reach 0 before the desired orbit. Allows for rockets normal velocity to bring it to orbit and thrust to be directed tangent to the earth.
+        
+        MomentController{
+            Type                    IdealMomentController
+        }
+    }
+
+    SecondStage{
+        class                       Stage
+        stageNumber                 1
+
+        position                    (0 0 0)
+
+        Nosecone{
+            class           Nosecone
+            mass            9000
+            position        (0 0 0)
+            cg              (0 0 0)
+            baseDiameter    4.6
+            aspectRatio     0.70 #Nosecone Length to Base Diameter
+            shape           tangentOgive
+
+            surfaceRoughness    0.000050
+        }
+        UpperBodyTube1{
+            class                   Bodytube
+            mass                    0 #TODO: Adjust later
+            position                (0 0 -3.22)
+            cg                      (0 0 0) #TODO: Adjust later
+            outerDiameter           4.6 
+            length                  9.19
+            MOI                     (1468744.242 1468744.242 32216.418) #Assumes iniform mass TODO: Adjust later
+            surfaceRoughness        0.000050
+        }
+        DiameterChange{
+            class           Transition
+            mass            0
+            position        (0 0 -12.41) # Position of top, center of diameter change
+            cg              (0 0 0)
+            MOI             (0.01 0.01 0.0001)
+
+            length          1 # m
+            startDiameter   4.6  # m, Diameter at top
+            endDiameter     3.66 # m, Diameter at bottom
+            surfaceRoughness 0.000060 # m
+        }
+
+        UpperBodyTube2{
+            class                   Bodytube
+            mass                    3100
+            position                (0 0 -13.41)
+            cg                      (0 0 12)
+            outerDiameter           3.66
+            length                  12.9
+            MOI                     (1468744.242 1468744.242 32216.418) #Assumes iniform mass TODO: Adjust later
+            surfaceRoughness        0.000050
+        }
+
+        Motor2{
+            # class                       Motor
+            # path                        MAPLE_AF\Examples\Motors\MerlinVac.txt
+            # impulseAdjustFactor         1.26
+
+            class           DefinedMotor
+            number          2
+            type            Merlin1D_Vac
+            path            MAPLE_AF\Examples\Motors\Engine_list_test.txt
+            
+            thrustApplicationPosition   (0 0 -15.35)  # Location where the thrust force is applied in order to calculate the moment produced
+
+            Actuators{
+                class                   Actuator
+                controller              TableInterpolating
+                
+                deflectionTablePath     MAPLE_AF\Examples\TabulatedData\tvcDeflectionsStage2.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                # Desired moments must come last
+                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz # Need to have Mz even though we don't vector it. Otherwise the program will break
+                minDeflection           -0.2182 # rads, equivalent to 12.5 degrees, based on Rocketdyne gimbal bearing deflection spec from a released report
+                maxDeflection           0.2181  # rads   
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # seconds
+            }
+        }
+    }
+
+
+    ## FIRST STAGE OF THE FALCON 9 ROCKET
+    FirstStage{
+        class           Stage
+        stageNumber     0
+
+        # Stage Separation Conditions - only required for multi-stage rockets
+        separationTriggerType       motorBurnout # "apogee", "ascendingThroughAltitude", "descendingThroughAltitude", "motorBurnout", "timeReached"
+
+        position                    (0 0 -26.3) #STAGE 01 RELATIVE TO ROCKET TIP 
+
+        #### Rocket Components which define combinations of aerodynamic & inertia / shape models ####
+
+
+        #define a single mass object - find fixed mass for the rocket, find total mass and CG and rep. as a single mass object
+        LowerBodyTube{
+            class           Bodytube
+            mass            19240 #FALCON 09 STAGE 01 WET MASS? [kg]
+
+            #Defined relative to stage position            
+            position        (0 0 0) # Position Relative to stage
+            cg              (0 0 15.05) #Relative to component 
+            
+            
+            # 
+            outerDiameter   3.66 #FALCON 09 STAGE 01 OUTER DIAMETER [m]
+            length          30.1 #FALCON 09 STAGE LENGTH = 30.1m
+
+            MOI             (1468744.242 1468744.242 32216.418) #Assumes iniform mass TODO: Adjust later
+
+            surfaceRoughness    0.000050
+        }
+
+        Motor1{
+            # class                       Motor
+            # path                        MAPLE_AF\Examples\Motors\F9_Merlin1C_S1.txt
+            # impulseAdjustFactor         0.1
+            # thrustApplicationPosition   (0 0 -53)  # Location where the thrust force is applied in order to calculate the moment produced
+
+            class           DefinedMotor
+            number          8
+            type            Merlin1C
+            path            MAPLE_AF\Examples\Motors\Engine_list_test.txt
+            
+            thrustApplicationPosition   (0 0 -53)  # Location where the thrust force is applied in order to calculate the moment produced
+            
+            Actuators{
+                class               Actuator
+                controller          TableInterpolating
+                
+                deflectionTablePath     MAPLE_AF\Examples\TabulatedData\tvcDeflections.txt
+                
+                # Mach, Altitude, UnitReynolds, AOA, RollAngle, DesiredMx, DesiredMy, DesiredMz - order must match the order of the key columns in table
+                # Desired moments must come last
+                deflectionKeyColumns    DesiredMx DesiredMy DesiredMz # Need to have Mz even though we don't vector it. Otherwise the program will break
+
+                minDeflection           -0.2182 # rads, equivalent to 12.5 degrees, based on Rocketdyne gimbal bearing deflection spec from a released report
+                maxDeflection           0.2181  # rads   
+
+                responseModel           FirstOrder # Only Choice
+                responseTime            0.1 # seconds
+            }
+        }
+    }   
+}
