@@ -166,7 +166,7 @@ Rocket{
        
         Motor{
             class           Motor
-            path MAPLE_AF/F1/Falcon1Stage2Motor.txt
+            path MAPLEAF/F1/Engines/Falcon1Stage2Motor.txt
         }
         
         #### Manually define separate inertia and aerodynamic/force properties ####
@@ -200,7 +200,7 @@ Rocket{
 
         Motor{
             class           Motor
-            path MAPLE_AF/F1/Falcon1Stage1Motor.txt
+            path MAPLEAF/F1/Engines/Falcon1Stage1Motor.txt
         }
 
     }
