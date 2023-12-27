@@ -24,6 +24,10 @@ CythonFiles = [ [ "MAPLEAF/Motion/CythonVector.pyx", ".c" ],
                 ["MAPLEAF/IO/CythonLog.pyx", ".c" ]
 ]
 
+CYTHON_COMPILE_DIRECTIVES = {
+	"c_api_binop_methods": True
+}
+
 def buildExtensionObjectsForCythonCode(CythonFilesList):
     extensions = []
     for cyModule in CythonFiles:
@@ -69,7 +73,7 @@ setup(
 
     python_requires='>=3.6',
 
-    ext_modules=cythonize(extensions, language_level="3" ),
+    ext_modules=cythonize(extensions, language_level="3", compiler_directives=CYTHON_COMPILE_DIRECTIVES),
     zip_safe=False,
     
     entry_points={
